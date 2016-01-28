@@ -118,8 +118,36 @@ class Query(object):
         for key, value in values.items():
             final[key]['vlanTrunkPortNativeVlan'] = value
 
+        # Get interface vlanTrunkPortDynamicStatus data
+        values = self.vlantrunkportencapsulationtype()
+        for key, value in values.items():
+            final[key]['vlanTrunkPortEncapsulationType'] = value
+
         # Return
         return final
+
+    def vlantrunkportencapsulationtype(self):
+        """Return CISCO-VTP-MIB vlanTrunkPortEncapsulationType per ifIndex.
+
+        Args:
+            None
+
+        Returns:
+            data_dict: Dict of vlanTrunkPortEncapsulationType
+                using the oid's last node as key
+
+        """
+        # Initialize key variables
+        data_dict = defaultdict(dict)
+
+        # Descriptions
+        oid = '.1.3.6.1.4.1.9.9.46.1.6.1.1.3'
+        results = self.snmp_query.walk(oid, normalized=True)
+        for key, value in sorted(results.items()):
+            data_dict[int(key)] = value
+
+        # Return the interface descriptions
+        return data_dict
 
     def vlantrunkportnativevlan(self):
         """Return dict of CISCO-VTP-MIB vlanTrunkPortNativeVlan per ifIndex.
