@@ -123,8 +123,92 @@ class Query(object):
         for key, value in values.items():
             final[key]['ifHighSpeed'] = value
 
+        # Get interface ifInOctets data
+        values = self.ifinoctets()
+        for key, value in values.items():
+            final[key]['ifInOctets'] = value
+
+        # Get interface ifOutOctets data
+        values = self.ifoutoctets()
+        for key, value in values.items():
+            final[key]['ifOutOctets'] = value
+
+        # Get interface ifLastChange data
+        values = self.iflastchange()
+        for key, value in values.items():
+            final[key]['ifLastChange'] = value
+
         # Return
         return final
+
+    def iflastchange(self):
+        """Return dict of IFMIB ifLastChange for each ifIndex for device.
+
+        Args:
+            None
+
+        Returns:
+            data_dict: Dict of ifLastChange using the oid's last node as key
+
+        """
+        # Initialize key variables
+        data_dict = defaultdict(dict)
+
+        # Descriptions
+        oid = '.1.3.6.1.2.1.2.2.1.9'
+        results = self.snmp_query.walk(oid, normalized=True)
+        for key, value in sorted(results.items()):
+            # Process OID
+            data_dict[int(key)] = value
+
+        # Return the interface descriptions
+        return data_dict
+
+    def ifinoctets(self):
+        """Return dict of IFMIB ifInOctets for each ifIndex for device.
+
+        Args:
+            None
+
+        Returns:
+            data_dict: Dict of ifInOctets using the oid's last node as key
+
+        """
+        # Initialize key variables
+        data_dict = defaultdict(dict)
+
+        # Descriptions
+        oid = '.1.3.6.1.2.1.2.2.1.10'
+        results = self.snmp_query.walk(oid, normalized=True)
+        for key, value in sorted(results.items()):
+            # Process OID
+            data_dict[int(key)] = value
+
+        # Return the interface descriptions
+        return data_dict
+
+    def ifoutoctets(self):
+        """Return dict of IFMIB ifOutOctets for each ifIndex for device.
+
+        Args:
+            None
+
+        Returns:
+            data_dict: Dict of ifOutOctets using the oid's last node as key
+
+        """
+        # Initialize key variables
+        data_dict = defaultdict(dict)
+
+        # Descriptions
+        oid = '.1.3.6.1.2.1.2.2.1.16'
+        results = self.snmp_query.walk(oid, normalized=True)
+        for key, value in sorted(results.items()):
+            # Process OID
+            data_dict[int(key)] = value
+
+        # Return the interface descriptions
+        return data_dict
 
     def ifdescr(self):
         """Return dict of IFMIB ifDesc for each ifIndex for device.
