@@ -36,7 +36,7 @@ class Read(object):
             log_message = (
                 'Configuration directory "%s" '
                 'doesn\'t exist!' % config_directory)
-            jm_general.logit('AE-0001', log_message)
+            jm_general.logit(1009, log_message)
 
         # Cycle through list of files in directory
         for filename in os.listdir(config_directory):
@@ -58,7 +58,7 @@ class Read(object):
             log_message = (
                 'No files found in directory "%s" with ".yaml" '
                 'extension.') % (config_directory)
-            jm_general.logit('AE-0003', log_message)
+            jm_general.logit(1010, log_message)
 
         # Return
         self.config_dict = yaml.load(all_yaml_read)

@@ -94,13 +94,13 @@ class Interact:
             log_message = (
                 'SNMP version is "None". Non existent host? - %s'
                 '') % (snmp_parameters['snmp_hostname'])
-            jm_general.logit('AE-0008', log_message, True)
+            jm_general.logit(1004, log_message, True)
 
         # Fail if snmp_parameters dictionary is empty
         if not snmp_parameters:
             log_message = ('SNMP parameters provided are blank. '
                            'Non existent host?')
-            jm_general.logit('AE-0009', log_message, True)
+            jm_general.logit(1005, log_message, True)
 
     def contactable(self):
         """Check if device is contactable.
@@ -132,12 +132,12 @@ class Interact:
                 'correct. Fix and repeat your command. Error: %s '
                 '') % (
                     self.snmp_params['snmp_hostname'], exception_error)
-            jm_general.logit(1035, log_message, True)
+            jm_general.logit(1006, log_message, True)
         except:
             # Log a message
             log_message = ('Unexpected SNMP error for device %s') % (
                 self.snmp_params['snmp_hostname'])
-            jm_general.logit(1036, log_message, True)
+            jm_general.logit(1008, log_message, True)
 
         # Return
         return contactable
@@ -316,7 +316,7 @@ class Interact:
         valid_format = oid_valid_format(oid_to_get)
         if valid_format is False:
             log_message = ('OID %s has an invalid format') % (oid_to_get)
-            jm_general.logit('AE-0010', log_message, True)
+            jm_general.logit(1000, log_message, True)
 
         # Create the object
         snmp_object = cmdgen.CommandGenerator()
@@ -350,10 +350,10 @@ class Interact:
                 'OID %s from %s: (%s)') % (oid_to_get,
                                            snmp_params['snmp_hostname'],
                                            exception_error)
-            jm_general.logit('AE-0011', log_message, True)
+            jm_general.logit(1001, log_message, True)
         except:
             log_message = ('Unexpected error')
-            jm_general.logit('AE-0012', log_message, True)
+            jm_general.logit(1002, log_message, True)
 
         # Crash on error, return blank results if doing certain types of
         # connectivity checks
@@ -433,7 +433,7 @@ def _process_error(
     else:
         action_taken = 'SNMPwalk'
     log_message = ('%s - %s') % (action_taken, log_message)
-    jm_general.logit('AE-0013', log_message, True)
+    jm_general.logit(1003, log_message, True)
 
 
 def _format_results(normalized=False, get=False, var_binds=None):

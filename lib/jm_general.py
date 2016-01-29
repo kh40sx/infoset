@@ -63,13 +63,13 @@ def move_files(source_dir, target_dir):
     if os.path.exists(source_dir) is False:
         log_message = ('Directory %s does not exist.') % (
             source_dir)
-        logit(1435, log_message, True)
+        logit(1011, log_message, True)
 
     # Make sure target directory exists
     if os.path.exists(target_dir) is False:
         log_message = ('Directory %s does not exist.') % (
             target_dir)
-        logit(1436, log_message, True)
+        logit(1012, log_message, True)
 
     source_files = os.listdir(source_dir)
     for filename in source_files:
@@ -91,7 +91,7 @@ def delete_files(target_dir):
     if os.path.exists(target_dir) is False:
         log_message = ('Directory %s does not exist.') % (
             target_dir)
-        logit(1437, log_message, True)
+        logit(1013, log_message, True)
 
     # Delete all files in the tmp folder
     for the_file in os.listdir(target_dir):
@@ -102,7 +102,7 @@ def delete_files(target_dir):
         except Exception as exception_error:
             log_message = ('Error: deleting files in %s. Error: %s') % (
                 target_dir, exception_error)
-            logit(1285, log_message, True)
+            logit(1014, log_message, True)
         except:
             log_message = ('Unexpected error')
-            logit(1286, log_message, True)
+            logit(1015, log_message, True)

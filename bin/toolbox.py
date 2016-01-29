@@ -154,7 +154,10 @@ def do_run(cli_args, config):
 
     # Cleanup, move temporary files to clean permanent directory.
     # Delete temporary directory
-    jm_general.delete_files(perm_dir)
+    if os.path.isdir(perm_dir):
+        jm_general.delete_files(perm_dir)
+    else:
+        os.makedirs(perm_dir, 0o755)
     jm_general.move_files(temp_dir, perm_dir)
     os.rmdir(temp_dir)
 
