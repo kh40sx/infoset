@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """SNMP manager class."""
 
-import sys
+
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 from pysnmp.proto import rfc1905
 from pysnmp.proto import rfc1902

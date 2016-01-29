@@ -161,3 +161,19 @@ class Read(object):
 
         # Return
         return value
+
+    def snmp_directory(self):
+        """Determine the snmp_directory.
+
+        Args:
+            None
+
+        Returns:
+            value: configured data_directory
+
+        """
+        # Get parameter
+        value = ('%s/snmp') % self.data_directory()
+
+        # Return
+        return value

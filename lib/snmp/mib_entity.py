@@ -118,7 +118,7 @@ class Query(object):
         results = self.snmp_query.walk(oid, normalized=True)
         for key, value in sorted(results.items()):
             # Process OID
-            data_dict[int(key)] = value
+            data_dict[int(key)] = str(bytes(value), encoding='utf-8').strip()
 
         # Return the interface descriptions
         return data_dict

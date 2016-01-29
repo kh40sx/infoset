@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Class interacts with CISCO-VTP-MIB."""
 
-import sys
-import binascii
+
 from collections import defaultdict
 
 # Import project libraries

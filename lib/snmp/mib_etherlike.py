@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Module for ETHERLIKE-MIB."""
 
-import sys
+
 from collections import defaultdict
 
 # Import project libraries

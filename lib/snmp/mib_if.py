@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Class interacts with devices supporting IfMIB."""
 
-import sys
+
 import binascii
 from collections import defaultdict
-from pprint import pprint
+
 
 # Import project libraries
 from snmp import snmp_manager
