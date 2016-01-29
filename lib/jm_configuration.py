@@ -3,7 +3,6 @@
 
 import os.path
 import yaml
-import sys
 
 # Import project libraries
 import jm_general
@@ -139,3 +138,26 @@ class Read(object):
 
         # Return
         return snmp_data
+
+    def data_directory(self):
+        """Determine the data_directory.
+
+        Args:
+            None
+
+        Returns:
+            value: configured data_directory
+
+        """
+        # Get parameter
+        value = self.config_dict['data_directory']
+
+        # Check if value exists
+        if os.path.isdir(value) is False:
+            log_message = (
+                'data_directory: "%s" '
+                'in configuration doesn\'t exist!') % (value)
+            jm_general.logit(1007, log_message)
+
+        # Return
+        return value

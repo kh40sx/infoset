@@ -53,6 +53,9 @@ class Process(object):
         # Parse "config", return object used for parser
         _cli_config(subparsers, width=width)
 
+        # Parse "run", return object used for parser
+        _cli_run(subparsers, width=width)
+
         # Parse "test", return object used for parser
         _cli_test(subparsers, width=width)
 
@@ -149,4 +152,43 @@ def _cli_test(subparsers, width=80):
         type=str,
         help=textwrap.fill(
             'Host to test.', width=width)
+    )
+
+def _cli_run(subparsers, width=80):
+    """Process "run" CLI commands.
+
+    Args:
+        subparsers: Subparsers object
+        width: Width of the help text string to STDIO before wrapping
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    parser = subparsers.add_parser(
+        'run',
+        help=textwrap.fill(
+            'Process all configured hosts.', width=width)
+    )
+
+    # Process directory
+    parser.add_argument(
+        '--directory',
+        required=True,
+        default=None,
+        type=str,
+        help=textwrap.fill(
+            'Directory with configuration files.', width=width)
+    )
+
+    # Process verbose
+    parser.add_argument(
+        '--verbose',
+        dest='verbose',
+        action='store_true',
+        required=False,
+        default=False,
+        help=textwrap.fill(
+            'Verbose Output.', width=width)
     )

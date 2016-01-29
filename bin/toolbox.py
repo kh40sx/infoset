@@ -7,7 +7,7 @@ Calico utility script
 
 from pprint import pprint
 import yaml
-import sys
+import os
 
 # Import project libraries
 import jm_cli
@@ -66,6 +66,41 @@ Utility script for the project.
             status = snmp_info.Query(snmp_params)
             data = status.everything()
             pprint(data, indent=4)
+
+    # Process hosts
+    if cli_args.mode == 'run':
+        # Get host data and write to file
+        for host in config.hosts():
+            # Show host information
+            validate = snmp_manager.Validate(host, config.snmp_auth())
+            snmp_params = validate.credentials()
+
+            # Verbose output
+            if cli_args.verbose is True:
+                output = ('Processing on: host %s') % (host)
+                print(output)
+
+            # Process if valid
+            if bool(snmp_params) is True:
+                # Get data
+                status = snmp_info.Query(snmp_params)
+                data = status.everything()
+
+                # Create directory if needed
+                directory = ('%s/snmp') % (config.data_directory())
+                if (os.path.isfile(directory) is False) and (
+                        os.path.isdir(directory) is False):
+                    os.makedirs(directory, 0o755)
+
+                # Dump data
+                filename = ('%s/%s.json') % (directory, host)
+                with open(filename, 'w') as file_handle:
+                    pprint(data, stream=file_handle, indent=4)
+
+                # Verbose output
+                if cli_args.verbose is True:
+                    output = ('Completed run: host %s') % (host)
+                    print(output)
 
 
 if __name__ == "__main__":
