@@ -112,12 +112,12 @@ class Query(object):
         for key, value in values.items():
             final[key]['vlanTrunkPortDynamicStatus'] = value
 
-        # Get interface vlanTrunkPortDynamicStatus data
+        # Get interface vlanTrunkPortNativeVlan data
         values = self.vlantrunkportnativevlan()
         for key, value in values.items():
             final[key]['vlanTrunkPortNativeVlan'] = value
 
-        # Get interface vlanTrunkPortDynamicStatus data
+        # Get interface vlanTrunkPortEncapsulationType data
         values = self.vlantrunkportencapsulationtype()
         for key, value in values.items():
             final[key]['vlanTrunkPortEncapsulationType'] = value
@@ -141,7 +141,9 @@ class Query(object):
 
         # Descriptions
         oid = '.1.3.6.1.4.1.9.9.46.1.6.1.1.3'
-        results = self.snmp_query.walk(oid, normalized=True)
+
+        # Process results
+        results = self.snmp_query.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
 
@@ -164,7 +166,9 @@ class Query(object):
 
         # Descriptions
         oid = '.1.3.6.1.4.1.9.9.46.1.6.1.1.5'
-        results = self.snmp_query.walk(oid, normalized=True)
+
+        # Process results
+        results = self.snmp_query.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
 
@@ -187,7 +191,9 @@ class Query(object):
 
         # Descriptions
         oid = '.1.3.6.1.4.1.9.9.46.1.6.1.1.14'
-        results = self.snmp_query.walk(oid, normalized=True)
+
+        # Process results
+        results = self.snmp_query.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
 
@@ -210,7 +216,9 @@ class Query(object):
 
         # Descriptions
         oid = '.1.3.6.1.4.1.9.9.46.1.6.1.1.13'
-        results = self.snmp_query.walk(oid, normalized=True)
+
+        # Process results
+        results = self.snmp_query.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
 
@@ -232,7 +240,9 @@ class Query(object):
 
         # Descriptions
         oid = '.1.3.6.1.4.1.9.9.46.1.3.1.1.4'
-        results = self.snmp_query.walk(oid, normalized=True)
+
+        # Process results
+        results = self.snmp_query.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = str(bytes(value), encoding='utf-8')
 
@@ -254,7 +264,9 @@ class Query(object):
 
         # Descriptions
         oid = '.1.3.6.1.4.1.9.9.46.1.3.1.1.3'
-        results = self.snmp_query.walk(oid, normalized=True)
+
+        # Process results
+        results = self.snmp_query.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
 
@@ -276,7 +288,9 @@ class Query(object):
 
         # Descriptions
         oid = '.1.3.6.1.4.1.9.9.46.1.3.1.1.2'
-        results = self.snmp_query.walk(oid, normalized=True)
+
+        # Process results
+        results = self.snmp_query.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
 

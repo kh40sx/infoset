@@ -96,7 +96,7 @@ class Query(object):
         oid = '.1.3.6.1.4.1.9.10.86.1.1.3.1.3'
 
         # Get results
-        results = self.snmp_query.walk(oid, normalized=False)
+        results = self.snmp_query.swalk(oid, normalized=False)
         for key, value in sorted(results.items()):
             # Get IP address, first 12 characters
             macaddress = binascii.hexlify(

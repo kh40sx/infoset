@@ -15,6 +15,7 @@ from snmp import mib_rfc1213
 from snmp import mib_etherlike
 from snmp import mib_ciscocdp
 from snmp import mib_entity
+from snmp import mib_lldp
 
 
 class Query(object):
@@ -157,6 +158,12 @@ class Query(object):
 
         # Get information from CISCO-CDP-MIB
         query = mib_ciscocdp.Query(self.snmp_params)
+        if query.supported() is True:
+            processed = True
+            data = _add_layer1(query, data)
+
+        # Get information from LLDP-MIB
+        query = mib_lldp.Query(self.snmp_params)
         if query.supported() is True:
             processed = True
             data = _add_layer1(query, data)

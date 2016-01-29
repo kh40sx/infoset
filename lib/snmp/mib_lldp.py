@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Module for CISCO-CDP-MIB."""
+"""Module for LLDP-MIB."""
 
+import binascii
 from collections import defaultdict
 
 # Import project libraries
@@ -9,7 +10,7 @@ from snmp import snmp_manager
 
 class Query(object):
 
-    """Class interacts with CISCO-CDP-MIB.
+    """Class interacts with LLDP-MIB.
 
     Args:
         None
@@ -70,40 +71,46 @@ class Query(object):
         # Initialize key variables
         final = defaultdict(lambda: defaultdict(dict))
 
-        # Get interface cdpCacheDeviceId data
-        values = self.cdpcachedeviceid()
+        # Get interface lldpRemSysName data
+        values = self.lldpremsysname()
         for key, value in values.items():
-            final[key]['cdpCacheDeviceId'] = value
+            final[key]['lldpRemSysName'] = value
 
-        # Get interface cdpCachePlatform data
-        values = self.cdpcacheplatform()
+        # Get interface lldpRemSysDesc data
+        values = self.lldpremsysdesc()
         for key, value in values.items():
-            final[key]['cdpCachePlatform'] = value
+            final[key]['lldpRemSysDesc'] = value
 
-        # Get interface cdpCacheDevicePort data
-        values = self.cdpcachedeviceport()
+        # Get interface lldpRemPortDesc data
+        values = self.lldpremportdesc()
         if values is not None:
             for key, value in values.items():
-                final[key]['cdpCacheDevicePort'] = value
+                final[key]['lldpRemPortDesc'] = value
+
+        # Get interface lldpRemSysCapEnabled data
+        values = self.lldpremsyscapenabled()
+        if values is not None:
+            for key, value in values.items():
+                final[key]['lldpRemSysCapEnabled'] = value
 
         # Return
         return final
 
-    def cdpcachedeviceid(self):
-        """Return dict of CISCO-CDP-MIB cdpCacheDeviceId for each port.
+    def lldpremsysname(self):
+        """Return dict of LLDP-MIB lldpRemSysName for each port.
 
         Args:
             None
 
         Returns:
-            data_dict: Dict of cdpCacheDeviceId using ifIndex as key
+            data_dict: Dict of lldpRemSysName using ifIndex as key
 
         """
         # Initialize key variables
         data_dict = defaultdict(dict)
 
         # Descriptions
-        oid = '.1.3.6.1.4.1.9.9.23.1.2.1.1.6'
+        oid = '.1.0.8802.1.1.2.1.4.1.1.9'
 
         # Process results
         results = self.snmp_query.swalk(oid, normalized=False)
@@ -114,21 +121,55 @@ class Query(object):
         # Return the interface descriptions
         return data_dict
 
-    def cdpcacheplatform(self):
-        """Return dict of CISCO-CDP-MIB cdpCachePlatform for each port.
+    def lldpremsyscapenabled(self):
+        """Return dict of LLDP-MIB lldpRemSysCapEnabled for each port.
 
         Args:
             None
 
         Returns:
-            data_dict: Dict of cdpCachePlatform using ifIndex as key
+            data_dict: Dict of lldpRemSysCapEnabled using ifIndex as key
+
+        """
+        # Initialize key variables
+        data_dict = defaultdict(dict)
+        length_in_bits = 16
+        base = 16
+
+        # Descriptions
+        oid = '.1.0.8802.1.1.2.1.4.1.1.12'
+
+        # Process results
+        results = self.snmp_query.swalk(oid, normalized=False)
+        for key, value in sorted(results.items()):
+            ifindex = _ifindex(key)
+
+            # Convert binary data to hex value
+            hex_value = binascii.hexlify(value).decode('utf-8')
+
+            # Convert hex value to right justified 16 character binary string
+            binary_string = bin(int(
+                hex_value, base))[2:].zfill(length_in_bits)
+            data_dict[ifindex] = binary_string
+
+        # Return the interface descriptions
+        return data_dict
+
+    def lldpremsysdesc(self):
+        """Return dict of LLDP-MIB lldpRemSysDesc for each port.
+
+        Args:
+            None
+
+        Returns:
+            data_dict: Dict of lldpRemSysDesc using ifIndex as key
 
         """
         # Initialize key variables
         data_dict = defaultdict(dict)
 
         # Descriptions
-        oid = '.1.3.6.1.4.1.9.9.23.1.2.1.1.8'
+        oid = '.1.0.8802.1.1.2.1.4.1.1.10'
 
         # Process results
         results = self.snmp_query.swalk(oid, normalized=False)
@@ -139,21 +180,21 @@ class Query(object):
         # Return the interface descriptions
         return data_dict
 
-    def cdpcachedeviceport(self):
-        """Return dict of CISCO-CDP-MIB cdpCacheDevicePort for each port.
+    def lldpremportdesc(self):
+        """Return dict of LLDP-MIB lldpRemPortDesc for each port.
 
         Args:
             None
 
         Returns:
-            data_dict: Dict of cdpCacheDevicePort using ifIndex as key
+            data_dict: Dict of lldpRemPortDesc using ifIndex as key
 
         """
         # Initialize key variables
         data_dict = defaultdict(dict)
 
         # Descriptions
-        oid = '.1.3.6.1.4.1.9.9.23.1.2.1.1.7'
+        oid = '.1.0.8802.1.1.2.1.4.1.1.8'
 
         # Process results
         results = self.snmp_query.swalk(oid, normalized=False)

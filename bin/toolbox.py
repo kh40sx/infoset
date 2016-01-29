@@ -8,6 +8,7 @@ Calico utility script
 import os
 import sys
 import yaml
+import tempfile
 
 # Import project libraries
 try:
@@ -118,10 +119,7 @@ def do_run(cli_args, config):
     """
     # Create directory if needed
     perm_dir = config.snmp_directory()
-    temp_dir = ('%s/tmp') % (perm_dir)
-    if (os.path.isfile(temp_dir) is False) and (
-            os.path.isdir(temp_dir) is False):
-        os.makedirs(temp_dir, 0o755)
+    temp_dir = tempfile.mkdtemp()
 
     # Delete all files in temporary directory
     jm_general.delete_files(temp_dir)
@@ -154,7 +152,9 @@ def do_run(cli_args, config):
                 output = ('Completed run: host %s') % (host)
                 print(output)
 
-    # Cleanup, move temporary files. Delete temporary directory
+    # Cleanup, move temporary files to clean permanent directory.
+    # Delete temporary directory
+    jm_general.delete_files(perm_dir)
     jm_general.move_files(temp_dir, perm_dir)
     os.rmdir(temp_dir)
 

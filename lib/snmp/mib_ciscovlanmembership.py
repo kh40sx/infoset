@@ -98,7 +98,9 @@ class Query(object):
 
         # Descriptions
         oid = '.1.3.6.1.4.1.9.9.68.1.2.2.1.2'
-        results = self.snmp_query.walk(oid, normalized=True)
+
+        # Process data
+        results = self.snmp_query.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
 
@@ -120,7 +122,9 @@ class Query(object):
 
         # Descriptions
         oid = '.1.3.6.1.4.1.9.9.68.1.2.2.1.3'
-        results = self.snmp_query.walk(oid, normalized=True)
+
+        # Process data
+        results = self.snmp_query.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
 

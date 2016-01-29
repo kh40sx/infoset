@@ -235,6 +235,34 @@ class Interact:
         # Return
         return validity
 
+    def swalk(self, oid_to_get, normalized=False):
+        """Do a failsafe SNMPwalk.
+
+        Args:
+            oid_to_get: OID to get
+
+        Returns:
+            results: Results
+
+        """
+        # Initialize key variables
+        results = {}
+
+        # Process
+        data = self.walk(
+            oid_to_get, normalized=normalized, connectivity_check=True)
+        for value in data.values():
+            # If oid not found message, then fail
+            if isinstance(value, rfc1905.NoSuchInstance) is False:
+                results = data
+            # If nothing is retuned, then fail
+            elif bool(value) is True:
+                results = data
+            break
+
+        # Return
+        return results
+
     def walk(self, oid_to_get, normalized=False, connectivity_check=False):
         """Do an SNMPwalk.
 
