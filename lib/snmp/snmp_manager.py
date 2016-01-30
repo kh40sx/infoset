@@ -123,16 +123,10 @@ class Interact:
             if results is not None and bool(results) is not False:
                 contactable = True
 
-        except Exception as exception_error:
-            # Log a message
-            log_message = (
-                'Unable to access device %s via SNMP. '
-                'Make sure device is contactable and that the '
-                'database\'s SNMP parameters for the device are '
-                'correct. Fix and repeat your command. Error: %s '
-                '') % (
-                    self.snmp_params['snmp_hostname'], exception_error)
-            jm_general.logit(1006, log_message, True)
+        except Exception as unused_exception_error:
+            # Not contactable
+            contactable = False
+
         except:
             # Log a message
             log_message = ('Unexpected SNMP error for device %s') % (

@@ -47,8 +47,8 @@ class Query(object):
         # Support OID
         validity = False
 
-        # Get one OID entry in MIB
-        oid = '.1.3.6.1.4.1.9.9.46.1.3.1.1.2'
+        # Get one OID entry in MIB (cdpCacheDeviceId)
+        oid = '.1.3.6.1.4.1.9.9.23.1.2.1.1.6'
 
         # Return nothing if oid doesn't exist
         if self.snmp_query.oid_exists(oid) is True:

@@ -10,16 +10,18 @@ import sys
 import yaml
 import tempfile
 
-# Import project libraries
+# Import project libraries. Use jm_cli to test if we have a good path.
+# Doing the test for all libraries could cause you to get a $PYTHONPATH
+# error, when it could be a syntax error in one of the libraries.
 try:
     import jm_cli
-    import jm_configuration
-    import jm_general
-    from snmp import snmp_manager
-    from snmp import snmp_info
 except:
     print('Error: Please set your $PYTHONPATH variable')
     sys.exit(2)
+import jm_configuration
+import jm_general
+from snmp import snmp_manager
+from snmp import snmp_info
 
 
 def main():
@@ -105,6 +107,12 @@ def do_test(cli_args, config):
         # Pring result as YAML
         yaml_string = jm_general.dict2yaml(data)
         print(yaml_string)
+    else:
+        # Error, host problems
+        log_message = (
+            'Uncontactable host %s or no valid SNMP '
+            'credentials found for it.') % (cli_args.host)
+        jm_general.logit(1006, log_message)
 
 
 def do_run(cli_args, config):
@@ -134,6 +142,15 @@ def do_run(cli_args, config):
         if cli_args.verbose is True:
             output = ('Processing on: host %s') % (host)
             print(output)
+
+        # Skip invalid, and uncontactable hosts
+        if bool(snmp_params) is False:
+            if cli_args.verbose is True:
+                output = (
+                    'Uncontactable host %s or no valid SNMP '
+                    'credentials found for it.') % (cli_args.host)
+                print(output)
+            continue
 
         # Process if valid
         if bool(snmp_params) is True:

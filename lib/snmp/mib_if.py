@@ -50,8 +50,8 @@ class Query(object):
         # Support OID
         validity = False
 
-        # Get one OID entry in MIB
-        oid = '.1.3.6.1.2.1.2.2.1.1.1'
+        # Get one OID entry in MIB (ifDescr)
+        oid = '.1.3.6.1.2.1.2.2.1.1'
 
         # Return nothing if oid doesn't exist
         if self.snmp_query.oid_exists(oid) is True:

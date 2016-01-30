@@ -47,8 +47,15 @@ class Query(object):
             validity: True if supported
 
         """
-        # All devices should support this MIB
-        validity = True
+        # Support OID
+        validity = False
+
+        # Get one OID entry in MIB (atPhysAddress)
+        oid = '.1.3.6.1.2.1.3.1.1.2'
+
+        # Return nothing if oid doesn't exist
+        if self.snmp_query.oid_exists(oid) is True:
+            validity = True
 
         # Return
         return validity

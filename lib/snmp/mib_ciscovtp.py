@@ -48,7 +48,7 @@ class Query(object):
         # Support OID
         validity = False
 
-        # Get one OID entry in MIB
+        # Get one OID entry in MIB (vtpVlanState)
         oid = '.1.3.6.1.4.1.9.9.46.1.3.1.1.2'
 
         # Return nothing if oid doesn't exist

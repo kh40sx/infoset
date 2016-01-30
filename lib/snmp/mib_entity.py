@@ -47,7 +47,7 @@ class Query(object):
         # Support OID
         validity = False
 
-        # Get one OID entry in MIB
+        # Get one OID entry in MIB (entPhysicalName)
         oid = '.1.3.6.1.2.1.47.1.1.1.1.7'
 
         # Return nothing if oid doesn't exist

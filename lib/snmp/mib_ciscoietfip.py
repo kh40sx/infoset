@@ -50,7 +50,7 @@ class Query(object):
         # Support OID
         validity = False
 
-        # Get one OID entry in MIB
+        # Get one OID entry in MIB (cInetNetToMediaPhysAddress)
         oid = '.1.3.6.1.4.1.9.10.86.1.1.3.1.3'
 
         # Return nothing if oid doesn't exist
