@@ -66,17 +66,6 @@ class Query(object):
         data['layer3'] = self.layer3()
         data['system'] = self.system()
 
-        # Delete unnecessary keys
-        if 'layer1' in data:
-            if data['layer1'] is None:
-                data.pop('layer1', None)
-        if 'layer2' in data:
-            if data['layer2'] is None:
-                data.pop('layer2', None)
-        if 'layer3' in data:
-            if data['layer3'] is None:
-                data.pop('layer3', None)
-
         # Return
         return data
 
