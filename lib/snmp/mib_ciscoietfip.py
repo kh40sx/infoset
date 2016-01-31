@@ -73,15 +73,15 @@ class Query(object):
         # Initialize key variables
         final = defaultdict(lambda: defaultdict(dict))
 
-        # Get interface ifDescr data
-        values = self.ipv6arptable()
+        # Get interface cInetNetToMediaPhysAddress data
+        values = self.cinetnettomediaphysaddress()
         for key, value in values.items():
-            final['ARPTableIPv6'][key] = value
+            final['cInetNetToMediaPhysAddress'][key] = value
 
         # Return
         return final
 
-    def ipv6arptable(self):
+    def cinetnettomediaphysaddress(self):
         """Return dict of the device's ARP table.
 
         Args:
