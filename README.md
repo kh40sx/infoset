@@ -52,7 +52,7 @@ The commands are:
 
 You will need to setup your PYTHONPATH environment variable to include the following directories.
 ```
-$INSTALLATION_DIRECTORY/lib 
+$INSTALLATION_DIRECTORY/lib
 ```
 For example, if your installation directory is ```/opt/infoset```, then you must issue the following commands prior to running the application.
 ```
@@ -125,7 +125,9 @@ You may want to set your webserver to inspect the data in your `$DATA_DIRECTORY/
 There are many dragons to slay and kingdoms to conquer!
 ## Contribute
 Contributions are always welcome. Contact our team for more.
+## Mailing list
+Our current mailing list is: https://groups.google.com/forum/#!forum/gdg-jamaica
 ## New Features
-Visit our wiki for a complete requirements document.
+Visit our requirements document for a full list of features. https://goo.gl/LRdNkE
 ## Sample Output
 Visit http://calico.palisadoes.org/infoset to view infoset's latest stable web output.
