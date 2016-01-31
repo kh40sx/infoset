@@ -320,7 +320,7 @@ class Interact:
             (snmp_params['snmp_hostname'], snmp_params['snmp_port']))
 
         # Create the auth object
-        lib_snmp_auth_object = _get_auth_object(snmp_params)
+        authentication_object = _get_auth_object(snmp_params)
 
         # Fill the results object by getting OID data
         try:
@@ -329,12 +329,12 @@ class Interact:
                 (session_error_string, session_error_status,
                  session_error_index, var_binds) = \
                     snmp_object.getCmd(
-                        lib_snmp_auth_object, transport_object, oid_to_get)
+                        authentication_object, transport_object, oid_to_get)
             else:
                 (session_error_string, session_error_status,
                  session_error_index, var_binds) = \
                     snmp_object.nextCmd(
-                        lib_snmp_auth_object, transport_object, oid_to_get)
+                        authentication_object, transport_object, oid_to_get)
 
         # Do something here
         except Exception as exception_error:
@@ -525,13 +525,13 @@ def _get_auth_object(snmp_params):
         snmp_params: Dict of SNMP parameters
 
     Returns:
-        lib_snmp_auth_object: Auth object for query
+        authentication_object: Auth object for query
 
     """
     # Process SNMPv2
     if snmp_params['snmp_version'] == 2:
         # Setup SNMPv2 authentication object
-        lib_snmp_auth_object = cmdgen.CommunityData(
+        authentication_object = cmdgen.CommunityData(
             snmp_params['snmp_community'])
 
     # Process SNMPv3
@@ -563,7 +563,7 @@ def _get_auth_object(snmp_params):
                 privproto_object = cmdgen.usmAesCfb256Protocol
 
         # Setup SNMPv3 authentication object
-        lib_snmp_auth_object = cmdgen.UsmUserData(
+        authentication_object = cmdgen.UsmUserData(
             snmp_params['snmp_secname'],
             snmp_params['snmp_authpassword'],
             snmp_params['snmp_privpassword'],
@@ -571,7 +571,7 @@ def _get_auth_object(snmp_params):
             privProtocol=privproto_object)
 
     # Return
-    return lib_snmp_auth_object
+    return authentication_object
 
 
 def _normalized_walk(walk_results):

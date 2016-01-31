@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Class interacts with devices supporting RFC1213-MIB."""
+"""Class interacts with devices supporting IP-MIB."""
 
 
 import binascii
@@ -12,7 +12,7 @@ from snmp import snmp_manager
 
 class Query(object):
 
-    """Class interacts with devices supporting RFC1213-MIB.
+    """Class interacts with devices supporting IP-MIB.
 
     Args:
         None
@@ -48,14 +48,7 @@ class Query(object):
 
         """
         # Support OID
-        validity = False
-
-        # Get one OID entry in MIB (atPhysAddress)
-        oid = '.1.3.6.1.2.1.3.1.1.2'
-
-        # Return nothing if oid doesn't exist
-        if self.snmp_query.oid_exists(oid) is True:
-            validity = True
+        validity = True
 
         # Return
         return validity
@@ -70,11 +63,19 @@ class Query(object):
             final: Final results
 
         """
-        # Return
-        return self._ipv4arptable()
+        # Initialize key variables
+        final = defaultdict(lambda: defaultdict(dict))
 
-    def _ipv4arptable(self):
-        """Return dict of the device's ARP table.
+        # Get interface ipNetToMediaTable, data
+        values = self.ipnettomediatable()
+        for key, value in values.items():
+            final['ipNetToMediaTable'][key] = value
+
+        # Return
+        return final
+
+    def ipnettomediatable(self):
+        """Return dict of ipNetToMediaTable, the device's ARP table.
 
         Args:
             None
@@ -84,18 +85,22 @@ class Query(object):
 
         """
         # Initialize key variables
-        data_dict = defaultdict(lambda: defaultdict(dict))
+        data_dict = {}
 
         # Process
-        oid = '.1.3.6.1.2.1.3.1.1.2'
+        oid = '.1.3.6.1.2.1.4.22.1.2'
         results = self.snmp_query.walk(oid, normalized=False)
         for key, value in sorted(results.items()):
+            # Determine IP address
             nodes = key.split('.')
             octets = nodes[-4:]
             ipaddress = '.'.join(octets)
+
+            # Determine MAC address
             macaddress = binascii.hexlify(value).decode('utf-8')
-            data_dict['ARPTableIPv4'][
-                ipaddress] = macaddress.lower()
+
+            # Create ARP table entry
+            data_dict[ipaddress] = macaddress.lower()
 
         # Return data
         return data_dict

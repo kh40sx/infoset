@@ -10,14 +10,15 @@ import sys
 import yaml
 import tempfile
 
-# Import project libraries. Use jm_cli to test if we have a good path.
+# Import project libraries. Use jm_dummy to test if we have a good path.
 # Doing the test for all libraries could cause you to get a $PYTHONPATH
 # error, when it could be a syntax error in one of the libraries.
 try:
-    import jm_cli
+    import jm_dummy
 except:
     print('Error: Please set your $PYTHONPATH variable')
     sys.exit(2)
+import jm_cli
 import jm_configuration
 import jm_general
 from snmp import snmp_manager

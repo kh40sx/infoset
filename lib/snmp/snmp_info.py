@@ -11,7 +11,8 @@ from snmp import mib_ciscoietfip
 from snmp import mib_snmpv2
 from snmp import mib_if
 from snmp import mib_bridge
-from snmp import mib_rfc1213
+from snmp import mib_ip
+from snmp import mib_ipv6
 from snmp import mib_etherlike
 from snmp import mib_ciscocdp
 from snmp import mib_entity
@@ -204,13 +205,19 @@ class Query(object):
         processed = False
 
         # Get IPv4 information
-        query = mib_rfc1213.Query(self.snmp_params)
+        query = mib_ip.Query(self.snmp_params)
         if query.supported() is True:
             processed = True
             data = _add_layer3(query, data)
 
         # Get IPv6 ARP table information (Cisco)
         query = mib_ciscoietfip.Query(self.snmp_params)
+        if query.supported() is True:
+            processed = True
+            data = _add_layer3(query, data)
+
+        # Get IPv6 ARP table information (Juniper)
+        query = mib_ipv6.Query(self.snmp_params)
         if query.supported() is True:
             processed = True
             data = _add_layer3(query, data)
