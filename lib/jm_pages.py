@@ -2,6 +2,7 @@
 """Classes for polling remote hosts for SNMP data."""
 
 import tempfile
+import textwrap
 import yaml
 import time
 import os
@@ -43,7 +44,8 @@ class PageMaker(threading.Thread):
             # Initialize key variables
             write_file = ('%s/%s.html') % (temp_dir, host)
             yaml_file = ('%s/%s.yaml') % (config.snmp_directory(), host)
-            data_dict = {}
+            port_dict = {}
+            device_dict = {}
 
             # Verbose output
             if verbose is True:
@@ -68,11 +70,15 @@ class PageMaker(threading.Thread):
 
             # Create dict for layer1 data
             for key, value in yaml_data['layer1'].items():
-                data_dict[int(key)] = value
+                port_dict[int(key)] = value
+
+            # Create dict for system data
+            device_dict = yaml_data['system']['SNMPv2-MIB']
 
             # Create HTML output
-            html = ('%s\n<h1>%s<h1>%s\n%s') % (
-                _html_header(), host, _main_table(data_dict), _html_footer)
+            html = ('%s<h1>%s<h1>\n%s\n<br>\n%s\n<br>\n%s') % (
+                _html_header(host), host, _device_table(device_dict),
+                _port_table(port_dict), _html_footer)
             with open(write_file, 'w') as file_handle:
                 file_handle.write(html)
 
@@ -223,7 +229,7 @@ def _get_state(port_data):
     return state
 
 
-def _get_inactive(port_data):
+def _get_inactive():
     """Return days inactive for port.
 
     Args:
@@ -330,11 +336,11 @@ def _html_footer():
     return html
 
 
-def _html_header():
+def _html_header(host):
     """Display HTML header.
 
     Args:
-        None
+        host: Hostname
 
     Returns:
         html: HTML for header
@@ -344,9 +350,12 @@ def _html_header():
     html = ("""\
 <html>
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="refresh" CONTENT="3600">
+<title>%s Ports List</title>
 </head>
 <body>
-""")
+""") % (host)
     return html
 
 
@@ -380,15 +389,14 @@ def _index_html(config):
     return html
 
 
-def _main_table(data_dict):
-    """Return table with report information.
+def _port_table(data_dict):
+    """Return table with port information.
 
     Args:
-        rows: List of rows to make into table rows
-        guard_ids: List of guard user_ids
+        data_dict: Dict of port data
 
     Returns:
-        result: HTML link for ticket
+        output: HTML code for table
 
     """
     # Initialize key variables
@@ -396,12 +404,12 @@ def _main_table(data_dict):
     header = [
         'Port', 'VLAN', 'State', 'Days Inactive',
         'Speed', 'Duplex', 'Port Label']
-    output = '<table>'
-    thstart = '<th>'
+    output = '<table>\n'
+    thstart = '    <th>'
 
     # Create header
     output = ('%s%s%s') % (
-        output, thstart, (('</th>\n %s') % (thstart)).join(header))
+        output, thstart, (('</th>\n%s') % (thstart)).join(header))
     output = ('%s</th>') % (output)
 
     # Create rows of data
@@ -412,7 +420,7 @@ def _main_table(data_dict):
                 port = port_data['ifName']
                 speed = _get_speed(port_data)
                 label = port_data['ifAlias']
-                inactive = _get_inactive(port_data)
+                inactive = _get_inactive()
                 vlan = _get_vlan(port_data)
                 state = _get_state(port_data)
                 duplex = _get_duplex(port_data)
@@ -426,18 +434,72 @@ def _main_table(data_dict):
     # Loop through list
     for row in rows:
         # Print entry row
-        output = ('%s\n <tr>\n <td>') % (output)
+        output = ('%s\n    <tr>\n        <td>') % (output)
         output = ('%s%s') % (output, '</td><td>'.join(row))
-        output = ('%s\n  </td>\n </tr>') % (output)
+        output = ('%s</td>\n    </tr>') % (output)
 
     # Finish the table
-    output = ('%s\n</table>\n') % (output)
-
-    # Strip out any duplicated spaces
-    output = ' '.join(output.split())
-
-    # Strip out any duplicated line feeds
-    output = '\n'.join(output.split())
+    output = ('%s\n</table>') % (output)
 
     # Return
     return output
+
+
+def _device_table(data_dict):
+    """Return table with device information.
+
+    Args:
+        data_dict: Dict of device data
+
+    Returns:
+        output: HTML code for table
+
+    """
+    # Initialize key variables
+    rows = []
+    labels = ['sysName', 'sysDescr', 'sysObjectID', 'Uptime']
+    values = [
+        data_dict['sysName']['0'],
+        textwrap.fill(data_dict['sysDescr']['0']).replace('\n', '<br>'),
+        data_dict['sysObjectID']['0'],
+        _uptime(data_dict['sysUpTime']['0'])
+        ]
+    output = '<table>'
+
+    # Create rows array
+    for index, value in enumerate(values):
+        rows.append([labels[index], str(value)])
+
+    # Loop through list
+    for row in rows:
+        # Print entry row
+        output = ('%s\n    <tr>\n        <td>') % (output)
+        output = ('%s%s') % (output, '</td><td>'.join(row))
+        output = ('%s</td>\n    </tr>') % (output)
+
+    # Finish the table
+    output = ('%s\n</table>') % (output)
+
+    # Return
+    return output
+
+
+def _uptime(seconds):
+    """Return uptime string.
+
+    Args:
+        seconds: Seconds of uptime
+
+    Returns:
+        result: Uptime string
+
+    """
+    # Initialize key variables
+    (minutes, remainder_seconds) = divmod(seconds/100, 60)
+    (hours, remainder_minutes) = divmod(minutes, 60)
+    (days, remainder_hours) = divmod(hours, 24)
+
+    # Return
+    result = ('%.f Days, %d:%02d:%02d') % (
+        days, remainder_hours, remainder_minutes, remainder_seconds)
+    return result
