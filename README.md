@@ -118,7 +118,7 @@ You can test connectivity to a host using this command where the configuration d
 
 ## Polling All Devices
 This command will execute against all configured hosts and create appropriate HTML files in the configuration file's `$DATA_DIRECTORY/snmp` directory
-`$ bin/toolbox.py run --directory etc/`
+`$ bin/toolbox.py poll --directory etc/`
 
 You may want to set your webserver to inspect the data in your `$DATA_DIRECTORY/snmp` to view the results of this command.
 

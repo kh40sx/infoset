@@ -53,8 +53,8 @@ class Process(object):
         # Parse "config", return object used for parser
         _cli_config(subparsers, width=width)
 
-        # Parse "run", return object used for parser
-        _cli_run(subparsers, width=width)
+        # Parse "poll", return object used for parser
+        _cli_poll(subparsers, width=width)
 
         # Parse "test", return object used for parser
         _cli_test(subparsers, width=width)
@@ -154,8 +154,8 @@ def _cli_test(subparsers, width=80):
             'Host to test.', width=width)
     )
 
-def _cli_run(subparsers, width=80):
-    """Process "run" CLI commands.
+def _cli_poll(subparsers, width=80):
+    """Process "poll" CLI commands.
 
     Args:
         subparsers: Subparsers object
@@ -167,7 +167,7 @@ def _cli_run(subparsers, width=80):
     """
     # Initialize key variables
     parser = subparsers.add_parser(
-        'run',
+        'poll',
         help=textwrap.fill(
             'Process all configured hosts.', width=width)
     )

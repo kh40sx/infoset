@@ -5,10 +5,8 @@ Calico utility script
 
 """
 
-import os
 import sys
 import yaml
-import tempfile
 
 # Import project libraries. Use jm_dummy to test if we have a good path.
 # Doing the test for all libraries could cause you to get a $PYTHONPATH
@@ -21,6 +19,7 @@ except:
 import jm_cli
 import jm_configuration
 import jm_general
+import jm_snmp
 from snmp import snmp_manager
 from snmp import snmp_info
 
@@ -57,8 +56,8 @@ Utility script for the project.
         do_test(cli_args, config)
 
     # Process hosts
-    if cli_args.mode == 'run':
-        do_run(cli_args, config)
+    if cli_args.mode == 'poll':
+        do_poll(config, cli_args.verbose)
 
 
 def do_config(cli_args, config):
@@ -116,68 +115,19 @@ def do_test(cli_args, config):
         jm_general.logit(1006, log_message)
 
 
-def do_run(cli_args, config):
+def do_poll(config, verbose=False):
     """Process 'run' CLI option.
 
     Args:
-        connectivity_check: Set if testing for connectivity
+        config: Configuration object
+        verbose: Verbose output if True
 
     Returns:
         None
 
     """
-    # Create directory if needed
-    perm_dir = config.snmp_directory()
-    temp_dir = tempfile.mkdtemp()
-
-    # Delete all files in temporary directory
-    jm_general.delete_files(temp_dir)
-
-    # Get host data and write to file
-    for host in config.hosts():
-        # Show host information
-        validate = snmp_manager.Validate(host, config.snmp_auth())
-        snmp_params = validate.credentials()
-
-        # Verbose output
-        if cli_args.verbose is True:
-            output = ('Processing on: host %s') % (host)
-            print(output)
-
-        # Skip invalid, and uncontactable hosts
-        if bool(snmp_params) is False:
-            if cli_args.verbose is True:
-                output = (
-                    'Uncontactable host %s or no valid SNMP '
-                    'credentials found for it.') % (cli_args.host)
-                print(output)
-            continue
-
-        # Process if valid
-        if bool(snmp_params) is True:
-            # Get data
-            status = snmp_info.Query(snmp_params)
-            data = status.everything()
-            yaml_string = jm_general.dict2yaml(data)
-
-            # Dump data
-            temp_file = ('%s/%s.yaml') % (temp_dir, host)
-            with open(temp_file, 'w') as file_handle:
-                file_handle.write(yaml_string)
-
-            # Verbose output
-            if cli_args.verbose is True:
-                output = ('Completed run: host %s') % (host)
-                print(output)
-
-    # Cleanup, move temporary files to clean permanent directory.
-    # Delete temporary directory
-    if os.path.isdir(perm_dir):
-        jm_general.delete_files(perm_dir)
-    else:
-        os.makedirs(perm_dir, 0o755)
-    jm_general.move_files(temp_dir, perm_dir)
-    os.rmdir(temp_dir)
+    # Poll
+    jm_snmp.poll(config, verbose)
 
 
 if __name__ == "__main__":
