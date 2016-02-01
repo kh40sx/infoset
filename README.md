@@ -11,6 +11,7 @@ infoset is Python 3 inventory system that reports and tabulates the status of ne
 2. System status
 
 The project is not:
+
 1. _A monitoring system_: It does not report information that is likely to change in under 4 hours. Projects such as Nagios are more suitable for this purpose.
 2. _A graphing system_: and therefore will not collect historical data likely to change in under 4 hours. Projects such as Cacti are more suitable for this purpose.
 
