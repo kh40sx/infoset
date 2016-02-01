@@ -39,8 +39,8 @@ The project can be setup on your server or workstation by issuing the following 
 ### Ubuntu / Debian
 The commands are:
 ```
-sudo apt-get install python3 python3-pip python3-yaml
-pip3 install pysnmp pylint pep257 pep8
+# sudo apt-get install python3 python3-pip python3-yaml pep8
+# pip3 install pysnmp pylint pep257
 ```
 ###Fedora
 The commands are:

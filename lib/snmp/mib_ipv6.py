@@ -11,7 +11,6 @@ from snmp import snmp_manager
 
 
 class Query(object):
-
     """Class interacts with CISCO-IETF-IP-MIB.
 
     Args:
@@ -104,16 +103,23 @@ class Query(object):
 
             # Convert IP address from decimal to hex
             nodes = key.split('.')
-            ipv6decimal = nodes[-16:]
-            ipv6hex = []
-            for value in ipv6decimal:
+            nodes_decimal = nodes[-16:]
+            nodes_hex = []
+            nodes_final = []
+            for value in nodes_decimal:
                 # Convert deximal value to hex,
                 # then zero fill to ensure hex is two characters long
                 hexbyte = ('%s') % (hex(int(value)))[2:]
-                ipv6hex.append(hexbyte.zfill(2))
+                nodes_hex.append(hexbyte.zfill(2))
+
+            # Convert to list of four byte hex numbers
+            for pointer in range(0, len(nodes_hex) - 1, 2):
+                fixed_value = ('%s%s') % (nodes_hex[pointer],
+                                          nodes_hex[pointer + 1])
+                nodes_final.append(fixed_value)
 
             # Create IPv6 string
-            ipv6 = ':'.join(ipv6hex)
+            ipv6 = ':'.join(nodes_final)
 
             # Create ARP entry
             data_dict[ipv6] = macaddress.lower()
