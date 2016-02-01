@@ -162,6 +162,29 @@ class Read(object):
         # Return
         return value
 
+    def web_directory(self):
+        """Determine the web_directory.
+
+        Args:
+            None
+
+        Returns:
+            value: configured web_directory
+
+        """
+        # Get parameter
+        value = self.config_dict['web_directory']
+
+        # Check if value exists
+        if os.path.isdir(value) is False:
+            log_message = (
+                'web_directory: "%s" '
+                'in configuration doesn\'t exist!') % (value)
+            jm_general.logit(1016, log_message)
+
+        # Return
+        return value
+
     def snmp_directory(self):
         """Determine the snmp_directory.
 

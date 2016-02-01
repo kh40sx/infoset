@@ -53,6 +53,9 @@ class Process(object):
         # Parse "config", return object used for parser
         _cli_config(subparsers, width=width)
 
+        # Parse "pagemaker", return object used for parser
+        _cli_pagemaker(subparsers, width=width)
+
         # Parse "poll", return object used for parser
         _cli_poll(subparsers, width=width)
 
@@ -170,6 +173,45 @@ def _cli_poll(subparsers, width=80):
         'poll',
         help=textwrap.fill(
             'Process all configured hosts.', width=width)
+    )
+
+    # Process directory
+    parser.add_argument(
+        '--directory',
+        required=True,
+        default=None,
+        type=str,
+        help=textwrap.fill(
+            'Directory with configuration files.', width=width)
+    )
+
+    # Process verbose
+    parser.add_argument(
+        '--verbose',
+        dest='verbose',
+        action='store_true',
+        required=False,
+        default=False,
+        help=textwrap.fill(
+            'Verbose Output.', width=width)
+    )
+
+def _cli_pagemaker(subparsers, width=80):
+    """Process "pagemaker" CLI commands.
+
+    Args:
+        subparsers: Subparsers object
+        width: Width of the help text string to STDIO before wrapping
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    parser = subparsers.add_parser(
+        'pagemaker',
+        help=textwrap.fill(
+            'Create web pages.', width=width)
     )
 
     # Process directory

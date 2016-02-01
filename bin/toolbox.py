@@ -20,6 +20,7 @@ import jm_cli
 import jm_configuration
 import jm_general
 import jm_snmp
+import jm_pages
 from snmp import snmp_manager
 from snmp import snmp_info
 
@@ -58,6 +59,10 @@ Utility script for the project.
     # Process hosts
     if cli_args.mode == 'poll':
         do_poll(config, cli_args.verbose)
+
+    # Create pages
+    if cli_args.mode == 'pagemaker':
+        do_pages(config, cli_args.verbose)
 
 
 def do_config(cli_args, config):
@@ -114,6 +119,20 @@ def do_test(cli_args, config):
             'credentials found for it.') % (cli_args.host)
         jm_general.logit(1006, log_message)
 
+
+def do_pages(config, verbose=False):
+    """Process 'pagemaker' CLI option.
+
+    Args:
+        config: Configuration object
+        verbose: Verbose output if True
+
+    Returns:
+        None
+
+    """
+    # Poll
+    jm_pages.make(config, verbose)
 
 def do_poll(config, verbose=False):
     """Process 'run' CLI option.
