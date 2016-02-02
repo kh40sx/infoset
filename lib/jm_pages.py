@@ -7,10 +7,9 @@ import time
 import os
 import queue as Queue
 import threading
-import yaml
-
 
 import jm_general
+import jm_xlate
 
 
 # Define a key global variable
@@ -18,7 +17,6 @@ THREAD_QUEUE = Queue.Queue()
 
 
 class PageMaker(threading.Thread):
-
     """Threaded polling.
 
     Graciously modified from:
@@ -27,12 +25,30 @@ class PageMaker(threading.Thread):
     """
 
     def __init__(self, queue):
-        """ Initialize the threads."""
+        """Initialize the class.
+
+        Args:
+            queue: Threading queue object
+
+        Returns:
+            None
+
+        """
+        # Start processing
         threading.Thread.__init__(self)
         self.queue = queue
 
     def run(self):
-        """ Update the database using threads."""
+        """ Update the database using threads.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Start processing
         while True:
             # Get the data_dict
             data_dict = self.queue.get()
@@ -43,42 +59,23 @@ class PageMaker(threading.Thread):
 
             # Initialize key variables
             write_file = ('%s/%s.html') % (temp_dir, host)
-            yaml_file = ('%s/%s.yaml') % (config.snmp_directory(), host)
-            port_dict = {}
-            device_dict = {}
+            ports = {}
+            device = {}
 
             # Verbose output
             if verbose is True:
                 output = ('Processing on: host %s') % (host)
                 print(output)
 
-            # Fail if yaml file doesn't exist
-            if os.path.isfile(yaml_file) is False:
-                log_message = (
-                    'YAML file %s for host %s doesn\'t exist! '
-                    'Try polling devices first.') % (yaml_file, host)
-                jm_general.logit(1017, log_message, False)
-
-                # Exit thread
-                self.queue.task_done()
-                return
-
-            # Read file
-            with open(yaml_file, 'r') as file_handle:
-                yaml_from_file = file_handle.read()
-            yaml_data = yaml.load(yaml_from_file)
-
-            # Create dict for layer1 data
-            for key, value in yaml_data['layer1'].items():
-                port_dict[int(key)] = value
-
-            # Create dict for system data
-            device_dict = yaml_data['system']['SNMPv2-MIB']
+            # Process YAML file for host
+            translation = jm_xlate.File(config, host)
+            ports = translation.ethernet_data()
+            device = translation.system_summary()
 
             # Create HTML output
             html = ('%s<h1>%s<h1>\n%s\n<br>\n%s\n<br>\n%s') % (
-                _html_header(host), host, _device_table(device_dict),
-                _port_table(port_dict), _html_footer)
+                _html_header(host), host, _device_table(device),
+                _port_table(ports), _html_footer)
             with open(write_file, 'w') as file_handle:
                 file_handle.write(html)
 
@@ -264,9 +261,9 @@ def _get_speed(port_data):
             elif value > 0 and value < 1000:
                 speed = ('%.0fM') % (value)
             else:
-                speed = None
+                speed = 'N/A'
         else:
-            speed = None
+            speed = 'N/A'
 
     # Return
     return speed
@@ -420,18 +417,15 @@ def _port_table(data_dict):
     # Create rows of data
     for unused_var, port_data in sorted(data_dict.items()):
         # Assign values for Ethernet ports only
-        if _valid_port(port_data) is True:
-            port = port_data['ifName']
-            label = port_data['ifAlias']
-            speed = _get_speed(port_data)
-            inactive = _get_inactive()
-            vlan = _get_vlan(port_data)
-            state = _get_state(port_data)
-            duplex = _get_duplex(port_data)
-            rows.append(
-                [port, vlan, state, inactive, speed, duplex, label])
-        else:
-            continue
+        port = port_data['ifName']
+        label = port_data['ifAlias']
+        speed = _get_speed(port_data)
+        inactive = _get_inactive()
+        vlan = _get_vlan(port_data)
+        state = _get_state(port_data)
+        duplex = _get_duplex(port_data)
+        rows.append(
+            [port, vlan, state, inactive, speed, duplex, label])
 
     # Loop through list
     for row in rows:
@@ -461,10 +455,10 @@ def _device_table(data_dict):
     rows = []
     labels = ['sysName', 'sysDescr', 'sysObjectID', 'Uptime']
     values = [
-        data_dict['sysName']['0'],
-        textwrap.fill(data_dict['sysDescr']['0']).replace('\n', '<br>'),
-        data_dict['sysObjectID']['0'],
-        _uptime(data_dict['sysUpTime']['0'])
+        data_dict['sysName'],
+        textwrap.fill(data_dict['sysDescr']).replace('\n', '<br>'),
+        data_dict['sysObjectID'],
+        _uptime(data_dict['sysUpTime'])
         ]
     output = '<table>'
 
@@ -505,34 +499,3 @@ def _uptime(seconds):
     result = ('%.f Days, %d:%02d:%02d') % (
         days, remainder_hours, remainder_minutes, remainder_seconds)
     return result
-
-
-def _valid_port(port_data):
-    """Determine whether the port is valid for showing on web pages.
-
-    Args:
-        port_data: Data dict related to the port
-
-    Returns:
-        valid: True if valid
-
-    """
-    # Initialize key variables
-    valid = False
-    speed = _get_speed(port_data)
-
-    # Assign values for Ethernet ports only
-    # Some Juniper virtual interfaces are type 6,
-    # but have speeds of zero. This is used as a filter
-    if 'ifType' in port_data:
-        # Get port name
-        name = port_data['ifName'].lower()
-
-        # Check validiaty
-        if port_data['ifType'] == 6 and speed is not None:
-            # VLAN L2 VLAN interfaces passing as Ethernet
-            if name.startswith('vl') is False:
-                valid = True
-
-    # Return
-    return valid
