@@ -3,11 +3,11 @@
 
 import tempfile
 import textwrap
-import yaml
 import time
 import os
 import queue as Queue
 import threading
+import yaml
 
 
 import jm_general
@@ -257,11 +257,16 @@ def _get_speed(port_data):
     if _port_up(port_data) is False:
         speed = 'N/A'
     else:
-        value = port_data['ifHighSpeed']
-        if value >= 1000:
-            speed = ('%.0fG') % (value / 1000)
+        if 'ifHighSpeed' in port_data:
+            value = port_data['ifHighSpeed']
+            if value >= 1000:
+                speed = ('%.0fG') % (value / 1000)
+            elif value > 0 and value < 1000:
+                speed = ('%.0fM') % (value)
+            else:
+                speed = None
         else:
-            speed = ('%.0fM') % (value)
+            speed = None
 
     # Return
     return speed
@@ -415,19 +420,16 @@ def _port_table(data_dict):
     # Create rows of data
     for unused_var, port_data in sorted(data_dict.items()):
         # Assign values for Ethernet ports only
-        if 'ifType' in port_data:
-            if port_data['ifType'] == 6:
-                port = port_data['ifName']
-                speed = _get_speed(port_data)
-                label = port_data['ifAlias']
-                inactive = _get_inactive()
-                vlan = _get_vlan(port_data)
-                state = _get_state(port_data)
-                duplex = _get_duplex(port_data)
-                rows.append(
-                    [port, vlan, state, inactive, speed, duplex, label])
-            else:
-                continue
+        if _valid_port(port_data) is True:
+            port = port_data['ifName']
+            label = port_data['ifAlias']
+            speed = _get_speed(port_data)
+            inactive = _get_inactive()
+            vlan = _get_vlan(port_data)
+            state = _get_state(port_data)
+            duplex = _get_duplex(port_data)
+            rows.append(
+                [port, vlan, state, inactive, speed, duplex, label])
         else:
             continue
 
@@ -503,3 +505,34 @@ def _uptime(seconds):
     result = ('%.f Days, %d:%02d:%02d') % (
         days, remainder_hours, remainder_minutes, remainder_seconds)
     return result
+
+
+def _valid_port(port_data):
+    """Determine whether the port is valid for showing on web pages.
+
+    Args:
+        port_data: Data dict related to the port
+
+    Returns:
+        valid: True if valid
+
+    """
+    # Initialize key variables
+    valid = False
+    speed = _get_speed(port_data)
+
+    # Assign values for Ethernet ports only
+    # Some Juniper virtual interfaces are type 6,
+    # but have speeds of zero. This is used as a filter
+    if 'ifType' in port_data:
+        # Get port name
+        name = port_data['ifName'].lower()
+
+        # Check validiaty
+        if port_data['ifType'] == 6 and speed is not None:
+            # VLAN L2 VLAN interfaces passing as Ethernet
+            if name.startswith('vl') is False:
+                valid = True
+
+    # Return
+    return valid
