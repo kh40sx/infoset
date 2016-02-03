@@ -282,19 +282,19 @@ def _get_duplex(port_data):
     # Initialize key variables
     duplex = 'Unknown'
     options = {
-        1: 'Unknown',
-        2: 'Half',
-        3: 'Full',
+        0: 'Unknown',
+        1: 'Half',
+        2: 'Full',
+        3: 'Half-Auto',
+        4: 'Full-Auto',
     }
 
     # Assign duplex
     if _port_up(port_data) is False:
         duplex = 'N/A'
     else:
-        if 'dot3StatsDuplexStatus' in port_data:
-            value = port_data['dot3StatsDuplexStatus']
-            if value in options:
-                duplex = options[value]
+        if 'duplex' in port_data:
+            duplex = options[port_data['duplex']]
 
     # Return
     return duplex

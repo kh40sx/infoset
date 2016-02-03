@@ -17,10 +17,12 @@ from snmp import mib_etherlike
 from snmp import mib_ciscocdp
 from snmp import mib_entity
 from snmp import mib_lldp
+from snmp import mib_ciscostack
+from snmp import mib_ciscoc2900
+from snmp import mib_essswitch
 
 
 class Query(object):
-
     """Class interacts with IfMIB devices.
 
     Args:
@@ -154,6 +156,24 @@ class Query(object):
 
         # Get information from LLDP-MIB
         query = mib_lldp.Query(self.snmp_params)
+        if query.supported() is True:
+            processed = True
+            data = _add_layer1(query, data)
+
+        # Get information from CISCO-STACK-MIB
+        query = mib_ciscostack.Query(self.snmp_params)
+        if query.supported() is True:
+            processed = True
+            data = _add_layer1(query, data)
+
+        # Get information from CISCO-C2900-MIB
+        query = mib_ciscoc2900.Query(self.snmp_params)
+        if query.supported() is True:
+            processed = True
+            data = _add_layer1(query, data)
+
+        # Get information from MIB-ESSWITCH
+        query = mib_essswitch.Query(self.snmp_params)
         if query.supported() is True:
             processed = True
             data = _add_layer1(query, data)

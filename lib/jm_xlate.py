@@ -3,6 +3,7 @@
 
 import os
 import yaml
+from pprint import pprint
 
 
 import jm_general
@@ -48,6 +49,8 @@ class File(object):
         # Create dict for layer1 Ethernet data
         for key, metadata in yaml_data['layer1'].items():
             if _is_ethernet(metadata) is True:
+                # Update duplex to universal infoset metadata value
+                metadata['duplex'] = _duplex(metadata)
                 self.ports[int(key)] = metadata
 
         # Get system
@@ -113,3 +116,73 @@ def _is_ethernet(metadata):
 
     # Return
     return valid
+
+
+def _duplex(metadata):
+    """Return duplex value for port.
+
+    Args:
+        metadata: Data dict related to the port
+
+    Returns:
+        duplex: Duplex value
+            0) Unknown
+            1) Half
+            2) Full
+            3) Half Auto
+            4) Full Auto
+
+    """
+    # Initialize key variables
+    duplex = 0
+
+    # Process swPortDuplexStatus
+    if 'swPortDuplexStatus' in metadata:
+        value = metadata['swPortDuplexStatus']
+
+        # Process duplex
+        if value == 1:
+            duplex = 2
+        else:
+            duplex = 1
+
+    # Process dot3StatsDuplexStatus
+    elif 'dot3StatsDuplexStatus' in metadata:
+        value = metadata['dot3StatsDuplexStatus']
+
+        # Process duplex
+        if value == 2:
+            duplex = 1
+        elif value == 3:
+            duplex = 2
+
+    # Process portDuplex
+    elif 'portDuplex' in metadata:
+        value = metadata['portDuplex']
+
+        # Process duplex
+        if value == 1:
+            duplex = 1
+        elif value == 2:
+            duplex = 2
+
+    # Process c2900PortDuplexState
+    elif 'c2900PortLinkbeatStatus' in metadata:
+        status_link = metadata['c2900PortLinkbeatStatus']
+        status_duplex = metadata['c2900PortDuplexStatus']
+
+        if status_link == 3:
+            # If no link beats (Not AutoNegotiate)
+            if status_duplex == 1:
+                duplex = 2
+            elif status_duplex == 2:
+                duplex = 1
+        else:
+            # If link beats (AutoNegotiate)
+            if status_duplex == 1:
+                duplex = 4
+            elif status_duplex == 2:
+                duplex = 3
+
+    # Return
+    return duplex
