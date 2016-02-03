@@ -97,7 +97,7 @@ snmp_groups:
 |Parameter|Description|
 | --- | --- |
 | data_directory: | The data directory where all infostor data will be kept. |
-| web_directory: | The directory where all infostor HTML files will be kept. |
+| web_directory: | The directory where all infostor HTML files will be kept. Make this directory your web root.|
 | hosts: | YAML key describing hosts. All hosts are listed under this key.|
 | snmp_groups: | YAML key describing groups of SNMP authentication parameter. All parameter groups are listed under this key.|
 | group_name: | Descriptive name for the group|
