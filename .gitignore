@@ -18,6 +18,11 @@ www/**
 # their subdirectories will be placed in the repository.
 etc/*
 
+# There are exceptions
+!etc/.gitignore
+!data/.gitignore
+!www/.gitignore
+
 #############################################################################
 # </Developer Section>
 #############################################################################
