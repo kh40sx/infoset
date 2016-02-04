@@ -17,7 +17,21 @@ class Query(object):
     Returns:
         None
 
-    Methods:
+    Key Methods:
+
+        supported: Queries the device to determine whether the MIB is
+            supported using a known OID defined in the MIB. Returns True
+            if the device returns a response to the OID, False if not.
+
+        system: Returns all relevant system information from the device.
+            In some cases a system will have multiple subsystems that are
+            covered by an OID. (eg. module / circuit board serial numbers).
+            It will therefore be impossible to have a consistent key format
+            for data values returned. Data returned by this method will
+            therefore be keyed by :
+            1) MIB name (primary key)
+            2) OID name in the MIB, (secondary key),
+            3) Leaf value, or zero (0) if there are no leaves.
 
     """
 

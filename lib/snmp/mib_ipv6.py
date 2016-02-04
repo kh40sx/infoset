@@ -19,7 +19,14 @@ class Query(object):
     Returns:
         None
 
-    Methods:
+    Key Methods:
+
+        supported: Queries the device to determine whether the MIB is
+            supported using a known OID defined in the MIB. Returns True
+            if the device returns a response to the OID, False if not.
+
+        layer3: Returns all needed layer 3 MIB information from the device.
+            Keyed by OID's MIB name (primary key), IP address (secondary key).
 
     """
 

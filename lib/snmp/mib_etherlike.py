@@ -9,7 +9,6 @@ from snmp import snmp_manager
 
 
 class Query(object):
-
     """Class interacts with ETHERLIKE-MIB.
 
     Args:
@@ -18,7 +17,14 @@ class Query(object):
     Returns:
         None
 
-    Methods:
+    Key Methods:
+
+        supported: Queries the device to determine whether the MIB is
+            supported using a known OID defined in the MIB. Returns True
+            if the device returns a response to the OID, False if not.
+
+        layer1: Returns all needed layer 1 MIB information from the device.
+            Keyed by OID's MIB name (primary key), ifIndex (secondary key)
 
     """
 

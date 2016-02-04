@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Classes for polling remote hosts for SNMP data."""
+"""Class for creating device web pages."""
 
 import tempfile
 import textwrap
@@ -17,7 +17,7 @@ THREAD_QUEUE = Queue.Queue()
 
 
 class PageMaker(threading.Thread):
-    """Threaded polling.
+    """Threaded page creation using device YAML files.
 
     Graciously modified from:
     http://www.ibm.com/developerworks/aix/library/au-threadingpython/
@@ -354,6 +354,7 @@ def _html_header(host):
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="refresh" CONTENT="3600">
+<META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
 <title>%s Ports List</title>
 </head>
 <body>
@@ -380,6 +381,7 @@ def _index_html(config):
     html = ("""\
 <html>
 <head>
+<META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
 </head>
 <body>
 %s

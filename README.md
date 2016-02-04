@@ -17,6 +17,16 @@ The project is not:
 
 As the project is an inventory system, there is some scope for parallel projects to chart changes in resources audited by the project.
 
+## Features
+infoset has the following features:
+1. Open source.
+2. Written in python, a modern language.
+3. Easy configuration.
+4. Threaded polling of devices for data. Fast.
+5. Support for Cisco and Juniper gear. More expected to added with time.
+6. Support for SNMPv2 and/or SNMPv3 for all configured network devices.
+We are always looking for more contributors!
+
 ## Support
 The project currently only supports Linux distros that natively support python 3 for ease of portability.
 
@@ -61,7 +71,9 @@ $ PYTHONPATH="${PYTHONPATH}:/opt/infoset/lib"
 $ export PYTHONPATH
 ```
 # Configuration
-The `/etc` directory includes a sample file that can be edited. infoset assumes all files in this directory, or any other specified configuration directory, only contains infoset configuration files. Most user will only need to edit the three files supplied.
+The `examples/etc/` directory includes a sample file that can be edited. infoset assumes all files in this directory, or any other specified configuration directory, only contains infoset configuration files. Most user will only need to edit the three files supplied.
+
+Feel free to use the `etc/` directory as your permanent configuration file location.
 
 ## Sample Configuration File
 Here is a sample configuration file that will be explained later in detail. infoset will attempt to contact hosts with each of the parameter sets in the `snmp_group` section till successful.
@@ -96,7 +108,7 @@ snmp_groups:
 
 |Parameter|Description|
 | --- | --- |
-| data_directory: | The data directory where all infostor data will be kept. |
+| data_directory: | The data directory where all infostor data will be kept. This can be the `data/` directory.|
 | web_directory: | The directory where all infostor HTML files will be kept. Make this directory your web root.|
 | hosts: | YAML key describing hosts. All hosts are listed under this key.|
 | snmp_groups: | YAML key describing groups of SNMP authentication parameter. All parameter groups are listed under this key.|

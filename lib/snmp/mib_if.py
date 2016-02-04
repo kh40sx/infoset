@@ -20,7 +20,14 @@ class Query(object):
     Returns:
         None
 
-    Methods:
+    Key Methods:
+
+        supported: Queries the device to determine whether the MIB is
+            supported using a known OID defined in the MIB. Returns True
+            if the device returns a response to the OID, False if not.
+
+        layer1: Returns all needed layer 1 MIB information from the device.
+            Keyed by OID's MIB name (primary key), ifIndex (secondary key)
 
     """
 
@@ -38,7 +45,7 @@ class Query(object):
         self.snmp_query = snmp_manager.Interact(snmp_params)
 
     def supported(self):
-        """Return device's support for the MIB.
+        """Return device's support for the MIB using an OID defined in it.
 
         Args:
             None
@@ -61,7 +68,7 @@ class Query(object):
         return validity
 
     def layer1(self):
-        """Get layer 1 data from device.
+        """Get layer 1 data from device using Layer 1 OIDs.
 
         Args:
             None
