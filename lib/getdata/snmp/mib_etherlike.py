@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Module for MIB-ESSWITCH."""
+"""Module for ETHERLIKE-MIB."""
 
 
 from collections import defaultdict
 
 # Import project libraries
-from snmp import snmp_manager
+from getdata.snmp import snmp_manager
 
 
 class Query(object):
-    """Class interacts with MIB-ESSWITCH.
+    """Class interacts with ETHERLIKE-MIB.
 
     Args:
         None
@@ -54,8 +54,8 @@ class Query(object):
         # Support OID
         validity = False
 
-        # Get one OID entry in MIB (swPortDuplexStatus)
-        oid = '.1.3.6.1.4.1.437.1.1.3.3.1.1.30'
+        # Get one OID entry in MIB (dot3StatsDuplexStatus)
+        oid = '.1.3.6.1.2.1.10.7.2.1.19'
 
         # Return nothing if oid doesn't exist
         if self.snmp_query.oid_exists(oid) is True:
@@ -77,29 +77,29 @@ class Query(object):
         # Initialize key variables
         final = defaultdict(lambda: defaultdict(dict))
 
-        # Get interface swPortDuplexStatus data
-        values = self.swportduplexstatus()
+        # Get interface dot3StatsDuplexStatus data
+        values = self.dot3statsduplexstatus()
         for key, value in values.items():
-            final[key]['swPortDuplexStatus'] = value
+            final[key]['dot3StatsDuplexStatus'] = value
 
         # Return
         return final
 
-    def swportduplexstatus(self):
-        """Return dict of MIB-ESSWITCH swPortDuplexStatus for each port.
+    def dot3statsduplexstatus(self):
+        """Return dict of ETHERLIKE-MIB dot3StatsDuplexStatus for each port.
 
         Args:
             None
 
         Returns:
-            data_dict: Dict of swPortDuplexStatus using ifIndex as key
+            data_dict: Dict of dot3StatsDuplexStatus using ifIndex as key
 
         """
         # Initialize key variables
         data_dict = defaultdict(dict)
 
         # Descriptions
-        oid = '.1.3.6.1.4.1.437.1.1.3.3.1.1.30'
+        oid = '.1.3.6.1.2.1.10.7.2.1.19'
         results = self.snmp_query.walk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value

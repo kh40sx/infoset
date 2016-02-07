@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Module for CISCO-STACK-MIB."""
+"""Module for MIB-ESSWITCH."""
 
 
 from collections import defaultdict
 
 # Import project libraries
-from snmp import snmp_manager
+from getdata.snmp import snmp_manager
 
 
 class Query(object):
-    """Class interacts with CISCO-STACK-MIB.
+    """Class interacts with MIB-ESSWITCH.
 
     Args:
         None
@@ -54,8 +54,8 @@ class Query(object):
         # Support OID
         validity = False
 
-        # Get one OID entry in MIB (portDuplex)
-        oid = '.1.3.6.1.4.1.9.5.1.4.1.1.10'
+        # Get one OID entry in MIB (swPortDuplexStatus)
+        oid = '.1.3.6.1.4.1.437.1.1.3.3.1.1.30'
 
         # Return nothing if oid doesn't exist
         if self.snmp_query.oid_exists(oid) is True:
@@ -77,29 +77,29 @@ class Query(object):
         # Initialize key variables
         final = defaultdict(lambda: defaultdict(dict))
 
-        # Get interface portDuplex data
-        values = self.portduplex()
+        # Get interface swPortDuplexStatus data
+        values = self.swportduplexstatus()
         for key, value in values.items():
-            final[key]['portDuplex'] = value
+            final[key]['swPortDuplexStatus'] = value
 
         # Return
         return final
 
-    def portduplex(self):
-        """Return dict of CISCO-STACK-MIB portDuplex for each port.
+    def swportduplexstatus(self):
+        """Return dict of MIB-ESSWITCH swPortDuplexStatus for each port.
 
         Args:
             None
 
         Returns:
-            data_dict: Dict of portDuplex using ifIndex as key
+            data_dict: Dict of swPortDuplexStatus using ifIndex as key
 
         """
         # Initialize key variables
         data_dict = defaultdict(dict)
 
         # Descriptions
-        oid = '.1.3.6.1.4.1.9.5.1.4.1.1.10'
+        oid = '.1.3.6.1.4.1.437.1.1.3.3.1.1.30'
         results = self.snmp_query.walk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value

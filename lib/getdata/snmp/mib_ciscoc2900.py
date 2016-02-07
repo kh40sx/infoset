@@ -5,7 +5,7 @@
 from collections import defaultdict
 
 # Import project libraries
-from snmp import snmp_manager
+from getdata.snmp import snmp_manager
 
 
 class Query(object):

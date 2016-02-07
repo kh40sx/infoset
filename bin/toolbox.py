@@ -19,10 +19,10 @@ except:
 import jm_cli
 import jm_configuration
 import jm_general
-import jm_snmp
-import jm_pages
-from snmp import snmp_manager
-from snmp import snmp_info
+from getdata import poll
+from getdata.snmp import snmp_manager
+from getdata.snmp import snmp_info
+from web.snmp import ws_device
 
 
 def main():
@@ -132,7 +132,8 @@ def do_pages(config, verbose=False):
 
     """
     # Poll
-    jm_pages.make(config, verbose)
+    ws_device.make(config, verbose)
+
 
 def do_poll(config, verbose=False):
     """Process 'run' CLI option.
@@ -146,7 +147,7 @@ def do_poll(config, verbose=False):
 
     """
     # Poll
-    jm_snmp.poll(config, verbose)
+    poll.snmp(config, verbose)
 
 
 if __name__ == "__main__":

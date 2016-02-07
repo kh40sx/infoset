@@ -25,12 +25,13 @@ class File(object):
 
     """
 
-    def __init__(self, config, host):
+    def __init__(self, config, host, ifindices=None):
         """Initialize class.
 
         Args:
             config: Configuration file object
             host: Hostname to process
+            ifindices: List of ifindices to process
 
         Returns:
             data_dict: Dict of summary data
@@ -54,6 +55,12 @@ class File(object):
 
         # Create dict for layer1 Ethernet data
         for key, metadata in yaml_data['layer1'].items():
+            # Only process if key is found in ifindices
+            if ifindices is not None:
+                if int(key) not in ifindices:
+                    continue
+
+            # Process metadata
             if _is_ethernet(metadata) is True:
                 # Update vlan to universal infoset metadata value
                 metadata['jm_vlan'] = _vlan(yaml_data, key)
