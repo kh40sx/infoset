@@ -6,8 +6,8 @@ The following naming convention applies:
 
 1. All files in this directory must have the prefix `jm_`
 
-# Packages
-The packages here include:
+# Modules
+The modules here include:
 
-1. **web**: Packages for rendering web pages
-2. **getdata**: Packages for retrieving device data
+1. **web**: Modules for rendering web pages
+2. **getdata**: Modules for retrieving device data
