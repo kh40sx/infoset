@@ -39,7 +39,7 @@ class PageMaker(threading.Thread):
         self.queue = queue
 
     def run(self):
-        """ Update the database using threads.
+        """Update the database using threads.
 
         Args:
             None
@@ -293,8 +293,8 @@ def _get_duplex(port_data):
     if _port_up(port_data) is False:
         duplex = 'N/A'
     else:
-        if 'duplex' in port_data:
-            duplex = options[port_data['duplex']]
+        if 'jm_duplex' in port_data:
+            duplex = options[port_data['jm_duplex']]
 
     # Return
     return duplex
@@ -310,11 +310,13 @@ def _get_vlan(port_data):
         None
 
     """
+    # Initialize key variables
+    vlan = 'N/A'
+
     # Assign VLAN
-    if 'vmVlan' in port_data:
-        vlan = ('%s') % (port_data['vmVlan'])
-    else:
-        vlan = 'N/A'
+    if 'jm_vlan' in port_data:
+        if port_data['jm_vlan'] is not None:
+            vlan = ('%s') % (port_data['jm_vlan'])
 
     # Return
     return vlan

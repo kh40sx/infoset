@@ -37,6 +37,7 @@ The project took inspiration from switchmap whose creator, Pete Siemsen, has bee
 
 ## Oversight
 infoset is a student collaboration between:
+
 1. The University of the West Indies Computing Society. (Kingston, Jamaica)
 2. The University of Techology, IEEE Student Branch. (Kingston, Jamaica)
 3. The Palisadoes Foundation
@@ -72,14 +73,26 @@ For example, if your installation directory is ```/opt/infoset```, then you must
 $ PYTHONPATH="${PYTHONPATH}:/opt/infoset/lib"
 $ export PYTHONPATH
 ```
-# Configuration
-The `examples/etc/` directory includes a sample file that can be edited. infoset assumes all files in this directory, or any other specified configuration directory, only contains infoset configuration files. Most user will only need to edit the three files supplied.
+
+# Apache Configuration Samples
+
+The `examples/apache` directory includes sample files to create a:
+
+1. dedicated infoset site (`sites-available.example.org.conf`)
+2. URI of an existing site (`conf-available.example.conf`)
+
+# infoset Configuration Samples
+
+The `examples/etc` directory includes a sample files that can be edited. infoset assumes all files in this directory, or any other specified configuration directory, only contains infoset configuration files. Most user will only need to edit the three files supplied.
 
 Feel free to use the `etc/` directory as your permanent configuration file location.
 
 ## Sample Configuration File
 Here is a sample configuration file that will be explained later in detail. infoset will attempt to contact hosts with each of the parameter sets in the `snmp_group` section till successful.
 ```
+web_directory: /home/example/public_html
+data_directory: /home/example/infoset/data
+
 hosts:
     - host1
     - host2
@@ -132,10 +145,16 @@ You can test connectivity to a host using this command where the configuration d
 `$ bin/toolbox.py test --directory etc/  --host host1`
 
 ## Polling All Devices
-This command will execute against all configured hosts and create appropriate HTML files in the configuration file's `$DATA_DIRECTORY/snmp` directory
+This command will execute against all configured hosts and create appropriate YAML files in the configuration file's `$DATA_DIRECTORY/snmp` directory
 `$ bin/toolbox.py poll --directory etc/`
 
-You may want to set your webserver to inspect the data in your `$DATA_DIRECTORY/snmp` to view the results of this command.
+## Creating Web Pages for All Devices
+For best results, run this command after polling is complete.
+
+This command will execute against all configured hosts and create appropriate HTML files in the configuration file's `$WEB_DIRECTORY` directory
+`$ bin/toolbox.py pagemaker --directory etc/`
+
+Your webserver will now be able to access the newest HTML in `$WEB_DIRECTORY`.
 
 # Next Steps
 There are many dragons to slay and kingdoms to conquer!

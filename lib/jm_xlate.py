@@ -3,7 +3,6 @@
 
 import os
 import yaml
-from pprint import pprint
 
 
 import jm_general
@@ -56,8 +55,13 @@ class File(object):
         # Create dict for layer1 Ethernet data
         for key, metadata in yaml_data['layer1'].items():
             if _is_ethernet(metadata) is True:
+                # Update vlan to universal infoset metadata value
+                metadata['jm_vlan'] = _vlan(yaml_data, key)
+
                 # Update duplex to universal infoset metadata value
-                metadata['duplex'] = _duplex(metadata)
+                metadata['jm_duplex'] = _duplex(metadata)
+
+                # Update ports
                 self.ports[int(key)] = metadata
 
         # Get system
@@ -123,6 +127,28 @@ def _is_ethernet(metadata):
 
     # Return
     return valid
+
+
+def _vlan(metadata, ifindex):
+    """Return vlan for specific ifIndex.
+
+    Args:
+        metadata: Data dict related to the device
+        ifindex: ifindex in question
+
+    Returns:
+        vlan: True if valid ethernet port
+
+    """
+    # Initialize key variables
+    vlan = None
+
+    # Determine vlan number for Cisco devices
+    if 'vmVlan' in metadata['layer1'][ifindex]:
+        vlan = int(metadata['layer1'][ifindex]['vmVlan'])
+
+    # Return
+    return vlan
 
 
 def _duplex(metadata):
