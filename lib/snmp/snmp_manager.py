@@ -119,8 +119,7 @@ class Interact:
         try:
             # If we can poll the SNMP sysObjectID,
             # then the device is contactable
-            results = self.sys_object_id(connectivity_check=True)
-            if results is not None and bool(results) is not False:
+            if self.sysobjectid(connectivity_check=True) is not None:
                 contactable = True
 
         except Exception as unused_exception_error:
@@ -136,21 +135,27 @@ class Interact:
         # Return
         return contactable
 
-    def sys_object_id(self, connectivity_check=False):
+    def sysobjectid(self, connectivity_check=False):
         """Get the sysObjectID of the device.
 
         Args:
             connectivity_check: Set if testing for connectivity
 
         Returns:
-            val: OID value
+            object_id: sysObjectID value
 
         """
-        sysobjectid = '.1.3.6.1.2.1.1.2.0'
-        val = self.get(
-            sysobjectid,
-            connectivity_check=connectivity_check)
-        return val
+        # Initialize key variables
+        oid = '.1.3.6.1.2.1.1.2.0'
+        object_id = None
+
+        # Get sysObjectID
+        results = self.get(oid, connectivity_check=connectivity_check)
+        if results is not None and bool(results) is not False:
+            object_id = ('.%s') % (results[oid].decode('utf-8'))
+
+        # Return
+        return object_id
 
     def oid_exists(self, oid_to_get):
         """Determine existence of OID on device.
