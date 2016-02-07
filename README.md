@@ -142,19 +142,23 @@ snmp_groups:
 infoset comes with a handy `toolbox.py` script
 ## Testing Host Connectivity
 You can test connectivity to a host using this command where the configuration directory is `etc/` and the host is `host1`
-`$ bin/toolbox.py test --directory etc/  --host host1`
+```
+$ bin/toolbox.py test --directory etc/  --host host1
+```
 
 ## Polling All Devices
 This command will execute against all configured hosts and create appropriate YAML files in the configuration file's `$DATA_DIRECTORY/snmp` directory
-
-`$ bin/toolbox.py poll --directory etc/`
+```
+$ bin/toolbox.py poll --directory etc/
+```
 
 ## Creating Web Pages for All Devices
 For best results, run this command after polling is complete.
 
 This command will execute against all configured hosts and create appropriate HTML files in the configuration file's `$WEB_DIRECTORY` directory
-
-`$ bin/toolbox.py pagemaker --directory etc/`
+```
+$ bin/toolbox.py pagemaker --directory etc/
+```
 
 Your webserver will now be able to access the newest HTML in `$WEB_DIRECTORY`.
 
