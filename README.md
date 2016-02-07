@@ -169,7 +169,12 @@ Your webserver will now be able to access the newest HTML in `$WEB_DIRECTORY`.
 # Next Steps
 There are many dragons to slay and kingdoms to conquer!
 ## Contribute
-Contributions are always welcome. Contact our team for more.
+Here are a few things to know.
+
+1. Contributions are always welcome. Contact our team for more.
+2. View our contributor guidelines here: https://github.com/UWICompSociety/infoset/blob/master/CONTRIBUTING.md
+3. View our guidelines for committing code here: https://github.com/UWICompSociety/infoset/blob/master/COMMITTERS.md
+
 ## Mailing list
 Our current mailing list is: https://groups.google.com/forum/#!forum/gdg-jamaica
 ## New Features
