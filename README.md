@@ -74,20 +74,24 @@ $ PYTHONPATH="${PYTHONPATH}:/opt/infoset/lib"
 $ export PYTHONPATH
 ```
 
-# Apache Configuration Samples
+# Configuration Samples
+
+The `examples/` directory includes a number of sample files. These will now be explained.
+
+## Apache Configuration Samples
 
 The `examples/apache` directory includes sample files to create a:
 
 1. dedicated infoset site (`sites-available.example.org.conf`)
 2. URI of an existing site (`conf-available.example.conf`)
 
-# infoset Configuration Samples
+## infoset Configuration Samples
 
 The `examples/etc` directory includes a sample files that can be edited. infoset assumes all files in this directory, or any other specified configuration directory, only contains infoset configuration files. Most user will only need to edit the three files supplied.
 
 Feel free to use the `etc/` directory as your permanent configuration file location.
 
-## Sample Configuration File
+### Sample Configuration File
 Here is a sample configuration file that will be explained later in detail. infoset will attempt to contact hosts with each of the parameter sets in the `snmp_group` section till successful.
 ```
 web_directory: /home/example/public_html
@@ -119,7 +123,7 @@ snmp_groups:
       snmp_privprotocol: aes
       snmp_privpassword: secret_password
 ```
-### Configuration File Details Table
+#### Configuration File Details Table
 
 |Parameter|Description|
 | --- | --- |
