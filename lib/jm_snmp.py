@@ -18,7 +18,6 @@ THREAD_QUEUE = Queue.Queue()
 
 
 class PollAllSNMP(threading.Thread):
-
     """Threaded polling.
 
     Graciously modified from:
@@ -27,12 +26,12 @@ class PollAllSNMP(threading.Thread):
     """
 
     def __init__(self, queue):
-        """ Initialize the threads."""
+        """Initialize the threads."""
         threading.Thread.__init__(self)
         self.queue = queue
 
     def run(self):
-        """ Update the database using threads."""
+        """Update the database using threads."""
         while True:
             # Get the data_dict
             data_dict = self.queue.get()
@@ -53,10 +52,10 @@ class PollAllSNMP(threading.Thread):
             # Skip invalid, and uncontactable hosts
             if bool(snmp_params) is False:
                 if verbose is True:
-                    output = (
+                    log_message = (
                         'Uncontactable host %s or no valid SNMP '
                         'credentials found for it.') % (host)
-                    print(output)
+                    jm_general.logit(1019, log_message, False)
                 continue
 
             # Process if valid

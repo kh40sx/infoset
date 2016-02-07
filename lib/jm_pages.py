@@ -101,6 +101,7 @@ def make(config, verbose=False):
     """
     # Initialize key variables
     threads_in_pool = 10
+    device_file_found = False
 
     # Create directory if needed
     perm_dir = config.web_directory()
@@ -117,6 +118,17 @@ def make(config, verbose=False):
 
     # Get host data and write to file
     for host in config.hosts():
+        # Skip if device file not found
+        if os.path.isfile(config.snmp_device_file(host)) is False:
+            log_message = (
+                'No YAML device file for host %s found in %s. '
+                'Run toolbox.py with the "poll" option first.'
+                '') % (host, config.snmp_directory())
+            jm_general.logit(1018, log_message, False)
+            continue
+        else:
+            device_file_found = True
+
         ####################################################################
         #
         # Define variables that will be required for the database update
@@ -131,29 +143,33 @@ def make(config, verbose=False):
         data_dict['temp_dir'] = temp_dir
         THREAD_QUEUE.put(data_dict)
 
-    # Wait on the queue until everything has been processed
-    THREAD_QUEUE.join()
+    # Do the rest if device_file_found
+    if device_file_found is True:
+        # Wait on the queue until everything has been processed
+        THREAD_QUEUE.join()
 
-    # PYTHON BUG. Join can occur while threads are still shutting down.
-    # This can create spurious "Exception in thread (most likely raised
-    # during interpreter shutdown)" errors.
-    # The "time.sleep(1)" adds a delay to make sure things really terminate
-    # properly. This seems to be an issue on virtual machines in Dev only
-    time.sleep(1)
+        # PYTHON BUG. Join can occur while threads are still shutting down.
+        # This can create spurious "Exception in thread (most likely raised
+        # during interpreter shutdown)" errors.
+        # The "time.sleep(1)" adds a delay to make sure things really terminate
+        # properly. This seems to be an issue on virtual machines in Dev only
+        time.sleep(1)
 
-    # Create index file
-    write_file = ('%s/index.html') % (temp_dir)
-    index_html = _index_html(config)
-    with open(write_file, 'w') as file_handle:
-        file_handle.write(index_html)
+        # Create index file
+        write_file = ('%s/index.html') % (temp_dir)
+        index_html = _index_html(config)
+        with open(write_file, 'w') as file_handle:
+            file_handle.write(index_html)
 
-    # Cleanup, move temporary files to clean permanent directory.
-    # Delete temporary directory
-    if os.path.isdir(perm_dir):
-        jm_general.delete_files(perm_dir)
-    else:
-        os.makedirs(perm_dir, 0o755)
-    jm_general.move_files(temp_dir, perm_dir)
+        # Cleanup, move temporary files to clean permanent directory.
+        # Delete temporary directory
+        if os.path.isdir(perm_dir):
+            jm_general.delete_files(perm_dir)
+        else:
+            os.makedirs(perm_dir, 0o755)
+        jm_general.move_files(temp_dir, perm_dir)
+
+    # Clean up
     os.rmdir(temp_dir)
 
 

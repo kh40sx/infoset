@@ -192,11 +192,27 @@ class Read(object):
             None
 
         Returns:
-            value: configured data_directory
+            value: Implied snmp_directory
 
         """
         # Get parameter
         value = ('%s/snmp') % self.data_directory()
+
+        # Return
+        return value
+
+    def snmp_device_file(self, host):
+        """Determine the snmp_device_file.
+
+        Args:
+            host: Hostname
+
+        Returns:
+            value: Implied snmp_device_file
+
+        """
+        # Get parameter
+        value = ('%s/%s.yaml') % (self.snmp_directory(), host)
 
         # Return
         return value

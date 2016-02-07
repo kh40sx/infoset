@@ -38,14 +38,14 @@ class File(object):
         """
         # Initialize key variables
         self.ports = {}
-        yaml_file = ('%s/%s.yaml') % (config.snmp_directory(), host)
+        yaml_file = config.snmp_device_file(host)
 
         # Fail if yaml file doesn't exist
         if os.path.isfile(yaml_file) is False:
             log_message = (
                 'YAML file %s for host %s doesn\'t exist! '
                 'Try polling devices first.') % (yaml_file, host)
-            jm_general.logit(1017, log_message, False)
+            jm_general.logit(1017, log_message)
 
         # Read file
         with open(yaml_file, 'r') as file_handle:
