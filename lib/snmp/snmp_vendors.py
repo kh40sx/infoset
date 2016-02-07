@@ -49,9 +49,29 @@ class Query(object):
         vendor_string = '.1.3.6.1.4.1.9.'
         value = False
 
-        # Append data
+        # Checks system object ID
         if self.sysobjectid.startswith(vendor_string) is True:
             value = True
 
         # Return
+        return value
+
+    def is_juniper(self):
+        """Verify whether device is a Juniper device.
+
+        Args:
+            None
+
+        Returns:
+            value: True if matches vendor
+
+        """
+        # Initialize key variables
+        # (The trailing "." in vendor_string is important)
+        vendor_string = '.1.3.6.1.4.1.2636.'
+        value = False
+
+        #Checks system object ID
+        if self.sysobjectid.startswith(vendor_string) is True:
+            value = True
         return value
