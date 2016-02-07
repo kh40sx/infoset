@@ -40,7 +40,7 @@ infoset is a student collaboration between:
 
 1. The University of the West Indies Computing Society. (Kingston, Jamaica)
 2. The University of Techology, IEEE Student Branch. (Kingston, Jamaica)
-3. The Palisadoes Foundation
+3. The Palisadoes Foundation http://www.palisadoes.org
 
 And many others.
 
