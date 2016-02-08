@@ -1,7 +1,3 @@
-Coming Soon
-====
-
-
 # Code Style Guide
 For ease of readability and maintainability `infoset` code must follow thse guidelines.
 Code that does not comply will not be added to the `master` branch.
