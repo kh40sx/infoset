@@ -43,6 +43,13 @@ class Query(object):
         self.snmp_query = snmp_manager.Interact(snmp_params)
         self.snmp_params = snmp_params
 
+        # Get mapping of the VLAN's dot1dbaseport ID value to its jnxExVlanTag
+        # Do this only once instead of every time we invoke a method
+        if self.supported() is True:
+            self.vlan_map = self._vlanid2tag()
+        else:
+            self.vlan_map = None
+
     def supported(self):
         """Return device's support for the MIB.
 
@@ -126,9 +133,6 @@ class Query(object):
         bridge_mib = mib_bridge.Query(self.snmp_params)
         baseportifindex = bridge_mib.dot1dbaseportifindex()
 
-        # Get mapping of the VLAN's dot1dbaseport ID value to its jnxExVlanTag
-        vlan_map = self._vlanid2tag()
-
         # Process results
         results = self.snmp_query.walk(oid, normalized=False)
         for key in sorted(results.keys()):
@@ -137,7 +141,7 @@ class Query(object):
 
             # Get the VLAN ID and corresponding VLAN tag
             vlan_id = nodes[-2]
-            vlan_tag = vlan_map[int(vlan_id)]
+            vlan_tag = self.vlan_map[int(vlan_id)]
 
             # Get dot1dbaseport value and it's corresponding ifindex
             baseport_value = nodes[-1]
@@ -163,15 +167,12 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Get mapping of the VLAN's dot1dbaseport ID value to its jnxExVlanTag
-        vlan_map = self._vlanid2tag()
-
         # Descriptions
         oid = '.1.3.6.1.4.1.2636.3.40.1.5.1.5.1.2'
         results = self.snmp_query.walk(oid, normalized=True)
         for vlan_id, value in sorted(results.items()):
             # Get VLAN tag
-            vlan_tag = vlan_map[int(vlan_id)]
+            vlan_tag = self.vlan_map[int(vlan_id)]
 
             # Assign value (Convert to string)
             data_dict[vlan_tag] = str(bytes(value), encoding='utf-8')
