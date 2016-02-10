@@ -57,7 +57,7 @@ class Query(object):
         # Support OID
         validity = False
 
-        # Get one OID entry in MIB (dot1dTpFdbPort)
+        # Get one OID entry in MIB (dot1dBasePortIfIndex)
         oid = '.1.3.6.1.2.1.17.4.3.1.2'
 
         # Return nothing if oid doesn't exist
@@ -113,13 +113,13 @@ class Query(object):
         return final
 
     def _dot1dtpfdbport(self):
-        """Return dict of BRIDGE-MIB dot1dTpFdbPort data.
+        """Return dict of BRIDGE-MIB dot1dBasePortIfIndex data.
 
         Args:
             None
 
         Returns:
-            data_dict: Dict of dot1dTpFdbPort using the OID nodes
+            data_dict: Dict of dot1dBasePortIfIndex using the OID nodes
                 excluding the OID root as key
 
         """
@@ -157,6 +157,29 @@ class Query(object):
             new_key = key[len(oid):]
             macaddress = binascii.hexlify(value).decode('utf-8')
             data_dict[new_key] = macaddress.lower()
+
+        # Return data
+        return data_dict
+
+    def dot1dbaseportifindex(self):
+        """Return dict of BRIDGE-MIB dot1dBasePortIfIndex data.
+
+        Args:
+            None
+
+        Returns:
+            data_dict: Dict of dot1dBasePortIfIndex using the OID nodes
+                excluding the OID root as key
+
+        """
+        # Initialize key variables
+        data_dict = defaultdict(dict)
+
+        # Process values
+        oid = '.1.3.6.1.2.1.17.1.4.1.2'
+        results = self.snmp_query.walk(oid, normalized=True)
+        for key, value in sorted(results.items()):
+            data_dict[int(key)] = value
 
         # Return data
         return data_dict
