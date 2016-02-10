@@ -178,7 +178,7 @@ class Query(object):
             processed = True
             data = _add_layer1(query, data)
 
-        # Get information from  JUNIPER-MIB
+        # Get information from JUNIPER-MIB
         query = mib_juniper.Query(self.snmp_params)
         if query.supported() is True:
             processed = True
@@ -206,6 +206,12 @@ class Query(object):
 
         # Get VLAN table information (Cisco)
         query = mib_ciscovtp.Query(self.snmp_params)
+        if query.supported() is True:
+            processed = True
+            data = _add_layer2(query, data)
+
+        # Get VLAN information from JUNIPER-MIB
+        query = mib_juniper.Query(self.snmp_params)
         if query.supported() is True:
             processed = True
             data = _add_layer2(query, data)

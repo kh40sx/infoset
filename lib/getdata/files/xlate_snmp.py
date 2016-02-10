@@ -53,6 +53,16 @@ class File(object):
             yaml_from_file = file_handle.read()
         yaml_data = yaml.load(yaml_from_file)
 
+        #####################################################################
+        #
+        # Jordan: You need to add code here to process Juniper devices
+        # Create a method / function to populate the ethernet interfaces
+        # with vlan data from their type 53 interfaces (if they exist)
+        # Then pass the resulting modified yaml_data dictionary to the loop
+        # below
+        #
+        #####################################################################
+
         # Create dict for layer1 Ethernet data
         for key, metadata in yaml_data['layer1'].items():
             # Only process if key is found in ifindices
@@ -153,6 +163,16 @@ def _vlan(metadata, ifindex):
     # Determine vlan number for Cisco devices
     if 'vmVlan' in metadata['layer1'][ifindex]:
         vlan = int(metadata['layer1'][ifindex]['vmVlan'])
+
+    #########################################################################
+    # Jordan. You need to add code here for the Juniper VLANs
+    # Pagemaker expects a single VLAN value to be returned.
+    # You may need to add pagemaker functionality that displays lists of
+    # VLANs in a table column if the interface is a trunk, with a vlan value
+    # of "trunk" for the vlan column. Switchmap does something similar here
+    # http://calico.palisadoes.org/switchmap/www/switches/192.168.1.3.html
+    # for interface Fa0/26
+    #########################################################################
 
     # Return
     return vlan
