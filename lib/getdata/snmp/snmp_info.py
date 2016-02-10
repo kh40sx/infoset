@@ -4,7 +4,6 @@
 import time
 from collections import defaultdict
 
-# Import project libraries
 from getdata.snmp import mib_ciscovlanmembership
 from getdata.snmp import mib_ciscovtp
 from getdata.snmp import mib_ciscoietfip
@@ -20,6 +19,7 @@ from getdata.snmp import mib_lldp
 from getdata.snmp import mib_ciscostack
 from getdata.snmp import mib_ciscoc2900
 from getdata.snmp import mib_essswitch
+from getdata.snmp import mib_juniper
 
 
 class Query(object):
@@ -174,6 +174,12 @@ class Query(object):
 
         # Get information from MIB-ESSWITCH
         query = mib_essswitch.Query(self.snmp_params)
+        if query.supported() is True:
+            processed = True
+            data = _add_layer1(query, data)
+
+        # Get information from  JUNIPER-MIB
+        query = mib_juniper.Query(self.snmp_params)
         if query.supported() is True:
             processed = True
             data = _add_layer1(query, data)
