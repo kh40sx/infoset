@@ -61,6 +61,16 @@ class File(object):
         # Then pass the resulting modified yaml_data dictionary to the loop
         # below
         #
+        # The logic would be.
+        # 1) Is this juniper?
+        # 2) Search for all ethernet interfaces
+        # 3) Determine whether the interface has a subinterface, that is a
+        #    main interface. This can be
+        #    done by searching the dict for an ifname of subinterface."0"
+        # 4) Determine whether the subinterface has vlan keys
+        # 5) Copy those keys to main interface.
+        # 6) When done, pass the modified dict to the loop below.
+        #
         #####################################################################
 
         # Create dict for layer1 Ethernet data
