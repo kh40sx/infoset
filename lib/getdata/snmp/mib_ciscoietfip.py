@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Class interacts with devices supporting IP-MIB."""
+"""Class interacts with CISCO-IETF-IP-MIB."""
 
 
 import binascii
@@ -7,11 +7,12 @@ from collections import defaultdict
 
 
 # Import project libraries
-from snmp import snmp_manager
+from getdata.snmp import snmp_manager
 
 
 class Query(object):
-    """Class interacts with devices supporting IP-MIB.
+
+    """Class interacts with CISCO-IETF-IP-MIB.
 
     Args:
         None
@@ -54,7 +55,14 @@ class Query(object):
 
         """
         # Support OID
-        validity = True
+        validity = False
+
+        # Get one OID entry in MIB (cInetNetToMediaPhysAddress)
+        oid = '.1.3.6.1.4.1.9.10.86.1.1.3.1.3'
+
+        # Return nothing if oid doesn't exist
+        if self.snmp_query.oid_exists(oid) is True:
+            validity = True
 
         # Return
         return validity
@@ -72,52 +80,16 @@ class Query(object):
         # Initialize key variables
         final = defaultdict(lambda: defaultdict(dict))
 
-        # Get interface ipNetToMediaTable data
-        values = self.ipnettomediatable()
+        # Get interface cInetNetToMediaPhysAddress data
+        values = self.cinetnettomediaphysaddress()
         for key, value in values.items():
-            final['ipNetToMediaTable'][key] = value
-
-        # Get interface ipNetToPhysicalPhysAddress data
-        values = self.ipnettophysicalphysaddress()
-        for key, value in values.items():
-            final['ipNetToPhysicalPhysAddress'][key] = value
+            final['cInetNetToMediaPhysAddress'][key] = value
 
         # Return
         return final
 
-    def ipnettomediatable(self):
-        """Return dict of ipNetToMediaTable, the device's ARP table.
-
-        Args:
-            None
-
-        Returns:
-            data_dict: Dict of MAC addresses keyed by IPv4 address
-
-        """
-        # Initialize key variables
-        data_dict = {}
-
-        # Process
-        oid = '.1.3.6.1.2.1.4.22.1.2'
-        results = self.snmp_query.walk(oid, normalized=False)
-        for key, value in sorted(results.items()):
-            # Determine IP address
-            nodes = key.split('.')
-            octets = nodes[-4:]
-            ipaddress = '.'.join(octets)
-
-            # Determine MAC address
-            macaddress = binascii.hexlify(value).decode('utf-8')
-
-            # Create ARP table entry
-            data_dict[ipaddress] = macaddress.lower()
-
-        # Return data
-        return data_dict
-
-    def ipnettophysicalphysaddress(self):
-        """Return dict of the device's ipNetToPhysicalPhysAddress ARP table.
+    def cinetnettomediaphysaddress(self):
+        """Return dict of the device's ARP table.
 
         Args:
             None
@@ -127,8 +99,8 @@ class Query(object):
 
         """
         # Initialize key variables
-        data_dict = {}
-        oid = '.1.3.6.1.2.1.4.35.1.4'
+        data_dict = defaultdict(dict)
+        oid = '.1.3.6.1.4.1.9.10.86.1.1.3.1.3'
 
         # Get results
         results = self.snmp_query.swalk(oid, normalized=False)
@@ -139,23 +111,16 @@ class Query(object):
 
             # Convert IP address from decimal to hex
             nodes = key.split('.')
-            nodes_decimal = nodes[-16:]
-            nodes_hex = []
-            nodes_final = []
-            for value in nodes_decimal:
+            ipv6decimal = nodes[-16:]
+            ipv6hex = []
+            for value in ipv6decimal:
                 # Convert deximal value to hex,
                 # then zero fill to ensure hex is two characters long
                 hexbyte = ('%s') % (hex(int(value)))[2:]
-                nodes_hex.append(hexbyte.zfill(2))
-
-            # Convert to list of four byte hex numbers
-            for pointer in range(0, len(nodes_hex) - 1, 2):
-                fixed_value = ('%s%s') % (nodes_hex[pointer],
-                                          nodes_hex[pointer + 1])
-                nodes_final.append(fixed_value)
+                ipv6hex.append(hexbyte.zfill(2))
 
             # Create IPv6 string
-            ipv6 = ':'.join(nodes_final)
+            ipv6 = ':'.join(ipv6hex)
 
             # Create ARP entry
             data_dict[ipv6] = macaddress.lower()

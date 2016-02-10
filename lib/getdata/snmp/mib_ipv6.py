@@ -7,11 +7,10 @@ from collections import defaultdict
 
 
 # Import project libraries
-from snmp import snmp_manager
+from getdata.snmp import snmp_manager
 
 
 class Query(object):
-
     """Class interacts with CISCO-IETF-IP-MIB.
 
     Args:
@@ -57,8 +56,8 @@ class Query(object):
         # Support OID
         validity = False
 
-        # Get one OID entry in MIB (cInetNetToMediaPhysAddress)
-        oid = '.1.3.6.1.4.1.9.10.86.1.1.3.1.3'
+        # Get one OID entry in MIB (ipv6Forwarding)
+        oid = '.1.3.6.1.2.1.55.1.1'
 
         # Return nothing if oid doesn't exist
         if self.snmp_query.oid_exists(oid) is True:
@@ -80,16 +79,16 @@ class Query(object):
         # Initialize key variables
         final = defaultdict(lambda: defaultdict(dict))
 
-        # Get interface cInetNetToMediaPhysAddress data
-        values = self.cinetnettomediaphysaddress()
+        # Get interface ifDescr data
+        values = self.ipv6nettomediaphysaddress()
         for key, value in values.items():
-            final['cInetNetToMediaPhysAddress'][key] = value
+            final['ipv6NetToMediaPhysAddress'][key] = value
 
         # Return
         return final
 
-    def cinetnettomediaphysaddress(self):
-        """Return dict of the device's ARP table.
+    def ipv6nettomediaphysaddress(self):
+        """Return dict of the device's ipv6NetToMediaPhysAddress ARP table.
 
         Args:
             None
@@ -100,7 +99,7 @@ class Query(object):
         """
         # Initialize key variables
         data_dict = defaultdict(dict)
-        oid = '.1.3.6.1.4.1.9.10.86.1.1.3.1.3'
+        oid = '.1.3.6.1.2.1.55.1.12.1.2'
 
         # Get results
         results = self.snmp_query.swalk(oid, normalized=False)
@@ -111,16 +110,23 @@ class Query(object):
 
             # Convert IP address from decimal to hex
             nodes = key.split('.')
-            ipv6decimal = nodes[-16:]
-            ipv6hex = []
-            for value in ipv6decimal:
+            nodes_decimal = nodes[-16:]
+            nodes_hex = []
+            nodes_final = []
+            for value in nodes_decimal:
                 # Convert deximal value to hex,
                 # then zero fill to ensure hex is two characters long
                 hexbyte = ('%s') % (hex(int(value)))[2:]
-                ipv6hex.append(hexbyte.zfill(2))
+                nodes_hex.append(hexbyte.zfill(2))
+
+            # Convert to list of four byte hex numbers
+            for pointer in range(0, len(nodes_hex) - 1, 2):
+                fixed_value = ('%s%s') % (nodes_hex[pointer],
+                                          nodes_hex[pointer + 1])
+                nodes_final.append(fixed_value)
 
             # Create IPv6 string
-            ipv6 = ':'.join(ipv6hex)
+            ipv6 = ':'.join(nodes_final)
 
             # Create ARP entry
             data_dict[ipv6] = macaddress.lower()

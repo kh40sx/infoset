@@ -178,6 +178,8 @@ Here are a few things to know.
 ## Mailing list
 Our current mailing list is: https://groups.google.com/forum/#!forum/gdg-jamaica
 ## New Features
-Visit our requirements document for a full list of features. https://goo.gl/LRdNkE
+Visit our GitHub issues for a full list of features and bug fixes. https://github.com/UWICompSociety/infoset/issues
+## Design Overview
+Visit our wiki's infoset document for the rationale of the design. http://wiki.palisadoes.org/index.php/Infoset
 ## Sample Output
 Visit http://calico.palisadoes.org/infoset to view infoset's latest stable web output.

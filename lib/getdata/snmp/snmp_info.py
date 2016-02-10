@@ -4,23 +4,22 @@
 import time
 from collections import defaultdict
 
-# Import project libraries
-from snmp import mib_ciscovlanmembership
-from snmp import mib_ciscovtp
-from snmp import mib_ciscoietfip
-from snmp import mib_snmpv2
-from snmp import mib_if
-from snmp import mib_bridge
-from snmp import mib_ip
-from snmp import mib_ipv6
-from snmp import mib_etherlike
-from snmp import mib_ciscocdp
-from snmp import mib_entity
-from snmp import mib_lldp
-from snmp import mib_ciscostack
-from snmp import mib_ciscoc2900
-from snmp import mib_essswitch
-from snmp import mib_juniper
+from getdata.snmp import mib_ciscovlanmembership
+from getdata.snmp import mib_ciscovtp
+from getdata.snmp import mib_ciscoietfip
+from getdata.snmp import mib_snmpv2
+from getdata.snmp import mib_if
+from getdata.snmp import mib_bridge
+from getdata.snmp import mib_ip
+from getdata.snmp import mib_ipv6
+from getdata.snmp import mib_etherlike
+from getdata.snmp import mib_ciscocdp
+from getdata.snmp import mib_entity
+from getdata.snmp import mib_lldp
+from getdata.snmp import mib_ciscostack
+from getdata.snmp import mib_ciscoc2900
+from getdata.snmp import mib_essswitch
+from getdata.snmp import mib_juniper
 
 
 class Query(object):

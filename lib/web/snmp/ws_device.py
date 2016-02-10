@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!usr/bin/env python3
 """Class for creating device web pages."""
 
 import tempfile
@@ -9,11 +9,71 @@ import queue as Queue
 import threading
 
 import jm_general
-import jm_xlate
+from getdata.files import xlate_snmp
 
 
 # Define a key global variable
 THREAD_QUEUE = Queue.Queue()
+
+
+class HTMLTable(object):
+    """Class that creates the device's various HTML tables.
+
+    Methods:
+        ethernet: Table of device Ethernet ports
+        device: Summary HTML table
+
+    """
+
+    def __init__(self, config, host):
+        """Initialize the class.
+
+        Args:
+            config: Configuration object
+            host: Hostname to process
+
+        Returns:
+            None
+
+        """
+        # Process YAML file for host
+        translation = xlate_snmp.File(config, host)
+        self.ports = translation.ethernet_data()
+        self.summary = translation.system_summary()
+
+    def ethernet(self):
+        """Create the ports table for the device.
+
+        Args:
+            config: Configuration object
+            host: Hostname to process
+
+        Returns:
+            html: HTML table string
+
+        """
+        # Initialize key variables
+        html = _port_table(self.ports)
+
+        # Return
+        return html
+
+    def device(self):
+        """Create summary table for the devie.
+
+        Args:
+            config: Configuration object
+            host: Hostname to process
+
+        Returns:
+            html: HTML table string
+
+        """
+        # Initialize key variables
+        html = _device_table(self.summary)
+
+        # Return
+        return html
 
 
 class PageMaker(threading.Thread):
@@ -59,8 +119,6 @@ class PageMaker(threading.Thread):
 
             # Initialize key variables
             write_file = ('%s/%s.html') % (temp_dir, host)
-            ports = {}
-            device = {}
 
             # Verbose output
             if verbose is True:
@@ -68,14 +126,12 @@ class PageMaker(threading.Thread):
                 print(output)
 
             # Process YAML file for host
-            translation = jm_xlate.File(config, host)
-            ports = translation.ethernet_data()
-            device = translation.system_summary()
+            table = HTMLTable(config, host)
 
             # Create HTML output
             html = ('%s<h1>%s<h1>\n%s\n<br>\n%s\n<br>\n%s') % (
-                _html_header(host), host, _device_table(device),
-                _port_table(ports), _html_footer)
+                _html_header(host), host, table.device(),
+                table.ethernet(), _html_footer)
             with open(write_file, 'w') as file_handle:
                 file_handle.write(html)
 
@@ -285,6 +341,30 @@ def _get_speed(port_data):
     return speed
 
 
+def _get_cdp(port_data):
+    """Return port CDP HTML string.
+
+    Args:
+        port_data: Data related to the port
+
+    Returns:
+        value: required string
+
+    """
+    # Initialize key variables
+    value = ''
+
+    # Determine whether CDP is enabled and update string
+    if 'cdpCacheDeviceId' in port_data:
+        value = ('<p>%s<br>%s<br>%s</p>') % (
+            port_data['cdpCacheDeviceId'],
+            port_data['cdpCachePlatform'],
+            port_data['cdpCacheDevicePort'])
+
+    # Return
+    return value
+
+
 def _get_duplex(port_data):
     """Return port duplex string.
 
@@ -425,7 +505,7 @@ def _port_table(data_dict):
     rows = []
     header = [
         'Port', 'VLAN', 'State', 'Days Inactive',
-        'Speed', 'Duplex', 'Port Label']
+        'Speed', 'Duplex', 'Port Label', 'CDP']
     output = '<table>\n'
     thstart = '    <th>'
 
@@ -444,8 +524,9 @@ def _port_table(data_dict):
         vlan = _get_vlan(port_data)
         state = _get_state(port_data)
         duplex = _get_duplex(port_data)
+        cdp = _get_cdp(port_data)
         rows.append(
-            [port, vlan, state, inactive, speed, duplex, label])
+            [port, vlan, state, inactive, speed, duplex, label, cdp])
 
     # Loop through list
     for row in rows:

@@ -9,8 +9,8 @@ import threading
 
 
 import jm_general
-from snmp import snmp_manager
-from snmp import snmp_info
+from getdata.snmp import snmp_manager
+from getdata.snmp import snmp_info
 
 
 # Define a key global variable
@@ -79,7 +79,7 @@ class PollAllSNMP(threading.Thread):
             self.queue.task_done()
 
 
-def poll(config, verbose=False):
+def snmp(config, verbose=False):
     """Process 'poll' CLI option.
 
     Args:

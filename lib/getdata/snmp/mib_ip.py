@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Class interacts with CISCO-IETF-IP-MIB."""
+"""Class interacts with devices supporting IP-MIB."""
 
 
 import binascii
@@ -7,11 +7,11 @@ from collections import defaultdict
 
 
 # Import project libraries
-from snmp import snmp_manager
+from getdata.snmp import snmp_manager
 
 
 class Query(object):
-    """Class interacts with CISCO-IETF-IP-MIB.
+    """Class interacts with devices supporting IP-MIB.
 
     Args:
         None
@@ -54,14 +54,7 @@ class Query(object):
 
         """
         # Support OID
-        validity = False
-
-        # Get one OID entry in MIB (ipv6Forwarding)
-        oid = '.1.3.6.1.2.1.55.1.1'
-
-        # Return nothing if oid doesn't exist
-        if self.snmp_query.oid_exists(oid) is True:
-            validity = True
+        validity = True
 
         # Return
         return validity
@@ -79,16 +72,52 @@ class Query(object):
         # Initialize key variables
         final = defaultdict(lambda: defaultdict(dict))
 
-        # Get interface ifDescr data
-        values = self.ipv6nettomediaphysaddress()
+        # Get interface ipNetToMediaTable data
+        values = self.ipnettomediatable()
         for key, value in values.items():
-            final['ipv6NetToMediaPhysAddress'][key] = value
+            final['ipNetToMediaTable'][key] = value
+
+        # Get interface ipNetToPhysicalPhysAddress data
+        values = self.ipnettophysicalphysaddress()
+        for key, value in values.items():
+            final['ipNetToPhysicalPhysAddress'][key] = value
 
         # Return
         return final
 
-    def ipv6nettomediaphysaddress(self):
-        """Return dict of the device's ipv6NetToMediaPhysAddress ARP table.
+    def ipnettomediatable(self):
+        """Return dict of ipNetToMediaTable, the device's ARP table.
+
+        Args:
+            None
+
+        Returns:
+            data_dict: Dict of MAC addresses keyed by IPv4 address
+
+        """
+        # Initialize key variables
+        data_dict = {}
+
+        # Process
+        oid = '.1.3.6.1.2.1.4.22.1.2'
+        results = self.snmp_query.walk(oid, normalized=False)
+        for key, value in sorted(results.items()):
+            # Determine IP address
+            nodes = key.split('.')
+            octets = nodes[-4:]
+            ipaddress = '.'.join(octets)
+
+            # Determine MAC address
+            macaddress = binascii.hexlify(value).decode('utf-8')
+
+            # Create ARP table entry
+            data_dict[ipaddress] = macaddress.lower()
+
+        # Return data
+        return data_dict
+
+    def ipnettophysicalphysaddress(self):
+        """Return dict of the device's ipNetToPhysicalPhysAddress ARP table.
 
         Args:
             None
@@ -98,8 +127,8 @@ class Query(object):
 
         """
         # Initialize key variables
-        data_dict = defaultdict(dict)
-        oid = '.1.3.6.1.2.1.55.1.12.1.2'
+        data_dict = {}
+        oid = '.1.3.6.1.2.1.4.35.1.4'
 
         # Get results
         results = self.snmp_query.swalk(oid, normalized=False)
