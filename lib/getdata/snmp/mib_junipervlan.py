@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Module for JUNIPER-MIB."""
+"""Module for JUNIPER-VLAN-MIB."""
 
 
 from collections import defaultdict
@@ -10,7 +10,7 @@ from getdata.snmp import mib_bridge
 
 
 class Query(object):
-    """Class interacts with JUNIPER-MIB.
+    """Class interacts with JUNIPER-VLAN-MIB.
 
     Args:
         None
@@ -116,7 +116,7 @@ class Query(object):
         return final
 
     def jnxexvlantag(self):
-        """Return dict of JUNIPER-MIB jnxExVlanTag per port.
+        """Return dict of JUNIPER-VLAN-MIB jnxExVlanTag per port.
 
         Args:
             None
@@ -155,7 +155,7 @@ class Query(object):
         return data_dict
 
     def jnxexvlanname(self):
-        """Return dict of JUNIPER-MIB jnxExVlanName for each VLAN tag.
+        """Return dict of JUNIPER-VLAN-MIB jnxExVlanName for each VLAN tag.
 
         Args:
             None
@@ -181,7 +181,7 @@ class Query(object):
         return data_dict
 
     def _vlanid2tag(self):
-        """Return dict of JUNIPER-MIB of jnxExVlanTag keyed by dot1dbaseport.
+        """Return dict of JUNIPER-VLAN-MIB jnxExVlanTag w/ dot1dbaseport key.
 
         Args:
             None:

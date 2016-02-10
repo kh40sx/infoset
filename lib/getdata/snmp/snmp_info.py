@@ -19,7 +19,7 @@ from getdata.snmp import mib_lldp
 from getdata.snmp import mib_ciscostack
 from getdata.snmp import mib_ciscoc2900
 from getdata.snmp import mib_essswitch
-from getdata.snmp import mib_juniper
+from getdata.snmp import mib_junipervlan
 
 
 class Query(object):
@@ -179,7 +179,7 @@ class Query(object):
             data = _add_layer1(query, data)
 
         # Get information from JUNIPER-MIB
-        query = mib_juniper.Query(self.snmp_params)
+        query = mib_junipervlan.Query(self.snmp_params)
         if query.supported() is True:
             processed = True
             data = _add_layer1(query, data)
@@ -211,7 +211,7 @@ class Query(object):
             data = _add_layer2(query, data)
 
         # Get VLAN information from JUNIPER-MIB
-        query = mib_juniper.Query(self.snmp_params)
+        query = mib_junipervlan.Query(self.snmp_params)
         if query.supported() is True:
             processed = True
             data = _add_layer2(query, data)
