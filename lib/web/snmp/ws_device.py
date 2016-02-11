@@ -365,6 +365,30 @@ def _get_cdp(port_data):
     return value
 
 
+def _get_lldp(port_data):
+    """Return port LLDP HTML string.
+
+    Args:
+        port_data: Data related to the port
+
+    Returns:
+        value: required string
+
+    """
+    # Initialize key variables
+    value = ''
+
+    # Determine whether LLDP is enabled and update string
+    if 'lldpRemSysDesc' in port_data:
+        value = ('<p>%s<br>%s<br>%s</p>') % (
+            port_data['lldpRemSysName'],
+            port_data['lldpRemPortDesc'],
+            port_data['lldpRemSysDesc'])
+
+    # Return
+    return value
+
+
 def _get_duplex(port_data):
     """Return port duplex string.
 
@@ -505,7 +529,7 @@ def _port_table(data_dict):
     rows = []
     header = [
         'Port', 'VLAN', 'State', 'Days Inactive',
-        'Speed', 'Duplex', 'Port Label', 'CDP']
+        'Speed', 'Duplex', 'Port Label', 'CDP', 'LLDP']
     output = '<table>\n'
     thstart = '    <th>'
 
@@ -525,8 +549,9 @@ def _port_table(data_dict):
         state = _get_state(port_data)
         duplex = _get_duplex(port_data)
         cdp = _get_cdp(port_data)
+        lldp = _get_lldp(port_data)
         rows.append(
-            [port, vlan, state, inactive, speed, duplex, label, cdp])
+            [port, vlan, state, inactive, speed, duplex, label, cdp, lldp])
 
     # Loop through list
     for row in rows:

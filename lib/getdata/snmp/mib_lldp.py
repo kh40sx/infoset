@@ -6,10 +6,10 @@ from collections import defaultdict
 
 # Import project libraries
 from getdata.snmp import snmp_manager
+from getdata.snmp import mib_bridge
 
 
 class Query(object):
-
     """Class interacts with LLDP-MIB.
 
     Args:
@@ -41,6 +41,13 @@ class Query(object):
         """
         # Define query object
         self.snmp_query = snmp_manager.Interact(snmp_params)
+
+        # Load the ifindex baseport map if this mib is supported
+        if self.supported() is True:
+            bridge_mib = mib_bridge.Query(snmp_params)
+            self.baseportifindex = bridge_mib.dot1dbaseportifindex()
+        else:
+            self.baseportifindex = None
 
     def supported(self):
         """Return device's support for the MIB.
@@ -122,7 +129,8 @@ class Query(object):
         # Process results
         results = self.snmp_query.swalk(oid, normalized=False)
         for key, value in sorted(results.items()):
-            ifindex = _ifindex(key)
+            bridgeport = _bridgeport(key)
+            ifindex = self.baseportifindex[bridgeport]
             data_dict[ifindex] = str(bytes(value), encoding='utf-8')
 
         # Return the interface descriptions
@@ -149,7 +157,7 @@ class Query(object):
         # Process results
         results = self.snmp_query.swalk(oid, normalized=False)
         for key, value in sorted(results.items()):
-            ifindex = _ifindex(key)
+            bridgeport = _bridgeport(key)
 
             # Convert binary data to hex value
             hex_value = binascii.hexlify(value).decode('utf-8')
@@ -157,6 +165,7 @@ class Query(object):
             # Convert hex value to right justified 16 character binary string
             binary_string = bin(int(
                 hex_value, base))[2:].zfill(length_in_bits)
+            ifindex = self.baseportifindex[bridgeport]
             data_dict[ifindex] = binary_string
 
         # Return the interface descriptions
@@ -181,7 +190,8 @@ class Query(object):
         # Process results
         results = self.snmp_query.swalk(oid, normalized=False)
         for key, value in sorted(results.items()):
-            ifindex = _ifindex(key)
+            bridgeport = _bridgeport(key)
+            ifindex = self.baseportifindex[bridgeport]
             data_dict[ifindex] = str(bytes(value), encoding='utf-8')
 
         # Return the interface descriptions
@@ -206,26 +216,27 @@ class Query(object):
         # Process results
         results = self.snmp_query.swalk(oid, normalized=False)
         for key, value in sorted(results.items()):
-            ifindex = _ifindex(key)
+            bridgeport = _bridgeport(key)
+            ifindex = self.baseportifindex[bridgeport]
             data_dict[ifindex] = str(bytes(value), encoding='utf-8')
 
         # Return the interface descriptions
         return data_dict
 
 
-def _ifindex(oid):
-    """Return the ifindex from a CDP OID.
+def _bridgeport(oid):
+    """Return the bridgeport from a CDP OID.
 
     Args:
         oid: OID
 
     Returns:
-        ifindex: value of the ifindex
+        bridgeport: value of the bridgeport
 
     """
     # Initialize key variables
     nodes = oid.split('.')
-    ifindex = int(nodes[-2])
+    bridgeport = int(nodes[-2])
 
     # Return
-    return ifindex
+    return bridgeport
