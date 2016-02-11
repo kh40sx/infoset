@@ -196,13 +196,8 @@ class Interact:
 
         # Process
         results = self.get(oid_to_get, connectivity_check=True)
-        for value in results.values():
-            # If oid not found message, then fail
-            if isinstance(value, rfc1905.NoSuchInstance) is not True:
-                validity = True
-            elif bool(value) is True:
-                validity = True
-            break
+        if _instance_found(results) is True:
+            validity = True
 
         # Return
         return validity
@@ -222,14 +217,8 @@ class Interact:
 
         # Process
         results = self.walk(oid_to_get, connectivity_check=True)
-        for value in results.values():
-            # If oid not found message, then fail
-            if isinstance(value, rfc1905.NoSuchInstance) is False:
-                validity = True
-            # If nothing is retuned, then fail
-            elif bool(value) is True:
-                validity = True
-            break
+        if _instance_found(results) is True:
+            validity = True
 
         # Return
         return validity
@@ -599,6 +588,34 @@ def _normalized_walk(walk_results):
 
     # Return result
     return result
+
+
+def _instance_found(results):
+    """Determine if an instance of the OID was found based on the results.
+
+    Args:
+        results: Results of an walk
+
+    Returns:
+        found: True if found
+
+    """
+    # Initialize key variables
+    found = False
+
+    # Process
+    for value in results.values():
+        # If oid not found message, then fail
+        if (isinstance(value, rfc1905.NoSuchInstance) is True) or (
+                (isinstance(value, rfc1905.NoSuchObject) is True)):
+            found = False
+            break
+        elif bool(value) is True:
+            found = True
+        break
+
+    # Return
+    return found
 
 
 def oid_valid_format(oid):

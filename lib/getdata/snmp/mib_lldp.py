@@ -43,8 +43,8 @@ class Query(object):
         self.snmp_query = snmp_manager.Interact(snmp_params)
 
         # Load the ifindex baseport map if this mib is supported
-        if self.supported() is True:
-            bridge_mib = mib_bridge.Query(snmp_params)
+        bridge_mib = mib_bridge.Query(snmp_params)
+        if self.supported() and bridge_mib.supported():
             self.baseportifindex = bridge_mib.dot1dbaseportifindex()
         else:
             self.baseportifindex = None
@@ -129,9 +129,17 @@ class Query(object):
         # Process results
         results = self.snmp_query.swalk(oid, normalized=False)
         for key, value in sorted(results.items()):
-            bridgeport = _bridgeport(key)
-            ifindex = self.baseportifindex[bridgeport]
-            data_dict[ifindex] = str(bytes(value), encoding='utf-8')
+            # Check if this OID is indexed using iFindex or dot1dBasePort
+            if self.baseportifindex is not None:
+                bridgeport = _penultimate_node(key)
+                ifindex = self.baseportifindex[bridgeport]
+            else:
+                ifindex = _penultimate_node(key)
+
+            # We have seen issues where self.baseportifindex doesn't always
+            # return a complete dict of values that include all ifindexes
+            if bool(ifindex) is True:
+                data_dict[ifindex] = str(bytes(value), encoding='utf-8')
 
         # Return the interface descriptions
         return data_dict
@@ -157,7 +165,17 @@ class Query(object):
         # Process results
         results = self.snmp_query.swalk(oid, normalized=False)
         for key, value in sorted(results.items()):
-            bridgeport = _bridgeport(key)
+            # Check if this OID is indexed using iFindex or dot1dBasePort
+            if self.baseportifindex is not None:
+                bridgeport = _penultimate_node(key)
+                ifindex = self.baseportifindex[bridgeport]
+            else:
+                ifindex = _penultimate_node(key)
+
+            # We have seen issues where self.baseportifindex doesn't always
+            # return a complete dict of values that include all ifindexes
+            if bool(ifindex) is False:
+                continue
 
             # Convert binary data to hex value
             hex_value = binascii.hexlify(value).decode('utf-8')
@@ -165,7 +183,6 @@ class Query(object):
             # Convert hex value to right justified 16 character binary string
             binary_string = bin(int(
                 hex_value, base))[2:].zfill(length_in_bits)
-            ifindex = self.baseportifindex[bridgeport]
             data_dict[ifindex] = binary_string
 
         # Return the interface descriptions
@@ -190,9 +207,17 @@ class Query(object):
         # Process results
         results = self.snmp_query.swalk(oid, normalized=False)
         for key, value in sorted(results.items()):
-            bridgeport = _bridgeport(key)
-            ifindex = self.baseportifindex[bridgeport]
-            data_dict[ifindex] = str(bytes(value), encoding='utf-8')
+            # Check if this OID is indexed using iFindex or dot1dBasePort
+            if self.baseportifindex is not None:
+                bridgeport = _penultimate_node(key)
+                ifindex = self.baseportifindex[bridgeport]
+            else:
+                ifindex = _penultimate_node(key)
+
+            # We have seen issues where self.baseportifindex doesn't always
+            # return a complete dict of values that include all ifindexes
+            if bool(ifindex) is True:
+                data_dict[ifindex] = str(bytes(value), encoding='utf-8')
 
         # Return the interface descriptions
         return data_dict
@@ -216,27 +241,34 @@ class Query(object):
         # Process results
         results = self.snmp_query.swalk(oid, normalized=False)
         for key, value in sorted(results.items()):
-            bridgeport = _bridgeport(key)
-            ifindex = self.baseportifindex[bridgeport]
-            data_dict[ifindex] = str(bytes(value), encoding='utf-8')
+            if self.baseportifindex is not None:
+                bridgeport = _penultimate_node(key)
+                ifindex = self.baseportifindex[bridgeport]
+            else:
+                ifindex = _penultimate_node(key)
+
+            # We have seen issues where self.baseportifindex doesn't always
+            # return a complete dict of values that include all ifindexes
+            if bool(ifindex) is True:
+                data_dict[ifindex] = str(bytes(value), encoding='utf-8')
 
         # Return the interface descriptions
         return data_dict
 
 
-def _bridgeport(oid):
-    """Return the bridgeport from a CDP OID.
+def _penultimate_node(oid):
+    """Return the penultimate node from an OID.
 
     Args:
         oid: OID
 
     Returns:
-        bridgeport: value of the bridgeport
+        value: Value of the penultimate node
 
     """
     # Initialize key variables
     nodes = oid.split('.')
-    bridgeport = int(nodes[-2])
+    value = int(nodes[-2])
 
     # Return
-    return bridgeport
+    return value
