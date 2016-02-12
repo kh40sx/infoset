@@ -106,3 +106,22 @@ def delete_files(target_dir):
         except:
             log_message = ('Unexpected error')
             logit(1015, log_message, True)
+
+
+def cleanstring(data):
+    """Remove multiple whitespaces and linefeeds from string.
+
+    Args:
+        data: String to process
+
+    Returns:
+        result: Stipped data
+
+    """
+    # Initialize key variables
+    nolinefeeds = data.replace('\n', ' ').replace('\r', '').strip()
+    words = nolinefeeds.split()
+    result = ' '.join(words)
+
+    # Return
+    return result

@@ -4,6 +4,7 @@
 import time
 from collections import defaultdict
 
+from getdata.snmp import snmp_vendors
 from getdata.snmp import mib_ciscovlanmembership
 from getdata.snmp import mib_ciscovtp
 from getdata.snmp import mib_ciscoietfip
@@ -62,12 +63,33 @@ class Query(object):
         data = {}
 
         # Append data
-        data['timestamp'] = int(time.time())
-        data['host'] = self.snmp_params['snmp_hostname']
+        data['misc'] = self.misc()
         data['layer1'] = self.layer1()
         data['layer2'] = self.layer2()
         data['layer3'] = self.layer3()
         data['system'] = self.system()
+
+        # Return
+        return data
+
+    def misc(self):
+        """Provide miscellaneous information about device and the poll.
+
+        Args:
+            None
+
+        Returns:
+            data: Aggregated data
+
+        """
+        # Initialize data
+        data = defaultdict(lambda: defaultdict(dict))
+        data['timestamp'] = int(time.time())
+        data['host'] = self.snmp_params['snmp_hostname']
+
+        # Get vendor information
+        vendor = snmp_vendors.Query(self.snmp_params)
+        data['IANAEnterpriseNumber'] = vendor.enterprise_number()
 
         # Return
         return data

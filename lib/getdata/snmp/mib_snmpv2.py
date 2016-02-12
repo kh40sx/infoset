@@ -5,10 +5,10 @@ from collections import defaultdict
 
 # Import project libraries
 from getdata.snmp import snmp_manager
+import jm_general
 
 
 class Query(object):
-
     """Class interacts with devices supporting SNMPv2-MIB.
 
     Args:
@@ -96,7 +96,8 @@ class Query(object):
                 getvalues.append(value)
 
         # Assign values
-        data_dict['sysDescr'][key] = getvalues[1].decode('utf-8')
+        data_dict['sysDescr'][key] = jm_general.cleanstring(
+            getvalues[1].decode('utf-8'))
         data_dict['sysObjectID'][key] = getvalues[2].decode('utf-8')
         data_dict['sysUpTime'][key] = int(getvalues[3])
         data_dict['sysContact'][key] = getvalues[4].decode('utf-8')

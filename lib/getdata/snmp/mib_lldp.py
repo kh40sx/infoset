@@ -7,6 +7,7 @@ from collections import defaultdict
 # Import project libraries
 from getdata.snmp import snmp_manager
 from getdata.snmp import mib_bridge
+import jm_general
 
 
 class Query(object):
@@ -217,7 +218,8 @@ class Query(object):
             # We have seen issues where self.baseportifindex doesn't always
             # return a complete dict of values that include all ifindexes
             if bool(ifindex) is True:
-                data_dict[ifindex] = str(bytes(value), encoding='utf-8')
+                data_dict[ifindex] = jm_general.cleanstring(
+                    str(bytes(value), encoding='utf-8'))
 
         # Return the interface descriptions
         return data_dict
@@ -250,7 +252,8 @@ class Query(object):
             # We have seen issues where self.baseportifindex doesn't always
             # return a complete dict of values that include all ifindexes
             if bool(ifindex) is True:
-                data_dict[ifindex] = str(bytes(value), encoding='utf-8')
+                data_dict[ifindex] = jm_general.cleanstring(
+                    str(bytes(value), encoding='utf-8'))
 
         # Return the interface descriptions
         return data_dict

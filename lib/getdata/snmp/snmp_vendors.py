@@ -2,7 +2,7 @@
 """Vendor queries."""
 
 # Import project libraries
-from snmp import snmp_manager
+from getdata.snmp import snmp_manager
 
 
 class Query(object):
@@ -15,6 +15,9 @@ class Query(object):
         None
 
     Methods:
+        All methods rely on this document to determine vendors
+        https://www.iana.org/assignments/
+            enterprise-numbers/enterprise-numbers
 
     """
 
@@ -32,7 +35,23 @@ class Query(object):
         snmp_query = snmp_manager.Interact(snmp_params)
 
         # Get the sysObjectID.0 value of the device
-        self.sysobjectid = snmp_query.sysobjectid()
+        sysobjectid = snmp_query.sysobjectid()
+
+        # Get the vendor ID
+        nodes = sysobjectid.split('.')
+        self.enterprise = int(nodes[7])
+
+    def enterprise_number(self):
+        """Return SNMP enterprise number for the device.
+
+        Args:
+            None
+
+        Returns:
+            self.enterprise: SNMP enterprise number
+
+        """
+        return self.enterprise
 
     def is_cisco(self):
         """Verify whether device is a Cisco device.
@@ -45,12 +64,10 @@ class Query(object):
 
         """
         # Initialize key variables
-        # (The trailing "." in vendor_string is important)
-        vendor_string = '.1.3.6.1.4.1.9.'
         value = False
 
         # Checks system object ID
-        if self.sysobjectid.startswith(vendor_string) is True:
+        if self.enterprise == 9:
             value = True
 
         # Return
@@ -67,11 +84,11 @@ class Query(object):
 
         """
         # Initialize key variables
-        # (The trailing "." in vendor_string is important)
-        vendor_string = '.1.3.6.1.4.1.2636.'
         value = False
 
-        #Checks system object ID
-        if self.sysobjectid.startswith(vendor_string) is True:
+        # Checks system object ID
+        if self.enterprise == 2636:
             value = True
+
+        # Return
         return value
