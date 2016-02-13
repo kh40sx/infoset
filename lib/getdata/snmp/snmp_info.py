@@ -3,7 +3,6 @@
 
 import time
 from collections import defaultdict
-from pprint import pprint
 
 import jm_iana_enterprise
 import jm_general
