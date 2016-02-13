@@ -43,6 +43,7 @@ class PollAllSNMP(threading.Thread):
             # Show host information
             validate = snmp_manager.Validate(host, config.snmp_auth())
             snmp_params = validate.credentials()
+            snmp_object = snmp_manager.Interact(snmp_params)
 
             # Verbose output
             if verbose is True:
@@ -61,7 +62,7 @@ class PollAllSNMP(threading.Thread):
             # Process if valid
             if bool(snmp_params) is True:
                 # Get data
-                status = snmp_info.Query(snmp_params)
+                status = snmp_info.Query(snmp_object)
                 data = status.everything()
                 yaml_string = jm_general.dict2yaml(data)
 

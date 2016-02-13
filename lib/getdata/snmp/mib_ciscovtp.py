@@ -4,12 +4,8 @@
 
 from collections import defaultdict
 
-# Import project libraries
-from getdata.snmp import snmp_manager
-
 
 class Query(object):
-
     """Class interacts with CISCO-VTP-MIB.
 
     Args:
@@ -32,18 +28,18 @@ class Query(object):
 
     """
 
-    def __init__(self, snmp_params):
+    def __init__(self, snmp_object):
         """Function for intializing the class.
 
         Args:
-            snmp_params: SNMP parameters for querying the host
+            snmp_object: SNMP Interact class object from snmp_manager.py
 
         Returns:
             None
 
         """
         # Define query object
-        self.snmp_query = snmp_manager.Interact(snmp_params)
+        self.snmp_object = snmp_object
 
     def supported(self):
         """Return device's support for the MIB.
@@ -62,7 +58,7 @@ class Query(object):
         oid = '.1.3.6.1.4.1.9.9.46.1.3.1.1.2'
 
         # Return nothing if oid doesn't exist
-        if self.snmp_query.oid_exists(oid) is True:
+        if self.snmp_object.oid_exists(oid) is True:
             validity = True
 
         # Return
@@ -153,7 +149,7 @@ class Query(object):
         oid = '.1.3.6.1.4.1.9.9.46.1.6.1.1.3'
 
         # Process results
-        results = self.snmp_query.swalk(oid, normalized=True)
+        results = self.snmp_object.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
 
@@ -178,7 +174,7 @@ class Query(object):
         oid = '.1.3.6.1.4.1.9.9.46.1.6.1.1.5'
 
         # Process results
-        results = self.snmp_query.swalk(oid, normalized=True)
+        results = self.snmp_object.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
 
@@ -203,7 +199,7 @@ class Query(object):
         oid = '.1.3.6.1.4.1.9.9.46.1.6.1.1.14'
 
         # Process results
-        results = self.snmp_query.swalk(oid, normalized=True)
+        results = self.snmp_object.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
 
@@ -228,7 +224,7 @@ class Query(object):
         oid = '.1.3.6.1.4.1.9.9.46.1.6.1.1.13'
 
         # Process results
-        results = self.snmp_query.swalk(oid, normalized=True)
+        results = self.snmp_object.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
 
@@ -252,7 +248,7 @@ class Query(object):
         oid = '.1.3.6.1.4.1.9.9.46.1.3.1.1.4'
 
         # Process results
-        results = self.snmp_query.swalk(oid, normalized=True)
+        results = self.snmp_object.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = str(bytes(value), encoding='utf-8')
 
@@ -276,7 +272,7 @@ class Query(object):
         oid = '.1.3.6.1.4.1.9.9.46.1.3.1.1.3'
 
         # Process results
-        results = self.snmp_query.swalk(oid, normalized=True)
+        results = self.snmp_object.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
 
@@ -300,7 +296,7 @@ class Query(object):
         oid = '.1.3.6.1.4.1.9.9.46.1.3.1.1.2'
 
         # Process results
-        results = self.snmp_query.swalk(oid, normalized=True)
+        results = self.snmp_object.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
 

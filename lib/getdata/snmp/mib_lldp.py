@@ -5,7 +5,6 @@ import binascii
 from collections import defaultdict
 
 # Import project libraries
-from getdata.snmp import snmp_manager
 from getdata.snmp import mib_bridge
 import jm_general
 
@@ -30,21 +29,21 @@ class Query(object):
 
     """
 
-    def __init__(self, snmp_params):
+    def __init__(self, snmp_object):
         """Function for intializing the class.
 
         Args:
-            snmp_params: SNMP parameters for querying the host
+            snmp_object: SNMP Interact class object from snmp_manager.py
 
         Returns:
             None
 
         """
         # Define query object
-        self.snmp_query = snmp_manager.Interact(snmp_params)
+        self.snmp_object = snmp_object
 
         # Load the ifindex baseport map if this mib is supported
-        bridge_mib = mib_bridge.Query(snmp_params)
+        bridge_mib = mib_bridge.Query(self.snmp_object)
         if self.supported() and bridge_mib.supported():
             self.baseportifindex = bridge_mib.dot1dbaseportifindex()
         else:
@@ -67,7 +66,7 @@ class Query(object):
         oid = '.1.0.8802.1.1.2.1.4.1.1.9'
 
         # Return nothing if oid doesn't exist
-        if self.snmp_query.oid_exists(oid) is True:
+        if self.snmp_object.oid_exists(oid) is True:
             validity = True
 
         # Return
@@ -128,7 +127,7 @@ class Query(object):
         oid = '.1.0.8802.1.1.2.1.4.1.1.9'
 
         # Process results
-        results = self.snmp_query.swalk(oid, normalized=False)
+        results = self.snmp_object.swalk(oid, normalized=False)
         for key, value in sorted(results.items()):
             # Check if this OID is indexed using iFindex or dot1dBasePort
             if self.baseportifindex is not None:
@@ -164,7 +163,7 @@ class Query(object):
         oid = '.1.0.8802.1.1.2.1.4.1.1.12'
 
         # Process results
-        results = self.snmp_query.swalk(oid, normalized=False)
+        results = self.snmp_object.swalk(oid, normalized=False)
         for key, value in sorted(results.items()):
             # Check if this OID is indexed using iFindex or dot1dBasePort
             if self.baseportifindex is not None:
@@ -206,7 +205,7 @@ class Query(object):
         oid = '.1.0.8802.1.1.2.1.4.1.1.10'
 
         # Process results
-        results = self.snmp_query.swalk(oid, normalized=False)
+        results = self.snmp_object.swalk(oid, normalized=False)
         for key, value in sorted(results.items()):
             # Check if this OID is indexed using iFindex or dot1dBasePort
             if self.baseportifindex is not None:
@@ -241,7 +240,7 @@ class Query(object):
         oid = '.1.0.8802.1.1.2.1.4.1.1.8'
 
         # Process results
-        results = self.snmp_query.swalk(oid, normalized=False)
+        results = self.snmp_object.swalk(oid, normalized=False)
         for key, value in sorted(results.items()):
             if self.baseportifindex is not None:
                 bridgeport = _penultimate_node(key)

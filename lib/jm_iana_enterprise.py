@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 """Vendor queries."""
 
-# Import project libraries
-from getdata.snmp import snmp_manager
-
 
 class Query(object):
     """Class interacts with devices to get vendor information.
@@ -21,37 +18,37 @@ class Query(object):
 
     """
 
-    def __init__(self, snmp_params):
+    def __init__(self, enterprise=None, sysobjectid=None):
         """Function for intializing the class.
 
         Args:
-            snmp_params: Dict of SNMP parameters to use in querying device
+            snmp_object: Dict of SNMP parameters to use in querying device
 
         Returns:
             None
 
         """
-        # Define query object
-        snmp_query = snmp_manager.Interact(snmp_params)
+        # IANA SNMP enterprise numbers
+        if sysobjectid is not None:
+            nodes = sysobjectid.split('.')
+            self.enterprise_id = int(nodes[7])
+        else:
+            self.enterprise_id = enterprise
 
-        # Get the sysObjectID.0 value of the device
-        sysobjectid = snmp_query.sysobjectid()
+        # Assign sysobjectid
+        self.sysobjectid = sysobjectid
 
-        # Get the vendor ID
-        nodes = sysobjectid.split('.')
-        self.enterprise = int(nodes[7])
-
-    def enterprise_number(self):
-        """Return SNMP enterprise number for the device.
+    def enterprise(self):
+        """Get enterprise number.
 
         Args:
             None
 
         Returns:
-            self.enterprise: SNMP enterprise number
+            self.enterprise_id: Enterprise number
 
         """
-        return self.enterprise
+        return self.enterprise_id
 
     def is_cisco(self):
         """Verify whether device is a Cisco device.
@@ -67,7 +64,7 @@ class Query(object):
         value = False
 
         # Checks system object ID
-        if self.enterprise == 9:
+        if self.enterprise_id == 9:
             value = True
 
         # Return
@@ -87,7 +84,7 @@ class Query(object):
         value = False
 
         # Checks system object ID
-        if self.enterprise == 2636:
+        if self.enterprise_id == 2636:
             value = True
 
         # Return

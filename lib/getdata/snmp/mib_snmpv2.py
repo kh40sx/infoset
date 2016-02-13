@@ -4,7 +4,6 @@
 from collections import defaultdict
 
 # Import project libraries
-from getdata.snmp import snmp_manager
 import jm_general
 
 
@@ -35,18 +34,18 @@ class Query(object):
 
     """
 
-    def __init__(self, snmp_params):
+    def __init__(self, snmp_object):
         """Function for intializing the class.
 
         Args:
-            snmp_params: SNMP parameters for querying the host
+            snmp_object: SNMP Interact class object from snmp_manager.py
 
         Returns:
             None
 
         """
         # Define query object
-        self.snmp_query = snmp_manager.Interact(snmp_params)
+        self.snmp_object = snmp_object
 
     def supported(self):
         """Return device's support for the MIB.
@@ -65,7 +64,7 @@ class Query(object):
         oid = '.1.3.6.1.2.1.1.1.0'
 
         # Return nothing if oid doesn't exist
-        if self.snmp_query.oid_exists(oid) is True:
+        if self.snmp_object.oid_exists(oid) is True:
             validity = True
 
         # Return
@@ -91,7 +90,7 @@ class Query(object):
         oidroot = '.1.3.6.1.2.1.1'
         for node in range(1, 7):
             oid = ('%s.%s.0') % (oidroot, node)
-            results = self.snmp_query.get(oid, normalized=True)
+            results = self.snmp_object.get(oid, normalized=True)
             for value in results.values():
                 getvalues.append(value)
 

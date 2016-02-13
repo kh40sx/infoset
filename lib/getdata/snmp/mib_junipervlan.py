@@ -5,7 +5,6 @@
 from collections import defaultdict
 
 # Import project libraries
-from getdata.snmp import snmp_manager
 from getdata.snmp import mib_bridge
 
 
@@ -29,19 +28,18 @@ class Query(object):
 
     """
 
-    def __init__(self, snmp_params):
+    def __init__(self, snmp_object):
         """Function for intializing the class.
 
         Args:
-            snmp_params: SNMP parameters for querying the host
+            snmp_object: SNMP Interact class object from snmp_manager.py
 
         Returns:
             None
 
         """
         # Define query object
-        self.snmp_query = snmp_manager.Interact(snmp_params)
-        self.snmp_params = snmp_params
+        self.snmp_object = snmp_object
 
         # Get mapping of the VLAN's dot1dbaseport ID value to its jnxExVlanTag
         # Do this only once instead of every time we invoke a method
@@ -67,7 +65,7 @@ class Query(object):
         oid = '.1.3.6.1.4.1.2636.3.40.1.5.1.7.1.3'
 
         # Return nothing if oid doesn't exist
-        if self.snmp_query.oid_exists(oid) is True:
+        if self.snmp_object.oid_exists(oid) is True:
             validity = True
 
         # Return
@@ -130,11 +128,11 @@ class Query(object):
 
         # Get a mapping of dot1dbaseport values to the corresponding ifindex
         oid = '.1.3.6.1.4.1.2636.3.40.1.5.1.7.1.3'
-        bridge_mib = mib_bridge.Query(self.snmp_params)
+        bridge_mib = mib_bridge.Query(self.snmp_object)
         baseportifindex = bridge_mib.dot1dbaseportifindex()
 
         # Process results
-        results = self.snmp_query.walk(oid, normalized=False)
+        results = self.snmp_object.walk(oid, normalized=False)
         for key in sorted(results.keys()):
             # The key is the full OID. Split this into its component nodes
             nodes = key.split('.')
@@ -169,7 +167,7 @@ class Query(object):
 
         # Descriptions
         oid = '.1.3.6.1.4.1.2636.3.40.1.5.1.5.1.2'
-        results = self.snmp_query.walk(oid, normalized=True)
+        results = self.snmp_object.walk(oid, normalized=True)
         for vlan_id, value in sorted(results.items()):
             # Get VLAN tag
             vlan_tag = self.vlan_map[int(vlan_id)]
@@ -195,7 +193,7 @@ class Query(object):
 
         # Get a mapping of dot1dbaseport values to the corresponding ifindex
         oid = '.1.3.6.1.4.1.2636.3.40.1.5.1.5.1.5'
-        results = self.snmp_query.walk(oid, normalized=True)
+        results = self.snmp_object.walk(oid, normalized=True)
         for key, value in sorted(results.items()):
             # Process OID
             data_dict[int(key)] = int(value)

@@ -7,6 +7,7 @@ Calico utility script
 
 import sys
 import yaml
+from pprint import pprint
 
 # Import project libraries. Use jm_dummy to test if we have a good path.
 # Doing the test for all libraries could cause you to get a $PYTHONPATH
@@ -99,19 +100,17 @@ def do_test(cli_args, config):
     # Show host information
     validate = snmp_manager.Validate(cli_args.host, config.snmp_auth())
     snmp_params = validate.credentials()
+    snmp_object = snmp_manager.Interact(snmp_params)
 
     if bool(snmp_params) is True:
         print('\nValid credentials found:\n')
         print(yaml.dump(snmp_params, default_flow_style=False))
         print('\n')
 
-        # Get SNMP data
-        status = snmp_info.Query(snmp_params)
-        data = status.everything()
-
-        # Pring result as YAML
-        yaml_string = jm_general.dict2yaml(data)
-        print(yaml_string)
+        # Get SNMP data and print
+        status = snmp_info.Query(snmp_object)
+        yaml_data = status.everything(do_yaml=True)
+        print(yaml_data)
     else:
         # Error, host problems
         log_message = (

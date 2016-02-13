@@ -9,10 +9,10 @@ from pysnmp.smi import rfc1902 as smi
 
 # Import project libraries
 import jm_general
+import jm_iana_enterprise
 
 
 class Validate(object):
-
     """Class Verify SNMP data.
 
     Args:
@@ -64,7 +64,6 @@ class Validate(object):
 
 
 class Interact:
-
     """Class Gets SNMP data.
 
     Args:
@@ -101,6 +100,42 @@ class Interact:
             log_message = ('SNMP parameters provided are blank. '
                            'Non existent host?')
             jm_general.logit(1005, log_message, True)
+
+    def enterprise_number(self):
+        """Return SNMP enterprise number for the device.
+
+        Args:
+            None
+
+        Returns:
+            enterprise: SNMP enterprise number
+
+        """
+        # Get the sysObjectID.0 value of the device
+        sysid = self.sysobjectid()
+
+        # Get the vendor ID
+        enterprise_obj = jm_iana_enterprise.Query(sysobjectid=sysid)
+        enterprise = enterprise_obj.enterprise()
+
+        # Return
+        return enterprise
+
+    def hostname(self):
+        """Return SNMP hostname for the interaction.
+
+        Args:
+            None
+
+        Returns:
+            hostname: SNMP hostname
+
+        """
+        # Initialize key variables
+        hostname = self.snmp_params['snmp_hostname']
+
+        # Return
+        return hostname
 
     def contactable(self):
         """Check if device is contactable.
@@ -522,6 +557,9 @@ def _get_auth_object(snmp_params):
         authentication_object: Auth object for query
 
     """
+    # Initialize key variables
+    authentication_object = None
+
     # Process SNMPv2
     if snmp_params['snmp_version'] == 2:
         # Setup SNMPv2 authentication object

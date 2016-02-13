@@ -3,8 +3,10 @@
 
 import time
 from collections import defaultdict
+from pprint import pprint
 
-from getdata.snmp import snmp_vendors
+import jm_iana_enterprise
+import jm_general
 from getdata.snmp import mib_ciscovlanmembership
 from getdata.snmp import mib_ciscovtp
 from getdata.snmp import mib_ciscoietfip
@@ -36,24 +38,24 @@ class Query(object):
 
     """
 
-    def __init__(self, snmp_params):
+    def __init__(self, snmp_object):
         """Function for intializing the class.
 
         Args:
-            snmp_params: Dict of SNMP parameters to use in querying device
+            snmp_object: SNMP Interact class object from snmp_manager.py
 
         Returns:
             None
 
         """
-        # Initialize key variables
-        self.snmp_params = snmp_params
+        # Define query object
+        self.snmp_object = snmp_object
 
-    def everything(self):
+    def everything(self, do_yaml=False):
         """Get all information from device.
 
         Args:
-            None
+            do_yaml: Return YAML if True
 
         Returns:
             data: Aggregated data
@@ -62,21 +64,27 @@ class Query(object):
         # Initialize key variables
         data = {}
 
+        # Set string keys
+        string_keys = do_yaml
+
         # Append data
         data['misc'] = self.misc()
-        data['layer1'] = self.layer1()
-        data['layer2'] = self.layer2()
-        data['layer3'] = self.layer3()
-        data['system'] = self.system()
+        data['layer1'] = self.layer1(string_keys=string_keys)
+        data['layer2'] = self.layer2(string_keys=string_keys)
+        data['layer3'] = self.layer3(string_keys=string_keys)
+        data['system'] = self.system(string_keys=string_keys)
 
         # Return
-        return data
+        if do_yaml is False:
+            return data
+        else:
+            return jm_general.dict2yaml(data)
 
     def misc(self):
         """Provide miscellaneous information about device and the poll.
 
         Args:
-            None
+            do_yaml: Return YAML if True
 
         Returns:
             data: Aggregated data
@@ -85,20 +93,21 @@ class Query(object):
         # Initialize data
         data = defaultdict(lambda: defaultdict(dict))
         data['timestamp'] = int(time.time())
-        data['host'] = self.snmp_params['snmp_hostname']
+        data['host'] = self.snmp_object.hostname()
 
         # Get vendor information
-        vendor = snmp_vendors.Query(self.snmp_params)
-        data['IANAEnterpriseNumber'] = vendor.enterprise_number()
+        sysobjectid = self.snmp_object.sysobjectid()
+        vendor = jm_iana_enterprise.Query(sysobjectid=sysobjectid)
+        data['IANAEnterpriseNumber'] = vendor.enterprise()
 
         # Return
         return data
 
-    def system(self):
+    def system(self, string_keys=False):
         """Get all system information from device.
 
         Args:
-            None
+            do_yaml: Return YAML if True
 
         Returns:
             data: Aggregated data
@@ -109,16 +118,16 @@ class Query(object):
         processed = False
 
         # Get system information from SNMPv2-MIB
-        query = mib_snmpv2.Query(self.snmp_params)
+        query = mib_snmpv2.Query(self.snmp_object)
         if query.supported():
             processed = True
-            data = _add_system(query, data)
+            data = _add_system(query, data, string_keys=string_keys)
 
         # Get information from ENTITY-MIB
-        query = mib_entity.Query(self.snmp_params)
+        query = mib_entity.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_system(query, data)
+            data = _add_system(query, data, string_keys=string_keys)
 
         # Return
         if processed is True:
@@ -126,11 +135,11 @@ class Query(object):
         else:
             return None
 
-    def layer1(self):
+    def layer1(self, string_keys=False):
         """Get all layer1 information from device.
 
         Args:
-            None
+            do_yaml: Return YAML if True
 
         Returns:
             data: Aggregated data
@@ -141,70 +150,70 @@ class Query(object):
         processed = False
 
         # Get information from IF-MIB
-        query = mib_if.Query(self.snmp_params)
+        query = mib_if.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer1(query, data)
+            data = _add_layer1(query, data, string_keys=string_keys)
 
         # Get information from  BRIDGE-MIB
-        query = mib_bridge.Query(self.snmp_params)
+        query = mib_bridge.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer1(query, data)
+            data = _add_layer1(query, data, string_keys=string_keys)
 
         # Get information from  CISCO-VLAN-MEMBERSHIP-MIB
-        query = mib_ciscovlanmembership.Query(self.snmp_params)
+        query = mib_ciscovlanmembership.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer1(query, data)
+            data = _add_layer1(query, data, string_keys=string_keys)
 
         # Get information from CISCO-VTP-MIB
-        query = mib_ciscovtp.Query(self.snmp_params)
+        query = mib_ciscovtp.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer1(query, data)
+            data = _add_layer1(query, data, string_keys=string_keys)
 
         # Get information from EtherLike-MIB
-        query = mib_etherlike.Query(self.snmp_params)
+        query = mib_etherlike.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer1(query, data)
+            data = _add_layer1(query, data, string_keys=string_keys)
 
         # Get information from CISCO-CDP-MIB
-        query = mib_ciscocdp.Query(self.snmp_params)
+        query = mib_ciscocdp.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer1(query, data)
+            data = _add_layer1(query, data, string_keys=string_keys)
 
         # Get information from LLDP-MIB
-        query = mib_lldp.Query(self.snmp_params)
+        query = mib_lldp.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer1(query, data)
+            data = _add_layer1(query, data, string_keys=string_keys)
 
         # Get information from CISCO-STACK-MIB
-        query = mib_ciscostack.Query(self.snmp_params)
+        query = mib_ciscostack.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer1(query, data)
+            data = _add_layer1(query, data, string_keys=string_keys)
 
         # Get information from CISCO-C2900-MIB
-        query = mib_ciscoc2900.Query(self.snmp_params)
+        query = mib_ciscoc2900.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer1(query, data)
+            data = _add_layer1(query, data, string_keys=string_keys)
 
         # Get information from MIB-ESSWITCH
-        query = mib_essswitch.Query(self.snmp_params)
+        query = mib_essswitch.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer1(query, data)
+            data = _add_layer1(query, data, string_keys=string_keys)
 
         # Get information from JUNIPER-MIB
-        query = mib_junipervlan.Query(self.snmp_params)
+        query = mib_junipervlan.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer1(query, data)
+            data = _add_layer1(query, data, string_keys=string_keys)
 
         # Return
         if processed is True:
@@ -212,11 +221,11 @@ class Query(object):
         else:
             return None
 
-    def layer2(self):
+    def layer2(self, string_keys=False):
         """Get all layer2 information from device.
 
         Args:
-            None
+            do_yaml: Return YAML if True
 
         Returns:
             data: Aggregated data
@@ -227,16 +236,16 @@ class Query(object):
         processed = False
 
         # Get VLAN table information (Cisco)
-        query = mib_ciscovtp.Query(self.snmp_params)
+        query = mib_ciscovtp.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer2(query, data)
+            data = _add_layer2(query, data, string_keys=string_keys)
 
         # Get VLAN information from JUNIPER-MIB
-        query = mib_junipervlan.Query(self.snmp_params)
+        query = mib_junipervlan.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer2(query, data)
+            data = _add_layer2(query, data, string_keys=string_keys)
 
         # Return
         if processed is True:
@@ -244,11 +253,11 @@ class Query(object):
         else:
             return None
 
-    def layer3(self):
+    def layer3(self, string_keys=False):
         """Get all layer3 information from device.
 
         Args:
-            None
+            do_yaml: Return YAML if True
 
         Returns:
             data: Aggregated data
@@ -259,22 +268,22 @@ class Query(object):
         processed = False
 
         # Get IPv4 information
-        query = mib_ip.Query(self.snmp_params)
+        query = mib_ip.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer3(query, data)
+            data = _add_layer3(query, data, string_keys=string_keys)
 
         # Get IPv6 ARP table information (Cisco)
-        query = mib_ciscoietfip.Query(self.snmp_params)
+        query = mib_ciscoietfip.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer3(query, data)
+            data = _add_layer3(query, data, string_keys=string_keys)
 
         # Get IPv6 ARP table information (Juniper)
-        query = mib_ipv6.Query(self.snmp_params)
+        query = mib_ipv6.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
-            data = _add_layer3(query, data)
+            data = _add_layer3(query, data, string_keys=string_keys)
 
         # Return
         if processed is True:
@@ -283,7 +292,7 @@ class Query(object):
             return None
 
 
-def _add_data(source, target):
+def _add_data(source, target, string_keys=False):
     """Add data from source to target dict. Both dicts must have two keys.
 
     Args:
@@ -297,13 +306,16 @@ def _add_data(source, target):
     # Process data
     for primary in source.keys():
         for secondary, value in source[primary].items():
-            target[primary][secondary] = value
+            if string_keys is False:
+                target[primary][secondary] = value
+            else:
+                target[str(primary)][str(secondary)] = value
 
-    # Return
+        # Return
     return target
 
 
-def _add_layer1(query, original_data):
+def _add_layer1(query, original_data, string_keys=False):
     """Add data from successful layer1 MIB query to original data provided.
 
     Args:
@@ -316,13 +328,14 @@ def _add_layer1(query, original_data):
     """
     # Process query
     result = query.layer1()
-    new_data = _add_data(result, original_data)
+    new_data = _add_data(
+        result, original_data, string_keys=string_keys)
 
     # Return
     return new_data
 
 
-def _add_layer2(query, original_data):
+def _add_layer2(query, original_data, string_keys=False):
     """Add data from successful layer2 MIB query to original data provided.
 
     Args:
@@ -335,13 +348,14 @@ def _add_layer2(query, original_data):
     """
     # Process query
     result = query.layer2()
-    new_data = _add_data(result, original_data)
+    new_data = _add_data(
+        result, original_data, string_keys=string_keys)
 
     # Return
     return new_data
 
 
-def _add_layer3(query, original_data):
+def _add_layer3(query, original_data, string_keys=False):
     """Add data from successful layer3 MIB query to original data provided.
 
     Args:
@@ -354,13 +368,14 @@ def _add_layer3(query, original_data):
     """
     # Process query
     result = query.layer3()
-    new_data = _add_data(result, original_data)
+    new_data = _add_data(
+        result, original_data, string_keys=string_keys)
 
     # Return
     return new_data
 
 
-def _add_system(query, data):
+def _add_system(query, data, string_keys=False):
     """Add data from successful system MIB query to original data provided.
 
     Args:
@@ -378,7 +393,10 @@ def _add_system(query, data):
     for primary in result.keys():
         for secondary in result[primary].keys():
             for tertiary, value in result[primary][secondary].items():
-                data[primary][secondary][tertiary] = value
+                if string_keys is False:
+                    data[primary][secondary][tertiary] = value
+                else:
+                    data[str(primary)][str(secondary)][str(tertiary)] = value
 
     # Return
     return data
