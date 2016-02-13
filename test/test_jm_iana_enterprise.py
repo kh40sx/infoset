@@ -1,13 +1,12 @@
 #!/usr/bin/env python
-"""Test the class_config module."""
+"""Test the jm_iana_enterprise module."""
 
 import unittest
-import sys
 
 import jm_iana_enterprise as testimport
 
-class KnownValues(unittest.TestCase):
 
+class KnownValues(unittest.TestCase):
     """Checks all class_config methods."""
 
     #########################################################################
@@ -16,7 +15,6 @@ class KnownValues(unittest.TestCase):
 
     # Required
     maxDiff = None
-
 
     def enterprise(self):
         """Testing method / function enterprise."""
