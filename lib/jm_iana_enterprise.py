@@ -33,7 +33,7 @@ class Query(object):
             nodes = sysobjectid.split('.')
             self.enterprise_id = int(nodes[7])
         else:
-            self.enterprise_id = enterprise
+            self.enterprise_id = int(enterprise)
 
         # Assign sysobjectid
         self.sysobjectid = sysobjectid
