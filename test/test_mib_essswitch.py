@@ -8,7 +8,12 @@ from getdata.snmp import mib_essswitch as testimport
 
 
 class Query(object):
-    """Class for snmp_manager.Query mock."""
+    """Class for snmp_manager.Query mock.
+
+    A detailed tutorial about Python mocks can be found here:
+    http://www.drdobbs.com/testing/using-mocks-in-python/240168251
+
+    """
 
     def query(self):
         """Do an SNMP query."""
