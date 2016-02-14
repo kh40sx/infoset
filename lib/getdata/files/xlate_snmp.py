@@ -8,7 +8,7 @@ import yaml
 import jm_general
 
 
-class File(object):
+class Translator(object):
     """Process configuration file for a host.
 
     The aim of this class is to process the YAML file consistently

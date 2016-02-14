@@ -37,7 +37,7 @@ class HTMLTable(object):
 
         """
         # Process YAML file for host
-        translation = xlate_snmp.File(config, host)
+        translation = xlate_snmp.Translator(config, host)
         self.ports = translation.ethernet_data()
         self.summary = translation.system_summary()
 
