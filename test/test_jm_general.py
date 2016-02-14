@@ -23,32 +23,30 @@ class KnownValues(unittest.TestCase):
     random_string = ''.join([random.choice(
         string.ascii_letters + string.digits) for n in range(9)])
 
-    def logit(self):
+    def test_logit(self):
         """Testing method / function logit."""
-        # Initializing key variables
-        pass
+        # Try logging with exit
+        log_message = self.random_string
+        with self.assertRaises(SystemExit):
+            testimport.logit(1000, log_message, True)
 
-    def dict2yaml(self):
+        # Try logging with noexit
+        result = testimport.logit(1000, log_message, False)
+        self.assertEqual(result, None)
+
+    def test_dict2yaml(self):
         """Testing method / function dict2yaml."""
         # Initializing key variables
         data_dict = {
             '1': 'test 1',
             'two': 'test 2'
         }
-        data_yaml = """'1': 'test 1'
-'two': 'test 2'
+        data_yaml = """'1': test 1
+two: test 2
 """
         # Do test with good dict
         yaml_result = testimport.dict2yaml(data_dict)
         self.assertEqual(yaml_result, data_yaml)
-
-        # Initializing with dict with numeric keys. This should fail
-        data_dict_bad = {
-            '1': 'test 1',
-            '2': 'test 2'
-        }
-        with self.assertRaises(SystemExit):
-            testimport.dict2yaml(data_dict_bad)
 
     def test_move_files(self):
         """Testing function move_files."""
@@ -165,10 +163,17 @@ class KnownValues(unittest.TestCase):
         # Delete directory
         shutil.rmtree(path)
 
-    def cleanstring(self):
+    def test_cleanstring(self):
         """Testing method / function cleanstring."""
         # Initializing key variables
-        pass
+        dirty_string = ('   %s\n   \r %s   \n %s  ') % (
+            self.random_string, self.random_string, self.random_string)
+        clean_string = ('%s %s %s') % (
+            self.random_string, self.random_string, self.random_string)
+
+        # Test result
+        result = testimport.cleanstring(dirty_string)
+        self.assertEqual(result, clean_string)
 
 
 if __name__ == '__main__':
