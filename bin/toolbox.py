@@ -109,7 +109,7 @@ def do_test(cli_args, config):
 
         # Get SNMP data and print
         status = snmp_info.Query(snmp_object)
-        yaml_data = status.everything(do_yaml=True)
+        yaml_data = status.everything()
         print(yaml_data)
     else:
         # Error, host problems

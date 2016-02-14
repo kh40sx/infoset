@@ -82,11 +82,11 @@ class Query(object):
         # Return
         return final
 
-    def swportduplexstatus(self):
+    def swportduplexstatus(self, oidonly=False):
         """Return dict of MIB-ESSWITCH swPortDuplexStatus for each port.
 
         Args:
-            None
+            oidonly: Return OID's value, not results, if True
 
         Returns:
             data_dict: Dict of swPortDuplexStatus using ifIndex as key
@@ -95,9 +95,15 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # OID to process
         oid = '.1.3.6.1.4.1.437.1.1.3.3.1.1.30'
-        results = self.snmp_object.walk(oid, normalized=True)
+
+        # Return OID value. Used for unittests
+        if oidonly is True:
+            return oid
+
+        # Process results
+        results = self.snmp_object.swalk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
 

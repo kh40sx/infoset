@@ -92,11 +92,11 @@ class Query(object):
         # Return
         return final
 
-    def cdpcachedeviceid(self):
+    def cdpcachedeviceid(self, oidonly=False):
         """Return dict of CISCO-CDP-MIB cdpCacheDeviceId for each port.
 
         Args:
-            None
+            oidonly: Return OID's value, not results, if True
 
         Returns:
             data_dict: Dict of cdpCacheDeviceId using ifIndex as key
@@ -105,8 +105,12 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # OID to process
         oid = '.1.3.6.1.4.1.9.9.23.1.2.1.1.6'
+
+        # Return OID value. Used for unittests
+        if oidonly is True:
+            return oid
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=False)
@@ -117,11 +121,11 @@ class Query(object):
         # Return the interface descriptions
         return data_dict
 
-    def cdpcacheplatform(self):
+    def cdpcacheplatform(self, oidonly=False):
         """Return dict of CISCO-CDP-MIB cdpCachePlatform for each port.
 
         Args:
-            None
+            oidonly: Return OID's value, not results, if True
 
         Returns:
             data_dict: Dict of cdpCachePlatform using ifIndex as key
@@ -130,8 +134,12 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # OID to process
         oid = '.1.3.6.1.4.1.9.9.23.1.2.1.1.8'
+
+        # Return OID value. Used for unittests
+        if oidonly is True:
+            return oid
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=False)
@@ -142,11 +150,11 @@ class Query(object):
         # Return the interface descriptions
         return data_dict
 
-    def cdpcachedeviceport(self):
+    def cdpcachedeviceport(self, oidonly=False):
         """Return dict of CISCO-CDP-MIB cdpCacheDevicePort for each port.
 
         Args:
-            None
+            oidonly: Return OID's value, not results, if True
 
         Returns:
             data_dict: Dict of cdpCacheDevicePort using ifIndex as key
@@ -155,8 +163,12 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # OID to process
         oid = '.1.3.6.1.4.1.9.9.23.1.2.1.1.7'
+
+        # Return OID value. Used for unittests
+        if oidonly is True:
+            return oid
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=False)
