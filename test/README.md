@@ -13,3 +13,8 @@ You can run all tests by executing the `_do_all_tests.py` script with the `--dir
 ```
 $ _do_all_tests.py --directory /path/to/these/unittests
 ```
+
+# Mocks
+Many of these unittests use Python Mocks. A detailed tutorial on Mocks can be found here: http://www.drdobbs.com/testing/using-mocks-in-python/240168251
+
+
