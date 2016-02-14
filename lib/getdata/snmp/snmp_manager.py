@@ -173,8 +173,9 @@ class Interact:
         """Get the sysObjectID of the device.
 
         Args:
-            connectivity_check: Set if testing for connectivity
-
+            connectivity_check:
+                Set if testing for connectivity. Some session
+                errors are ignored so that a null result is returned
         Returns:
             object_id: sysObjectID value
 
@@ -262,6 +263,12 @@ class Interact:
 
         Args:
             oid_to_get: OID to get
+            normalized: If True, then return results as a dict keyed by
+                only the last node of an OID, otherwise return results
+                keyed by the entire OID string. Normalization is useful
+                when trying to create multidimensional dicts where the
+                primary key is a universal value such as IF-MIB::ifIndex
+                or BRIDGE-MIB::dot1dBasePort
 
         Returns:
             results: Results
@@ -290,6 +297,15 @@ class Interact:
 
         Args:
             oid_to_get: OID to walk
+            normalized: If True, then return results as a dict keyed by
+                only the last node of an OID, otherwise return results
+                keyed by the entire OID string. Normalization is useful
+                when trying to create multidimensional dicts where the
+                primary key is a universal value such as IF-MIB::ifIndex
+                or BRIDGE-MIB::dot1dBasePort
+            connectivity_check:
+                Set if testing for connectivity. Some session
+                errors are ignored so that a null result is returned
 
         Returns:
             Dictionary of tuples (OID, value)
@@ -304,7 +320,15 @@ class Interact:
 
         Args:
             oid_to_get: OID to get
-            connectivity_check: Set if testing for connectivity
+            normalized: If True, then return results as a dict keyed by
+                only the last node of an OID, otherwise return results
+                keyed by the entire OID string. Normalization is useful
+                when trying to create multidimensional dicts where the
+                primary key is a universal value such as IF-MIB::ifIndex
+                or BRIDGE-MIB::dot1dBasePort
+            connectivity_check:
+                Set if testing for connectivity. Some session
+                errors are ignored so that a null result is returned
 
         Returns:
             Dictionary of tuples (OID, value)
@@ -322,6 +346,12 @@ class Interact:
         Args:
             oid_to_get: OID to walk
             get: Flag determining whether to do a GET or WALK
+            normalized: If True, then return results as a dict keyed by
+                only the last node of an OID, otherwise return results
+                keyed by the entire OID string. Normalization is useful
+                when trying to create multidimensional dicts where the
+                primary key is a universal value such as IF-MIB::ifIndex
+                or BRIDGE-MIB::dot1dBasePort
             connectivity_check:
                 Set if testing for connectivity. Some session
                 errors are ignored so that a null result is returned
@@ -410,7 +440,9 @@ def _process_error(
     """Process errors received.
 
     Args:
-        connectivity_check: True if we were just testing connectivity
+        connectivity_check:
+                Set if testing for connectivity. Some session
+                errors are ignored so that a null result is returned
         session_error_status: Error status
         session_error_index: Error index
         get: True if formatting the results of an SNMP get
@@ -462,7 +494,12 @@ def _format_results(normalized=False, get=False, var_binds=None):
     """Normalize the results of an walk.
 
     Args:
-        normalized: True - return_results key must be the last node of an oid
+        normalized: If True, then return results as a dict keyed by
+            only the last node of an OID, otherwise return results
+            keyed by the entire OID string. Normalization is useful
+            when trying to create multidimensional dicts where the
+            primary key is a universal value such as IF-MIB::ifIndex
+            or BRIDGE-MIB::dot1dBasePort
         get: True if formatting the results of an SNMP get
         var_binds: Dict of results
 
