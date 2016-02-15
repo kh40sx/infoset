@@ -38,6 +38,8 @@ class Translator(object):
 
         Summary:
 
+            IF-MIB
+
             A significant portion of this code relies on ifIndex
             IF-MIB::ifStackStatus information. This is stored under the
             'system' key of the device YAML files.
@@ -85,6 +87,17 @@ class Translator(object):
             The primary interface is referred to as the
             ifStackLowerLayer and the secondary subinterface is referred to
             as the ifStackHigherLayer.
+
+            =================================================================
+
+            Layer1 Keys
+
+            The following Layer1 keys are presented by the ethernet_data
+            method due to this instantiation:
+
+            jm_vlan: A list of vendor agnostic VLANs
+            jm_trunk: A vendor agnostic flag of "True" if the port is a Trunk
+            jm_duplex: A vendor agnostic status code for the duplex setting
 
         """
         # Initialize key variables
@@ -213,25 +226,24 @@ def _vlan(metadata, ifindex):
         ifindex: ifindex in question
 
     Returns:
-        vlan: VLAN number
+        vlans: VLAN numbers as a list
 
     """
     # Initialize key variables
-    vlan = None
+    vlans = None
 
     # Determine vlan number for Cisco devices
     if 'vmVlan' in metadata['layer1'][ifindex]:
-        vlan = int(metadata['layer1'][ifindex]['vmVlan'])
+        vlans = [int(metadata['layer1'][ifindex]['vmVlan'])]
 
     # Determine vlan number for Juniper devices
     if 'jnxExVlanTag' in metadata['layer1'][ifindex]:
         tags = metadata['layer1'][ifindex]['jnxExVlanTag']
-        if tags is not None:
-            if len(tags) == 1:
-                vlan = tags[0]
+        if bool(tags) is True:
+            vlans = tags
 
     # Return
-    return vlan
+    return vlans
 
 
 def _duplex(metadata):

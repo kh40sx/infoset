@@ -427,19 +427,19 @@ def _get_vlan(port_data):
         port_data: Data related to the port
 
     Returns:
-        None
+        vlans
 
     """
     # Initialize key variables
-    vlan = 'N/A'
+    vlans = 'N/A'
 
     # Assign VLAN
     if 'jm_vlan' in port_data:
         if port_data['jm_vlan'] is not None:
-            vlan = ('%s') % (port_data['jm_vlan'])
+            vlans = ' '.join(str(value) for value in port_data['jm_vlan'])
 
     # Return
-    return vlan
+    return vlans
 
 
 def _html_footer():
