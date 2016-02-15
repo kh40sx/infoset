@@ -471,6 +471,51 @@ class Query(object):
                 ifstacklowerlayer as primary, and ifstackhigherlayer as
                 secondary.
 
+        Summary:
+            According to the official IF-MIB file. ifStackStatus is a
+            "table containing information on the relationships
+            between the multiple sub-layers of network interfaces.  In
+            particular, it contains information on which sub-layers run
+            'on top of' which other sub-layers, where each sub-layer
+            corresponds to a conceptual row in the ifTable.  For
+            example, when the sub-layer with ifIndex value x runs over
+            the sub-layer with ifIndex value y, then this table
+            contains:
+
+              ifStackStatus.x.y=active
+
+            For each ifIndex value, I, which identifies an active
+            interface, there are always at least two instantiated rows
+            in this table associated with I.  For one of these rows, I
+            is the value of ifStackHigherLayer; for the other, I is the
+            value of ifStackLowerLayer.  (If I is not involved in
+            multiplexing, then these are the only two rows associated
+            with I.)
+
+            For example, two rows exist even for an interface which has
+            no others stacked on top or below it:
+
+              ifStackStatus.0.x=active
+              ifStackStatus.x.0=active"
+
+            In the case of Juniper equipment, VLAN information is only
+            visible on subinterfaces of the main interface. For example
+            interface ge-0/0/0 won't have VLAN information assigned to it
+            directly.
+
+            When a VLAN is assigned to this interface, a subinterface
+            ge-0/0/0.0 is automatically created with a non-Ethernet ifType.
+            VLAN related OIDs are only maintained for this new subinterface
+            only. This makes determining an interface's VLAN based on
+            Ethernet ifType more difficult. ifStackStatus maps the ifIndex of
+            the primary interface (ge-0/0/0) to the ifIndex of the secondary
+            interface (ge-0/0/0.0) which manages higher level protocols and
+            data structures such as VLANs and LLDP.
+
+            The primary interface is referred to as the
+            ifStackLowerLayer and the secondary subinterface is referred to
+            as the ifStackHigherLayer.
+
         """
         # Initialize key variables
         final = defaultdict(lambda: defaultdict(dict))

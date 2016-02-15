@@ -20,7 +20,8 @@ etc/*
 
 # There are exceptions
 !etc/.gitignore
-!data/.gitignore
+!data/snmp/.gitignore
+!data/aux/.gitignore
 !www/static/.gitignore
 
 #############################################################################

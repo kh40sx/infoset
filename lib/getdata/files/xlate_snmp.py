@@ -36,6 +36,56 @@ class Translator(object):
         Returns:
             data_dict: Dict of summary data
 
+        Summary:
+
+            A significant portion of this code relies on ifIndex
+            IF-MIB::ifStackStatus information. This is stored under the
+            'system' key of the device YAML files.
+
+            According to the official IF-MIB file. ifStackStatus is a
+            "table containing information on the relationships
+            between the multiple sub-layers of network interfaces.  In
+            particular, it contains information on which sub-layers run
+            'on top of' which other sub-layers, where each sub-layer
+            corresponds to a conceptual row in the ifTable.  For
+            example, when the sub-layer with ifIndex value x runs over
+            the sub-layer with ifIndex value y, then this table
+            contains:
+
+              ifStackStatus.x.y=active
+
+            For each ifIndex value, I, which identifies an active
+            interface, there are always at least two instantiated rows
+            in this table associated with I.  For one of these rows, I
+            is the value of ifStackHigherLayer; for the other, I is the
+            value of ifStackLowerLayer.  (If I is not involved in
+            multiplexing, then these are the only two rows associated
+            with I.)
+
+            For example, two rows exist even for an interface which has
+            no others stacked on top or below it:
+
+              ifStackStatus.0.x=active
+              ifStackStatus.x.0=active"
+
+            In the case of Juniper equipment, VLAN information is only
+            visible on subinterfaces of the main interface. For example
+            interface ge-0/0/0 won't have VLAN information assigned to it
+            directly.
+
+            When a VLAN is assigned to this interface, a subinterface
+            ge-0/0/0.0 is automatically created with a non-Ethernet ifType.
+            VLAN related OIDs are only maintained for this new subinterface
+            only. This makes determining an interface's VLAN based on
+            Ethernet ifType more difficult. ifStackStatus maps the ifIndex of
+            the primary interface (ge-0/0/0) to the ifIndex of the secondary
+            interface (ge-0/0/0.0) which manages higher level protocols and
+            data structures such as VLANs and LLDP.
+
+            The primary interface is referred to as the
+            ifStackLowerLayer and the secondary subinterface is referred to
+            as the ifStackHigherLayer.
+
         """
         # Initialize key variables
         self.ports = {}
@@ -53,50 +103,42 @@ class Translator(object):
             yaml_from_file = file_handle.read()
         yaml_data = yaml.load(yaml_from_file)
 
-        #####################################################################
-        #
-        # Jordan: You need to add code here to process Juniper devices
-        # Create a method / function to populate the ethernet interfaces
-        # with vlan data from their type 53 interfaces (if they exist)
-        # Then pass the resulting modified yaml_data dictionary to the loop
-        # below
-        #
-        # The logic would be.
-        # 1) Is this juniper?
-        # 2) Search for all ethernet interfaces
-        # 3) Determine whether the interface has a subinterface, that is a
-        #    main interface. This can be
-        #    done by searching the dict for an ifname of subinterface."0"
-        # 4) Determine whether the subinterface has VLAN and / or LLDP keys
-        #
-        #       lldpRemPortDesc
-        #       lldpRemSysCapEnabled
-        #       lldpRemSysDesc
-        #       lldpRemSysName
-        #       jnxExVlanTag
-        #
-        # 5) Copy those keys to main interface.
-        # 6) When done, pass the modified dict to the loop below.
-        #
-        #####################################################################
-
         # Create dict for layer1 Ethernet data
-        for key, metadata in yaml_data['layer1'].items():
-            # Only process if key is found in ifindices
+        for ifindex, metadata in yaml_data['layer1'].items():
+            # Only process if ifIndex is found in ifindices
             if ifindices is not None:
-                if int(key) not in ifindices:
+                if int(ifindex) not in ifindices:
                     continue
 
             # Process metadata
             if _is_ethernet(metadata) is True:
+                # Get the ifIndex of the lower layer interface
+                ifstacklowerlayer = ifindex
+
+                # Determine the ifIndex for any existing higher
+                # layer subinterfaces whose data could be used
+                # for upper layer2 features such as VLANs and
+                # LAG trunking
+                higherlayers = yaml_data[
+                    'system']['IF-MIB'][ifstacklowerlayer]
+                for higherlayer in higherlayers.keys():
+                    if higherlayer == '0':
+                        ifstackhigherlayer = ifstacklowerlayer
+                    else:
+                        ifstackhigherlayer = higherlayer
+                    break
+
                 # Update vlan to universal infoset metadata value
-                metadata['jm_vlan'] = _vlan(yaml_data, key)
+                metadata['jm_vlan'] = _vlan(yaml_data, ifstackhigherlayer)
+
+                # Update trunk status to universal infoset metadata value
+                metadata['jm_trunk'] = _trunk(yaml_data, ifstackhigherlayer)
 
                 # Update duplex to universal infoset metadata value
                 metadata['jm_duplex'] = _duplex(metadata)
 
                 # Update ports
-                self.ports[int(key)] = metadata
+                self.ports[int(ifindex)] = metadata
 
         # Get system
         self.system = yaml_data['system']
@@ -171,7 +213,7 @@ def _vlan(metadata, ifindex):
         ifindex: ifindex in question
 
     Returns:
-        vlan: True if valid ethernet port
+        vlan: VLAN number
 
     """
     # Initialize key variables
@@ -181,15 +223,12 @@ def _vlan(metadata, ifindex):
     if 'vmVlan' in metadata['layer1'][ifindex]:
         vlan = int(metadata['layer1'][ifindex]['vmVlan'])
 
-    #########################################################################
-    # Jordan. You need to add code here for the Juniper VLANs
-    # Pagemaker expects a single VLAN value to be returned.
-    # You may need to add pagemaker functionality that displays lists of
-    # VLANs in a table column if the interface is a trunk, with a vlan value
-    # of "trunk" for the vlan column. Switchmap does something similar here
-    # http://calico.palisadoes.org/switchmap/www/switches/192.168.1.3.html
-    # for interface Fa0/26
-    #########################################################################
+    # Determine vlan number for Juniper devices
+    if 'jnxExVlanTag' in metadata['layer1'][ifindex]:
+        tags = metadata['layer1'][ifindex]['jnxExVlanTag']
+        if tags is not None:
+            if len(tags) == 1:
+                vlan = tags[0]
 
     # Return
     return vlan
@@ -265,3 +304,33 @@ def _duplex(metadata):
 
     # Return
     return duplex
+
+
+def _trunk(metadata, ifindex):
+    """Return trunk for specific ifIndex.
+
+    Args:
+        metadata: Data dict related to the device
+        ifindex: ifindex in question
+
+    Returns:
+        trunk: True if port is in trunking mode
+
+    """
+    # Initialize key variables
+    trunk = False
+
+    # Determine if trunk for Cisco devices
+    if 'vlanTrunkPortDynamicStatus' in metadata['layer1'][ifindex]:
+        if metadata['layer1'][ifindex][
+                'vlanTrunkPortDynamicStatus'] == 1:
+            trunk = True
+
+    # Determine if trunk for Juniper devices
+    if 'jnxExVlanPortAccessMode' in metadata['layer1'][ifindex]:
+        if metadata['layer1'][ifindex][
+                'jnxExVlanPortAccessMode'] == 2:
+            trunk = True
+
+    # Return
+    return trunk
