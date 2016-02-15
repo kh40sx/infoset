@@ -98,7 +98,7 @@ class Query(object):
         # Descriptions
         oid = '.1.3.6.1.2.1.10.7.2.1.19'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             data_dict[int(key)] = value
 
         # Return the interface descriptions

@@ -104,7 +104,7 @@ class Query(object):
 
         # Process data
         results = self.snmp_object.swalk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             data_dict[int(key)] = value
 
         # Return the interface descriptions
@@ -128,7 +128,7 @@ class Query(object):
 
         # Process data
         results = self.snmp_object.swalk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             data_dict[int(key)] = value
 
         # Return the interface descriptions

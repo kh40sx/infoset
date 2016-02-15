@@ -133,7 +133,7 @@ class Query(object):
         # Process values
         oid = '.1.3.6.1.2.1.17.4.3.1.2'
         results = self.snmp_object.walk(oid, normalized=False)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             new_key = key[len(oid):]
             data_dict[new_key] = value
 
@@ -157,7 +157,7 @@ class Query(object):
         # Process values
         oid = '.1.3.6.1.2.1.17.4.3.1.1'
         results = self.snmp_object.walk(oid, normalized=False)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             new_key = key[len(oid):]
             macaddress = binascii.hexlify(value).decode('utf-8')
             data_dict[new_key] = macaddress.lower()
@@ -181,7 +181,7 @@ class Query(object):
         # Process values
         oid = '.1.3.6.1.2.1.17.1.4.1.2'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             data_dict[int(key)] = value
 
         # Return data

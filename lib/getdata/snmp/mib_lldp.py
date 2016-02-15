@@ -128,7 +128,7 @@ class Query(object):
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=False)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Check if this OID is indexed using iFindex or dot1dBasePort
             if self.baseportifindex is not None:
                 bridgeport = _penultimate_node(key)
@@ -164,7 +164,7 @@ class Query(object):
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=False)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Check if this OID is indexed using iFindex or dot1dBasePort
             if self.baseportifindex is not None:
                 bridgeport = _penultimate_node(key)
@@ -206,7 +206,7 @@ class Query(object):
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=False)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Check if this OID is indexed using iFindex or dot1dBasePort
             if self.baseportifindex is not None:
                 bridgeport = _penultimate_node(key)
@@ -241,7 +241,7 @@ class Query(object):
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=False)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             if self.baseportifindex is not None:
                 bridgeport = _penultimate_node(key)
                 ifindex = self.baseportifindex[bridgeport]

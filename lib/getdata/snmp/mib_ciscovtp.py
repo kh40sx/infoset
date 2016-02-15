@@ -150,7 +150,7 @@ class Query(object):
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             data_dict[int(key)] = value
 
         # Return the interface descriptions
@@ -175,7 +175,7 @@ class Query(object):
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             data_dict[int(key)] = value
 
         # Return the interface descriptions
@@ -200,7 +200,7 @@ class Query(object):
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             data_dict[int(key)] = value
 
         # Return the interface descriptions
@@ -225,7 +225,7 @@ class Query(object):
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             data_dict[int(key)] = value
 
         # Return the interface descriptions
@@ -249,7 +249,7 @@ class Query(object):
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             data_dict[int(key)] = str(bytes(value), encoding='utf-8')
 
         # Return the interface descriptions
@@ -273,7 +273,7 @@ class Query(object):
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             data_dict[int(key)] = value
 
         # Return the interface descriptions
@@ -297,7 +297,7 @@ class Query(object):
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             data_dict[int(key)] = value
 
         # Return the interface descriptions

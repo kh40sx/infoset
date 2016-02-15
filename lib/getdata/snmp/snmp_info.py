@@ -121,6 +121,12 @@ class Query(object):
             processed = True
             data = _add_system(query, data)
 
+        # Get information from IF-MIB
+        query = mib_if.Query(self.snmp_object)
+        if query.supported() is True:
+            processed = True
+            data = _add_system(query, data)
+
         # Return
         if processed is True:
             return data

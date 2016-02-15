@@ -97,7 +97,7 @@ class Query(object):
         # Process
         oid = '.1.3.6.1.2.1.4.22.1.2'
         results = self.snmp_object.walk(oid, normalized=False)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Determine IP address
             nodes = key.split('.')
             octets = nodes[-4:]
@@ -128,7 +128,7 @@ class Query(object):
 
         # Get results
         results = self.snmp_object.swalk(oid, normalized=False)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Get IP address, first 12 characters
             macaddress = binascii.hexlify(
                 value).decode('utf-8')[0:12].lower()

@@ -99,7 +99,7 @@ class Query(object):
         # Process OID
         oid = '.1.3.6.1.4.1.9.5.1.4.1.1.10'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Assign duplex value to ifindex key
             ifindex = dot1dbaseport[int(key)]
             data_dict[ifindex] = value
@@ -123,7 +123,7 @@ class Query(object):
         # Process OID
         oid = '.1.3.6.1.4.1.9.5.1.4.1.1.11'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             data_dict[int(key)] = value
 
         # Return the interface descriptions

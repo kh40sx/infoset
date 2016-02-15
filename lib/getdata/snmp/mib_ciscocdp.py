@@ -114,7 +114,7 @@ class Query(object):
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=False)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             ifindex = _ifindex(key)
             data_dict[ifindex] = str(bytes(value), encoding='utf-8')
 
@@ -143,7 +143,7 @@ class Query(object):
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=False)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             ifindex = _ifindex(key)
             data_dict[ifindex] = str(bytes(value), encoding='utf-8')
 
@@ -172,7 +172,7 @@ class Query(object):
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=False)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             ifindex = _ifindex(key)
             data_dict[ifindex] = str(bytes(value), encoding='utf-8')
 

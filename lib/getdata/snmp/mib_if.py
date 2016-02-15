@@ -62,6 +62,23 @@ class Query(object):
         # Return
         return validity
 
+    def system(self):
+        """Get system data from device.
+
+        Args:
+            None
+
+        Returns:
+            final: Final results
+
+        """
+        # Initialize key variables
+        final = {}
+
+        # Return
+        final['IF-MIB'] = self.ifstackstatus()
+        return final
+
     def layer1(self):
         """Get layer 1 data from device using Layer 1 OIDs.
 
@@ -156,10 +173,10 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # Process OID
         oid = '.1.3.6.1.2.1.2.2.1.9'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Process OID
             data_dict[int(key)] = value
 
@@ -179,10 +196,10 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # Process OID
         oid = '.1.3.6.1.2.1.2.2.1.10'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Process OID
             data_dict[int(key)] = value
 
@@ -202,10 +219,10 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # Process OID
         oid = '.1.3.6.1.2.1.2.2.1.16'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Process OID
             data_dict[int(key)] = value
 
@@ -225,10 +242,10 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # Process OID
         oid = '.1.3.6.1.2.1.2.2.1.2'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Process OID
             data_dict[int(key)] = str(bytes(value), encoding='utf-8')
 
@@ -248,10 +265,10 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # Process OID
         oid = '.1.3.6.1.2.1.2.2.1.3'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Process OID
             data_dict[int(key)] = value
 
@@ -271,10 +288,10 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # Process OID
         oid = '.1.3.6.1.2.1.2.2.1.5'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Process OID
             data_dict[int(key)] = value
 
@@ -294,10 +311,10 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # Process OID
         oid = '.1.3.6.1.2.1.2.2.1.7'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Process OID
             data_dict[int(key)] = value
 
@@ -317,10 +334,10 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # Process OID
         oid = '.1.3.6.1.2.1.2.2.1.8'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Process OID
             data_dict[int(key)] = value
 
@@ -340,10 +357,10 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # Process OID
         oid = '.1.3.6.1.2.1.31.1.1.1.18'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Process OID
             data_dict[int(key)] = str(bytes(value), encoding='utf-8')
 
@@ -363,10 +380,10 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # Process OID
         oid = '.1.3.6.1.2.1.31.1.1.1.1'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Process OID
             data_dict[int(key)] = str(bytes(value), encoding='utf-8')
 
@@ -386,10 +403,10 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # Process OID
         oid = '.1.3.6.1.2.1.2.2.1.1'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Process OID
             data_dict[int(key)] = value
 
@@ -409,10 +426,10 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # Process OID
         oid = '.1.3.6.1.2.1.2.2.1.6'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Process OID
             macaddress = binascii.hexlify(value).decode('utf-8').lower()
             data_dict[int(key)] = macaddress
@@ -433,12 +450,46 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # Process OID
         oid = '.1.3.6.1.2.1.31.1.1.1.15'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             # Process OID
             data_dict[int(key)] = value
 
         # Return the interface descriptions
         return data_dict
+
+    def ifstackstatus(self):
+        """Return dict of IFMIB ifStackStatus for each ifIndex for device.
+
+        Args:
+            None
+
+        Returns:
+            final: Dict of ifStackStatus keyed by the ifIndex of the
+                ifstacklowerlayer as primary, and ifstackhigherlayer as
+                secondary.
+
+        """
+        # Initialize key variables
+        final = defaultdict(lambda: defaultdict(dict))
+
+        # Process OID
+        oid = '.1.3.6.1.2.1.31.1.2.1.3'
+        results = self.snmp_object.walk(oid, normalized=False)
+        for key, value in results.items():
+            # Get higher and lower layer index values
+            nodes = key.split('.')
+            ifstackhigherlayer = int(nodes[-2])
+            ifstacklowerlayer = int(nodes[-1])
+
+            # Skip some values
+            if ifstacklowerlayer == 0:
+                continue
+
+            # Make primary key the lower layer interface ifIndex value
+            final[ifstacklowerlayer][ifstackhigherlayer] = value
+
+        # Return the interface descriptions
+        return final

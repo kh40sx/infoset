@@ -103,7 +103,7 @@ class Query(object):
         # Descriptions
         oid = '.1.3.6.1.4.1.9.9.87.1.4.1.1.18'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             data_dict[int(key)] = value
 
         # Return the interface descriptions
@@ -125,7 +125,7 @@ class Query(object):
         # Descriptions
         oid = '.1.3.6.1.4.1.9.9.87.1.4.1.1.32'
         results = self.snmp_object.walk(oid, normalized=True)
-        for key, value in sorted(results.items()):
+        for key, value in results.items():
             data_dict[int(key)] = value
 
         # Return the interface descriptions
