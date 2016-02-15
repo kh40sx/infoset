@@ -88,33 +88,42 @@ class Query(object):
         # Initialize key variables
         data_dict = defaultdict(lambda: defaultdict(dict))
         final = defaultdict(lambda: defaultdict(dict))
-        ports = self._dot1dtpfdbport()
+        baseport = self._dot1dtpfdbport()
         macs = self._dot1dtpfdbaddress()
+        baseportifindex = self.dot1dbaseport_2_ifindex()
 
-        # Create a dict keyed by ifindex
+        # Create a dict keyed by ifIndex
         for key, value in macs.items():
-            if ports[key] not in data_dict:
-                data_dict[int(ports[key])] = [value]
-            else:
-                data_dict[int(ports[key])].append(value)
+            # Get ifIndex from dot1dBasePort
+            ifindex = baseportifindex[int(baseport[key])]
 
-        # Convert MAC value to bytes in hex format, then convert to string
+            # With multi-threading sometimes baseportifindex has empty values.
+            if bool(ifindex) is False:
+                continue
+
+            # Assign MAC addresses to ifIndex
+            if ifindex not in data_dict:
+                data_dict[ifindex] = [value]
+            else:
+                data_dict[ifindex].append(value)
+
+        # Assign MACs to secondary key for final result
         for key, value in data_dict.items():
-            final[key]['macs'] = []
+            final[key]['jm_macs'] = []
             for next_mac in value:
-                final[key]['macs'].append(next_mac)
+                final[key]['jm_macs'].append(next_mac)
 
         # Return
         return final
 
     def _dot1dtpfdbport(self):
-        """Return dict of BRIDGE-MIB dot1dBasePortIfIndex data.
+        """Return dict of BRIDGE-MIB dot1dtpfdbport data.
 
         Args:
             None
 
         Returns:
-            data_dict: Dict of dot1dBasePortIfIndex using the OID nodes
+            data_dict: Dict of dot1dtpfdbport using the OID nodes
                 excluding the OID root as key
 
         """
@@ -156,15 +165,14 @@ class Query(object):
         # Return data
         return data_dict
 
-    def dot1dbaseportifindex(self):
+    def dot1dbaseport_2_ifindex(self):
         """Return dict of BRIDGE-MIB dot1dBasePortIfIndex data.
 
         Args:
             None
 
         Returns:
-            data_dict: Dict of dot1dBasePortIfIndex using the OID nodes
-                excluding the OID root as key
+            data_dict: Dict of dot1dBasePortIfIndex with dot1dBasePort as key.
 
         """
         # Initialize key variables

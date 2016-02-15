@@ -129,7 +129,7 @@ class Query(object):
         # Get a mapping of dot1dbaseport values to the corresponding ifindex
         oid = '.1.3.6.1.4.1.2636.3.40.1.5.1.7.1.3'
         bridge_mib = mib_bridge.Query(self.snmp_object)
-        baseportifindex = bridge_mib.dot1dbaseportifindex()
+        baseportifindex = bridge_mib.dot1dbaseport_2_ifindex()
 
         # Process results
         results = self.snmp_object.walk(oid, normalized=False)

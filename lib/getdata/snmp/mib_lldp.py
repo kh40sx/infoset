@@ -45,7 +45,7 @@ class Query(object):
         # Load the ifindex baseport map if this mib is supported
         bridge_mib = mib_bridge.Query(self.snmp_object)
         if self.supported() and bridge_mib.supported():
-            self.baseportifindex = bridge_mib.dot1dbaseportifindex()
+            self.baseportifindex = bridge_mib.dot1dbaseport_2_ifindex()
         else:
             self.baseportifindex = None
 

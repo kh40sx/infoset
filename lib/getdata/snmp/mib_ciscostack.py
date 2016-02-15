@@ -94,9 +94,34 @@ class Query(object):
         """
         # Initialize key variables
         data_dict = defaultdict(dict)
+        dot1dbaseport = self._portifindex()
 
-        # Descriptions
+        # Process OID
         oid = '.1.3.6.1.4.1.9.5.1.4.1.1.10'
+        results = self.snmp_object.walk(oid, normalized=True)
+        for key, value in sorted(results.items()):
+            # Assign duplex value to ifindex key
+            ifindex = dot1dbaseport[int(key)]
+            data_dict[ifindex] = value
+
+        # Return the interface descriptions
+        return data_dict
+
+    def _portifindex(self):
+        """Return dict of CISCO-STACK-MIB portIfIndex for each port.
+
+        Args:
+            None
+
+        Returns:
+            data_dict: Dict of portIfIndex using dot1dBasePort as key
+
+        """
+        # Initialize key variables
+        data_dict = defaultdict(dict)
+
+        # Process OID
+        oid = '.1.3.6.1.4.1.9.5.1.4.1.1.11'
         results = self.snmp_object.walk(oid, normalized=True)
         for key, value in sorted(results.items()):
             data_dict[int(key)] = value
