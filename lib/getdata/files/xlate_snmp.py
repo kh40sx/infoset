@@ -95,6 +95,7 @@ class Translator(object):
             The following Layer1 keys are presented by the ethernet_data
             method due to this instantiation:
 
+            jm_nativevlan: A vendor agnostic Native VLAN
             jm_vlan: A list of vendor agnostic VLANs
             jm_trunk: A vendor agnostic flag of "True" if the port is a Trunk
             jm_duplex: A vendor agnostic status code for the duplex setting
@@ -128,24 +129,60 @@ class Translator(object):
                 # Get the ifIndex of the lower layer interface
                 ifstacklowerlayer = ifindex
 
+                #############################################################
+                #
+                # This stuff relies on ifstacklowerlayer / ifstackhigherlayer
+                #
+                #############################################################
                 # Determine the ifIndex for any existing higher
                 # layer subinterfaces whose data could be used
                 # for upper layer2 features such as VLANs and
                 # LAG trunking
                 higherlayers = yaml_data[
-                    'system']['IF-MIB'][ifstacklowerlayer]
-                for higherlayer in higherlayers.keys():
-                    if higherlayer == '0':
-                        ifstackhigherlayer = ifstacklowerlayer
-                    else:
-                        ifstackhigherlayer = higherlayer
-                    break
+                    'system']['IF-MIB']['ifStackStatus'][ifindex]
 
                 # Update vlan to universal infoset metadata value
-                metadata['jm_vlan'] = _vlan(yaml_data, ifstackhigherlayer)
+                for higherlayer in higherlayers:
+                    # All numeric keys in YAML need to be strings. Prepare
+                    # for key checking.
+                    ifstackhigherlayer = str(higherlayer)
 
-                # Update trunk status to universal infoset metadata value
-                metadata['jm_trunk'] = _trunk(yaml_data, ifstackhigherlayer)
+                    # This is an Ethernet port with no higher level
+                    # interfaces. Use lower level ifIndex
+                    if ifstackhigherlayer == '0':
+                        metadata['jm_vlan'] = _vlan(
+                            yaml_data, ifstacklowerlayer)
+
+                        metadata['jm_nativevlan'] = _nativevlan(
+                            yaml_data, ifstacklowerlayer)
+
+                        metadata['jm_trunk'] = _trunk(
+                            yaml_data, ifstacklowerlayer)
+                    else:
+                        # Assign native VLAN to higer layer
+                        metadata['jm_nativevlan'] = _nativevlan(
+                            yaml_data, ifstackhigherlayer)
+
+                        # Update trunk status to universal metadata value
+                        metadata['jm_trunk'] = _trunk(
+                            yaml_data, ifstackhigherlayer)
+
+                        # This is an Ethernet port with a single higher level
+                        # interface
+                        if len(higherlayers) == 1:
+                            metadata['jm_vlan'] = _vlan(
+                                yaml_data, ifstackhigherlayer)
+                        # This is an Ethernet port with multiple higher level
+                        # interfaces
+                        else:
+                            metadata['jm_vlan'].extend(
+                                _vlan(yaml_data, ifstackhigherlayer))
+
+                #############################################################
+                #
+                # This stuff relies on ifindex
+                #
+                #############################################################
 
                 # Update duplex to universal infoset metadata value
                 metadata['jm_duplex'] = _duplex(metadata)
@@ -226,7 +263,7 @@ def _vlan(metadata, ifindex):
         ifindex: ifindex in question
 
     Returns:
-        vlans: VLAN numbers as a list
+        vlans: VLAN number
 
     """
     # Initialize key variables
@@ -245,6 +282,31 @@ def _vlan(metadata, ifindex):
     # Return
     return vlans
 
+
+def _nativevlan(metadata, ifindex):
+    """Return vlan for specific ifIndex.
+
+    Args:
+        metadata: Data dict related to the device
+        ifindex: ifindex in question
+
+    Returns:
+        vlan: VLAN number
+
+    """
+    # Initialize key variables
+    vlan = None
+
+    # Determine native VLAN tag number for Cisco devices
+    if 'vlanTrunkPortNativeVlan' in metadata['layer1'][ifindex]:
+        vlan = int(metadata['layer1'][ifindex]['vlanTrunkPortNativeVlan'])
+
+    # Determine native VLAN tag number for Juniper devices
+    if 'dot1qPvid' in metadata['layer1'][ifindex]:
+        vlan = metadata['layer1'][ifindex]['dot1qPvid']
+
+    # Return
+    return vlan
 
 def _duplex(metadata):
     """Return duplex value for port.
@@ -334,14 +396,12 @@ def _trunk(metadata, ifindex):
 
     # Determine if trunk for Cisco devices
     if 'vlanTrunkPortDynamicStatus' in metadata['layer1'][ifindex]:
-        if metadata['layer1'][ifindex][
-                'vlanTrunkPortDynamicStatus'] == 1:
+        if metadata['layer1'][ifindex]['vlanTrunkPortDynamicStatus'] == 1:
             trunk = True
 
     # Determine if trunk for Juniper devices
     if 'jnxExVlanPortAccessMode' in metadata['layer1'][ifindex]:
-        if metadata['layer1'][ifindex][
-                'jnxExVlanPortAccessMode'] == 2:
+        if metadata['layer1'][ifindex]['jnxExVlanPortAccessMode'] == 2:
             trunk = True
 
     # Return

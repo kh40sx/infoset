@@ -3,6 +3,7 @@
 
 
 from collections import defaultdict
+import binascii
 
 
 class Query(object):
@@ -127,6 +128,11 @@ class Query(object):
         values = self.vlantrunkportencapsulationtype()
         for key, value in values.items():
             final[key]['vlanTrunkPortEncapsulationType'] = value
+
+        # Get interface vlanTrunkPortVlansEnabled data
+        values = self.vlantrunkportvlansenabled()
+        for key, value in values.items():
+            final[key]['vlanTrunkPortVlansEnabled'] = value
 
         # Return
         return final
@@ -299,6 +305,52 @@ class Query(object):
         results = self.snmp_object.swalk(oid, normalized=True)
         for key, value in results.items():
             data_dict[int(key)] = value
+
+        # Return the interface descriptions
+        return data_dict
+
+    def vlantrunkportvlansenabled(self):
+        """Return CISCO-VTP-MIB vlanTrunkPortVlansEnabled data per ifIndex.
+
+        Args:
+            None
+
+        Returns:
+            data_dict: Dict of vlanTrunkPortVlansEnabled keyed by ifIndex
+                with values being lists of enabled VLAN tags.
+
+        """
+        # Initialize key variables
+        data_dict = defaultdict(dict)
+        length_in_bits = 1024
+        base = 16
+
+        # Get the trunk status for all ifIndex values
+        trunkstatus = self.vlantrunkportdynamicstatus()
+
+        # OID to Process
+        oid = '.1.3.6.1.4.1.9.9.46.1.6.1.1.4'
+
+        # Process results
+        results = self.snmp_object.swalk(oid, normalized=True)
+        for key, value in results.items():
+            # Get the ifindex value
+            ifindex = int(key)
+
+            # Convert hex value to right justified 1024 character binary string
+            vlans_hex = binascii.hexlify(value).decode('utf-8')
+            binary_string = bin(int(
+                vlans_hex, base))[2:].zfill(length_in_bits)
+
+            # Assign flag vlans on interface
+            if trunkstatus[ifindex] == 1:
+                for svlan, state in enumerate(binary_string):
+                    vlan = int(svlan)
+                    if int(state) == 1:
+                        if ifindex in data_dict:
+                            data_dict[ifindex].append(vlan)
+                        else:
+                            data_dict[ifindex] = [vlan]
 
         # Return the interface descriptions
         return data_dict

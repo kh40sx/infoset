@@ -434,9 +434,14 @@ def _get_vlan(port_data):
     vlans = 'N/A'
 
     # Assign VLAN
-    if 'jm_vlan' in port_data:
-        if port_data['jm_vlan'] is not None:
-            vlans = ' '.join(str(value) for value in port_data['jm_vlan'])
+    if 'jm_trunk' in port_data:
+        if port_data['jm_trunk'] is False:
+            if 'jm_vlan' in port_data:
+                if port_data['jm_vlan'] is not None:
+                    vlans = ' '.join(str(value) for value in port_data['jm_vlan'])
+        else:
+            if 'jm_nativevlan' in port_data:
+                    vlans = str(port_data['jm_nativevlan'])
 
     # Return
     return vlans

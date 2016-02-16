@@ -21,6 +21,7 @@ from getdata.snmp import mib_ciscostack
 from getdata.snmp import mib_ciscoc2900
 from getdata.snmp import mib_essswitch
 from getdata.snmp import mib_junipervlan
+from getdata.snmp import mib_qbridge
 
 
 class Query(object):
@@ -209,6 +210,12 @@ class Query(object):
 
         # Get information from JUNIPER-MIB
         query = mib_junipervlan.Query(self.snmp_object)
+        if query.supported() is True:
+            processed = True
+            data = _add_layer1(query, data)
+
+        # Get information from Q-BRIDGE-MIB
+        query = mib_qbridge.Query(self.snmp_object)
         if query.supported() is True:
             processed = True
             data = _add_layer1(query, data)

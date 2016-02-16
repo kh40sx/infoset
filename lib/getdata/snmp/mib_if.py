@@ -73,10 +73,10 @@ class Query(object):
 
         """
         # Initialize key variables
-        final = {}
+        final = defaultdict(lambda: defaultdict(dict))
 
         # Return
-        final['IF-MIB'] = self.ifstackstatus()
+        final['IF-MIB']['ifStackStatus'] = self.ifstackstatus()
         return final
 
     def layer1(self):
@@ -523,7 +523,7 @@ class Query(object):
         # Process OID
         oid = '.1.3.6.1.2.1.31.1.2.1.3'
         results = self.snmp_object.walk(oid, normalized=False)
-        for key, value in results.items():
+        for key in results.keys():
             # Get higher and lower layer index values
             nodes = key.split('.')
             ifstackhigherlayer = int(nodes[-2])
@@ -533,8 +533,12 @@ class Query(object):
             if ifstacklowerlayer == 0:
                 continue
 
-            # Make primary key the lower layer interface ifIndex value
-            final[ifstacklowerlayer][ifstackhigherlayer] = value
+            # Make primary key the lower layer interface ifIndex and the
+            # value a list of higher level interface ifIndexes.
+            if ifstacklowerlayer in final:
+                final[ifstacklowerlayer].append(ifstackhigherlayer)
+            else:
+                final[ifstacklowerlayer] = [ifstackhigherlayer]
 
         # Return the interface descriptions
         return final
