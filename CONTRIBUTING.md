@@ -1,3 +1,38 @@
+# How To Contribute
+Below is the workflow for having your contribution accepted into the `infoset` repository
+
+1. Create an Issue or comment on an existing issue to discuss the feature
+2. If the feature is approved, assign the issue to yourself
+3. Fork the project 
+4. Clone the fork to your local machine
+5. Add the original project as a remote (git remote add upstream https://github.com/UWICompSociety/infoset, check with: git remote -v)
+6. Create a topic branch for your change (git checkout -b <<branchName>>)
+7. you may create additional brances if modifying multiple parts of the code
+8. When you need to synch with upstream (pull down the latest changes), do git fetch upstream -> git checkout master -> git merge upstream/master
+9. Check for uneccesary whitespace with git diff --check
+   - Exampe proper git commit message 
+   "
+   Make the example in CONTRIBUTING imperative and concrete ...
+
+     "Without this patch applied the example commit message in the CONTRIBUTING
+     document is not a concrete example.  This is a problem because the
+     contributor is left to imagine what the commit message should look like
+     based on a description rather than an example.  This patch fixes the
+     problem by making the example concrete and imperative.
+
+     The first line is a real life imperative statement with a ticket number
+     from our issue tracker.  The body describes the behavior without the patch,
+     why this is a problem, and how the patch fixes the problem when applied.
+
+     Resolves: #123
+     See also: #456, #789
+   "
+10. Write the necessary unit tests for your changes.
+11. Run all the tests to assure nothing else was accidentally broken (run: make test)
+12. Perform a pull request
+13. Your code will be reviewed
+14. If your code passes review, your pull request will be accpeted
+
 # Code Style Guide
 For ease of readability and maintainability `infoset` code must follow thse guidelines.
 Code that does not comply will not be added to the `master` branch.

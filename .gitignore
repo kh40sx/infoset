@@ -1,5 +1,8 @@
 # Ignore all vim / vi temporary files
 *.swp
+*.un~
+*~
+.#*
 
 # Ignore any compiled python code
 *.pyc
@@ -17,6 +20,41 @@ www/static/**
 # Ignore files in these directories,  _BUT_
 # their subdirectories will be placed in the repository.
 etc/*
+
+# Distribution / packaging
+.Python
+env/
+bin/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+include/
+*.egg-info/
+.installed.cfg
+*.egg
+# pyenv
+.python-version
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+pip-selfcheck.json
+
 
 # There are exceptions
 !etc/.gitignore
