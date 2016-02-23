@@ -104,9 +104,9 @@ pycheck: pychecker
 
 pychecker: venv bin/pychecker
 
-#####################
-# build
-#####################
+##################### #####################
+# build ::  create an executable 
+##################### #####################
 
 .PHONY: develop
 develop: venv

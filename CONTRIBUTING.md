@@ -10,7 +10,8 @@ Below is the workflow for having your contribution accepted into the `infoset` r
 7. you may create additional brances if modifying multiple parts of the code
 8. When you need to synch with upstream (pull down the latest changes), do git fetch upstream -> git checkout master -> git merge upstream/master
 9. Check for uneccesary whitespace with git diff --check
-   - Exampe proper git commit message 
+   - Exampe proper git commit message:
+   -
    "
    Make the example in CONTRIBUTING imperative and concrete ...
 
