@@ -1,15 +1,19 @@
 # Python makefile
 WD := $(shell pwd)
 PROJECT := ./infoset
+MAX_LOCALS := 20
 
 PYTHON := bin/python
 PIP := bin/pip
 
+PEP257 := bin/pep257
+
 PEP8 := bin/pep8
-PEP8FLAGS := --statistics
+PEP8FLAGS := --statistics --show-source
 
 PYLINT := bin/pylint
-PYLINTFLAGS := 
+PYLINTFLAGS := --max-locals=$(MAX_LOCALS)
+PYLINT_DISABLE := 'W0702,W0703' 
 
 PYCHECKER := bin/pychecker
 
@@ -56,7 +60,7 @@ clean_venv:
 ##################### #####################
 
 .PHONY: lint
-lint: pep8 pylint
+lint: pep8 pep257 pylint
 
 ## Pep8
 
@@ -65,14 +69,21 @@ pep8: pep
 	$(PEP8) $(PROJECT) $(PEP8FLAGS)
 
 pep: venv bin/pep8
-
 bin/pep8:
 	$(PIP) install pep8
+
+.PHONY: pep257
+pep257: pep2
+	$(PEP257) $(PROJECT)
+
+pep2: venv bin/pep257
+bin/pep257:
+	$(PIP) install pep257
 
 ## PyLint
 
 pylint: venv bin/pylint
-	$(PYLINT) $(PROJECT) $(PYLINTFLAGS)
+	$(PYLINT) $(PROJECT) $(PYLINTFLAGS) --disable=$(PYLINT_DISABLE)
 
 bin/pylint: 
 	$(PIP) install pylint

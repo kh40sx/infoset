@@ -6,8 +6,7 @@ import random
 import os
 import string
 
-from infoset.utils import jm_general as testimport
-
+from infoset.utils import jm_general as testimport 
 
 class KnownValues(unittest.TestCase):
     """Checks all functions and methods."""
