@@ -24,7 +24,8 @@ etc/*
 # Distribution / packaging
 .Python
 env/
-bin/
+venv/
+bin/infoset
 build/
 develop-eggs/
 dist/

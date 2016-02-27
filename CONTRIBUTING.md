@@ -1,15 +1,16 @@
 # How To Contribute
+
 Below is the workflow for having your contribution accepted into the `infoset` repository.
 
 1. Create an Issue or comment on an existing issue to discuss the feature
 2. If the feature is approved, assign the issue to yourself
 3. Fork the project 
 4. Clone the fork to your local machine
-5. Add the original project as a remote (git remote add upstream https://github.com/UWICompSociety/infoset, check with: git remote -v)
-6. Create a topic branch for your change (git checkout -b <<branchName>>)
-7. you may create additional brances if modifying multiple parts of the code
-8. Write code and Commit your changes locally. Exampe proper git commit message below:
-   -
+5. Run `make setup` to install dependencies to virtualenv (information about virtualenv found further below in this doc)
+6. Add the original project as a remote (git remote add upstream https://github.com/UWICompSociety/infoset, check with: git remote -v)
+7. Create a topic branch for your change (git checkout -b <<branchName>>)
+8. you may create additional brances if modifying multiple parts of the code
+9. Write code and Commit your changes locally. Exampe proper git commit message below:
    "
    Make the example in CONTRIBUTING imperative and concrete ...
 
@@ -27,13 +28,13 @@ Below is the workflow for having your contribution accepted into the `infoset` r
      See also: #456, #789
    "
 
-9. When you need to synch with upstream (pull the latest changes from main repo into your current branch), do: git fetch upstream -> git checkout master -> git merge upstream/master. (or run `make synch` to let the projects makefile handle synching)
-10. Check for uneccesary whitespace with git diff --check. 10. Write the necessary unit tests for your changes.
-11. Run all the tests to assure nothing else was accidentally broken (run: make test)
-12. Push your changes to your forked repository (git push origin <<BRANCH>>)
-13. Perform a pull request on github
-14. Your code will be reviewed
-15. If your code passes review, your pull request will be accpeted
+10. When you need to synch with upstream (pull the latest changes from main repo into your current branch), do: git fetch upstream -> -> git merge upstream/master. (or run `make synch` to let the projects makefile handle synching)
+11. Check for uneccesary whitespace with git diff --check. 10. Write the necessary unit tests for your changes.
+12. Run all the tests to assure nothing else was accidentally broken (run: `make test`)
+13. Push your changes to your forked repository (git push origin <<BRANCH>>)
+14. Perform a pull request on github
+15. Your code will be reviewed
+16. If your code passes review, your pull request will be accpeted
 
 The `make contribute` command encapsulates steps 8 to 12 when you are ready to make a pull request.
 The `make synch` command will synch your repository
@@ -50,7 +51,17 @@ Code that does not comply will not be added to the `master` branch.
 5. In addition too being pylint compliant, the code must be PEP8 and PEP257 compliant too.
 6. There should be no trailing spaces in files
 
+## Guidelines to remember
+* Always opt for the most pythonic solution to a problem
+* Avoid applying idoms from other programming languages
+* Import each module with its full path name. ie: from pack.subpack import module
+* Use exceptions where appropriate ( https://google.github.io/styleguide/pyguide.html#Exceptions )
+* Use doc strings ( http://sphinxcontrib-napoleon.readthedocs.org/en/latest/example_google.html )
+* Try not to have returns at multiple points in a function unless they are failure state returns
+* If you are in the middle of a development session and have to interrupt your work, it is a good idea to write a broken unit test about what you want to develop next. When coming back to work, you will have a pointer to where you were and get back on track faster.
+
 ## Commits
+
 `infoset` strives to maintain a proper log of development through well structured git commits.
 The link below offer insight and advice on the topic of commit messages:
 https://robots.thoughtbot.com/5-useful-tips-for-a-better-commit-message
@@ -60,7 +71,19 @@ http://chris.beams.io/posts/git-commit/
 
 You can verify your code for compliance using running the `make lint` command from the project root.
 
+## VirtualEnv
+
+`virtualenv` is a tool to create isolated Python environments.
+It creates an environment that has its own installation directories,
+that doesn’t share libraries with other virtualenv environments nor does it access the globally installed libraries either.
+
+The `infoset` project's makefile wil automatically set up a makefile for you once you have virutalenv installed globally.
+All dependencies that `infoset` requires, aside from pip and virtualenv itself, will be installed to this virtual env.
+The makefile will run commands such as `nosetests` from the virtual env. If you wish to run these commands manually,
+run them as `venv/bin/nosetests` as they would not have been installed to your machine globally.
+
 ## Sample .vimrc File for Compliance
+
 You can use this sample .vimrc file to help meet our style requirements
 
 ```

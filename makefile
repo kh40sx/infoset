@@ -2,27 +2,52 @@
 WD := $(shell pwd)
 PROJECT := ./infoset
 MAX_LOCALS := 20
+VENV_PREFIX := venv/bin
+INFOSET:= venv/bin/infoset
 
-PYTHON := bin/python
-PIP := bin/pip
+PYTHON := $(VENV_PREFIX)/python
+PIP := $(VENV_PREFIX)/pip
 
-PEP257 := bin/pep257
+PEP257 := $(VENV_PREFIX)/pep257
 
-PEP8 := bin/pep8
+PEP8 := $(VENV_PREFIX)/pep8
 PEP8FLAGS := --statistics --show-source
 
-PYLINT := bin/pylint
+PYLINT := $(VENV_PREFIX)/pylint
 PYLINTFLAGS := --max-locals=$(MAX_LOCALS)
+#PYLINTFLAGS := -rn --max-locals=$(MAX_LOCALS)
 PYLINT_DISABLE := 'W0702,W0703' 
 
-PYCHECKER := bin/pychecker
-
-NOSETESTS := bin/nosetests
+NOSETESTS := $(VENV_PREFIX)/nosetests
 
 PYTHONFILES := $(wildcard *.py)
 
-# globaldeps: gvenv gpip  check if pip and virutal env are installed globally, if not install
+# globaldeps, check if pip and virutal env are installed globally, if not install
+PIP_EXISTS:
+	@which pip > /dev/null
 
+VIRTUALENV_EXISTS: 
+	@which virtualenv > /dev/null
+
+##################### #####################
+# virtual env
+##################### #####################
+
+virtual-env: PIP_EXISTS VIRTUALENV_EXISTS
+
+venv: virtual-env venv/bin/python
+
+venv/bin/python:
+	virtualenv venv
+
+.PHONY: clean_venv
+clean_venv:
+	-rm -rf venv
+	-rm ./bin/infoset
+
+##################### #####################
+# local dependencies
+##################### #####################
 dependencies: venv
 	$(PIP) install pyyaml
 	$(PIP) install pep8
@@ -43,19 +68,6 @@ clean_dist:
 	rm -rf dist
 
 ##################### #####################
-# virtual env
-##################### #####################
-
-venv: bin/python
-
-bin/python:
-	virtualenv .
-
-.PHONY: clean_venv
-clean_venv:
-	rm -rf bin include lib local man share
-
-##################### #####################
 # linting :: run pep8 and pylint
 ##################### #####################
 
@@ -65,27 +77,27 @@ lint: pep8 pep257 pylint
 ## Pep8
 
 .PHONY: pep8
-pep8: pep
+pep8: venv $(PEP8)
 	$(PEP8) $(PROJECT) $(PEP8FLAGS)
 
-pep: venv bin/pep8
-bin/pep8:
+$(PEP8):
 	$(PIP) install pep8
 
+## Pep257
+
 .PHONY: pep257
-pep257: pep2
+pep257: venv $(PEP257)
 	$(PEP257) $(PROJECT)
 
-pep2: venv bin/pep257
-bin/pep257:
+$(PEP257):
 	$(PIP) install pep257
 
 ## PyLint
 
-pylint: venv bin/pylint
+pylint: venv $(PYLINT)
 	$(PYLINT) $(PROJECT) $(PYLINTFLAGS) --disable=$(PYLINT_DISABLE)
 
-bin/pylint: 
+$(PYLINT): 
 	$(PIP) install pylint
 
 
@@ -102,18 +114,10 @@ test: nosetests lint
 nosetests: nose
 	$(NOSETESTS) --exe --verbosity=2
 
-nose: venv bin/nosetests
+nose: venv $(NOSETESTS)
 
-bin/nosetests:
+$(NOSETESTS):
 	$(PIP) install nose
-
-## PyChecker
-
-.PHONY: pycheck
-pycheck: pychecker
-	$(PYCHECKER) hello_world/*.py
-
-pychecker: venv bin/pychecker
 
 ##################### #####################
 # build ::  create an executable 
@@ -122,3 +126,23 @@ pychecker: venv bin/pychecker
 .PHONY: develop
 develop: venv
 	$(PYTHON) setup.py develop
+	cp $(INFOSET) ./bin/infoset
+##################### #####################
+# git :: manage synch and merging upstream
+##################### #####################
+BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
+
+synch:
+	-git remote add upstream https://github.com/UWICompSociety/infoset
+	git fetch upstream
+	git merge upstream/master
+
+commit:
+	make clean
+	git add --all
+	-git commit
+
+contribute: commit synch
+	make test
+	git push origin $(BRANCH)
+
