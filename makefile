@@ -23,17 +23,25 @@ NOSETESTS := $(VENV_PREFIX)/nosetests
 PYTHONFILES := $(wildcard *.py)
 
 # globaldeps, check if pip and virutal env are installed globally, if not install
-PIP_EXISTS:
-	@which pip > /dev/null
-
-VIRTUALENV_EXISTS: 
-	@which virtualenv > /dev/null
 
 ##################### #####################
 # virtual env
 ##################### #####################
 
-virtual-env: PIP_EXISTS VIRTUALENV_EXISTS
+PIP_EXISTS:
+	@which pip > /dev/null
+
+VIRT := $(shell which virtualenv)
+
+.PHONY: venv-installed
+venv-installed:
+ifndef VIRT
+	pip3 install virtualenv
+else
+	echo virtualenv installed
+endif
+
+virtual-env: PIP_EXISTS venv-installed
 
 venv: virtual-env venv/bin/python
 
@@ -42,8 +50,8 @@ venv/bin/python:
 
 .PHONY: clean_venv
 clean_venv:
-	-rm -rf venv
-	-rm ./bin/infoset
+	rm -rf venv
+	rm -f ./bin/infoset
 
 ##################### #####################
 # local dependencies
@@ -106,7 +114,7 @@ $(PYLINT):
 ##################### #####################
 
 .PHONY: test
-test: nosetests lint
+test: nosetests
 
 ## Nose
 
@@ -144,5 +152,6 @@ commit:
 
 contribute: commit synch
 	make test
+	make lint
 	git push origin $(BRANCH)
 

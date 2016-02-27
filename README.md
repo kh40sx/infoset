@@ -46,33 +46,30 @@ And many others.
 
 # Intallation and Initial Setup
 There are a number of small steps that need to be taken to get infoset to work.
-## Download
-Download and extract the infoset archive in your favorite directory.
-## Linux Package Installation
-The project can be setup on your server or workstation by issuing the following commands:
+
+## Clone
+Clone the project into a directory of your choosing (git clone `https://github.com/UWICompSociety/infoset`).
+Or download and extract the archive.
+
+## Dependencies
+The only dependencies that must be manually installed for this project are pip and python3 itself
 ### Ubuntu / Debian
 The commands are:
 ```
-# sudo apt-get install python3 python3-pip python3-yaml pep8
-# pip3 install pysnmp pylint pep257
+# sudo apt-get install python3 python3-pip 
 ```
-###Fedora
+
+### Fedora
 The commands are:
 ```
-# sudo apt-get install python3 python3-pip python3-PyYAML
-# pip3 install pysnmp pylint pep257 pep8
+# sudo apt-get install python3 python3-pip
 ```
-## Linux $PYTHONPATH Environment Setup
+The rest of the dependencies will are installed to a virtualenv by running `make dependencies` or `make setup` in the project directory
 
-You will need to setup your PYTHONPATH environment variable to include the following directories.
-```
-$INSTALLATION_DIRECTORY/lib
-```
-For example, if your installation directory is ```/opt/infoset```, then you must issue the following commands prior to running the application.
-```
-$ PYTHONPATH="${PYTHONPATH}:/opt/infoset/lib"
-$ export PYTHONPATH
-```
+## Creating Executable
+`infoset` follows traditional python project structure and includes a `setup.py` file which can be used to create and install
+an executable for the project. This is achieved through the `make develop` command, which will place the `infoset` executable
+into /venv/bin/infoset and /bin/infoset. Alternatively, you can run the commands manually, `python setup.py develop` or `python setup.py install`
 
 # Configuration Samples
 
@@ -142,8 +139,9 @@ snmp_groups:
 | snmp_privpassword: | SNMP PrivPassword (SNMP version 3 only). Must be present even if blank.|
 | snmp_port:| SNMP UDP port|
 
-# The Toolbox.py Script
-infoset comes with a handy `toolbox.py` script
+# The Toolbox.py Script : Running infoset
+infoset comes with a handy `toolbox.py` script, this script provides all the same functionality as creating or installing the executable
+
 ## Testing Host Connectivity
 You can test connectivity to a host using this command where the configuration directory is `etc/` and the host is `host1`
 ```

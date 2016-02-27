@@ -11,8 +11,9 @@ Below is the workflow for having your contribution accepted into the `infoset` r
 7. Create a topic branch for your change (git checkout -b <<branchName>>)
 8. you may create additional brances if modifying multiple parts of the code
 9. Write code and Commit your changes locally. Exampe proper git commit message below:
-   "
-   Make the example in CONTRIBUTING imperative and concrete ...
+
+
+     Make the example in CONTRIBUTING imperative and concrete ...
 
      Without this patch applied the example commit message in the CONTRIBUTING
      document is not a concrete example.  This is a problem because the
@@ -26,7 +27,6 @@ Below is the workflow for having your contribution accepted into the `infoset` r
 
      Resolves Issue: #123
      See also: #456, #789
-   "
 
 10. When you need to synch with upstream (pull the latest changes from main repo into your current branch), do: git fetch upstream -> -> git merge upstream/master. (or run `make synch` to let the projects makefile handle synching)
 11. Check for uneccesary whitespace with git diff --check. 10. Write the necessary unit tests for your changes.
@@ -52,6 +52,7 @@ Code that does not comply will not be added to the `master` branch.
 6. There should be no trailing spaces in files
 
 ## Guidelines to remember
+
 * Always opt for the most pythonic solution to a problem
 * Avoid applying idoms from other programming languages
 * Import each module with its full path name. ie: from pack.subpack import module
@@ -81,6 +82,19 @@ The `infoset` project's makefile wil automatically set up a makefile for you onc
 All dependencies that `infoset` requires, aside from pip and virtualenv itself, will be installed to this virtual env.
 The makefile will run commands such as `nosetests` from the virtual env. If you wish to run these commands manually,
 run them as `venv/bin/nosetests` as they would not have been installed to your machine globally.
+
+
+## Makefile
+This project contains a makefile which contains a list of utilities that can be run using the `make <<command>>` command.
+The list of commands is:
+* dependencies - install project dependencies
+* setup - same as dependencies, exists for convention
+* lint - run pep8 pep257 and pylint on the project. (these can be run individually aswell, ie `make pep8`)
+* test - run nosetests
+* develop - create infoset executable in /venv/bin/infoset and /bin/infoset
+* clean - remove all files and directories created by any other make command(ie venv)
+* synch - Pull down updates from the master branch of official repo into current branch of forked repo
+* contribute - Set up repository for making pull request
 
 ## Sample .vimrc File for Compliance
 
