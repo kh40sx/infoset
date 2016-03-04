@@ -4,7 +4,7 @@ Calico utility script
 
 from pprint import pprint
 
-from infoset.cli import jm_cli
+from interfaces import Cli
 from infoset.configuration import jm_configuration
 from infoset.utils import jm_general
 from infoset.snmp import poll
@@ -29,7 +29,7 @@ Utility script for the project.
 """
 
     # Process the CLI
-    cli_object = jm_cli.Process(additional_help=additional_help)
+    cli_object = Cli(additional_help=additional_help);
     cli_args = cli_object.args()
 
     # Process the config

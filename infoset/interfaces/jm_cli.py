@@ -5,7 +5,7 @@ import textwrap
 import argparse
 
 
-class Process(object):
+class Cli(object):
 
     """Class gathers all CLI information.
 
