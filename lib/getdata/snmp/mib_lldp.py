@@ -110,11 +110,11 @@ class Query(object):
         # Return
         return final
 
-    def lldpremsysname(self):
+    def lldpremsysname(self, oidonly=False):
         """Return dict of LLDP-MIB lldpRemSysName for each port.
 
         Args:
-            None
+            oidonly: Return OID's value, not results, if True
 
         Returns:
             data_dict: Dict of lldpRemSysName using ifIndex as key
@@ -125,6 +125,10 @@ class Query(object):
 
         # Descriptions
         oid = '.1.0.8802.1.1.2.1.4.1.1.9'
+
+        # Return OID value. Used for unittests
+        if oidonly is True:
+            return oid
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=False)
@@ -144,11 +148,11 @@ class Query(object):
         # Return the interface descriptions
         return data_dict
 
-    def lldpremsyscapenabled(self):
+    def lldpremsyscapenabled(self, oidonly=False):
         """Return dict of LLDP-MIB lldpRemSysCapEnabled for each port.
 
         Args:
-            None
+            oidonly: Return OID's value, not results, if True
 
         Returns:
             data_dict: Dict of lldpRemSysCapEnabled using ifIndex as key
@@ -161,6 +165,10 @@ class Query(object):
 
         # Descriptions
         oid = '.1.0.8802.1.1.2.1.4.1.1.12'
+
+        # Return OID value. Used for unittests
+        if oidonly is True:
+            return oid
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=False)
@@ -188,11 +196,11 @@ class Query(object):
         # Return the interface descriptions
         return data_dict
 
-    def lldpremsysdesc(self):
+    def lldpremsysdesc(self, oidonly=False):
         """Return dict of LLDP-MIB lldpRemSysDesc for each port.
 
         Args:
-            None
+            oidonly: Return OID's value, not results, if True
 
         Returns:
             data_dict: Dict of lldpRemSysDesc using ifIndex as key
@@ -203,6 +211,10 @@ class Query(object):
 
         # Descriptions
         oid = '.1.0.8802.1.1.2.1.4.1.1.10'
+
+        # Return OID value. Used for unittests
+        if oidonly is True:
+            return oid
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=False)
@@ -223,11 +235,11 @@ class Query(object):
         # Return the interface descriptions
         return data_dict
 
-    def lldpremportdesc(self):
+    def lldpremportdesc(self, oidonly=False):
         """Return dict of LLDP-MIB lldpRemPortDesc for each port.
 
         Args:
-            None
+            oidonly: Return OID's value, not results, if True
 
         Returns:
             data_dict: Dict of lldpRemPortDesc using ifIndex as key
@@ -238,6 +250,10 @@ class Query(object):
 
         # Descriptions
         oid = '.1.0.8802.1.1.2.1.4.1.1.8'
+
+        # Return OID value. Used for unittests
+        if oidonly is True:
+            return oid
 
         # Process results
         results = self.snmp_object.swalk(oid, normalized=False)

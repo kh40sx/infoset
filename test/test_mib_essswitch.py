@@ -58,7 +58,7 @@ class KnownValues(unittest.TestCase):
         mock_spec = {'oid_exists.return_value': False}
         snmpobj.configure_mock(**mock_spec)
 
-        # Test usupported
+        # Test unsupported
         testobj = testimport.Query(snmpobj)
         self.assertEqual(testobj.supported(), False)
 
