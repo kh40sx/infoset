@@ -16,5 +16,3 @@ $ _do_all_tests.py --directory /path/to/these/unittests
 
 # Mocks
 Many of these unittests use Python Mocks. A detailed tutorial on Mocks can be found here: http://www.drdobbs.com/testing/using-mocks-in-python/240168251
-
-
