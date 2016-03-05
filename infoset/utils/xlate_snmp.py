@@ -5,7 +5,7 @@ import os
 import yaml
 
 
-from infoset.utils import jm_general
+from utils import jm_general
 
 
 class Translator(object):

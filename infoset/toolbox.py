@@ -5,12 +5,12 @@ Calico utility script
 from pprint import pprint
 
 from interfaces import Cli
-from infoset.configuration import jm_configuration
-from infoset.utils import jm_general
-from infoset.snmp import poll
-from infoset.snmp import snmp_manager
-from infoset.snmp import snmp_info
-from infoset.web import ws_device
+from utils import ConfigReader
+from utils import jm_general
+from snmp import poll
+from snmp import snmp_manager
+from snmp import snmp_info
+from web import ws_device
 
 import sys
 import yaml
@@ -33,7 +33,7 @@ Utility script for the project.
     cli_args = cli_object.args()
 
     # Process the config
-    config = jm_configuration.Read(cli_args.directory)
+    config = ConfigReader(cli_args.directory)
 
     # Show configuration data
     if cli_args.mode == 'config':

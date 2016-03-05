@@ -5,4 +5,4 @@ users can excute and interact with infosets functionality.
 
 """
 
-from jm_cli import Cli
+from interfaces.jm_cli import Cli

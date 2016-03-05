@@ -9,7 +9,7 @@ import queue as Queue
 import threading
 
 from infoset.utils import jm_general
-from infoset.translation import xlate_snmp
+from infoset.utils import Translator
 
 
 # Define a key global variable
@@ -37,7 +37,7 @@ class HTMLTable(object):
 
         """
         # Process YAML file for host
-        translation = xlate_snmp.Translator(config, host)
+        translation = Translator(config, host)
         self.ports = translation.ethernet_data()
         self.summary = translation.system_summary()
 
