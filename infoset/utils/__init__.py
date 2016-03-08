@@ -6,5 +6,5 @@ enough to warrant their own package
 
 """
 
-from utils.jm_configuration import ConfigReader
-from utils.xlate_snmp import Translator
+from infoset.utils.jm_configuration import ConfigReader
+from infoset.utils.xlate_snmp import Translator

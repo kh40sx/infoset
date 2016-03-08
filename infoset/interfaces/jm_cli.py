@@ -6,7 +6,6 @@ import argparse
 
 
 class Cli(object):
-
     """Class gathers all CLI information.
 
     Args:

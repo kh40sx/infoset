@@ -5,10 +5,11 @@
 from collections import defaultdict
 
 # Import project libraries
-from infoset.snmp import mib_bridge
+from snmp import Query
+from snmp import BridgeQuery
 
 
-class Query(object):
+class QbridgeQuery(Query):
     """Class interacts with Q-BRIDGE-MIB.
 
     Args:
@@ -41,32 +42,14 @@ class Query(object):
         # Define query object
         self.snmp_object = snmp_object
 
-        # Get a mapping of dot1dbaseport values to the corresponding ifindex
-        bridge_mib = mib_bridge.Query(self.snmp_object)
-        self.baseportifindex = bridge_mib.dot1dbaseport_2_ifindex()
-
-    def supported(self):
-        """Return device's support for the MIB.
-
-        Args:
-            None
-
-        Returns:
-            validity: True if supported
-
-        """
-        # Support OID
-        validity = False
-
         # Get one OID entry in MIB (dot1qPvid)
-        oid = '.1.3.6.1.2.1.17.7.1.4.5.1.1'
+        test_oid = '.1.3.6.1.2.1.17.7.1.4.5.1.1'
 
-        # Return nothing if oid doesn't exist
-        if self.snmp_object.oid_exists(oid) is True:
-            validity = True
+        super().__init__(snmp_object, test_oid, tags=['layer1'])
 
-        # Return
-        return validity
+        # Get a mapping of dot1dbaseport values to the corresponding ifindex
+        bridge_mib = BridgeQuery(self.snmp_object)
+        self.baseportifindex = bridge_mib.dot1dbaseport_2_ifindex()
 
     def layer1(self):
         """Get layer 1 data from device.

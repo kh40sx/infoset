@@ -7,8 +7,8 @@ from pysnmp.proto import rfc1902
 from pysnmp.smi import rfc1902 as smi
 
 # Import project libraries
-from infoset.utils import jm_general
-from infoset.snmp import jm_iana_enterprise
+from utils import jm_general
+from snmp import jm_iana_enterprise
 
 
 class Validate(object):

@@ -3,10 +3,11 @@
 
 
 import binascii
+from snmp import Query
 from collections import defaultdict
 
 
-class Query(object):
+class IfQuery(Query):
     """Class interacts with devices supporting IfMIB.
 
     Args:
@@ -39,28 +40,10 @@ class Query(object):
         # Define query object
         self.snmp_object = snmp_object
 
-    def supported(self):
-        """Return device's support for the MIB using an OID defined in it.
-
-        Args:
-            None
-
-        Returns:
-            validity: True if supported
-
-        """
-        # Support OID
-        validity = False
-
         # Get one OID entry in MIB (ifDescr)
-        oid = '.1.3.6.1.2.1.2.2.1.1'
+        test_oid = '.1.3.6.1.2.1.2.2.1.1'
 
-        # Return nothing if oid doesn't exist
-        if self.snmp_object.oid_exists(oid) is True:
-            validity = True
-
-        # Return
-        return validity
+        super().__init__(snmp_object, test_oid, tags=['system', 'layer1'])
 
     def system(self):
         """Get system data from device.

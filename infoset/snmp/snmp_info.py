@@ -4,24 +4,8 @@
 import time
 from collections import defaultdict
 
-from infoset.snmp import jm_iana_enterprise
-from infoset.snmp import mib_ciscovlanmembership
-from infoset.snmp import mib_ciscovtp
-from infoset.snmp import mib_ciscoietfip
-from infoset.snmp import mib_snmpv2
-from infoset.snmp import mib_if
-from infoset.snmp import mib_bridge
-from infoset.snmp import mib_ip
-from infoset.snmp import mib_ipv6
-from infoset.snmp import mib_etherlike
-from infoset.snmp import mib_ciscocdp
-from infoset.snmp import mib_entity
-from infoset.snmp import mib_lldp
-from infoset.snmp import mib_ciscostack
-from infoset.snmp import mib_ciscoc2900
-from infoset.snmp import mib_essswitch
-from infoset.snmp import mib_junipervlan
-from infoset.snmp import mib_qbridge
+from snmp import jm_iana_enterprise
+from snmp import getQueries
 
 
 class Query(object):
@@ -110,23 +94,12 @@ class Query(object):
         data = defaultdict(lambda: defaultdict(dict))
         processed = False
 
-        # Get system information from SNMPv2-MIB
-        query = mib_snmpv2.Query(self.snmp_object)
-        if query.supported():
-            processed = True
-            data = _add_system(query, data)
-
-        # Get information from ENTITY-MIB
-        query = mib_entity.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_system(query, data)
-
-        # Get information from IF-MIB
-        query = mib_if.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_system(query, data)
+        # Get system information from SNMPv2-MIB, ENTITY-MIB, IF-MIB
+        # Instantiate a query object for each system query
+        for query in [Q(self.snmp_object) for Q in getQueries('system')]:
+            if query.supported():
+                processed = True
+                data = _add_system(query, data)
 
         # Return
         if processed is True:
@@ -148,77 +121,12 @@ class Query(object):
         data = defaultdict(lambda: defaultdict(dict))
         processed = False
 
-        # Get information from IF-MIB
-        query = mib_if.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer1(query, data)
+        # Get information layer1 queries
 
-        # Get information from  BRIDGE-MIB
-        query = mib_bridge.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer1(query, data)
-
-        # Get information from  CISCO-VLAN-MEMBERSHIP-MIB
-        query = mib_ciscovlanmembership.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer1(query, data)
-
-        # Get information from CISCO-VTP-MIB
-        query = mib_ciscovtp.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer1(query, data)
-
-        # Get information from EtherLike-MIB
-        query = mib_etherlike.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer1(query, data)
-
-        # Get information from CISCO-CDP-MIB
-        query = mib_ciscocdp.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer1(query, data)
-
-        # Get information from LLDP-MIB
-        query = mib_lldp.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer1(query, data)
-
-        # Get information from CISCO-STACK-MIB
-        query = mib_ciscostack.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer1(query, data)
-
-        # Get information from CISCO-C2900-MIB
-        query = mib_ciscoc2900.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer1(query, data)
-
-        # Get information from MIB-ESSWITCH
-        query = mib_essswitch.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer1(query, data)
-
-        # Get information from JUNIPER-MIB
-        query = mib_junipervlan.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer1(query, data)
-
-        # Get information from Q-BRIDGE-MIB
-        query = mib_qbridge.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer1(query, data)
+        for query in [Q(self.snmp_object) for Q in getQueries('layer1')]:
+            if query.supported():
+                processed = True
+                data = _add_layer1(query, data)
 
         # Return
         if processed is True:
@@ -240,17 +148,10 @@ class Query(object):
         data = defaultdict(lambda: defaultdict(dict))
         processed = False
 
-        # Get VLAN table information (Cisco)
-        query = mib_ciscovtp.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer2(query, data)
-
-        # Get VLAN information from JUNIPER-MIB
-        query = mib_junipervlan.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer2(query, data)
+        for query in [Q(self.snmp_object) for Q in getQueries('layer2')]:
+            if query.supported():
+                processed = True
+                data = _add_layer2(query, data)
 
         # Return
         if processed is True:
@@ -272,23 +173,10 @@ class Query(object):
         data = defaultdict(lambda: defaultdict(dict))
         processed = False
 
-        # Get IPv4 information
-        query = mib_ip.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer3(query, data)
-
-        # Get IPv6 ARP table information (Cisco)
-        query = mib_ciscoietfip.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer3(query, data)
-
-        # Get IPv6 ARP table information (Juniper)
-        query = mib_ipv6.Query(self.snmp_object)
-        if query.supported() is True:
-            processed = True
-            data = _add_layer3(query, data)
+        for query in [Q(self.snmp_object) for Q in getQueries('layer3')]:
+            if query.supported():
+                processed = True
+                data = _add_layer3(query, data)
 
         # Return
         if processed is True:

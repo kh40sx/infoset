@@ -167,7 +167,7 @@ def make(config, verbose=False):
     jm_general.delete_files(temp_dir)
 
     # Spawn a pool of threads, and pass them queue instance
-    for unused_var in range(threads_in_pool):
+    for _ in range(threads_in_pool):
         update_thread = PageMaker(THREAD_QUEUE)
         update_thread.daemon = True
         update_thread.start()
@@ -545,7 +545,7 @@ def _port_table(data_dict):
     output = ('%s</th>') % (output)
 
     # Create rows of data
-    for unused_var, port_data in sorted(data_dict.items()):
+    for _, port_data in sorted(data_dict.items()):
         # Assign values for Ethernet ports only
         port = port_data['ifName']
         label = port_data['ifAlias']

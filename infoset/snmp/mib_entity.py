@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Class interacts with devices supporting ENTITY-MIB."""
 
+from snmp import Query
 from collections import defaultdict
 
 
-class Query(object):
+class Entity(Query):
     """Class interacts with devices supporting ENTITY-MIB.
 
     Args:
@@ -44,28 +45,10 @@ class Query(object):
         # Define query object
         self.snmp_object = snmp_object
 
-    def supported(self):
-        """Return device's support for the MIB.
+        # Get one OID entry in MIB (entPhysicalName).
+        test_oid = '.1.3.6.1.2.1.47.1.1.1.1.7'
 
-        Args:
-            None
-
-        Returns:
-            validity: True if supported
-
-        """
-        # Support OID
-        validity = False
-
-        # Get one OID entry in MIB (entPhysicalName)
-        oid = '.1.3.6.1.2.1.47.1.1.1.1.7'
-
-        # Return nothing if oid doesn't exist
-        if self.snmp_object.oid_exists(oid) is True:
-            validity = True
-
-        # Return
-        return validity
+        super().__init__(snmp_object, test_oid, tags=['system'])
 
     def system(self):
         """Get system data from device.

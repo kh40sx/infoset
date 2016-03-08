@@ -5,10 +5,11 @@
 from collections import defaultdict
 
 # Import project libraries
-from infoset.snmp import mib_bridge
+from snmp import Query
+from snmp import BridgeQuery
 
 
-class Query(object):
+class JuniperVlanQuery(Query):
     """Class interacts with JUNIPER-VLAN-MIB.
 
     Args:
@@ -41,6 +42,11 @@ class Query(object):
         # Define query object
         self.snmp_object = snmp_object
 
+        # Get one OID entry in MIB (jnxExVlanTag)
+        test_oid = '.1.3.6.1.4.1.2636.3.40.1.5.1.7.1.3'
+
+        super().__init__(snmp_object, test_oid, tags=['layer1', 'layer2'])
+
         # Get mapping of the VLAN's dot1dbaseport ID value to its jnxExVlanTag
         # Do this only once instead of every time we invoke a method
         if self.supported() is True:
@@ -49,31 +55,9 @@ class Query(object):
             self.vlan_map = None
 
         # Get a mapping of dot1dbaseport values to the corresponding ifindex
-        bridge_mib = mib_bridge.Query(self.snmp_object)
+        bridge_mib = BridgeQuery(self.snmp_object)
+
         self.baseportifindex = bridge_mib.dot1dbaseport_2_ifindex()
-
-    def supported(self):
-        """Return device's support for the MIB.
-
-        Args:
-            None
-
-        Returns:
-            validity: True if supported
-
-        """
-        # Support OID
-        validity = False
-
-        # Get one OID entry in MIB (jnxExVlanTag)
-        oid = '.1.3.6.1.4.1.2636.3.40.1.5.1.7.1.3'
-
-        # Return nothing if oid doesn't exist
-        if self.snmp_object.oid_exists(oid) is True:
-            validity = True
-
-        # Return
-        return validity
 
     def layer1(self):
         """Get layer 1 data from device.

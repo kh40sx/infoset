@@ -5,12 +5,12 @@ import binascii
 from collections import defaultdict
 
 # Import project libraries
+from snmp import Query
+from snmp import BridgeQuery
+from utils import jm_general
 
-from infoset.snmp import mib_bridge
-from infoset.utils import jm_general
 
-
-class Query(object):
+class LldpQuery(Query):
     """Class interacts with LLDP-MIB.
 
     Args:
@@ -43,35 +43,18 @@ class Query(object):
         # Define query object
         self.snmp_object = snmp_object
 
+        # Get one OID entry in MIB (lldpRemSysName)
+        test_oid = '.1.0.8802.1.1.2.1.4.1.1.9'
+
+        super().__init__(snmp_object, test_oid, tags=['layer1'])
+
         # Load the ifindex baseport map if this mib is supported
-        bridge_mib = mib_bridge.Query(self.snmp_object)
+        bridge_mib = BridgeQuery(self.snmp_object)
+
         if self.supported() and bridge_mib.supported():
             self.baseportifindex = bridge_mib.dot1dbaseport_2_ifindex()
         else:
             self.baseportifindex = None
-
-    def supported(self):
-        """Return device's support for the MIB.
-
-        Args:
-            None
-
-        Returns:
-            validity: True if supported
-
-        """
-        # Support OID
-        validity = False
-
-        # Get one OID entry in MIB (lldpRemSysName)
-        oid = '.1.0.8802.1.1.2.1.4.1.1.9'
-
-        # Return nothing if oid doesn't exist
-        if self.snmp_object.oid_exists(oid) is True:
-            validity = True
-
-        # Return
-        return validity
 
     def layer1(self):
         """Get layer 1 data from device.

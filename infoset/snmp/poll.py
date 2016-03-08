@@ -8,9 +8,9 @@ import queue as Queue
 import threading
 
 
-from infoset.utils import jm_general
-from infoset.snmp import snmp_manager
-from infoset.snmp import snmp_info
+from utils import jm_general
+from snmp import snmp_manager
+from snmp import snmp_info
 
 
 # Define a key global variable

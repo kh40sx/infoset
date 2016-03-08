@@ -2,10 +2,11 @@
 """Module for CISCO-STACK-MIB."""
 
 
+from snmp import Query
 from collections import defaultdict
 
 
-class Query(object):
+class CiscoStackQuery(Query):
     """Class interacts with CISCO-STACK-MIB.
 
     Args:
@@ -38,28 +39,10 @@ class Query(object):
         # Define query object
         self.snmp_object = snmp_object
 
-    def supported(self):
-        """Return device's support for the MIB.
-
-        Args:
-            None
-
-        Returns:
-            validity: True if supported
-
-        """
-        # Support OID
-        validity = False
-
         # Get one OID entry in MIB (portDuplex)
-        oid = '.1.3.6.1.4.1.9.5.1.4.1.1.10'
+        test_oid = '.1.3.6.1.4.1.9.5.1.4.1.1.10'
 
-        # Return nothing if oid doesn't exist
-        if self.snmp_object.oid_exists(oid) is True:
-            validity = True
-
-        # Return
-        return validity
+        super().__init__(snmp_object, test_oid, tags=['layer1'])
 
     def layer1(self):
         """Get layer 1 data from device.

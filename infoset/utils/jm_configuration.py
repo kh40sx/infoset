@@ -5,11 +5,10 @@ import os.path
 import yaml
 
 # Import project libraries
-from utils import jm_general
+from infoset.utils import jm_general
 
 
 class ConfigReader(object):
-
     """Class gathers all configuration information.
 
     Args:

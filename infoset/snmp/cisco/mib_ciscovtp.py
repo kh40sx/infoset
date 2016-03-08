@@ -3,10 +3,11 @@
 
 
 from collections import defaultdict
+from snmp import Query
 import binascii
 
 
-class Query(object):
+class CiscoVtpQuery(Query):
     """Class interacts with CISCO-VTP-MIB.
 
     Args:
@@ -42,28 +43,10 @@ class Query(object):
         # Define query object
         self.snmp_object = snmp_object
 
-    def supported(self):
-        """Return device's support for the MIB.
-
-        Args:
-            None
-
-        Returns:
-            validity: True if supported
-
-        """
-        # Support OID
-        validity = False
-
         # Get one OID entry in MIB (vtpVlanState)
-        oid = '.1.3.6.1.4.1.9.9.46.1.3.1.1.2'
+        test_oid = '.1.3.6.1.4.1.9.9.46.1.3.1.1.2'
 
-        # Return nothing if oid doesn't exist
-        if self.snmp_object.oid_exists(oid) is True:
-            validity = True
-
-        # Return
-        return validity
+        super().__init__(snmp_object, test_oid, tags=['layer1', 'layer2'])
 
     def layer2(self):
         """Get layer 2 data from device.

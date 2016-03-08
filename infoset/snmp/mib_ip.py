@@ -3,10 +3,11 @@
 
 
 import binascii
+from snmp import Query
 from collections import defaultdict
 
 
-class Query(object):
+class IpQuery(Query):
     """Class interacts with devices supporting IP-MIB.
 
     Args:
@@ -38,6 +39,8 @@ class Query(object):
         """
         # Define query object
         self.snmp_object = snmp_object
+
+        super().__init__(snmp_object, '', tags=['layer3'])
 
     def supported(self):
         """Return device's support for the MIB.

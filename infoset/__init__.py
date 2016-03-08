@@ -8,4 +8,4 @@ Example:
 
 """
 
-__all__ = ['interfaces','snmp','web','utils']
+__all__ = ('interfaces', 'snmp', 'web', 'utils')
