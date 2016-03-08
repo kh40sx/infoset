@@ -327,40 +327,41 @@ def _duplex(metadata):
     # Initialize key variables
     duplex = 0
 
-    # Process swPortDuplexStatus
-    if 'swPortDuplexStatus' in metadata:
-        value = metadata['swPortDuplexStatus']
+    value = ''
 
-        # Process duplex
-        if value == 1:
-            duplex = 2
-        else:
-            duplex = 1
+    statuses = ('swPortDuplexStatus',
+                'dot3StatsDuplexStatus',
+                'portDuplex')
 
-    # Process dot3StatsDuplexStatus
-    elif 'dot3StatsDuplexStatus' in metadata:
-        value = metadata['dot3StatsDuplexStatus']
+    def get_duplex_value(status, val):
+        """Return duplex value based on port status.
 
-        # Process duplex
-        if value == 2:
-            duplex = 1
-        elif value == 3:
-            duplex = 2
+        Args:
+            status: The status of the port
+            value: The value of the port status
 
-    # Process portDuplex
-    elif 'portDuplex' in metadata:
-        value = metadata['portDuplex']
+        Returns:
+            value: Duplex value
 
-        # Process duplex
-        if value == 1:
-            duplex = 1
-        elif value == 2:
-            duplex = 2
+        """
+        cases = {
+            'swPortDuplexStatus': 2 if val == 1 else 1,
+            'dot3StatsDuplexStatus': 1 if val == 2 else (2 if val == 3 else 0),
+            'portDuplex': 1 if val == 1 else (2 if val == 2 else 0),
+        }
+
+        return cases[status]
+
+    for status in statuses:
+        if status in metadata:
+            value = metadata[status]
+            duplex = get_duplex_value(status, value)
+            break
 
     # Process c2900PortDuplexState
     # The Cisco 3500XL is known to report incorrect duplex values.
     # Obsolete device, doesn't make sense supporting it.
-    elif 'c2900PortLinkbeatStatus' in metadata:
+    if 'c2900PortLinkbeatStatus' in metadata:
         status_link = metadata['c2900PortLinkbeatStatus']
         status_duplex = metadata['c2900PortDuplexStatus']
 
