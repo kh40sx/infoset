@@ -8,7 +8,7 @@ Below is the workflow for having your contribution accepted into the `infoset` r
 4. Clone the fork to your local machine
 5. Run `make setup` to install dependencies to virtualenv (information about virtualenv found further below in this doc)
 6. Add the original project as a remote (git remote add upstream https://github.com/UWICompSociety/infoset, check with: git remote -v)
-7. Create a topic branch for your change (git checkout -b <<branchName>>)
+7. Create a topic branch for your change (git checkout -b `branchName`)
 8. you may create additional brances if modifying multiple parts of the code
 9. Write code and Commit your changes locally. Exampe proper git commit message below:
 
@@ -29,12 +29,13 @@ Below is the workflow for having your contribution accepted into the `infoset` r
      See also: #456, #789
 
 10. When you need to synch with upstream (pull the latest changes from main repo into your current branch), do: git fetch upstream -> -> git merge upstream/master. (or run `make synch` to let the projects makefile handle synching)
-11. Check for uneccesary whitespace with git diff --check. 10. Write the necessary unit tests for your changes.
-12. Run all the tests to assure nothing else was accidentally broken (run: `make test`)
-13. Push your changes to your forked repository (git push origin <<BRANCH>>)
-14. Perform a pull request on github
-15. Your code will be reviewed
-16. If your code passes review, your pull request will be accpeted
+11. Check for uneccesary whitespace with git diff --check. 
+12. Write the necessary unit tests for your changes.
+13. Run all the tests to assure nothing else was accidentally broken (run: `make test`)
+14. Push your changes to your forked repository (git push origin `branch`)
+15. Perform a pull request on github
+16. Your code will be reviewed
+17. If your code passes review, your pull request will be accpeted
 
 The `make contribute` command encapsulates steps 8 to 12 when you are ready to make a pull request.
 The `make synch` command will synch your repository
@@ -85,7 +86,7 @@ run them as `venv/bin/nosetests` as they would not have been installed to your m
 
 
 ## Makefile
-This project contains a makefile which contains a list of utilities that can be run using the `make <<command>>` command.
+This project contains a makefile which contains a list of utilities that can be run using the `make command` command.
 The list of commands is:
 * dependencies - install project dependencies
 * setup - same as dependencies, exists for convention
