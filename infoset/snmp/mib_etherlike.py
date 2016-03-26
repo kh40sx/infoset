@@ -2,8 +2,9 @@
 """Module for ETHERLIKE-MIB."""
 
 
-from snmp import Query
 from collections import defaultdict
+
+from infoset.snmp.base_query import Query
 
 
 class EtherlikeQuery(Query):

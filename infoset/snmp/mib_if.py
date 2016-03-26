@@ -2,9 +2,10 @@
 """Class interacts with devices supporting IfMIB."""
 
 
-import binascii
-from snmp import Query
 from collections import defaultdict
+import binascii
+
+from infoset.snmp.base_query import Query
 
 
 class IfQuery(Query):
@@ -76,69 +77,43 @@ class IfQuery(Query):
         final = defaultdict(lambda: defaultdict(dict))
 
         # Get interface ifDescr data
-        values = self.ifdescr()
-        for key, value in values.items():
-            final[key]['ifDescr'] = value
+        get_data('ifDescr', self.ifdescr, final)
 
         # Get interface ifAlias data
-        values = self.ifalias()
-        for key, value in values.items():
-            final[key]['ifAlias'] = value
+        get_data('ifAlian', self.ifalias, final)
 
         # Get interface ifSpeed data
-        values = self.ifspeed()
-        for key, value in values.items():
-            final[key]['ifSpeed'] = value
+        get_data('ifSpeed', self.ifspeed, final)
 
         # Get interface ifOperStatus data
-        values = self.ifoperstatus()
-        for key, value in values.items():
-            final[key]['ifOperStatus'] = value
+        get_data('ifOperStatus', self.ifoperstatus, final)
 
         # Get interface ifAdminStatus data
-        values = self.ifadminstatus()
-        for key, value in values.items():
-            final[key]['ifAdminStatus'] = value
+        get_data('ifAdminStatus', self.ifadminstatus, final)
 
         # Get interface ifType data
-        values = self.iftype()
-        for key, value in values.items():
-            final[key]['ifType'] = value
+        get_data('ifType', self.iftype, final)
 
         # Get interface ifName data
-        values = self.ifname()
-        for key, value in values.items():
-            final[key]['ifName'] = value
+        get_data('ifName', self.ifname, final)
 
         # Get interface ifIndex data
-        values = self.ifindex()
-        for key, value in values.items():
-            final[key]['ifIndex'] = value
+        get_data('ifIndex', self.ifindex, final)
 
         # Get interface ifPhysAddress data
-        values = self.ifphysaddress()
-        for key, value in values.items():
-            final[key]['ifPhysAddress'] = value
+        get_data('ifPhysAddress', self.ifphysaddress, final)
 
         # Get interface ifHighSpeed data
-        values = self.ifhighspeed()
-        for key, value in values.items():
-            final[key]['ifHighSpeed'] = value
+        get_data('ifHighSpeed', self.ifhighspeed, final)
 
         # Get interface ifInOctets data
-        values = self.ifinoctets()
-        for key, value in values.items():
-            final[key]['ifInOctets'] = value
+        get_data('ifInOctets', self.ifinoctets, final)
 
         # Get interface ifOutOctets data
-        values = self.ifoutoctets()
-        for key, value in values.items():
-            final[key]['ifOutOctets'] = value
+        get_data('ifOutOctets', self.ifoutoctets, final)
 
         # Get interface ifLastChange data
-        values = self.iflastchange()
-        for key, value in values.items():
-            final[key]['ifLastChange'] = value
+        get_data('ifLastChange', self.iflastchange, final)
 
         # Return
         return final
@@ -525,3 +500,23 @@ class IfQuery(Query):
 
         # Return the interface descriptions
         return final
+
+
+def get_data(title, func, dest):
+    """Populate dest with data from the given function.
+
+    Args:
+        title: The name of the data
+        func: The function which will return the data
+        dest: a dict which will store the data
+
+    Returns:
+        dest: The modified destination dict
+
+    """
+    # Get interface ifDescr data
+    values = func()
+    for key, value in values.items():
+        dest[key][title] = value
+
+    return dest

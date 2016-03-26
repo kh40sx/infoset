@@ -361,7 +361,7 @@ def _duplex(metadata):
     # Process c2900PortDuplexState
     # The Cisco 3500XL is known to report incorrect duplex values.
     # Obsolete device, doesn't make sense supporting it.
-    if 'c2900PortLinkbeatStatus' in metadata:
+    if not duplex and 'c2900PortLinkbeatStatus' in metadata:
         status_link = metadata['c2900PortLinkbeatStatus']
         status_duplex = metadata['c2900PortDuplexStatus']
 

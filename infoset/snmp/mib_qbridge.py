@@ -5,8 +5,8 @@
 from collections import defaultdict
 
 # Import project libraries
-from snmp import Query
-from snmp import BridgeQuery
+from infoset.snmp.base_query import Query
+from infoset.snmp.mib_bridge import BridgeQuery
 
 
 class QbridgeQuery(Query):

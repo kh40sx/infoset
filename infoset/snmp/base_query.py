@@ -1,5 +1,4 @@
 """Base Query Class for interacting with devices."""
-from collections import defaultdict
 
 
 class Query(object):
@@ -21,6 +20,8 @@ class Query(object):
             Keyed by OID's MIB name (primary key), ifIndex (secondary key)
 
     """
+
+    tags = []
 
     def __init__(self, snmp_object, test_oid, tags):
         """Function for intializing the class.
@@ -61,44 +62,3 @@ class Query(object):
 
         # Return
         return validity
-
-    def layer1(self):
-        """Get layer 1 data from device.
-
-        Args:
-            None
-
-        Returns:
-            final: Final results
-
-        """
-        # Return
-        return self._macaddresstable()
-
-    def layer3(self):
-        """Get layer 3 data from device.
-
-        Args:
-            None
-
-        Returns:
-            final: Final results
-
-        """
-        final = defaultdict(lambda: defaultdict(dict))
-
-        return final
-
-    def system(self):
-        """Get system data from device.
-
-        Args:
-            None
-
-        Returns:
-            final: Final results
-
-        """
-        final = {}
-
-        return final

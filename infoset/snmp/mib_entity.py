@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Class interacts with devices supporting ENTITY-MIB."""
 
-from snmp import Query
 from collections import defaultdict
 
+from infoset.snmp.base_query import Query
 
-class Entity(Query):
+
+class EntityQuery(Query):
     """Class interacts with devices supporting ENTITY-MIB.
 
     Args:

@@ -4,8 +4,8 @@
 import time
 from collections import defaultdict
 
-from snmp import jm_iana_enterprise
-from snmp import getQueries
+from infoset.snmp import jm_iana_enterprise
+from infoset.snmp import get_queries
 
 
 class Query(object):
@@ -96,7 +96,7 @@ class Query(object):
 
         # Get system information from SNMPv2-MIB, ENTITY-MIB, IF-MIB
         # Instantiate a query object for each system query
-        for query in [Q(self.snmp_object) for Q in getQueries('system')]:
+        for query in [Q(self.snmp_object) for Q in get_queries('system')]:
             if query.supported():
                 processed = True
                 data = _add_system(query, data)
@@ -123,7 +123,7 @@ class Query(object):
 
         # Get information layer1 queries
 
-        for query in [Q(self.snmp_object) for Q in getQueries('layer1')]:
+        for query in [Q(self.snmp_object) for Q in get_queries('layer1')]:
             if query.supported():
                 processed = True
                 data = _add_layer1(query, data)
@@ -148,7 +148,7 @@ class Query(object):
         data = defaultdict(lambda: defaultdict(dict))
         processed = False
 
-        for query in [Q(self.snmp_object) for Q in getQueries('layer2')]:
+        for query in [Q(self.snmp_object) for Q in get_queries('layer2')]:
             if query.supported():
                 processed = True
                 data = _add_layer2(query, data)
@@ -173,7 +173,7 @@ class Query(object):
         data = defaultdict(lambda: defaultdict(dict))
         processed = False
 
-        for query in [Q(self.snmp_object) for Q in getQueries('layer3')]:
+        for query in [Q(self.snmp_object) for Q in get_queries('layer3')]:
             if query.supported():
                 processed = True
                 data = _add_layer3(query, data)

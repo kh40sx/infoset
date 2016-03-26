@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Module for LLDP-MIB."""
 
-import binascii
 from collections import defaultdict
+import binascii
 
 # Import project libraries
-from snmp import Query
-from snmp import BridgeQuery
-from utils import jm_general
+from infoset.snmp.base_query import Query
+from infoset.snmp.mib_bridge import BridgeQuery
+from infoset.utils import jm_general
 
 
 class LldpQuery(Query):

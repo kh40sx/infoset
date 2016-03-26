@@ -2,8 +2,9 @@
 """Module for MIB-ESSWITCH."""
 
 
-from snmp import Query
 from collections import defaultdict
+
+from infoset.snmp.base_query import Query
 
 
 class EssSwitchQuery(Query):

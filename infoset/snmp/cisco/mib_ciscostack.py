@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Module for CISCO-STACK-MIB."""
 
-
-from snmp import Query
 from collections import defaultdict
+
+from infoset.snmp.base_query import Query
 
 
 class CiscoStackQuery(Query):

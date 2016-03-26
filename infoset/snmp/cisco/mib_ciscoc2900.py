@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Module for CISCO-C2900-MIB."""
 
-
-from snmp import Query
 from collections import defaultdict
+
+from infoset.snmp.base_query import Query
 
 
 class CiscoC2900Query(Query):

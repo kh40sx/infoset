@@ -7,8 +7,8 @@ from pysnmp.proto import rfc1902
 from pysnmp.smi import rfc1902 as smi
 
 # Import project libraries
-from utils import jm_general
-from snmp import jm_iana_enterprise
+from infoset.utils import jm_general
+from infoset.snmp import jm_iana_enterprise
 
 
 class Validate(object):
@@ -156,7 +156,7 @@ class Interact:
             if self.sysobjectid(connectivity_check=True) is not None:
                 contactable = True
 
-        except Exception as unused_exception_error:
+        except Exception as _:
             # Not contactable
             contactable = False
 
@@ -548,36 +548,45 @@ def _convert(value):
         converted: converted value
 
     """
-    # Initialize key variables
-    converted = None
+    converted = value
+
+    def get_converted_value(instance, val):
+        """Return converted value based input format.
+
+        Args:
+            instance: the type of the input data
+            value: the value of input data
+
+        Returns:
+            value: the converted value
+
+        """
+        cases = {rfc1902.OctetString: bytes(val),
+                 rfc1902.Opaque: bytes(val),
+                 rfc1902.Bits: bytes(val),
+                 rfc1902.IpAddress: bytes(val),
+                 smi.ObjectIdentity: bytes(str(val), 'utf-8'),
+                 rfc1902.Integer: int(val),
+                 rfc1902.Integer32: int(val),
+                 rfc1902.Counter32: int(val),
+                 rfc1902.Gauge32: int(val),
+                 rfc1902.Unsigned32: int(val),
+                 rfc1902.TimeTicks: int(val),
+                 rfc1902.Counter64: int(val)}
+
+        return cases[instance]
+
+    instances = (rfc1902.OctetString, rfc1902.Opaque, rfc1902.Bits,
+                 rfc1902.IpAddress, smi.ObjectIdentity, rfc1902.Integer,
+                 rfc1902.Integer32, rfc1902.Counter32, rfc1902.Gauge32,
+                 rfc1902.Unsigned32, rfc1902.TimeTicks,
+                 rfc1902.Counter64)
 
     # Convert values accordingly
-    if isinstance(value, rfc1902.OctetString) is True:
-        converted = bytes(value)
-    elif isinstance(value, rfc1902.Opaque) is True:
-        converted = bytes(value)
-    elif isinstance(value, rfc1902.Bits) is True:
-        converted = bytes(value)
-    elif isinstance(value, rfc1902.IpAddress) is True:
-        converted = bytes(value)
-    elif isinstance(value, smi.ObjectIdentity) is True:
-        converted = bytes(str(value), 'utf-8')
-    elif isinstance(value, rfc1902.Integer) is True:
-        converted = int(value)
-    elif isinstance(value, rfc1902.Integer32) is True:
-        converted = int(value)
-    elif isinstance(value, rfc1902.Counter32) is True:
-        converted = int(value)
-    elif isinstance(value, rfc1902.Gauge32) is True:
-        converted = int(value)
-    elif isinstance(value, rfc1902.Unsigned32) is True:
-        converted = int(value)
-    elif isinstance(value, rfc1902.TimeTicks) is True:
-        converted = int(value)
-    elif isinstance(value, rfc1902.Counter64) is True:
-        converted = int(value)
-    else:
-        converted = value
+    for instance in instances:
+        if isinstance(value, instance):
+            converted = get_converted_value(instance, value)
+            break
 
     # Return
     return converted

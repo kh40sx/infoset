@@ -2,7 +2,8 @@
 """Module for CISCO-VLAN-MEMBERSHIP-MIB."""
 
 from collections import defaultdict
-from snmp import Query
+
+from infoset.snmp.base_query import Query
 
 
 class CiscoVlanMembershipQuery(Query):

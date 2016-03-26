@@ -2,9 +2,10 @@
 """Class interacts with devices supporting IP-MIB."""
 
 
-import binascii
-from snmp import Query
 from collections import defaultdict
+import binascii
+
+from infoset.snmp.base_query import Query
 
 
 class IpQuery(Query):

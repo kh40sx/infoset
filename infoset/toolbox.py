@@ -5,7 +5,7 @@ Calico utility script
 
 import yaml
 
-from infoset.interfaces import Cli
+from infoset import interfaces
 from infoset.utils import ConfigReader
 from infoset.utils import jm_general
 from infoset.snmp import poll
@@ -31,7 +31,7 @@ Utility script for the project.
 """
 
     # Process the CLI
-    cli_object = Cli(additional_help=additional_help)
+    cli_object = interfaces.Cli(additional_help=additional_help)
     cli_args = cli_object.args()
 
     # Process the config

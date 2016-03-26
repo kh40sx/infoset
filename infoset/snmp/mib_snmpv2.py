@@ -4,8 +4,8 @@
 from collections import defaultdict
 
 # Import project libraries
-from snmp import Query
-from utils import jm_general
+from infoset.snmp.base_query import Query
+from infoset.utils import jm_general
 
 
 class Snmpv2Query(Query):

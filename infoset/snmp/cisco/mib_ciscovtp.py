@@ -3,8 +3,9 @@
 
 
 from collections import defaultdict
-from snmp import Query
 import binascii
+
+from infoset.snmp.base_query import Query
 
 
 class CiscoVtpQuery(Query):

@@ -8,9 +8,9 @@ import queue as Queue
 import threading
 
 
-from utils import jm_general
-from snmp import snmp_manager
-from snmp import snmp_info
+from infoset.utils import jm_general
+from infoset.snmp import snmp_manager
+from infoset.snmp import snmp_info
 
 
 # Define a key global variable
@@ -102,7 +102,7 @@ def snmp(config, verbose=False):
     jm_general.delete_files(temp_dir)
 
     # Spawn a pool of threads, and pass them queue instance
-    for unused_var in range(threads_in_pool):
+    for _ in range(threads_in_pool):
         update_thread = PollAllSNMP(THREAD_QUEUE)
         update_thread.daemon = True
         update_thread.start()
