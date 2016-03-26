@@ -6,6 +6,16 @@ from collections import defaultdict
 from infoset.snmp.base_query import Query
 
 
+def get_query():
+    """Return this module's Query class."""
+    return EntityQuery
+
+
+def init_query(snmp_object):
+    """Return initialize and return this module's Query class."""
+    return EntityQuery(snmp_object)
+
+
 class EntityQuery(Query):
     """Class interacts with devices supporting ENTITY-MIB.
 

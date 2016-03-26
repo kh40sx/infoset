@@ -9,6 +9,16 @@ from infoset.snmp.base_query import Query
 from infoset.snmp.mib_bridge import BridgeQuery
 
 
+def get_query():
+    """Return this module's Query class."""
+    return QbridgeQuery
+
+
+def init_query(snmp_object):
+    """Return initialize and return this module's Query class."""
+    return QbridgeQuery(snmp_object)
+
+
 class QbridgeQuery(Query):
     """Class interacts with Q-BRIDGE-MIB.
 

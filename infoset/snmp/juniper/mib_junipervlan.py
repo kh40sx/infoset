@@ -8,6 +8,16 @@ from infoset.snmp.base_query import Query
 from infoset.snmp.mib_bridge import BridgeQuery
 
 
+def get_query():
+    """Return this module's Query class."""
+    return JuniperVlanQuery
+
+
+def init_query(snmp_object):
+    """Return initialize and return this module's Query class."""
+    return JuniperVlanQuery(snmp_object)
+
+
 class JuniperVlanQuery(Query):
     """Class interacts with JUNIPER-VLAN-MIB.
 

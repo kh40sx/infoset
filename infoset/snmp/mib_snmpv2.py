@@ -8,6 +8,16 @@ from infoset.snmp.base_query import Query
 from infoset.utils import jm_general
 
 
+def get_query():
+    """Return this module's Query class."""
+    return Snmpv2Query
+
+
+def init_query(snmp_object):
+    """Return initialize and return this module's Query class."""
+    return Snmpv2Query(snmp_object)
+
+
 class Snmpv2Query(Query):
     """Class interacts with devices supporting SNMPv2-MIB.
 

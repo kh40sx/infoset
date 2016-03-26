@@ -6,6 +6,16 @@ from collections import defaultdict
 from infoset.snmp.base_query import Query
 
 
+def get_query():
+    """Return this module's Query class."""
+    return CiscoVlanMembershipQuery
+
+
+def init_query(snmp_object):
+    """Return initialize and return this module's Query class."""
+    return CiscoVlanMembershipQuery(snmp_object)
+
+
 class CiscoVlanMembershipQuery(Query):
     """Class interacts with CISCO-VLAN-MEMBERSHIP-MIB.
 

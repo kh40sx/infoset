@@ -4,7 +4,7 @@
 import unittest
 from mock import Mock
 
-from getdata.snmp import mib_lldp as testimport
+from infoset.snmp import mib_lldp as testimport
 
 
 class Query(object):
@@ -58,7 +58,7 @@ class KnownValues(unittest.TestCase):
         # Test supported fails because of mib_bridge depenency of __init__
         # Need to figure out how to fix
         #####################################################################
-        # testobj = testimport.Query(snmpobj)
+        # testobj = testimport.init_query(snmpobj)
         # self.assertEqual(testobj.supported(), True)
         #####################################################################
 
@@ -67,7 +67,7 @@ class KnownValues(unittest.TestCase):
         snmpobj.configure_mock(**mock_spec)
 
         # Test unsupported
-        testobj = testimport.Query(snmpobj)
+        testobj = testimport.init_query(snmpobj)
         self.assertEqual(testobj.supported(), False)
 
     def test_layer1(self):
@@ -92,7 +92,7 @@ class KnownValues(unittest.TestCase):
         snmpobj.configure_mock(**mock_spec)
 
         # Get results
-        testobj = testimport.Query(snmpobj)
+        testobj = testimport.init_query(snmpobj)
         results = testobj.layer1()
 
         # Basic testing of results
@@ -124,7 +124,7 @@ class KnownValues(unittest.TestCase):
         snmpobj.configure_mock(**mock_spec)
 
         # Get results
-        testobj = testimport.Query(snmpobj)
+        testobj = testimport.init_query(snmpobj)
         results = testobj.lldpremsysname()
 
         # Basic testing of results
@@ -143,7 +143,7 @@ class KnownValues(unittest.TestCase):
         snmpobj.configure_mock(**mock_spec)
 
         # Get results
-        testobj = testimport.Query(snmpobj)
+        testobj = testimport.init_query(snmpobj)
         results = testobj.lldpremsyscapenabled()
 
         # Basic testing of results
@@ -162,7 +162,7 @@ class KnownValues(unittest.TestCase):
         snmpobj.configure_mock(**mock_spec)
 
         # Get results
-        testobj = testimport.Query(snmpobj)
+        testobj = testimport.init_query(snmpobj)
         results = testobj.lldpremsysdesc()
 
         # Basic testing of results
@@ -181,7 +181,7 @@ class KnownValues(unittest.TestCase):
         snmpobj.configure_mock(**mock_spec)
 
         # Get results
-        testobj = testimport.Query(snmpobj)
+        testobj = testimport.init_query(snmpobj)
         results = testobj.lldpremportdesc()
 
         # Basic testing of results

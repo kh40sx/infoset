@@ -8,6 +8,16 @@ import binascii
 from infoset.snmp.base_query import Query
 
 
+def get_query():
+    """Return this module's Query class."""
+    return IpQuery
+
+
+def init_query(snmp_object):
+    """Return initialize and return this module's Query class."""
+    return IpQuery(snmp_object)
+
+
 class IpQuery(Query):
     """Class interacts with devices supporting IP-MIB.
 

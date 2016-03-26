@@ -10,6 +10,16 @@ from infoset.snmp.mib_bridge import BridgeQuery
 from infoset.utils import jm_general
 
 
+def get_query():
+    """Return this module's Query class."""
+    return LldpQuery
+
+
+def init_query(snmp_object):
+    """Return initialize and return this module's Query class."""
+    return LldpQuery(snmp_object)
+
+
 class LldpQuery(Query):
     """Class interacts with LLDP-MIB.
 

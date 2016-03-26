@@ -6,6 +6,16 @@ from collections import defaultdict
 from infoset.snmp.base_query import Query
 
 
+def get_query():
+    """Return this module's Query class."""
+    return CiscoC2900Query
+
+
+def init_query(snmp_object):
+    """Return initialize and return this module's Query class."""
+    return CiscoC2900Query(snmp_object)
+
+
 class CiscoC2900Query(Query):
     """Class interacts with CISCO-C2900-MIB.
 

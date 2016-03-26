@@ -8,6 +8,16 @@ import binascii
 from infoset.snmp.base_query import Query
 
 
+def get_query():
+    """Return this module's Query class."""
+    return BridgeQuery
+
+
+def init_query(snmp_object):
+    """Return initialize and return this module's Query class."""
+    return BridgeQuery(snmp_object)
+
+
 class BridgeQuery(Query):
     """Class interacts with devices supporting BRIDGE-MIB.
 

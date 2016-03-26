@@ -6,7 +6,7 @@ import random
 import string
 import tempfile
 
-from infoset.configuration import jm_configuration as test_class
+from infoset.utils import jm_configuration as test_class
 
 
 class KnownValues(unittest.TestCase):
@@ -60,7 +60,7 @@ snmp_groups:
         tmpfile = ('%s/config.yaml') % (cls.tmpdir)
         with open(tmpfile, 'w') as f_handle:
             f_handle.write(configuration)
-        cls.testobj = test_class.Read(cls.tmpdir)
+        cls.testobj = test_class.ConfigReader(cls.tmpdir)
 
     @classmethod
     def tearDownClass(cls):

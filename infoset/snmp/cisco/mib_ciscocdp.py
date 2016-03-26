@@ -6,6 +6,16 @@ from collections import defaultdict
 from infoset.snmp.base_query import Query
 
 
+def get_query():
+    """Return this module's Query class."""
+    return CiscoCdpQuery
+
+
+def init_query(snmp_object):
+    """Return initialize and return this module's Query class."""
+    return CiscoCdpQuery(snmp_object)
+
+
 class CiscoCdpQuery(Query):
     """Class interacts with CISCO-CDP-MIB.
 

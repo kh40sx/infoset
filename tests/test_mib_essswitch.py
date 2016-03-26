@@ -50,7 +50,7 @@ class KnownValues(unittest.TestCase):
         snmpobj.configure_mock(**mock_spec)
 
         # Test supported
-        testobj = testimport.Query(snmpobj)
+        testobj = testimport.init_query(snmpobj)
         self.assertEqual(testobj.supported(), True)
 
         # Set the stage for oid_exists returning False
@@ -58,7 +58,7 @@ class KnownValues(unittest.TestCase):
         snmpobj.configure_mock(**mock_spec)
 
         # Test unsupported
-        testobj = testimport.Query(snmpobj)
+        testobj = testimport.init_query(snmpobj)
         self.assertEqual(testobj.supported(), False)
 
     def test_layer1(self):
@@ -75,7 +75,7 @@ class KnownValues(unittest.TestCase):
         snmpobj.configure_mock(**mock_spec)
 
         # Get results
-        testobj = testimport.Query(snmpobj)
+        testobj = testimport.init_query(snmpobj)
         results = testobj.layer1()
 
         # Basic testing of results
@@ -93,7 +93,7 @@ class KnownValues(unittest.TestCase):
         snmpobj.configure_mock(**mock_spec)
 
         # Get results
-        testobj = testimport.Query(snmpobj)
+        testobj = testimport.init_query(snmpobj)
         results = testobj.swportduplexstatus()
 
         # Basic testing of results

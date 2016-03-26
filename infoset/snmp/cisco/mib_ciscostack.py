@@ -6,6 +6,16 @@ from collections import defaultdict
 from infoset.snmp.base_query import Query
 
 
+def get_query():
+    """Return this module's Query class."""
+    return CiscoStackQuery
+
+
+def init_query(snmp_object):
+    """Return initialize and return this module's Query class."""
+    return CiscoStackQuery(snmp_object)
+
+
 class CiscoStackQuery(Query):
     """Class interacts with CISCO-STACK-MIB.
 

@@ -7,6 +7,16 @@ from collections import defaultdict
 from infoset.snmp.base_query import Query
 
 
+def get_query():
+    """Return this module's Query class."""
+    return EtherlikeQuery
+
+
+def init_query(snmp_object):
+    """Return initialize and return this module's Query class."""
+    return EtherlikeQuery(snmp_object)
+
+
 class EtherlikeQuery(Query):
     """Class interacts with ETHERLIKE-MIB.
 

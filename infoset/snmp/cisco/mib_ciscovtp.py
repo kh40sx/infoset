@@ -8,6 +8,16 @@ import binascii
 from infoset.snmp.base_query import Query
 
 
+def get_query():
+    """Return this module's Query class."""
+    return CiscoVtpQuery
+
+
+def init_query(snmp_object):
+    """Return initialize and return this module's Query class."""
+    return CiscoVtpQuery(snmp_object)
+
+
 class CiscoVtpQuery(Query):
     """Class interacts with CISCO-VTP-MIB.
 
