@@ -66,11 +66,11 @@ class EtherlikeQuery(Query):
         # Return
         return final
 
-    def dot3statsduplexstatus(self):
+    def dot3statsduplexstatus(self, oidonly=False):
         """Return dict of ETHERLIKE-MIB dot3StatsDuplexStatus for each port.
 
         Args:
-            None
+            oidonly: Return OID's value, not results, if True
 
         Returns:
             data_dict: Dict of dot3StatsDuplexStatus using ifIndex as key
@@ -79,11 +79,18 @@ class EtherlikeQuery(Query):
         # Initialize key variables
         data_dict = defaultdict(dict)
 
-        # Descriptions
+        # OID to process
         oid = '.1.3.6.1.2.1.10.7.2.1.19'
-        results = self.snmp_object.walk(oid, normalized=True)
+
+        # Return OID value. Used for unittests
+        if oidonly is True:
+            return oid
+
+        # Process results
+        results = self.snmp_object.swalk(oid, normalized=True)
         for key, value in results.items():
             data_dict[int(key)] = value
 
         # Return the interface descriptions
+        print('\nboo', data_dict, '\n')
         return data_dict

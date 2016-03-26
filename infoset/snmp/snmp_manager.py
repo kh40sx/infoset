@@ -277,11 +277,12 @@ class Interact:
         # Initialize key variables
         results = {}
 
-        # Process
+        # Process data
         data = self.walk(
             oid_to_get, normalized=normalized, connectivity_check=True)
+
+        # If oid not found then return blank dict
         for value in data.values():
-            # If oid not found message, then fail
             if isinstance(value, rfc1905.NoSuchInstance) is False:
                 results = data
             # If nothing is retuned, then fail

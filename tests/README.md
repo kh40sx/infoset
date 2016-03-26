@@ -12,5 +12,3 @@ You can run all tests by running `make test` from the root directory
 
 # Mocks
 Many of these unittests use Python Mocks. A detailed tutorial on Mocks can be found here: http://www.drdobbs.com/testing/using-mocks-in-python/240168251
-
-

@@ -1,9 +1,10 @@
-"""Test the mib_essswitch module."""
+#!/usr/bin/env python3
+"""Test the mib_etherlike module."""
 
 import unittest
 from mock import Mock
 
-from infoset.snmp import mib_essswitch as testimport
+from getdata.snmp import mib_etherlike as testimport
 
 
 class Query(object):
@@ -24,6 +25,10 @@ class Query(object):
 
     def swalk(self):
         """Do a failsafe SNMPwalk."""
+        pass
+
+    def walk(self):
+        """Do a SNMPwalk."""
         pass
 
 
@@ -65,8 +70,8 @@ class KnownValues(unittest.TestCase):
         """Testing method / function layer1."""
         # Initializing key variables
         expected_dict = {
-            100: {'swPortDuplexStatus': 1234},
-            200: {'swPortDuplexStatus': 5678}
+            100: {'dot3StatsDuplexStatus': 1234},
+            200: {'dot3StatsDuplexStatus': 5678}
         }
 
         # Set the stage for SNMPwalk
@@ -85,8 +90,8 @@ class KnownValues(unittest.TestCase):
                     results[primary][secondary],
                     expected_dict[primary][secondary])
 
-    def test_swportduplexstatus(self):
-        """Testing method / function swportduplexstatus."""
+    def test_dot3statsduplexstatus(self):
+        """Testing method / function dot3statsduplexstatus."""
         # Set the stage for SNMPwalk
         snmpobj = Mock(spec=Query)
         mock_spec = {'swalk.return_value': self.nwalk_results_integer}
@@ -94,15 +99,15 @@ class KnownValues(unittest.TestCase):
 
         # Get results
         testobj = testimport.Query(snmpobj)
-        results = testobj.swportduplexstatus()
+        results = testobj.dot3statsduplexstatus()
 
         # Basic testing of results
         for key in results.keys():
             self.assertEqual(isinstance(key, int), True)
 
         # Test that we are getting the correct OID
-        results = testobj.swportduplexstatus(oidonly=True)
-        self.assertEqual(results, '.1.3.6.1.4.1.437.1.1.3.3.1.1.30')
+        results = testobj.dot3statsduplexstatus(oidonly=True)
+        self.assertEqual(results, '.1.3.6.1.2.1.10.7.2.1.19')
 
 
 if __name__ == '__main__':

@@ -3,6 +3,7 @@
 
 import textwrap
 import argparse
+import sys
 
 
 class Cli(object):
@@ -63,6 +64,11 @@ class Cli(object):
 
         # Return the CLI arguments
         args = parser.parse_args()
+
+        # Print help if mode is None
+        if args.mode is None:
+            parser.print_help()
+            sys.exit(2)
 
         # Return our parsed CLI arguments
         return args
