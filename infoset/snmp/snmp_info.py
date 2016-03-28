@@ -96,10 +96,13 @@ class Query(object):
 
         # Get system information from SNMPv2-MIB, ENTITY-MIB, IF-MIB
         # Instantiate a query object for each system query
-        for query in [Q(self.snmp_object) for Q in get_queries('system')]:
-            if query.supported():
+        for item in [
+                Query(self.snmp_object)
+                for Query in get_queries('system')]:
+
+            if item.supported():
                 processed = True
-                data = _add_system(query, data)
+                data = _add_system(item, data)
 
         # Return
         if processed is True:
@@ -123,10 +126,12 @@ class Query(object):
 
         # Get information layer1 queries
 
-        for query in [Q(self.snmp_object) for Q in get_queries('layer1')]:
-            if query.supported():
+        for item in [
+                Query(self.snmp_object)
+                for Query in get_queries('layer1')]:
+            if item.supported():
                 processed = True
-                data = _add_layer1(query, data)
+                data = _add_layer1(item, data)
 
         # Return
         if processed is True:
@@ -148,10 +153,12 @@ class Query(object):
         data = defaultdict(lambda: defaultdict(dict))
         processed = False
 
-        for query in [Q(self.snmp_object) for Q in get_queries('layer2')]:
-            if query.supported():
+        for item in [
+                Query(self.snmp_object)
+                for Query in get_queries('layer2')]:
+            if item.supported():
                 processed = True
-                data = _add_layer2(query, data)
+                data = _add_layer2(item, data)
 
         # Return
         if processed is True:
@@ -173,10 +180,12 @@ class Query(object):
         data = defaultdict(lambda: defaultdict(dict))
         processed = False
 
-        for query in [Q(self.snmp_object) for Q in get_queries('layer3')]:
-            if query.supported():
+        for item in [
+                Query(self.snmp_object)
+                for Query in get_queries('layer3')]:
+            if item.supported():
                 processed = True
-                data = _add_layer3(query, data)
+                data = _add_layer3(item, data)
 
         # Return
         if processed is True:

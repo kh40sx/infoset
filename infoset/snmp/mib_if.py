@@ -87,43 +87,43 @@ class IfQuery(Query):
         final = defaultdict(lambda: defaultdict(dict))
 
         # Get interface ifDescr data
-        get_data('ifDescr', self.ifdescr, final)
+        _get_data('ifDescr', self.ifdescr, final)
 
         # Get interface ifAlias data
-        get_data('ifAlian', self.ifalias, final)
+        _get_data('ifAlian', self.ifalias, final)
 
         # Get interface ifSpeed data
-        get_data('ifSpeed', self.ifspeed, final)
+        _get_data('ifSpeed', self.ifspeed, final)
 
         # Get interface ifOperStatus data
-        get_data('ifOperStatus', self.ifoperstatus, final)
+        _get_data('ifOperStatus', self.ifoperstatus, final)
 
         # Get interface ifAdminStatus data
-        get_data('ifAdminStatus', self.ifadminstatus, final)
+        _get_data('ifAdminStatus', self.ifadminstatus, final)
 
         # Get interface ifType data
-        get_data('ifType', self.iftype, final)
+        _get_data('ifType', self.iftype, final)
 
         # Get interface ifName data
-        get_data('ifName', self.ifname, final)
+        _get_data('ifName', self.ifname, final)
 
         # Get interface ifIndex data
-        get_data('ifIndex', self.ifindex, final)
+        _get_data('ifIndex', self.ifindex, final)
 
         # Get interface ifPhysAddress data
-        get_data('ifPhysAddress', self.ifphysaddress, final)
+        _get_data('ifPhysAddress', self.ifphysaddress, final)
 
         # Get interface ifHighSpeed data
-        get_data('ifHighSpeed', self.ifhighspeed, final)
+        _get_data('ifHighSpeed', self.ifhighspeed, final)
 
         # Get interface ifInOctets data
-        get_data('ifInOctets', self.ifinoctets, final)
+        _get_data('ifInOctets', self.ifinoctets, final)
 
         # Get interface ifOutOctets data
-        get_data('ifOutOctets', self.ifoutoctets, final)
+        _get_data('ifOutOctets', self.ifoutoctets, final)
 
         # Get interface ifLastChange data
-        get_data('ifLastChange', self.iflastchange, final)
+        _get_data('ifLastChange', self.iflastchange, final)
 
         # Return
         return final
@@ -512,7 +512,7 @@ class IfQuery(Query):
         return final
 
 
-def get_data(title, func, dest):
+def _get_data(title, func, dest):
     """Populate dest with data from the given function.
 
     Args:
