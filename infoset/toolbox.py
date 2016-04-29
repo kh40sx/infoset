@@ -1,23 +1,25 @@
 """Calico utility script.
+
 Calico utility script
 """
 
-from pprint import pprint
+import yaml
 
-from infoset.cli import jm_cli
-from infoset.configuration import jm_configuration
+from infoset import interfaces
+from infoset.utils import ConfigReader
 from infoset.utils import jm_general
 from infoset.snmp import poll
 from infoset.snmp import snmp_manager
 from infoset.snmp import snmp_info
 from infoset.web import ws_device
 
-import sys
-import yaml
+# import sys
+# from pprint import pprint
 
 
 def main():
     """Main Function.
+
     Args:
         None
     Returns:
@@ -29,11 +31,11 @@ Utility script for the project.
 """
 
     # Process the CLI
-    cli_object = jm_cli.Process(additional_help=additional_help)
+    cli_object = interfaces.Cli(additional_help=additional_help)
     cli_args = cli_object.args()
 
     # Process the config
-    config = jm_configuration.Read(cli_args.directory)
+    config = ConfigReader(cli_args.directory)
 
     # Show configuration data
     if cli_args.mode == 'config':
@@ -54,6 +56,7 @@ Utility script for the project.
 
 def do_config(cli_args, config):
     """Process 'config' CLI option.
+
     Args:
         connectivity_check: Set if testing for connectivity
     Returns:
@@ -72,6 +75,7 @@ def do_config(cli_args, config):
 
 def do_test(cli_args, config):
     """Process 'test' CLI option.
+
     Args:
         connectivity_check: Set if testing for connectivity
     Returns:
@@ -101,6 +105,7 @@ def do_test(cli_args, config):
 
 def do_pages(config, verbose=False):
     """Process 'pagemaker' CLI option.
+
     Args:
         config: Configuration object
         verbose: Verbose output if True
@@ -113,6 +118,7 @@ def do_pages(config, verbose=False):
 
 def do_poll(config, verbose=False):
     """Process 'run' CLI option.
+
     Args:
         config: Configuration object
         verbose: Verbose output if True
