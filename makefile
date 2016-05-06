@@ -58,13 +58,7 @@ clean_venv:
 # local dependencies
 ##################### #####################
 dependencies: venv
-	$(PIP) install pyyaml
-	$(PIP) install pep8
-	$(PIP) install pep257
-	$(PIP) install pysnmp
-	$(PIP) install pylint
-	$(PIP) install nose
-	$(PIP) install mock
+	$(PIP) install -r requirements.txt
 
 .PHONY: setup
 setup: venv dependencies
