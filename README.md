@@ -1,7 +1,6 @@
 # infoset
 
 
-## About
 infoset is Python 3 inventory system that reports and tabulates the status of network connected devices. The information reported includes:
 
 1. Open Systems Interconnection model (OSI model) data such as:
@@ -9,13 +8,6 @@ infoset is Python 3 inventory system that reports and tabulates the status of ne
   2. Layer 2 information (VLANs, 802.1q trunk links)
   3. Layer 3 information (ARP information)
 2. System status
-
-The project is not:
-
-1. _A monitoring system_: It does not report information that is likely to change in under 4 hours. Projects such as Nagios are more suitable for this purpose.
-2. _A graphing system_: and therefore will not collect historical data likely to change in under 4 hours. Projects such as Cacti are more suitable for this purpose.
-
-As the project is an inventory system, there is some scope for parallel projects to chart changes in resources audited by the project.
 
 ## Features
 infoset has the following features:
@@ -29,9 +21,6 @@ infoset has the following features:
 
 We are always looking for more contributors!
 
-## Support
-The project currently only supports Linux distros that natively support python 3 for ease of portability.
-
 ## Inspiration
 The project took inspiration from switchmap whose creator, Pete Siemsen, has been providing guidance.
 
@@ -43,13 +32,6 @@ infoset is a student collaboration between:
 3. The Palisadoes Foundation http://www.palisadoes.org
 
 And many others.
-
-# Intallation and Initial Setup
-There are a number of small steps that need to be taken to get infoset to work.
-
-## Clone
-Clone the project into a directory of your choosing (git clone `https://github.com/UWICompSociety/infoset`).
-Or download and extract the archive.
 
 ## Dependencies
 The only dependencies that must be manually installed for this project are pip and python3 itself
@@ -64,7 +46,13 @@ The commands are:
 ```
 # sudo apt-get install python3 python3-pip
 ```
-The rest of the dependencies will are installed to a virtualenv by running `make dependencies` or `make setup` in the project directory
+
+# Developing
+```
+# git clone https://github.com/UWICompSociety/infoset
+# cd infoset
+# pip install -r requirements.txt
+```
 
 ## Creating Executable
 `infoset` follows traditional python project structure and includes a `setup.py` file which can be used to create and install
@@ -181,3 +169,4 @@ Visit our GitHub issues for a full list of features and bug fixes. https://githu
 Visit our wiki's infoset document for the rationale of the design. http://wiki.palisadoes.org/index.php/Infoset
 ## Sample Output
 Visit http://calico.palisadoes.org/infoset to view infoset's latest stable web output.
+

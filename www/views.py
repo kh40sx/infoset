@@ -10,8 +10,6 @@ def index():
     hosts = getHosts()
     return render_template('index.html',
                            hosts=hosts)
-
-
 @infoset.route('/hosts')
 def hosts():
     hosts = getHosts()
