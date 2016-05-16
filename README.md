@@ -48,6 +48,7 @@ The commands are:
 ```
 
 # Developing
+![](http://i.imgur.com/cJP2vks.gifv)
 ```
 # git clone https://github.com/UWICompSociety/infoset
 # cd infoset
