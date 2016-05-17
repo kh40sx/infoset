@@ -1,0 +1,781 @@
+layer1:
+  '10':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: pime
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 10
+    ifLastChange: 6440
+    ifName: pime
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 131
+  '11':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: pimd
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 11
+    ifLastChange: 6439
+    ifName: pimd
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 131
+  '116':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fe-0/0/2
+    ifHighSpeed: 100
+    ifInOctets: 0
+    ifIndex: 116
+    ifLastChange: 7896
+    ifName: fe-0/0/2
+    ifOperStatus: 2
+    ifOutOctets: 0
+    ifPhysAddress: b0c69a85e002
+    ifSpeed: 100000000
+    ifType: 6
+  '117':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fe-0/0/2.0
+    ifHighSpeed: 100
+    ifInOctets: 0
+    ifIndex: 117
+    ifLastChange: 7897
+    ifName: fe-0/0/2.0
+    ifOperStatus: 7
+    ifOutOctets: 0
+    ifPhysAddress: b0c69a85e002
+    ifSpeed: 100000000
+    ifType: 53
+  '118':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fe-0/0/3
+    ifHighSpeed: 100
+    ifInOctets: 0
+    ifIndex: 118
+    ifLastChange: 7899
+    ifName: fe-0/0/3
+    ifOperStatus: 2
+    ifOutOctets: 0
+    ifPhysAddress: b0c69a85e003
+    ifSpeed: 100000000
+    ifType: 6
+  '119':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fe-0/0/3.0
+    ifHighSpeed: 100
+    ifInOctets: 0
+    ifIndex: 119
+    ifLastChange: 7899
+    ifName: fe-0/0/3.0
+    ifOperStatus: 7
+    ifOutOctets: 0
+    ifPhysAddress: b0c69a85e003
+    ifSpeed: 100000000
+    ifType: 53
+  '12':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: mtun
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 12
+    ifLastChange: 6438
+    ifName: mtun
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 131
+  '120':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fe-0/0/4
+    ifHighSpeed: 100
+    ifInOctets: 0
+    ifIndex: 120
+    ifLastChange: 7901
+    ifName: fe-0/0/4
+    ifOperStatus: 2
+    ifOutOctets: 0
+    ifPhysAddress: b0c69a85e004
+    ifSpeed: 100000000
+    ifType: 6
+  '121':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fe-0/0/4.0
+    ifHighSpeed: 100
+    ifInOctets: 0
+    ifIndex: 121
+    ifLastChange: 7901
+    ifName: fe-0/0/4.0
+    ifOperStatus: 7
+    ifOutOctets: 0
+    ifPhysAddress: b0c69a85e004
+    ifSpeed: 100000000
+    ifType: 53
+  '122':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fe-0/0/5
+    ifHighSpeed: 100
+    ifInOctets: 0
+    ifIndex: 122
+    ifLastChange: 7902
+    ifName: fe-0/0/5
+    ifOperStatus: 2
+    ifOutOctets: 0
+    ifPhysAddress: b0c69a85e005
+    ifSpeed: 100000000
+    ifType: 6
+  '123':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fe-0/0/5.0
+    ifHighSpeed: 100
+    ifInOctets: 0
+    ifIndex: 123
+    ifLastChange: 7903
+    ifName: fe-0/0/5.0
+    ifOperStatus: 7
+    ifOutOctets: 0
+    ifPhysAddress: b0c69a85e005
+    ifSpeed: 100000000
+    ifType: 53
+  '124':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fe-0/0/6
+    ifHighSpeed: 100
+    ifInOctets: 0
+    ifIndex: 124
+    ifLastChange: 7904
+    ifName: fe-0/0/6
+    ifOperStatus: 2
+    ifOutOctets: 0
+    ifPhysAddress: b0c69a85e006
+    ifSpeed: 100000000
+    ifType: 6
+  '125':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fe-0/0/6.0
+    ifHighSpeed: 100
+    ifInOctets: 0
+    ifIndex: 125
+    ifLastChange: 7905
+    ifName: fe-0/0/6.0
+    ifOperStatus: 7
+    ifOutOctets: 0
+    ifPhysAddress: b0c69a85e006
+    ifSpeed: 100000000
+    ifType: 53
+  '126':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: sw02.calico.palisadoes.org
+    ifDescr: fe-0/0/7
+    ifHighSpeed: 100
+    ifInOctets: 924841300
+    ifIndex: 126
+    ifLastChange: 8264
+    ifName: fe-0/0/7
+    ifOperStatus: 1
+    ifOutOctets: 472784234
+    ifPhysAddress: b0c69a85e007
+    ifSpeed: 100000000
+    ifType: 6
+  '127':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fe-0/0/7.0
+    ifHighSpeed: 100
+    ifInOctets: 1333251335
+    ifIndex: 127
+    ifLastChange: 8264
+    ifName: fe-0/0/7.0
+    ifOperStatus: 1
+    ifOutOctets: 472784234
+    ifPhysAddress: b0c69a85e007
+    ifSpeed: 100000000
+    ifType: 53
+  '128':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fxo-0/0/12
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 128
+    ifLastChange: 7910
+    ifName: fxo-0/0/12
+    ifOperStatus: 2
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 101
+  '129':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fxo-0/0/13
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 129
+    ifLastChange: 7911
+    ifName: fxo-0/0/13
+    ifOperStatus: 2
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 101
+  '130':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fxs-0/0/10
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 130
+    ifLastChange: 7963
+    ifName: fxs-0/0/10
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 102
+  '131':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fxs-0/0/11
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 131
+    ifLastChange: 7963
+    ifName: fxs-0/0/11
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 102
+  '132':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: sw03.calico.palisadoes.org
+    ifDescr: ge-0/0/0
+    ifHighSpeed: 1000
+    ifInOctets: 234186015
+    ifIndex: 132
+    ifLastChange: 8164
+    ifName: ge-0/0/0
+    ifOperStatus: 1
+    ifOutOctets: 36637300
+    ifPhysAddress: b0c69a85e000
+    ifSpeed: 1000000000
+    ifType: 6
+  '133':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: ge-0/0/0.0
+    ifHighSpeed: 1000
+    ifInOctets: 234185736
+    ifIndex: 133
+    ifLastChange: 8164
+    ifName: ge-0/0/0.0
+    ifOperStatus: 1
+    ifOutOctets: 36637300
+    ifPhysAddress: b0c69a85e000
+    ifSpeed: 1000000000
+    ifType: 53
+  '134':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: ge-0/0/1
+    ifHighSpeed: 1000
+    ifInOctets: 0
+    ifIndex: 134
+    ifLastChange: 7849
+    ifName: ge-0/0/1
+    ifOperStatus: 2
+    ifOutOctets: 0
+    ifPhysAddress: b0c69a85e001
+    ifSpeed: 1000000000
+    ifType: 6
+  '135':
+    dot3StatsDuplexStatus: 3
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: ge-0/0/1.0
+    ifHighSpeed: 1000
+    ifInOctets: 0
+    ifIndex: 135
+    ifLastChange: 7850
+    ifName: ge-0/0/1.0
+    ifOperStatus: 7
+    ifOutOctets: 0
+    ifPhysAddress: b0c69a85e001
+    ifSpeed: 1000000000
+    ifType: 53
+  '136':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: gr-0/0/0
+    ifHighSpeed: 800
+    ifInOctets: 0
+    ifIndex: 136
+    ifLastChange: 8064
+    ifName: gr-0/0/0
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 800000000
+    ifType: 131
+  '137':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: ip-0/0/0
+    ifHighSpeed: 800
+    ifInOctets: 0
+    ifIndex: 137
+    ifLastChange: 8064
+    ifName: ip-0/0/0
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 800000000
+    ifType: 131
+  '138':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: lo0.32768
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 138
+    ifLastChange: 6437
+    ifName: lo0.32768
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 24
+  '139':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: lsq-0/0/0
+    ifHighSpeed: 622
+    ifInOctets: 0
+    ifIndex: 139
+    ifLastChange: 8064
+    ifName: lsq-0/0/0
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 622080000
+    ifType: 108
+  '140':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: lt-0/0/0
+    ifHighSpeed: 800
+    ifInOctets: 0
+    ifIndex: 140
+    ifLastChange: 8064
+    ifName: lt-0/0/0
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: b0c69a85e000
+    ifSpeed: 800000000
+    ifType: 131
+  '141':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: mpu-0/0/9
+    ifHighSpeed: 100
+    ifInOctets: 0
+    ifIndex: 141
+    ifLastChange: 7963
+    ifName: mpu-0/0/9
+    ifOperStatus: 1
+    ifOutOctets: 36824422
+    ifPhysAddress: ''
+    ifSpeed: 100000000
+    ifType: 1
+  '142':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: mpu-0/0/9.0
+    ifHighSpeed: 100
+    ifInOctets: 0
+    ifIndex: 142
+    ifLastChange: 7963
+    ifName: mpu-0/0/9.0
+    ifOperStatus: 1
+    ifOutOctets: 36824422
+    ifPhysAddress: ''
+    ifSpeed: 100000000
+    ifType: 53
+  '143':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: mt-0/0/0
+    ifHighSpeed: 800
+    ifInOctets: 0
+    ifIndex: 143
+    ifLastChange: 8064
+    ifName: mt-0/0/0
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 800000000
+    ifType: 131
+  '144':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: pd-0/0/0
+    ifHighSpeed: 800
+    ifInOctets: 0
+    ifIndex: 144
+    ifLastChange: 8064
+    ifName: pd-0/0/0
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 800000000
+    ifType: 131
+  '145':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: pe-0/0/0
+    ifHighSpeed: 800
+    ifInOctets: 0
+    ifIndex: 145
+    ifLastChange: 8064
+    ifName: pe-0/0/0
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 800000000
+    ifType: 131
+  '146':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: pp0
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 146
+    ifLastChange: 6441
+    ifName: pp0
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 1
+  '147':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: st0
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 147
+    ifLastChange: 6442
+    ifName: st0
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 1
+  '148':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: vlan
+    ifHighSpeed: 0
+    ifInOctets: 338511223
+    ifIndex: 148
+    ifLastChange: 7441
+    ifName: vlan
+    ifOperStatus: 1
+    ifOutOctets: 526579110
+    ifPhysAddress: b0c69a85e008
+    ifSpeed: 0
+    ifType: 6
+  '149':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: vlan.0
+    ifHighSpeed: 0
+    ifInOctets: 335889877
+    ifIndex: 149
+    ifLastChange: 8278
+    ifName: vlan.0
+    ifOperStatus: 1
+    ifOutOctets: 387421036
+    ifPhysAddress: b0c69a85e008
+    ifSpeed: 0
+    ifType: 135
+  '15':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fxp2.0
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 15
+    ifLastChange: 6431
+    ifName: fxp2.0
+    ifOperStatus: 1
+    ifOutOctets: 197799336
+    ifPhysAddress: '000000000000'
+    ifSpeed: 0
+    ifType: 53
+  '21':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: lo0.16384
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 21
+    ifLastChange: 6435
+    ifName: lo0.16384
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 24
+  '22':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: lo0.16385
+    ifHighSpeed: 0
+    ifInOctets: 58584132
+    ifIndex: 22
+    ifLastChange: 6436
+    ifName: lo0.16385
+    ifOperStatus: 1
+    ifOutOctets: 58584132
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 24
+  '3':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: fxp2
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 3
+    ifLastChange: 6430
+    ifName: fxp2
+    ifOperStatus: 1
+    ifOutOctets: 274721250
+    ifPhysAddress: '000000000000'
+    ifSpeed: 0
+    ifType: 6
+  '4':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: lsi
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 4
+    ifLastChange: 6438
+    ifName: lsi
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 150
+  '6':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: lo0
+    ifHighSpeed: 0
+    ifInOctets: 58584132
+    ifIndex: 6
+    ifLastChange: 6434
+    ifName: lo0
+    ifOperStatus: 1
+    ifOutOctets: 58584132
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 24
+  '7':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: tap
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 7
+    ifLastChange: 6443
+    ifName: tap
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 1
+  '8':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: gre
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 8
+    ifLastChange: 6432
+    ifName: gre
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 131
+  '9':
+    ifAdminStatus: 1
+    ifAlias: ''
+    ifDescr: ipip
+    ifHighSpeed: 0
+    ifInOctets: 0
+    ifIndex: 9
+    ifLastChange: 6433
+    ifName: ipip
+    ifOperStatus: 1
+    ifOutOctets: 0
+    ifPhysAddress: ''
+    ifSpeed: 0
+    ifType: 131
+layer2: null
+layer3:
+  ipNetToMediaTable:
+    192.168.1.1: b0c69a85e008
+    192.168.1.200: 001ec9ac3e7b
+    192.168.100.1: b0c69a85e000
+misc:
+  IANAEnterpriseNumber: 2636
+  host: 192.168.1.1
+  timestamp: 1461949262
+system:
+  IF-MIB:
+    ifStackStatus:
+      '10':
+      - 0
+      '11':
+      - 0
+      '116':
+      - 117
+      '117':
+      - 0
+      '118':
+      - 119
+      '119':
+      - 0
+      '12':
+      - 0
+      '120':
+      - 121
+      '121':
+      - 0
+      '122':
+      - 123
+      '123':
+      - 0
+      '124':
+      - 125
+      '125':
+      - 0
+      '126':
+      - 127
+      '127':
+      - 0
+      '128':
+      - 0
+      '129':
+      - 0
+      '130':
+      - 0
+      '131':
+      - 0
+      '132':
+      - 133
+      '133':
+      - 0
+      '134':
+      - 135
+      '135':
+      - 0
+      '136':
+      - 0
+      '137':
+      - 0
+      '138':
+      - 0
+      '139':
+      - 0
+      '140':
+      - 0
+      '141':
+      - 142
+      '142':
+      - 0
+      '143':
+      - 0
+      '144':
+      - 0
+      '145':
+      - 0
+      '146':
+      - 0
+      '147':
+      - 0
+      '148':
+      - 149
+      '149':
+      - 0
+      '15':
+      - 0
+      '21':
+      - 0
+      '22':
+      - 0
+      '3':
+      - 15
+      '4':
+      - 0
+      '6':
+      - 22
+      - 138
+      - 21
+      '7':
+      - 0
+      '8':
+      - 0
+      '9':
+      - 0
+  SNMPv2-MIB:
+    sysContact:
+      '0': ''
+    sysDescr:
+      '0': Juniper SRX210
+    sysLocation:
+      '0': Calico lab
+    sysName:
+      '0': rt01.calico
+    sysObjectID:
+      '0': 1.3.6.1.4.1.2636.1.1.1.2.36
+    sysUpTime:
+      '0': 560786456
