@@ -56,7 +56,7 @@ The commands are:
 # source venv/bin/activate
 # make install
 ```
-Infoset also includes a web interface, to start the server run `python3 server.py` then navigate to http://localhost:5000
+Infoset also includes a web interface, to start the server run `python3 server.py` then navigate to <http://localhost:5000>
 
 ## Creating Executable
 `infoset` follows traditional python project structure and includes a `setup.py` file which can be used to create and install

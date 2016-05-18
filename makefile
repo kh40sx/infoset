@@ -44,6 +44,24 @@ else
 	$(echo "virtualenv installed")
 endif
 
+##########################################
+#Arch linux install, just incase
+.PHONY: arch-install
+PIP_EXISTS: venv
+	@which pip > /dev/null
+
+venv: virtual-env
+
+virtual-env: PIP_EXISTS venv-installed
+	virtualenv venv
+
+venv-installed:
+ifndef VIRT
+	pip install virtualenv
+else
+	$(echo "virtualenv installed")
+endif
+###########################################
 
 .PHONY: clean_venv
 clean_venv:
