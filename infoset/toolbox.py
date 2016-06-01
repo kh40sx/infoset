@@ -5,13 +5,13 @@ Calico utility script
 
 import yaml
 
-from infoset import interfaces
-from infoset.utils import ConfigReader
-from infoset.utils import jm_general
-from infoset.snmp import poll
-from infoset.snmp import snmp_manager
-from infoset.snmp import snmp_info
-from infoset.web import ws_device
+import interfaces
+from utils import ConfigReader
+from utils import jm_general
+from snmp import poll
+from snmp import snmp_manager
+from snmp import snmp_info
+from web import ws_device
 
 # import sys
 # from pprint import pprint

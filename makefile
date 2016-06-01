@@ -29,25 +29,39 @@ PYTHONFILES := $(wildcard *.py)
 # virtual env
 ##################### #####################
 
-PIP_EXISTS:
+PIP_EXISTS: venv
 	@which pip > /dev/null
 
-VIRT := $(shell which virtualenv)
+venv: virtual-env
 
-.PHONY: venv-installed
+virtual-env: PIP_EXISTS venv-installed
+	virtualenv venv
+
 venv-installed:
 ifndef VIRT
 	pip3 install virtualenv
 else
-	echo virtualenv installed
+	$(echo "virtualenv installed")
 endif
 
+##########################################
+#Arch linux install, just incase
+.PHONY: arch-install
+PIP_EXISTS: venv
+	@which pip > /dev/null
+
+venv: virtual-env
+
 virtual-env: PIP_EXISTS venv-installed
-
-venv: virtual-env venv/bin/python
-
-venv/bin/python:
 	virtualenv venv
+
+venv-installed:
+ifndef VIRT
+	pip install virtualenv
+else
+	$(echo "virtualenv installed")
+endif
+###########################################
 
 .PHONY: clean_venv
 clean_venv:
@@ -57,17 +71,11 @@ clean_venv:
 ##################### #####################
 # local dependencies
 ##################### #####################
-dependencies: venv
-	$(PIP) install pyyaml
-	$(PIP) install pep8
-	$(PIP) install pep257
-	$(PIP) install pysnmp
-	$(PIP) install pylint
-	$(PIP) install nose
-	$(PIP) install mock
+install:
+	$(PIP) install -r requirements.txt
 
 .PHONY: setup
-setup: venv dependencies
+setup: venv
 
 .PHONY: clean
 clean: clean_dist clean_venv
@@ -128,14 +136,6 @@ nose: venv $(NOSETESTS)
 $(NOSETESTS):
 	$(PIP) install nose
 
-##################### #####################
-# build ::  create an executable 
-##################### #####################
-
-.PHONY: develop
-develop: venv
-	$(PYTHON) setup.py develop
-	cp $(INFOSET) ./bin/infoset
 ##################### #####################
 # git :: manage synch and merging upstream
 ##################### #####################
