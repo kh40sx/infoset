@@ -47,14 +47,15 @@ The commands are:
 # sudo apt-get install python3 python3-pip
 ```
 
+### CentOS
 # Developing
 ![](http://i.imgur.com/cJP2vks.gif)
 ```
 # git clone https://github.com/UWICompSociety/infoset
 # cd infoset
-# make
+# sudo make
 # source venv/bin/activate
-# make install
+# sudo make install
 ```
 Infoset also includes a web interface, to start the server run `python3 server.py` then navigate to <http://localhost:5000>
 
