@@ -9,8 +9,6 @@ from infoset.utils.rrd import rrdagent
 @infoset.route('/')
 def index():
     hosts = getHosts()
-    agent = rrdagent.RrdAgent('cpu.rrd', 30).create()
-    agent.update()
     return render_template('index.html',
                            hosts=hosts)
 
