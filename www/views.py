@@ -3,13 +3,18 @@ from www import infoset
 from os import listdir, walk, path
 import yaml
 import requests
+from infoset.utils.rrd import rrdagent
 
 
 @infoset.route('/')
 def index():
     hosts = getHosts()
+    agent = rrdagent.RrdAgent('cpu.rrd', 30).create()
+    agent.update()
     return render_template('index.html',
                            hosts=hosts)
+
+
 @infoset.route('/hosts')
 def hosts():
     hosts = getHosts()
