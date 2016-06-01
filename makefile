@@ -6,7 +6,7 @@ VENV_PREFIX := venv/bin
 INFOSET:= venv/bin/infoset
 
 PYTHON := $(VENV_PREFIX)/python
-PIP := $(VENV_PREFIX)/pip
+PIP := $(VENV_PREFIX)/pip3
 
 PEP257 := $(VENV_PREFIX)/pep257
 
@@ -23,14 +23,14 @@ NOSETESTS := $(VENV_PREFIX)/nosetests
 
 PYTHONFILES := $(wildcard *.py)
 
-# globaldeps, check if pip and virutal env are installed globally, if not install
+# globaldeps, check if pip3 and virutal env are installed globally, if not install
 
 ##################### #####################
 # virtual env
 ##################### #####################
 
 PIP_EXISTS: venv
-	@which pip > /dev/null
+	@which pip3 > /dev/null
 
 venv: virtual-env
 
@@ -39,7 +39,7 @@ virtual-env: PIP_EXISTS venv-installed
 
 venv-installed:
 ifndef VIRT
-	pip3 install virtualenv
+	sudo pip3 install virtualenv
 else
 	$(echo "virtualenv installed")
 endif
@@ -48,7 +48,7 @@ endif
 #Arch linux install, just incase
 .PHONY: arch-install
 PIP_EXISTS: venv
-	@which pip > /dev/null
+	@which pip3 > /dev/null
 
 venv: virtual-env
 
@@ -57,7 +57,7 @@ virtual-env: PIP_EXISTS venv-installed
 
 venv-installed:
 ifndef VIRT
-	pip install virtualenv
+	sudo pip3 install virtualenv
 else
 	$(echo "virtualenv installed")
 endif
@@ -114,7 +114,7 @@ $(PEP257):
 pylint: venv $(PYLINT)
 	$(PYLINT) $(PROJECT) $(PYLINTFLAGS) --disable=$(PYLINT_DISABLE)
 
-$(PYLINT): 
+$(PYLINT):
 	$(PIP) install pylint
 
 
@@ -155,4 +155,5 @@ contribute: commit synch
 	make test
 	make lint
 	git push origin $(BRANCH)
+
 
