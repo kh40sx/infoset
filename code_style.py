@@ -6,12 +6,6 @@ import token
 import io
 
 class functionObject:
-	foundDef = False
-	name = ""
-	arguments = []
-	indentLevel = 0
-	startArguments = False
-	doneArguments = False
 	def setName(self, newName):
 		self.name = newName	
 	def setFoundDef(self, newFoundDef):
@@ -27,9 +21,18 @@ class functionObject:
 	def decrementIndent(self):
 		self.indentLevel-=1
 	def isDone(self):
-		return self.indentLevel == -1 and self.doneArguments
+		return self.indentLevel == 0 and self.doneArguments
 	def printArguments(self):
 		print("Recognized arguments for function " + self.name + ": " + str(self.arguments))
+	def __init__(self):
+		self.data = []
+		self.foundDef = False
+		self.name = ""
+		self.arguments = []
+		self.indentLevel = 0
+		self.startArguments = False
+		self.doneArguments = False
+
 
 def start_check(file):
 	with open(file) as f:
@@ -62,6 +65,7 @@ def start_check(file):
 				if func.isDone():
 					print("End of " + func.name + " reached!")	
 					func.printArguments()
+					func.arguments.clear()
 					func = functionObject()
 		except tokenize.TokenError:
 			pass	
