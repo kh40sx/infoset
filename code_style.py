@@ -20,7 +20,7 @@ class functionObject:
 		self.arguments.append(newArgument)
 	def hasName(self):
 		return self.name != ""
-	def foundDef(self):
+	def hasFoundDef(self):
 		return self.foundDef
 	def incrementIndent(self):
 		self.indentLevel+=1
@@ -38,15 +38,16 @@ def start_check(file):
 		token_generator = tokenize.generate_tokens(line)
 		try:
 			for tokenized in token_generator:
+				#print(tokenized.string + "\t" + token.tok_name.get(tokenized.type))
 				print(tokenized.string)
-				if tokenized.type == token.INDENT:
-					func.incrementIndent()
-				elif tokenized.type == token.DEDENT:
-					func.decrementIndent()
-				elif tokenized.string == "def" and not func.foundDef:
+				if tokenized.string == "def" and not func.hasFoundDef():
 					func.setFoundDef(True)
 					print("Found Def!")
-				elif not func.hasName():
+				elif tokenized.type == token.INDENT and func.hasFoundDef():
+					func.incrementIndent()
+				elif tokenized.type == token.DEDENT and func.hasFoundDef():
+					func.decrementIndent()
+				elif not func.hasName() and func.hasFoundDef():
 					func.setName(tokenized.string)
 					print("Set function name!")
 				elif tokenized.string == "(" and func.hasName() and not func.startArguments:
@@ -58,6 +59,7 @@ def start_check(file):
 						func.arguments.append(tokenized.string)
 				if func.isDone():
 					print("Function is done!")	
+					func = functionObject()
 		except tokenize.TokenError:
 			pass	
 	if not func.isDone(): #If it reaches EOF and the function has finished listing arguments, then the function is done
