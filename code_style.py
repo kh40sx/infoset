@@ -28,6 +28,8 @@ class functionObject:
 		self.indentLevel-=1
 	def isDone(self):
 		return self.indentLevel == -1 and self.doneArguments
+	def printArguments(self):
+		print("Recognized arguments for function " + self.name + ": " + str(self.arguments))
 
 def start_check(file):
 	with open(file) as f:
@@ -39,31 +41,32 @@ def start_check(file):
 		try:
 			for tokenized in token_generator:
 				#print(tokenized.string + "\t" + token.tok_name.get(tokenized.type))
-				print(tokenized.string)
+				#print(tokenized.string)
 				if tokenized.string == "def" and not func.hasFoundDef():
 					func.setFoundDef(True)
-					print("Found Def!")
+					#print("Found Def!")
 				elif tokenized.type == token.INDENT and func.hasFoundDef():
 					func.incrementIndent()
 				elif tokenized.type == token.DEDENT and func.hasFoundDef():
 					func.decrementIndent()
 				elif not func.hasName() and func.hasFoundDef():
 					func.setName(tokenized.string)
-					print("Set function name!")
+					print("function name:\t" + func.name)
 				elif tokenized.string == "(" and func.hasName() and not func.startArguments:
 					func.startArguments = True	
 				elif func.startArguments and not func.doneArguments:
 					if tokenized.string == ")":
 						func.doneArguments = True
-					elif tokenized.string != "":
+					elif tokenized.string != "" and tokenized.type == token.NAME:
 						func.arguments.append(tokenized.string)
 				if func.isDone():
-					print("Function is done!")	
+					print("End of " + func.name + " reached!")	
+					func.printArguments()
 					func = functionObject()
 		except tokenize.TokenError:
 			pass	
 	if not func.isDone(): #If it reaches EOF and the function has finished listing arguments, then the function is done
-		print("Function is done!")	
+		print("End of " + func.name + " reached!")	
 
 if len(sys.argv) == 1:
 	print("Please provide a python script as an argument")
