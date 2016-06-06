@@ -38,6 +38,7 @@ def start_check(file):
 	with open(file) as f:
 		content = f.readlines()
 	func = functionObject()
+	previousToken = None
 	for line in content:
 		line = io.StringIO(line).readline
 		token_generator = tokenize.generate_tokens(line)
@@ -60,13 +61,14 @@ def start_check(file):
 				elif func.startArguments and not func.doneArguments:
 					if tokenized.string == ")":
 						func.doneArguments = True
-					elif tokenized.string != "" and tokenized.type == token.NAME:
+					elif tokenized.string != "" and tokenized.type == token.NAME and (previousToken == "(" or previousToken == ","):
 						func.arguments.append(tokenized.string)
 				if func.isDone():
 					print("End of " + func.name + " reached!")	
 					func.printArguments()
 					func.arguments.clear()
 					func = functionObject()
+				previousToken = tokenized.string
 		except tokenize.TokenError:
 			pass	
 	if not func.isDone(): #If it reaches EOF and the function has finished listing arguments, then the function is done
