@@ -34,20 +34,18 @@ infoset is a student collaboration between:
 And many others.
 
 ## Dependencies
-The only dependencies that must be manually installed for this project are pip and python3 itself
-### Ubuntu / Debian
+The only dependencies that must be manually installed for this project are pip,python3 and rrdtool itself.
+### Ubuntu / Debian / Mint
 The commands are:
 ```
-# sudo apt-get install python3 python3-pip 
+# sudo apt-get install python3 python3-pip python3-dev librrd-dev rrdtool
 ```
 
 ### Fedora
 The commands are:
 ```
-# sudo apt-get install python3 python3-pip
+# sudo apt-get install python3 python3-pip python3-dev librrd-dev rrdtool
 ```
-
-### CentOS
 # Developing
 ![](http://i.imgur.com/cJP2vks.gif)
 ```
