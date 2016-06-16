@@ -146,12 +146,8 @@ $ bin/toolbox.py poll --directory etc/
 ```
 
 ## Creating Web Pages for All Devices
-For best results, run this command after polling is complete.
-
-This command will execute against all configured hosts and create appropriate HTML files in the configuration file's `$WEB_DIRECTORY` directory
-```
-$ bin/toolbox.py pagemaker --directory etc/
-```
+Update, Infoset is now using Flask! Pagemaker is no longer neccessary, run `python server.py`
+and navigate to [localhost:5000](http://localhost:5000) to acess the web interface.
 
 Your webserver will now be able to access the newest HTML in `$WEB_DIRECTORY`.
 
