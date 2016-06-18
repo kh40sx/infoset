@@ -47,7 +47,7 @@ The commands are:
 # sudo apt-get install python3 python3-pip python3-dev librrd-dev rrdtool
 ```
 # Developing
-![](http://i.imgur.com/cJP2vks.gif)
+![Oh snap](http://i.imgur.com/cJP2vks.gif)
 ```
 # git clone https://github.com/UWICompSociety/infoset
 # cd infoset
