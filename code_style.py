@@ -162,7 +162,6 @@ def start_check(file):
 					func.functionLine = tokenized.line
 					#print(tokenized)
 					func.indentLevel = len(tokenized.line) - len(tokenized.line.lstrip())
-					print("Found Def!")
 				elif not func.hasName() and func.hasFoundDef():
 					func.setName(tokenized.string)
 					#print("function name:\t" + func.name)
