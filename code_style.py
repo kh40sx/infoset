@@ -32,11 +32,15 @@ class functionObject:
 	def printArguments(self):
 		print("Recognized arguments for function " + self.name + ": " + str(self.arguments))
 
+	def printReturns(self):
+		print("Recognized returns for function " + self.name + ": " + str(self.returns))
+
+
 	def printDocStringData(self):
-		print("Docstring text:")
-		for token in self.docStringText:
-			print(token.string, end=" ")
-		print("")
+		#print("Docstring text:")
+		#for token in self.docStringText:
+			#print(token.string, end=" ")
+		#print("")
 		self.parseDocStringData()
 
 	def appendTextToDocStringData(self, text):
@@ -45,6 +49,9 @@ class functionObject:
 	def parseDocStringData(self):
 		previousToken = ""
 		currentPrecedingSpaces = None
+		returnPrecedingSpaces = None
+		returnSectionStarted = False
+		returnLine = ""
 		argsPrecedingSpaces = None
 		argsSectionStarted = False
 		argsLine = ""
@@ -63,8 +70,19 @@ class functionObject:
 					argsSectionStarted = False
 					#print("Args section done")
 				elif len(stripped) > 0 and tokenized.string == ":":
-
 					self.docArguments.append(previousToken)
+					#print("Appending " + stripped)
+			if stripped == ":" and previousToken == "Returns":
+				#print("Args section started")
+				returnSectionStarted = True
+				returnPrecedingSpaces = len(tokenized.line) - len(tokenized.line.lstrip())
+				returnLine = tokenized.line
+			elif returnSectionStarted and tokenized.line != returnLine:
+				if returnPrecedingSpaces == currentPrecedingSpaces:
+					returnSectionStarted = False
+					#print("Args section done")
+				elif len(stripped) > 0 and tokenized.string == ":":
+					self.docReturns.append(previousToken)
 					#print("Appending " + stripped)
 			if tokenized.type == token.NAME or tokenized.type == token.OP:
 				previousToken = stripped
@@ -72,11 +90,17 @@ class functionObject:
 		print("Docstring arguments: " + str(self.docArguments))
 		if "self" in self.arguments:
 			if not "self" in self.docArguments:
-				print("Ignoring 'self' arg")
+				#print("Ignoring 'self' arg")
 				self.arguments.remove("self")
 		for argument in self.arguments:
 			if argument not in self.docArguments:
 				print("**********" + argument + " is found in " + self.name + " arglist, but not in docstring" + "**********")
+
+		print("Docstring returns: " + str(self.docReturns))
+		for returnVar in self.returns:
+			if returnVar not in self.docReturns:
+				print("**********" + returnVar + " is returned in " + self.name + ", but is not found in the return section of the docstring" + "**********")
+		print("\n============****************************************============\n")
 
 	def clear(self):
 		self.done = False
@@ -87,7 +111,9 @@ class functionObject:
 		self.foundDef = False
 		self.name = ""
 		self.arguments = []
+		self.returns = []
 		self.docArguments = []
+		self.docReturns = []
 		self.indentLevel = 0
 		self.startArguments = False
 		self.doneArguments = False
@@ -101,12 +127,15 @@ class functionObject:
 
 def printFunctionData(func):
 	func.printArguments()
+	func.printReturns()
 	func.printDocStringData()
 	func.arguments.clear()
 	func.docArguments.clear()
+	func.returns.clear()
+	func.docReturns.clear()
 	func.docStringText.clear()
 	func.clear()
-	print("\n============****************************************============\n")
+	#print("\n============****************************************============\n")
 
 def start_check(file):
 	with open(file) as f:
@@ -132,7 +161,7 @@ def start_check(file):
 					#print("Found Def!")
 				elif not func.hasName() and func.hasFoundDef():
 					func.setName(tokenized.string)
-					print("function name:\t" + func.name)
+					#print("function name:\t" + func.name)
 				elif tokenized.string == "(" and func.hasName() and not func.startArguments:
 					func.startArguments = True
 				elif func.startArguments and not func.doneArguments:
@@ -140,9 +169,11 @@ def start_check(file):
 						func.doneArguments = True
 					elif tokenized.string != "" and tokenized.type == token.NAME and (previousToken == "(" or previousToken == ","):
 						func.arguments.append(tokenized.string)
+				elif previousToken == "return" and func.doneArguments:
+					func.returns.append(tokenized.string)
 				if func.isDone(tokenized.line):
 					#print(tokenized)
-					print("End of " + func.name + " reached!")
+					#print("End of " + func.name + " reached!")
 					if func.name != "":
 						printFunctionData(func)
 					func.clear()
@@ -171,5 +202,5 @@ else:
 		if pos > 0:
 			if file == "--test":
 				file = "code_style_test.py"
-			print(file)
+			#print(file)
 			start_check(file)
