@@ -1,37 +1,24 @@
-from flask import render_template, jsonify, send_file
+from flask import render_template, jsonify, send_file, request
 from www import infoset
+from www import celery
 from os import listdir, walk, path
 import yaml
-import requests
-from infoset.utils.rrd import rrdagent
-import time
 import threading
-import os.path
+from infoset.snmp import snmp_manager
+
+
+@celery.task
+def count(number):
+    while True:
+        for n in range(number):
+            print(n)
 
 
 @infoset.route('/')
 def index():
     hosts = getHosts()
-    agent = rrdagent.RrdAgent('cpu.rrd', 5)
-    agent.create()
-    t = threading.Thread(target=chartCPU, args=(agent,))
-    t.daemon = True
-    t.start()
     return render_template('index.html',
                            hosts=hosts)
-
-
-def chartCPU(agent):
-    count = 0
-    while True:
-        time.sleep(5)
-        agent.update()
-        agent.graph()
-
-
-@infoset.route('/hosts/<host>/cpu')
-def getCpu(host):
-    return send_file('static/img/cpu.png', mimetype='image/gif')
 
 
 @infoset.route('/hosts')
@@ -79,6 +66,13 @@ def layerTwo(host):
             raise e
     layer2 = yaml_dump['layer2']
     return jsonify(layer2)
+
+
+@infoset.route('/receive/<uid>', methods=["POST"])
+def receive(uid):
+    print(request.json)
+    content = request.json
+    return "Recieved"
 
 
 def getHosts():

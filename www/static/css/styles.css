@@ -1,0 +1,17 @@
+.box {
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.24);
+}
+
+body {
+    background-image: url("../img/pattern.png");
+    background-repeat: repeat;
+}
+
+.table {
+    background-color: white;
+}
+
+.navbar-default {
+    color: white;
+    background-color: #f05b5c
+}
