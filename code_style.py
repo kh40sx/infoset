@@ -92,9 +92,13 @@ class functionObject:
 			if not "self" in self.docArguments:
 				#print("Ignoring 'self' arg")
 				self.arguments.remove("self")
-		for argument in self.arguments:
+		if len(self.arguments) != len(self.docArguments):
+			print("The function signature argument list for " + self.name + " and its docstring argument list aren't of the same length")
+		for pos, argument in enumerate(self.arguments):
 			if argument not in self.docArguments:
 				print("**********" + argument + " is found in " + self.name + " arglist, but not in docstring" + "**********")
+			elif self.docArguments[pos] != argument:
+				print("The function signature for " + self.name + " has " + argument + " at position " + str(pos) + " while its docstring has " + self.docArguments[pos] + " at " + str(pos))
 
 		print("Docstring returns: " + str(self.docReturns))
 		for returnVar in self.returns:
@@ -158,7 +162,7 @@ def start_check(file):
 					func.functionLine = tokenized.line
 					#print(tokenized)
 					func.indentLevel = len(tokenized.line) - len(tokenized.line.lstrip())
-					#print("Found Def!")
+					print("Found Def!")
 				elif not func.hasName() and func.hasFoundDef():
 					func.setName(tokenized.string)
 					#print("function name:\t" + func.name)
@@ -178,6 +182,11 @@ def start_check(file):
 						printFunctionData(func)
 					func.clear()
 					func = functionObject()
+					if tokenized.string == "def":
+						func.setFoundDef(True)
+						func.functionLine = tokenized.line
+						#print(tokenized)
+						func.indentLevel = len(tokenized.line) - len(tokenized.line.lstrip())
 				previousToken = tokenized.string
 		except tokenize.TokenError:
 			#This is raised on multi-line comments, ie docstrings for some reason.
@@ -192,7 +201,6 @@ def start_check(file):
 					#print("Docstring end")
 
 	if not func.isDone(): #If it reaches EOF and the function has finished listing arguments, then the function is done
-			if func.name != "":
 				printFunctionData(func)
 
 if len(sys.argv) == 1:
