@@ -1,10 +1,9 @@
 from flask import render_template, jsonify, send_file, request
 from www import infoset
 from www import celery
-from os import listdir, walk, path
+from os import listdir, walk, path, makedirs, remove
+from infoset.utils.rrd.rrd_check import RrdCheck
 import yaml
-import threading
-from infoset.snmp import snmp_manager
 
 
 @celery.task
@@ -70,8 +69,24 @@ def layerTwo(host):
 
 @infoset.route('/receive/<uid>', methods=["POST"])
 def receive(uid):
-    print(request.json)
+    device_path = "./www/static/devices/linux/" + str(uid)
+
     content = request.json
+
+    if not path.exists(device_path):
+        makedirs(device_path)
+
+    active_yaml_path = device_path + "/active.yaml"
+    # Out with the old
+    remove(active_yaml_path)
+    #In with the new
+    with open(active_yaml_path, "w+") as active_file:
+        active_file.write(yaml.dump(content, default_flow_style=False))
+        active_file.close()
+
+    rrdchecker = RrdCheck(device_path)
+
+    rrdchecker.check()
     return "Recieved"
 
 

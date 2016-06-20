@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Calico utility script.
 Calico utility script
 """
@@ -122,6 +124,8 @@ def do_poll(config, verbose=False):
     # Poll
     poll.snmp(config, verbose)
 
+def do_rrd_create(config, verbose):
+    print("rrd")
 
 if __name__ == "__main__":
     main()

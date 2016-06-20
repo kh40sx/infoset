@@ -1,7 +1,3 @@
-"""Calico utility script.
-
-Calico utility script
-"""
 
 import yaml
 
