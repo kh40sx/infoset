@@ -67,6 +67,11 @@ def layerTwo(host):
     return jsonify(layer2)
 
 
+@infoset.route('/devices')
+def devices():
+    return render_template('devices.html')
+
+
 @infoset.route('/receive/<uid>', methods=["POST"])
 def receive(uid):
     device_path = "./www/static/devices/linux/" + str(uid)

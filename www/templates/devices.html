@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div class="container" style="margin-top:10px">
+        <!-- Page Layout here -->
+        <div class="box">
+            <h4>Devices</h4>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th data-field="devices-total" width="10%">Total</th>
+                    <th data-field="devices-up" width="14%">Up</th>
+                    <th data-field="devices-down" width="14%">Down</th>
+                    <th data-field="devices-ignored" width="20%">Ignored</th>
+                    <th data-field="devices-disabled" width="20%">Disabled</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr>
+                    <td>Devices</td>
+                    <td>5</td>
+                    <td>4</td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td>Ports</td>
+                    <td>16</td>
+                    <td>22</td>
+                    <td>4</td>
+                    <td>0</td>
+                    <td>0</td>
+                </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+        <script type="text/javascript" charset="utf-8">
+        </script>
+    </div>
+    </div>
+{% endblock %}
