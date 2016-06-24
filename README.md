@@ -67,7 +67,7 @@ into /venv/bin/infoset and /bin/infoset. Alternatively, you can run the commands
 The `examples/` directory includes a number of sample files. These will now be explained.
 
 #Script Linting
-Running `python lint.py script.py` will run the in-house code style checker on `script.py`. For example, running `python lint.py infoset/web/ws_device.py` outputs:
+Running `python lint.py script.py` in the top level directory of the repo will run the in-house code style checker on `script.py`. For example, running `python lint.py infoset/web/ws_device.py` outputs:
 
     ethernet: no. of arguments in function signature and no. of arguments in docstring are not the same.
     device: no. of arguments in function signature and no. of arguments in docstring are not the same.
