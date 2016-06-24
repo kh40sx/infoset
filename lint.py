@@ -93,24 +93,30 @@ class functionObject:
                 #print("Ignoring 'self' arg")
                 self.arguments.remove("self")
         if len(self.arguments) != len(self.docArguments):
-            print(self.name + ": no. of arguments in function signature and no. of arguments in docstring are not the same.")
+            print(self.name + ": line " + str(self.lineNo) + ": no. of arguments in function signature and no. of arguments in docstring are not the same.")
+        #Checks to see if argslist items are in docstring
         for pos, argument in enumerate(self.arguments):
             if argument not in self.docArguments:
-                print(self.name + ": " + argument + " is found in function signature's argslist, but not in docstring")
+                print(self.name + ": line " + str(self.lineNo) + ": " + argument + " is found in function signature's argslist, but not in docstring")
             elif self.docArguments[pos] != argument:
-                print(self.name + ": " + argument + " is argument no. " + str(pos) + " in the function signature, but argument no. " + str(pos) + " in docstring is " + self.docArguments[pos])
+                print(self.name + ": line " + str(self.lineNo) + ": " + argument + " is argument no. " + str(pos) + " in the function signature, but argument no. " + str(pos) + " in docstring is " + self.docArguments[pos])
+        #Checks to see if docstring argslist items are in argslist
+        for pos, argument in enumerate(self.docArguments):
+            if argument not in self.arguments:
+                print(self.name + ": line " + str(self.lineNo) + ": " + argument + " is found in docstring, but not in function signature's argslist")
 
+        #Checks to see if function return values are in return list of docstring
         for returnVar in self.returns:
             if returnVar not in self.docReturns:
-                print(self.name + ": " + returnVar + " is returned in the function, but is not found in the return section of the docstring")
+                print(self.name + ": line " + str(self.lineNo) + ": " + returnVar + " is returned in the function, but is not found in the return section of the docstring")
 
+        #Checks to see if docstring return values are returned by the function
         for returnVar in self.docReturns:
             if returnVar not in self.returns:
-                print(self.name + ": " + returnVar + " is in the return section of the docstring, but is not returned in the function")
+                print(self.name + ": line " + str(self.lineNo) + ": " + returnVar + " is in the return section of the docstring, but is not returned in the function")
 
         if len(self.docStringText) == 0:
-            print(self.name + ": no docstring found")
-
+            print(self.name + ": line " + str(self.lineNo) + ": " + "no docstring found")
     def clear(self):
         self.done = False
         self.functionLine = ""
@@ -126,9 +132,10 @@ class functionObject:
         self.indentLevel = 0
         self.startArguments = False
         self.doneArguments = False
-        self.startedDocString = False;
-        self.endDocString = False;
+        self.startedDocString = False
+        self.endDocString = False
         self.docStringText = []
+        self.lineNo = 0
 
     def __init__(self):
         self.clear()
@@ -145,6 +152,16 @@ def printFunctionData(func):
     func.docStringText.clear()
     func.clear()
     #print("\n============****************************************============\n")
+
+def getLineNumber(file, lineToCheck):
+    with open(file) as f:
+        content = f.readlines()
+
+    for counter, line in enumerate(content):
+        if line.strip() == lineToCheck.strip():
+            return counter
+
+    return -1
 
 def start_check(file):
     with open(file) as f:
@@ -165,6 +182,7 @@ def start_check(file):
                 elif tokenized.string == "def" and not func.hasFoundDef():
                     func.setFoundDef(True)
                     func.functionLine = tokenized.line
+                    func.lineNo = getLineNumber(file, tokenized.line)
                     #print(tokenized)
                     func.indentLevel = len(tokenized.line) - len(tokenized.line.lstrip())
                 elif not func.hasName() and func.hasFoundDef():
@@ -189,6 +207,7 @@ def start_check(file):
                     if tokenized.string == "def":
                         func.setFoundDef(True)
                         func.functionLine = tokenized.line
+                        func.lineNo = getLineNumber(file, tokenized.line)
                         #print(tokenized)
                         func.indentLevel = len(tokenized.line) - len(tokenized.line.lstrip())
                 previousToken = tokenized.string
@@ -205,7 +224,7 @@ def start_check(file):
                     #print("Docstring end")
 
     if not func.isDone(): #If it reaches EOF and the function has finished listing arguments, then the function is done
-                printFunctionData(func)
+        printFunctionData(func)
 
 if len(sys.argv) == 1:
     print("Please provide a python script as an argument")

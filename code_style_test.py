@@ -26,16 +26,6 @@ class HTMLTable(object):
     """
 
     def __init__(self, config, host):
-        """Initialize the class.
-
-        Args:
-            config: Configuration object
-            host: Hostname to process
-
-        Returns:
-            None
-
-        """
         # Process YAML file for host
         translation = Translator(config, host)
         self.ports = translation.ethernet_data()
