@@ -159,7 +159,7 @@ def getLineNumber(file, lineToCheck):
 
     for counter, line in enumerate(content):
         if line.strip() == lineToCheck.strip():
-            return counter
+            return counter + 1
 
     return -1
 
