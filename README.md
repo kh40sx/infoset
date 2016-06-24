@@ -66,6 +66,25 @@ into /venv/bin/infoset and /bin/infoset. Alternatively, you can run the commands
 
 The `examples/` directory includes a number of sample files. These will now be explained.
 
+#Script Linting
+Running `python lint.py script.py` will run the in-house code style checker on `script.py`. For example, running `python lint.py infoset/web/ws_device.py` outputs:
+
+    ethernet: no. of arguments in function signature and no. of arguments in docstring are not the same.
+    device: no. of arguments in function signature and no. of arguments in docstring are not the same.
+    _port_enabled: enabled is returned in the function, but is not found in the return section of the docstring
+    _port_enabled: active is in the return section of the docstring, but is not returned in the function
+    _port_up: enabled is returned in the function, but is not found in the return section of the docstring
+    _port_up: active is in the return section of the docstring, but is not returned in the function
+    _get_inactive: no. of arguments in function signature and no. of arguments in docstring are not the same.
+    _get_inactive: 'TBD' is returned in the function, but is not found in the return section of the docstring
+    _get_inactive: inactive is in the return section of the docstring, but is not returned in the function
+    _get_vlan: vlans is returned in the function, but is not found in the return section of the docstring
+    _html_footer: html is in the return section of the docstring, but is not returned in the function
+    _html_header: html is in the return section of the docstring, but is not returned in the function
+    _index_html: no. of arguments in function signature and no. of arguments in docstring are not the same.
+    _index_html: config is found in function signature's argslist, but not in docstring
+    _index_html: html is in the return section of the docstring, but is not returned in the function
+
 ## Apache Configuration Samples
 
 The `examples/apache` directory includes sample files to create a:
