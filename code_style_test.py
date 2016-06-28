@@ -623,7 +623,7 @@ def _uptime(seconds):
     return result
 
 def cdpcachedeviceid(self, var1, oidonly=False):
-    	""" Return dict of CISCO-CDP-MIB cdpCacheDeviceId for each port.
+        """ Return dict of CISCO-CDP-MIB cdpCacheDeviceId for each port.
         Args:
             var1: Example argument.
             oidonly: Return OID's value, not results, if True

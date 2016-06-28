@@ -67,23 +67,39 @@ into /venv/bin/infoset and /bin/infoset. Alternatively, you can run the commands
 The `examples/` directory includes a number of sample files. These will now be explained.
 
 #Script Linting
-Running `python lint.py script.py` in the top level directory of the repo will run the in-house code style checker on `script.py`. For example, running `python lint.py infoset/web/ws_device.py` outputs:
+Running `python lint.py script.py` in the top level directory of the repo will run the in-house code style checker, pep8 and pyflakes on `script.py`. For example, running `python lint.py infoset/web/ws_device.py` outputs:
 
-    ethernet: no. of arguments in function signature and no. of arguments in docstring are not the same.
-    device: no. of arguments in function signature and no. of arguments in docstring are not the same.
-    _port_enabled: enabled is returned in the function, but is not found in the return section of the docstring
-    _port_enabled: active is in the return section of the docstring, but is not returned in the function
-    _port_up: enabled is returned in the function, but is not found in the return section of the docstring
-    _port_up: active is in the return section of the docstring, but is not returned in the function
-    _get_inactive: no. of arguments in function signature and no. of arguments in docstring are not the same.
-    _get_inactive: 'TBD' is returned in the function, but is not found in the return section of the docstring
-    _get_inactive: inactive is in the return section of the docstring, but is not returned in the function
-    _get_vlan: vlans is returned in the function, but is not found in the return section of the docstring
-    _html_footer: html is in the return section of the docstring, but is not returned in the function
-    _html_header: html is in the return section of the docstring, but is not returned in the function
-    _index_html: no. of arguments in function signature and no. of arguments in docstring are not the same.
-    _index_html: config is found in function signature's argslist, but not in docstring
-    _index_html: html is in the return section of the docstring, but is not returned in the function
+  pep8 output:
+
+
+  pyflakes output:
+
+
+  Script output:
+  ethernet: line 44: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  ethernet: line 44: config is found in docstring, but not in function signature's argslist
+  ethernet: line 44: host is found in docstring, but not in function signature's argslist
+  device: line 61: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  device: line 61: config is found in docstring, but not in function signature's argslist
+  device: line 61: host is found in docstring, but not in function signature's argslist
+  _port_enabled: line 232: enabled is returned in the function, but is not found in the return section of the docstring
+  _port_enabled: line 232: active is in the return section of the docstring, but is not returned in the function
+  _port_up: line 255: enabled is returned in the function, but is not found in the return section of the docstring
+  _port_up: line 255: active is in the return section of the docstring, but is not returned in the function
+  _get_inactive: line 301: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  _get_inactive: line 301: port_data is found in docstring, but not in function signature's argslist
+  _get_inactive: line 301: 'TBD' is returned in the function, but is not found in the return section of the docstring
+  _get_inactive: line 301: inactive is in the return section of the docstring, but is not returned in the function
+  _get_vlan: line 423: vlans is returned in the function, but is not found in the return section of the docstring
+  _html_footer: line 451: html is in the return section of the docstring, but is not returned in the function
+  _html_header: line 469: html is in the return section of the docstring, but is not returned in the function
+  _index_html: line 493: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  _index_html: line 493: config is found in function signature's argslist, but not in docstring
+  _index_html: line 493: html is in the return section of the docstring, but is not returned in the function
+
+You may also change how the script attemps to invoke pep8 and pyflakes, for e.g.:
+
+  python lint.py --pep8invocation=blahblah --pyflakesinvocation=whatever_uu_want infoset/web/ws_device.py
 
 ## Apache Configuration Samples
 
@@ -187,4 +203,3 @@ Visit our GitHub issues for a full list of features and bug fixes. https://githu
 Visit our wiki's infoset document for the rationale of the design. http://wiki.palisadoes.org/index.php/Infoset
 ## Sample Output
 Visit http://calico.palisadoes.org/infoset to view infoset's latest stable web output.
-

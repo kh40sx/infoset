@@ -4,6 +4,7 @@ import sys
 import tokenize
 import token
 import io
+import subprocess
 
 class functionObject:
     def setName(self, newName):
@@ -229,9 +230,29 @@ def start_check(file):
 if len(sys.argv) == 1:
     print("Please provide a python script as an argument")
 else:
-    for pos, file in enumerate(sys.argv):
+    pep8Command = "pep8"
+    pyFlakesCommand = "pyflakes"
+    arguments = sys.argv
+    pos = 0
+    while pos < len(arguments):
+        file = arguments[pos]
         if pos > 0:
             if file == "--test":
-                file = "code_style_test.py"
-            #print(file)
-            start_check(file)
+                arguments.append("code_style_test.py")
+            elif file.startswith("--pep8invocation="):
+                pep8Command = file[17:]
+            elif file.startswith("--pyflakesinvocation="):
+                pyFlakesCommand = file[21:]
+            else:
+                print("pep8 output:")
+                output = subprocess.run([pep8Command, file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+                print(output.stdout)
+                print()
+                print("pyflakes output:")
+                output = subprocess.run([pyFlakesCommand, file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+                print(output.stdout)
+                print()
+                print("Script output:")
+                start_check(file)
+
+        pos+=1
