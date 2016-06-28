@@ -94,30 +94,30 @@ class functionObject:
                 #print("Ignoring 'self' arg")
                 self.arguments.remove("self")
         if len(self.arguments) != len(self.docArguments):
-            print(self.name + ": line " + str(self.lineNo) + ": no. of arguments in function signature and no. of arguments in docstring are not the same.")
+            print(self.fileName + ": " + self.name + ": line " + str(self.lineNo) + ": no. of arguments in function signature and no. of arguments in docstring are not the same.")
         #Checks to see if argslist items are in docstring
         for pos, argument in enumerate(self.arguments):
             if argument not in self.docArguments:
-                print(self.name + ": line " + str(self.lineNo) + ": " + argument + " is found in function signature's argslist, but not in docstring")
+                print(self.fileName + ": " + self.name + ": line " + str(self.lineNo) + ": " + argument + " is found in function signature's argslist, but not in docstring")
             elif self.docArguments[pos] != argument:
-                print(self.name + ": line " + str(self.lineNo) + ": " + argument + " is argument no. " + str(pos) + " in the function signature, but argument no. " + str(pos) + " in docstring is " + self.docArguments[pos])
+                print(self.fileName + ": " + self.name + ": line " + str(self.lineNo) + ": " + argument + " is argument no. " + str(pos) + " in the function signature, but argument no. " + str(pos) + " in docstring is " + self.docArguments[pos])
         #Checks to see if docstring argslist items are in argslist
         for pos, argument in enumerate(self.docArguments):
             if argument not in self.arguments:
-                print(self.name + ": line " + str(self.lineNo) + ": " + argument + " is found in docstring, but not in function signature's argslist")
+                print(self.fileName + ": " + self.name + ": line " + str(self.lineNo) + ": " + argument + " is found in docstring, but not in function signature's argslist")
 
         #Checks to see if function return values are in return list of docstring
         for returnVar in self.returns:
             if returnVar not in self.docReturns:
-                print(self.name + ": line " + str(self.lineNo) + ": " + returnVar + " is returned in the function, but is not found in the return section of the docstring")
+                print(self.fileName + ": " + self.name + ": line " + str(self.lineNo) + ": " + returnVar + " is returned in the function, but is not found in the return section of the docstring")
 
         #Checks to see if docstring return values are returned by the function
         for returnVar in self.docReturns:
             if returnVar not in self.returns:
-                print(self.name + ": line " + str(self.lineNo) + ": " + returnVar + " is in the return section of the docstring, but is not returned in the function")
+                print(self.fileName + ": " + self.name + ": line " + str(self.lineNo) + ": " + returnVar + " is in the return section of the docstring, but is not returned in the function")
 
         if len(self.docStringText) == 0:
-            print(self.name + ": line " + str(self.lineNo) + ": " + "no docstring found")
+            print(self.fileName + ": " + self.name + ": line " + str(self.lineNo) + ": " + "no docstring found")
     def clear(self):
         self.done = False
         self.functionLine = ""
@@ -137,7 +137,7 @@ class functionObject:
         self.endDocString = False
         self.docStringText = []
         self.lineNo = 0
-
+        self.fileName = ""
     def __init__(self):
         self.clear()
 
@@ -169,6 +169,7 @@ def start_check(file):
         content = f.readlines()
     func = functionObject()
     previousToken = None
+    func.fileName = file
     for line in content:
         line = io.StringIO(line).readline
         token_generator = tokenize.generate_tokens(line)
@@ -205,6 +206,7 @@ def start_check(file):
                         printFunctionData(func)
                     func.clear()
                     func = functionObject()
+                    func.fileName = file
                     if tokenized.string == "def":
                         func.setFoundDef(True)
                         func.functionLine = tokenized.line
