@@ -264,12 +264,16 @@ else:
     print("pep8 output:")
     for error in pep8Output:
         print(error)
+    print()
     print("pyflakes output:")
     for error in pyflakesOutput:
         print(error)
+    print()
     print("Script output:")
+    print()
     for file in scriptOutput:
         print(file + ": ")
         fileErrors = scriptOutput.get(file)
         for error in fileErrors:
             print("\t" + error)
+        print()

@@ -73,33 +73,15 @@ pep8 output:
 
 code_style_test.py:625:1: E302 expected 2 blank lines, found 1
 
+
 pyflakes output:
 
 code_style_test.py:635: undefined name 'defaultdict'
 code_style_test.py:647: undefined name '_ifindex'
 
+
 Script output:
-infoset/web/ws_device.py:
-  ethernet: line 44: no. of arguments in function signature and no. of arguments in docstring are not the same.
-  ethernet: line 44: config is found in docstring, but not in function signature's argslist
-  ethernet: line 44: host is found in docstring, but not in function signature's argslist
-  device: line 61: no. of arguments in function signature and no. of arguments in docstring are not the same.
-  device: line 61: config is found in docstring, but not in function signature's argslist
-  device: line 61: host is found in docstring, but not in function signature's argslist
-  _port_enabled: line 232: enabled is returned in the function, but is not found in the return section of the docstring
-  _port_enabled: line 232: active is in the return section of the docstring, but is not returned in the function
-  _port_up: line 255: enabled is returned in the function, but is not found in the return section of the docstring
-  _port_up: line 255: active is in the return section of the docstring, but is not returned in the function
-  _get_inactive: line 301: no. of arguments in function signature and no. of arguments in docstring are not the same.
-  _get_inactive: line 301: port_data is found in docstring, but not in function signature's argslist
-  _get_inactive: line 301: 'TBD' is returned in the function, but is not found in the return section of the docstring
-  _get_inactive: line 301: inactive is in the return section of the docstring, but is not returned in the function
-  _get_vlan: line 423: vlans is returned in the function, but is not found in the return section of the docstring
-  _html_footer: line 451: html is in the return section of the docstring, but is not returned in the function
-  _html_header: line 469: html is in the return section of the docstring, but is not returned in the function
-  _index_html: line 493: no. of arguments in function signature and no. of arguments in docstring are not the same.
-  _index_html: line 493: config is found in function signature's argslist, but not in docstring
-  _index_html: line 493: html is in the return section of the docstring, but is not returned in the function
+
 code_style_test.py:
   __init__: line 28: no. of arguments in function signature and no. of arguments in docstring are not the same.
   __init__: line 28: config is found in function signature's argslist, but not in docstring
@@ -128,6 +110,28 @@ code_style_test.py:
   cdpcachedeviceid: line 625: no. of arguments in function signature and no. of arguments in docstring are not the same.
   cdpcachedeviceid: line 625: var is found in docstring, but not in function signature's argslist
   cdpcachedeviceid: line 625: oid is returned in the function, but is not found in the return section of the docstring
+
+infoset/web/ws_device.py:
+  ethernet: line 44: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  ethernet: line 44: config is found in docstring, but not in function signature's argslist
+  ethernet: line 44: host is found in docstring, but not in function signature's argslist
+  device: line 61: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  device: line 61: config is found in docstring, but not in function signature's argslist
+  device: line 61: host is found in docstring, but not in function signature's argslist
+  _port_enabled: line 232: enabled is returned in the function, but is not found in the return section of the docstring
+  _port_enabled: line 232: active is in the return section of the docstring, but is not returned in the function
+  _port_up: line 255: enabled is returned in the function, but is not found in the return section of the docstring
+  _port_up: line 255: active is in the return section of the docstring, but is not returned in the function
+  _get_inactive: line 301: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  _get_inactive: line 301: port_data is found in docstring, but not in function signature's argslist
+  _get_inactive: line 301: 'TBD' is returned in the function, but is not found in the return section of the docstring
+  _get_inactive: line 301: inactive is in the return section of the docstring, but is not returned in the function
+  _get_vlan: line 423: vlans is returned in the function, but is not found in the return section of the docstring
+  _html_footer: line 451: html is in the return section of the docstring, but is not returned in the function
+  _html_header: line 469: html is in the return section of the docstring, but is not returned in the function
+  _index_html: line 493: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  _index_html: line 493: config is found in function signature's argslist, but not in docstring
+  _index_html: line 493: html is in the return section of the docstring, but is not returned in the function
 
 You may also change how the script attemps to invoke pep8 and pyflakes, for e.g.:
 
