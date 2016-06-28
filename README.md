@@ -69,43 +69,43 @@ The `examples/` directory includes a number of sample files. These will now be e
 #Script Linting
 Running `python lint.py script.py` in the top level directory of the repo will run the in-house code style checker, pep8 and pyflakes on `script.py`. For example, running `python lint.py --test` outputs:
 
-  pep8 output:
-  code_style_test.py:625:1: E302 expected 2 blank lines, found 1
+    pep8 output:
+    code_style_test.py:625:1: E302 expected 2 blank lines, found 1
 
 
-  pyflakes output:
-  code_style_test.py:635: undefined name 'defaultdict'
-  code_style_test.py:647: undefined name '_ifindex'
+    pyflakes output:
+    code_style_test.py:635: undefined name 'defaultdict'
+    code_style_test.py:647: undefined name '_ifindex'
 
 
-  Script output:
-  code_style_test.py: __init__: line 28: no. of arguments in function signature and no. of arguments in docstring are not the same.
-  code_style_test.py: __init__: line 28: config is found in function signature's argslist, but not in docstring
-  code_style_test.py: __init__: line 28: host is found in function signature's argslist, but not in docstring
-  code_style_test.py: __init__: line 28: no docstring found
-  code_style_test.py: ethernet: line 34: no. of arguments in function signature and no. of arguments in docstring are not the same.
-  code_style_test.py: ethernet: line 34: config is found in docstring, but not in function signature's argslist
-  code_style_test.py: ethernet: line 34: host is found in docstring, but not in function signature's argslist
-  code_style_test.py: device: line 51: no. of arguments in function signature and no. of arguments in docstring are not the same.
-  code_style_test.py: device: line 51: config is found in docstring, but not in function signature's argslist
-  code_style_test.py: device: line 51: host is found in docstring, but not in function signature's argslist
-  code_style_test.py: _port_enabled: line 222: enabled is returned in the function, but is not found in the return section of the docstring
-  code_style_test.py: _port_enabled: line 222: active is in the return section of the docstring, but is not returned in the function
-  code_style_test.py: _port_up: line 245: enabled is returned in the function, but is not found in the return section of the docstring
-  code_style_test.py: _port_up: line 245: active is in the return section of the docstring, but is not returned in the function
-  code_style_test.py: _get_inactive: line 291: no. of arguments in function signature and no. of arguments in docstring are not the same.
-  code_style_test.py: _get_inactive: line 291: port_data is found in docstring, but not in function signature's argslist
-  code_style_test.py: _get_inactive: line 291: 'TBD' is returned in the function, but is not found in the return section of the docstring
-  code_style_test.py: _get_inactive: line 291: inactive is in the return section of the docstring, but is not returned in the function
-  code_style_test.py: _get_vlan: line 413: vlans is returned in the function, but is not found in the return section of the docstring
-  code_style_test.py: _html_footer: line 441: html is in the return section of the docstring, but is not returned in the function
-  code_style_test.py: _html_header: line 459: html is in the return section of the docstring, but is not returned in the function
-  code_style_test.py: _index_html: line 483: no. of arguments in function signature and no. of arguments in docstring are not the same.
-  code_style_test.py: _index_html: line 483: config is found in function signature's argslist, but not in docstring
-  code_style_test.py: _index_html: line 483: html is in the return section of the docstring, but is not returned in the function
-  code_style_test.py: cdpcachedeviceid: line 625: no. of arguments in function signature and no. of arguments in docstring are not the same.
-  code_style_test.py: cdpcachedeviceid: line 625: var is found in docstring, but not in function signature's argslist
-  code_style_test.py: cdpcachedeviceid: line 625: oid is returned in the function, but is not found in the return section of the docstring
+    Script output:
+    code_style_test.py: __init__: line 28: no. of arguments in function signature and no. of arguments in docstring are not the same.
+    code_style_test.py: __init__: line 28: config is found in function signature's argslist, but not in docstring
+    code_style_test.py: __init__: line 28: host is found in function signature's argslist, but not in docstring
+    code_style_test.py: __init__: line 28: no docstring found
+    code_style_test.py: ethernet: line 34: no. of arguments in function signature and no. of arguments in docstring are not the same.
+    code_style_test.py: ethernet: line 34: config is found in docstring, but not in function signature's argslist
+    code_style_test.py: ethernet: line 34: host is found in docstring, but not in function signature's argslist
+    code_style_test.py: device: line 51: no. of arguments in function signature and no. of arguments in docstring are not the same.
+    code_style_test.py: device: line 51: config is found in docstring, but not in function signature's argslist
+    code_style_test.py: device: line 51: host is found in docstring, but not in function signature's argslist
+    code_style_test.py: _port_enabled: line 222: enabled is returned in the function, but is not found in the return section of the docstring
+    code_style_test.py: _port_enabled: line 222: active is in the return section of the docstring, but is not returned in the function
+    code_style_test.py: _port_up: line 245: enabled is returned in the function, but is not found in the return section of the docstring
+    code_style_test.py: _port_up: line 245: active is in the return section of the docstring, but is not returned in the function
+    code_style_test.py: _get_inactive: line 291: no. of arguments in function signature and no. of arguments in docstring are not the same.
+    code_style_test.py: _get_inactive: line 291: port_data is found in docstring, but not in function signature's argslist
+    code_style_test.py: _get_inactive: line 291: 'TBD' is returned in the function, but is not found in the return section of the docstring
+    code_style_test.py: _get_inactive: line 291: inactive is in the return section of the docstring, but is not returned in the function
+    code_style_test.py: _get_vlan: line 413: vlans is returned in the function, but is not found in the return section of the docstring
+    code_style_test.py: _html_footer: line 441: html is in the return section of the docstring, but is not returned in the function
+    code_style_test.py: _html_header: line 459: html is in the return section of the docstring, but is not returned in the function
+    code_style_test.py: _index_html: line 483: no. of arguments in function signature and no. of arguments in docstring are not the same.
+    code_style_test.py: _index_html: line 483: config is found in function signature's argslist, but not in docstring
+    code_style_test.py: _index_html: line 483: html is in the return section of the docstring, but is not returned in the function
+    code_style_test.py: cdpcachedeviceid: line 625: no. of arguments in function signature and no. of arguments in docstring are not the same.
+    code_style_test.py: cdpcachedeviceid: line 625: var is found in docstring, but not in function signature's argslist
+    code_style_test.py: cdpcachedeviceid: line 625: oid is returned in the function, but is not found in the return section of the docstring
 
 You may also change how the script attemps to invoke pep8 and pyflakes, for e.g.:
 
