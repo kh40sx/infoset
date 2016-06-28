@@ -89,35 +89,37 @@ class functionObject:
                 previousToken = stripped
 
 #        print("Docstring arguments: " + str(self.docArguments))
+
         if "self" in self.arguments:
             if not "self" in self.docArguments:
                 #print("Ignoring 'self' arg")
                 self.arguments.remove("self")
         if len(self.arguments) != len(self.docArguments):
-            print(self.fileName + ": " + self.name + ": line " + str(self.lineNo) + ": no. of arguments in function signature and no. of arguments in docstring are not the same.")
+            self.errorOutput.append(self.name + ": line " + str(self.lineNo) + ": no. of arguments in function signature and no. of arguments in docstring are not the same.")
         #Checks to see if argslist items are in docstring
         for pos, argument in enumerate(self.arguments):
             if argument not in self.docArguments:
-                print(self.fileName + ": " + self.name + ": line " + str(self.lineNo) + ": " + argument + " is found in function signature's argslist, but not in docstring")
+                self.errorOutput.append(self.name + ": line " + str(self.lineNo) + ": " + argument + " is found in function signature's argslist, but not in docstring")
             elif self.docArguments[pos] != argument:
-                print(self.fileName + ": " + self.name + ": line " + str(self.lineNo) + ": " + argument + " is argument no. " + str(pos) + " in the function signature, but argument no. " + str(pos) + " in docstring is " + self.docArguments[pos])
+                self.errorOutput.append(self.name + ": line " + str(self.lineNo) + ": " + argument + " is argument no. " + str(pos) + " in the function signature, but argument no. " + str(pos) + " in docstring is " + self.docArguments[pos])
         #Checks to see if docstring argslist items are in argslist
         for pos, argument in enumerate(self.docArguments):
             if argument not in self.arguments:
-                print(self.fileName + ": " + self.name + ": line " + str(self.lineNo) + ": " + argument + " is found in docstring, but not in function signature's argslist")
+                self.errorOutput.append(self.name + ": line " + str(self.lineNo) + ": " + argument + " is found in docstring, but not in function signature's argslist")
 
         #Checks to see if function return values are in return list of docstring
         for returnVar in self.returns:
             if returnVar not in self.docReturns:
-                print(self.fileName + ": " + self.name + ": line " + str(self.lineNo) + ": " + returnVar + " is returned in the function, but is not found in the return section of the docstring")
+                self.errorOutput.append(self.name + ": line " + str(self.lineNo) + ": " + returnVar + " is returned in the function, but is not found in the return section of the docstring")
 
         #Checks to see if docstring return values are returned by the function
         for returnVar in self.docReturns:
             if returnVar not in self.returns:
-                print(self.fileName + ": " + self.name + ": line " + str(self.lineNo) + ": " + returnVar + " is in the return section of the docstring, but is not returned in the function")
+                self.errorOutput.append(self.name + ": line " + str(self.lineNo) + ": " + returnVar + " is in the return section of the docstring, but is not returned in the function")
 
         if len(self.docStringText) == 0:
-            print(self.fileName + ": " + self.name + ": line " + str(self.lineNo) + ": " + "no docstring found")
+            self.errorOutput.append(self.name + ": line " + str(self.lineNo) + ": " + "no docstring found")
+
     def clear(self):
         self.done = False
         self.functionLine = ""
@@ -138,6 +140,7 @@ class functionObject:
         self.docStringText = []
         self.lineNo = 0
         self.fileName = ""
+        self.errorOutput = []
     def __init__(self):
         self.clear()
 
@@ -146,12 +149,12 @@ def printFunctionData(func):
     #func.printArguments()
     #func.printReturns()
     func.printDocStringData()
+
     func.arguments.clear()
     func.docArguments.clear()
     func.returns.clear()
     func.docReturns.clear()
     func.docStringText.clear()
-    func.clear()
     #print("\n============****************************************============\n")
 
 def getLineNumber(file, lineToCheck):
@@ -170,6 +173,7 @@ def start_check(file):
     func = functionObject()
     previousToken = None
     func.fileName = file
+    errorOutput = []
     for line in content:
         line = io.StringIO(line).readline
         token_generator = tokenize.generate_tokens(line)
@@ -204,6 +208,7 @@ def start_check(file):
                     #print("End of " + func.name + " reached!")
                     if func.name != "":
                         printFunctionData(func)
+                        errorOutput.extend(func.errorOutput)
                     func.clear()
                     func = functionObject()
                     func.fileName = file
@@ -228,7 +233,10 @@ def start_check(file):
 
     if not func.isDone(): #If it reaches EOF and the function has finished listing arguments, then the function is done
         printFunctionData(func)
+        errorOutput.extend(func.errorOutput)
+        func.clear()
 
+    return errorOutput
 if len(sys.argv) == 1:
     print("Please provide a python script as an argument")
 else:
@@ -236,6 +244,9 @@ else:
     pyFlakesCommand = "pyflakes"
     arguments = sys.argv
     pos = 0
+    pep8Output = []
+    pyflakesOutput = []
+    scriptOutput = {}
     while pos < len(arguments):
         file = arguments[pos]
         if pos > 0:
@@ -246,15 +257,19 @@ else:
             elif file.startswith("--pyflakesinvocation="):
                 pyFlakesCommand = file[21:]
             else:
-                print("pep8 output:")
-                output = subprocess.run([pep8Command, file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-                print(output.stdout)
-                print()
-                print("pyflakes output:")
-                output = subprocess.run([pyFlakesCommand, file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-                print(output.stdout)
-                print()
-                print("Script output:")
-                start_check(file)
-
+                pep8Output.append(subprocess.run([pep8Command, file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True).stdout)
+                pyflakesOutput.append(subprocess.run([pyFlakesCommand, file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True).stdout)
+                scriptOutput[file] = start_check(file)
         pos+=1
+    print("pep8 output:")
+    for error in pep8Output:
+        print(error)
+    print("pyflakes output:")
+    for error in pyflakesOutput:
+        print(error)
+    print("Script output:")
+    for file in scriptOutput:
+        print(file + ": ")
+        fileErrors = scriptOutput.get(file)
+        for error in fileErrors:
+            print("\t" + error)
