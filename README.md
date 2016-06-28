@@ -109,7 +109,7 @@ Running `python lint.py script.py` in the top level directory of the repo will r
 
 You may also change how the script attemps to invoke pep8 and pyflakes, for e.g.:
 
-  python lint.py --pep8invocation=blahblah --pyflakesinvocation=whatever_uu_want infoset/web/ws_device.py
+    python lint.py --pep8invocation=blahblah --pyflakesinvocation=whatever_uu_want infoset/web/ws_device.py
 
 ## Apache Configuration Samples
 
