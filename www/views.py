@@ -75,6 +75,17 @@ def devices():
                            hosts=hosts,
                            devices=devices)
 
+@infoset.route('/devices/<uid>')
+def device_details(uid):
+    devices = getDevices()
+    device_details = getDeviceDetails(uid)
+    device_path = "./www/static/devices/linux/" + str(uid)
+    rrd_root = RrdXlate(device_path)
+    rrd_root.rrd_graph()
+    return render_template('device.html',
+                           uid=uid,
+                           devices=devices,
+                           details=device_details)
 
 @infoset.route('/receive/<uid>', methods=["POST"])
 def receive(uid):
@@ -91,9 +102,9 @@ def receive(uid):
         active_file.write(yaml.dump(content, default_flow_style=False))
         active_file.close()
 
-    rrdchecker = RrdXlate("./www/static/devices/linux/")
+    rrd_root = RrdXlate("./www/static/devices/linux/")
 
-    rrdchecker.check()
+    rrd_root.rrd_update()
     return "Recieved"
 
 
@@ -105,6 +116,15 @@ def getHosts():
             hosts[filename[:-5]] = filepath  # Add it to the list.
     return hosts
 
+def getDeviceDetails(uid):
+    active_yaml = {}
+    filepath="./www/static/devices/linux/" + str(uid) + "/active.yaml"
+    with open(filepath, 'r') as stream:
+        try:
+            active_yaml = yaml.load(stream)
+        except Exception as e:
+            raise e
+    return active_yaml
 
 def getDevices():
     active_yamls = {}

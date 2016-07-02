@@ -29,6 +29,7 @@ class RrdXlate():
     def rrd_graph(self):
         # Device folder containing rrd files
         # Get current device folder then get all files
+        # TODO separate folder for rrds and pngs
         for file in listdir(self.root):
             if file.endswith(".png"):
                 remove(self.root + "/" +file)
