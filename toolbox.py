@@ -139,8 +139,6 @@ def do_monitor(config, verbose=False):
     Returns:
         None
     """
-    # Poll
-    print("Monitor")
 
 
 if __name__ == "__main__":

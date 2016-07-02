@@ -2,7 +2,7 @@ from flask import render_template, jsonify, send_file, request
 from www import infoset
 from www import celery
 from os import listdir, walk, path, makedirs, remove
-from infoset.utils.rrd.rrd_check import RrdCheck
+from infoset.utils.rrd.rrd_xlate import RrdXlate
 import yaml
 
 
@@ -69,27 +69,29 @@ def layerTwo(host):
 
 @infoset.route('/devices')
 def devices():
-    return render_template('devices.html')
+    hosts = getHosts()
+    devices = getDevices()
+    return render_template('devices.html',
+                           hosts=hosts,
+                           devices=devices)
 
 
 @infoset.route('/receive/<uid>', methods=["POST"])
 def receive(uid):
     device_path = "./www/static/devices/linux/" + str(uid)
-
     content = request.json
-
     if not path.exists(device_path):
         makedirs(device_path)
 
     active_yaml_path = device_path + "/active.yaml"
     # Out with the old
     remove(active_yaml_path)
-    #In with the new
+    # In with the new
     with open(active_yaml_path, "w+") as active_file:
         active_file.write(yaml.dump(content, default_flow_style=False))
         active_file.close()
 
-    rrdchecker = RrdCheck(device_path)
+    rrdchecker = RrdXlate("./www/static/devices/linux/")
 
     rrdchecker.check()
     return "Recieved"
@@ -102,3 +104,22 @@ def getHosts():
             filepath = path.join(root, filename)
             hosts[filename[:-5]] = filepath  # Add it to the list.
     return hosts
+
+
+def getDevices():
+    active_yamls = {}
+    devices = []
+    root="./www/static/devices/linux/"
+    directories = [d for d in listdir(root) if path.isdir(path.join(root, d))]
+
+    for directory in directories:
+        filepath = "./www/static/devices/linux/" + directory + "/active.yaml"
+        active_yamls[directory] = filepath
+
+        with open(filepath, 'r') as stream:
+            try:
+                yaml_dump = yaml.load(stream)
+            except Exception as e:
+                raise e
+        devices.append(yaml_dump)
+    return devices

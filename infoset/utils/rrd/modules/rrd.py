@@ -1,5 +1,7 @@
 import rrdtool
 import time
+from os import path
+
 
 class Rrd():
     """Create RRD file.
@@ -15,26 +17,18 @@ class Rrd():
         None
 
     """
-    def __init__(self, root, filename, step=300, start=int(time.time()), data_sources=[], rras=[]):
+
+    def __init__(self, root, filename, step=300, start=int(time.time())):
         self.root = str(root)
         self.filename = str(filename)
         self.step = step
         self.start = start
-        self.data_sources = data_sources
-        self.rras = rras
+        self.data_sources = []
+        self.rras = []
 
-
-    def setFilename(self, filename):
-        self.filename = filename
-
-    def getFilename(self):
-        return self.filename
-
-    def setRoot(self, root):
-        self.root = root
-
-    def getRoot(self):
-        return self.root
+        # Causes bugs if removed, TODO fix
+        # self.data_sources.append(data_sources)
+        # self.rras.append(rras)
 
     def appendDataSource(self, variable_name, type, heartbeat):
         data_source = "DS:%s:%s:%s:U:U" % (variable_name, type.upper(), heartbeat)
@@ -47,18 +41,41 @@ class Rrd():
     def create(self):
         print("info: %.rrd created in %s" % (self.filename, self.root))
         timestamp = self.normalized_timestamp(time.time(), self.step)
+        self.startTime = timestamp
+
         rrdtool.create(
-            '%s/%s.rrd' % (self.device_root, self.filename),
+            '%s/%s.rrd' % (self.root, self.filename),
             '--step', str(self.step),
             '--start', str(timestamp),
             self.data_sources,
             self.rras)
 
     def update(self, data):
+        filepath = self.root + "/" + self.filename + ".rrd"
+
+        if not path.exists(filepath):
+            self.create()
         rrdtool.update(
-            './infoset/utils/rrd/' + self.filename,
-            ('%s:%s') % (str(int(time.time())), data)
+            filepath,
+            '%s:%s' % (str(int(time.time())), data)
         )
+        self.graph()
+
+    def graph(self, color="1daad5"):
+        rrdtool.graph(('%s/%s.png') % (self.root, self.filename),
+                      '--width', '1233',
+                      '--height', '369',
+                      '-Y',
+                      '-c', 'GRID#ffffff',
+                      '-c', 'SHADEA#EEEEEE00',
+                      '-c', 'SHADEB#EEEEEE00',
+                      '-c', 'MGRID#FF9999',
+                      '--font', 'TITLE:18:Hermit',
+                      '--font', 'AXIS:14:Hermit',
+                      '--title', '%s' % self.filename,
+                      '--lower-limit', '0',
+                      'DEF:data=%s/%s.rrd:data_00:AVERAGE' % (self.root, self.filename),
+                      'AREA:data#%s' % color)
 
     def normalized_timestamp(self, timestamp, rrd_step=300):
         """Normalize the timestamp to a rrd_step boundary.
