@@ -23,9 +23,9 @@ def main():
         None
     """
     # Initialize key variables
-    additional_help = """\
-Utility script for the project.
-"""
+    additional_help = """\ 
+	Utility script for the project.
+	"""
 
     # Process the CLI
     cli_object = Cli(additional_help=additional_help)

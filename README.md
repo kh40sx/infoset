@@ -67,6 +67,77 @@ into /venv/bin/infoset and /bin/infoset. Alternatively, you can run the commands
 
 The `examples/` directory includes a number of sample files. These will now be explained.
 
+#Script Linting
+Running `python lint.py script.py` in the top level directory of the repo will run the in-house code style checker, pep8 and pyflakes on `script.py`. Utilizing the `--test` flag will add the in-house test file to the argument list. For example, running `python lint.py --test infoset/web/ws_device.py` outputs:
+
+pep8 output:
+
+code_style_test.py:625:1: E302 expected 2 blank lines, found 1
+
+
+pyflakes output:
+
+code_style_test.py:635: undefined name 'defaultdict'
+code_style_test.py:647: undefined name '_ifindex'
+
+
+Script output:
+
+code_style_test.py:
+  __init__: line 28: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  __init__: line 28: config is found in function signature's argslist, but not in docstring
+  __init__: line 28: host is found in function signature's argslist, but not in docstring
+  __init__: line 28: no docstring found
+  ethernet: line 34: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  ethernet: line 34: config is found in docstring, but not in function signature's argslist
+  ethernet: line 34: host is found in docstring, but not in function signature's argslist
+  device: line 51: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  device: line 51: config is found in docstring, but not in function signature's argslist
+  device: line 51: host is found in docstring, but not in function signature's argslist
+  _port_enabled: line 222: enabled is returned in the function, but is not found in the return section of the docstring
+  _port_enabled: line 222: active is in the return section of the docstring, but is not returned in the function
+  _port_up: line 245: enabled is returned in the function, but is not found in the return section of the docstring
+  _port_up: line 245: active is in the return section of the docstring, but is not returned in the function
+  _get_inactive: line 291: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  _get_inactive: line 291: port_data is found in docstring, but not in function signature's argslist
+  _get_inactive: line 291: 'TBD' is returned in the function, but is not found in the return section of the docstring
+  _get_inactive: line 291: inactive is in the return section of the docstring, but is not returned in the function
+  _get_vlan: line 413: vlans is returned in the function, but is not found in the return section of the docstring
+  _html_footer: line 441: html is in the return section of the docstring, but is not returned in the function
+  _html_header: line 459: html is in the return section of the docstring, but is not returned in the function
+  _index_html: line 483: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  _index_html: line 483: config is found in function signature's argslist, but not in docstring
+  _index_html: line 483: html is in the return section of the docstring, but is not returned in the function
+  cdpcachedeviceid: line 625: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  cdpcachedeviceid: line 625: var is found in docstring, but not in function signature's argslist
+  cdpcachedeviceid: line 625: oid is returned in the function, but is not found in the return section of the docstring
+
+infoset/web/ws_device.py:
+  ethernet: line 44: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  ethernet: line 44: config is found in docstring, but not in function signature's argslist
+  ethernet: line 44: host is found in docstring, but not in function signature's argslist
+  device: line 61: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  device: line 61: config is found in docstring, but not in function signature's argslist
+  device: line 61: host is found in docstring, but not in function signature's argslist
+  _port_enabled: line 232: enabled is returned in the function, but is not found in the return section of the docstring
+  _port_enabled: line 232: active is in the return section of the docstring, but is not returned in the function
+  _port_up: line 255: enabled is returned in the function, but is not found in the return section of the docstring
+  _port_up: line 255: active is in the return section of the docstring, but is not returned in the function
+  _get_inactive: line 301: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  _get_inactive: line 301: port_data is found in docstring, but not in function signature's argslist
+  _get_inactive: line 301: 'TBD' is returned in the function, but is not found in the return section of the docstring
+  _get_inactive: line 301: inactive is in the return section of the docstring, but is not returned in the function
+  _get_vlan: line 423: vlans is returned in the function, but is not found in the return section of the docstring
+  _html_footer: line 451: html is in the return section of the docstring, but is not returned in the function
+  _html_header: line 469: html is in the return section of the docstring, but is not returned in the function
+  _index_html: line 493: no. of arguments in function signature and no. of arguments in docstring are not the same.
+  _index_html: line 493: config is found in function signature's argslist, but not in docstring
+  _index_html: line 493: html is in the return section of the docstring, but is not returned in the function
+
+You may also change how the script attemps to invoke pep8 and pyflakes, for e.g.:
+
+    python lint.py --pep8invocation=blahblah --pyflakesinvocation=whatever_uu_want infoset/web/ws_device.py
+
 ## Apache Configuration Samples
 
 The `examples/apache` directory includes sample files to create a:
@@ -169,4 +240,3 @@ Visit our GitHub issues for a full list of features and bug fixes. https://githu
 Visit our wiki's infoset document for the rationale of the design. http://wiki.palisadoes.org/index.php/Infoset
 ## Sample Output
 Visit http://calico.palisadoes.org/infoset to view infoset's latest stable web output.
-
