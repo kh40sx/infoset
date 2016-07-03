@@ -2,73 +2,98 @@
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-  <head>
+<!--[if gt IE 8]><!-->
+<html class="no-js"> <!--<![endif]-->
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>{% block title %}{% endblock %}</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
-    <link rel="stylesheet" href="{{ static('css/bootstrap.min.css') }}" type="text/css" media="screen" title="no title" charset="utf-8">
-
+    <link rel="stylesheet" href="{{ static('css/bootstrap.min.css') }}" type="text/css" media="screen" title="no title"
+          charset="utf-8">
+    <link rel="stylesheet" href="{{ static('css/styles.css') }}" type="text/css" media="screen" title="no title"
+          charset="utf-8">
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
-  </head>
-  <body ng-app="infoset">
-    <nav class="navbar navbar-fixed-top" style="background-color:#f05b5c" role="navigation">
-      <div class="container-fluid">
+</head>
+<body>
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-          <span>Toggle</span>
-          </button>
-          <a class="navbar-brand" href="#" style="color:#fff; font-weight:600;">Garnet</a>
+            <button type="button" class="navbar-toggle" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1">
+                <span>Toggle</span>
+            </button>
+            <a class="navbar-brand" href="/" style="color:#fff; font-weight:600;">Infoset</a>
         </div>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav">
-            <li>
-              <a href=""></a>
-            </li>
-          </ul>
+            <ul class="nav navbar-nav">
+                <li>
+                    <a href="/devices">Devices</a>
+                </li>
+                <li>
+                    <a href="">Ports</a>
+                </li>
+            </ul>
         </div>
         <!-- /.navbar-collapse -->
-      </div>
-      <!-- /.container -->
-    </nav>
-    <!--[if lt IE 7]>
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- This only works when I do  this, I really have no idea why -->
+<style>
+    .navbar-default .navbar-nav > li > a {
+        color: white;
+    }
+</style>
+
+<!--[if lt IE 7]>
     <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
     <![endif]-->
 
-    {% block body %}
-    {% endblock %}
+{% block body %}
 
-    <script>window.jQuery || document.write('<script src="{{ static('js/vendors/jquery.min.js') }}"><\/script>')</script>
+{% endblock %}
 
-      <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-      <script>
-        var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
-        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-         g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-         s.parentNode.insertBefore(g,s)}(document,'script'));
-      </script>
 
-      <script src="{{ static('js/vendors/bootstrap/bootstrap-affix.js') }}"></script>
-      <script src="{{ static('js/vendors/bootstrap/bootstrap-alert.js') }}"></script>
-      <script src="{{ static('js/vendors/bootstrap/bootstrap-dropdown.js') }}"></script>
-      <script src="{{ static('js/vendors/bootstrap/bootstrap-tooltip.js') }}"></script>
-      <script src="{{ static('js/vendors/bootstrap/bootstrap-modal.js') }}"></script>
-      <script src="{{ static('js/vendors/bootstrap/bootstrap-transition.js') }}"></script>
-      <script src="{{ static('js/vendors/bootstrap/bootstrap-button.js') }}"></script>
-      <script src="{{ static('js/vendors/bootstrap/bootstrap-popover.js') }}"></script>
-      <script src="{{ static('js/vendors/bootstrap/bootstrap-typeahead.js') }}"></script>
-      <script src="{{ static('js/vendors/bootstrap/bootstrap-carousel.js') }}"></script>
-      <script src="{{ static('js/vendors/bootstrap/bootstrap-scrollspy.js') }}"></script>
-      <script src="{{ static('js/vendors/bootstrap/bootstrap-collapse.js') }}"></script>
-      <script src="{{ static('js/vendors/bootstrap/bootstrap-tab.js') }}"></script>
-      <script src="{{ static('js/vendors/bootstrap/bootstrap.min.js') }}"></script>
-      <!--angular lib and entry point -->
-      <script src="{{ static('js/vendors/angular/angular.min.js') }}"></script>
-      <script src="{{ static('js/index.js') }}"></script>
-    </body>
-  </html>
+
+<script>window.jQuery || document.write('<script src="{{ static('js/vendors/jquery.min.js') }}"><\/script>')</script>
+
+<!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+<script>
+    var _gaq = [['_setAccount', 'UA-XXXXX-X'], ['_trackPageview']];
+    (function (d, t) {
+        var g = d.createElement(t), s = d.getElementsByTagName(t)[0];
+        g.src = ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g, s)
+    }(document, 'script'));
+</script>
+
+<script src="{{ static('js/vendors/bootstrap/bootstrap-affix.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-alert.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-dropdown.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-tooltip.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-modal.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-transition.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-button.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-popover.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-typeahead.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-carousel.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-scrollspy.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-collapse.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-tab.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap.min.js') }}"></script>
+<!--angular lib and entry point -->
+<script src="{{ static('js/vendors/angular/angular.min.js') }}"></script>
+<script src="{{ static('js/index.js') }}"></script>
+<footer class="navbar-default navbar-fixed-bottom">
+    <div class="container-fluid">
+        <p>Calico</p>
+    </div>
+</footer>
+</body>
+</html>

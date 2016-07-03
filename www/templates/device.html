@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div class="container-fluid" style="margin-top:10px">
+        <!-- Page Layout here -->
+        <div class="row">
+
+            <div class="col-md-4">
+                <!-- Grey navigation panel -->
+                <div class="box">
+                    <table class="table">
+                        <tbody>
+                        <tr>
+                            <td><p>{{ details['system'] }}</p></td>
+                        </tr>
+                        <tr>
+                            <td><p>{{ details['distribution'] }} {{ details['release'] }}</p></td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="box">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th data-field="devices-total" width="10%">OK</th>
+                            <th data-field="devices-up" width="14%">Failed</th>
+                            <th data-field="devices-down" width="14%">Delay</th>
+                            <th data-field="devices-ignored" width="20%">Surpress</th>
+                            <th data-field="devices-disabled" width="20%">Other</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr>
+                            <td>Alerts</td>
+                            <td>5</td>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>0</td>
+                            <td>0</td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <div class="col-md-8">
+                <div class="col-md-6">
+                    <div class="box">
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <td colspan="2"><img src="{{ static('devices/linux/') }}{{ uid }}/cpu_percentage.png"
+                                                     alt=""
+                                                     class="graph-preview"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="box">
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <td colspan="2"><img src="{{ static('devices/linux/') }}{{ uid }}/free_memory.png"
+                                                     alt=""
+                                                     class="graph-preview"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="box">
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <td colspan="2"><img src="{{ static('devices/linux/') }}{{ uid }}/total_memory.png"
+                                                     alt=""
+                                                     class="graph-preview"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="box">
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <td colspan="2"><img src="{{ static('devices/linux/') }}{{ uid }}/cpu_percentage.png"
+                                                     alt=""
+                                                     class="graph-preview"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="box">
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <td colspan="2"><img src="{{ static('devices/linux/') }}{{ uid }}/free_memory.png"
+                                                     alt=""
+                                                     class="graph-preview"
+                                ></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="box">
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <td colspan="2"><img src="{{ static('devices/linux/') }}{{ uid }}/used_memory.png"
+                                                     alt=""
+                                                     class="graph-preview"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+    <script type="text/javascript" charset="utf-8">
+    </script>
+    </div>
+    </div>
+{% endblock %}

@@ -241,3 +241,42 @@ def _cli_pagemaker(subparsers, width=80):
         help=textwrap.fill(
             'Verbose Output.', width=width)
     )
+
+def _cli_monitor(subparsers, width=80):
+    """Process "pagemaker" CLI commands.
+
+    Args:
+        subparsers: Subparsers object
+        width: Width of the help text string to STDIO before wrapping
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    parser = subparsers.add_parser(
+        'monitor',
+        help=textwrap.fill(
+            'Create web pages.', width=width)
+    )
+
+    # Process directory
+    parser.add_argument(
+        '--directory',
+        required=True,
+        default=None,
+        type=str,
+        help=textwrap.fill(
+            'Directory with configuration files.', width=width)
+    )
+
+    # Process verbose
+    parser.add_argument(
+        '--verbose',
+        dest='verbose',
+        action='store_true',
+        required=False,
+        default=False,
+        help=textwrap.fill(
+            'Verbose Output.', width=width)
+    )

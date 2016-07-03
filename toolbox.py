@@ -1,17 +1,14 @@
-"""Calico utility script.
-
-Calico utility script
-"""
+#!/usr/bin/env python
 
 import yaml
 
-import interfaces
-from utils import ConfigReader
-from utils import jm_general
-from snmp import poll
-from snmp import snmp_manager
-from snmp import snmp_info
-from web import ws_device
+from infoset.interfaces import Cli
+from infoset.utils import ConfigReader
+from infoset.utils import jm_general
+from infoset.snmp import poll
+from infoset.snmp import snmp_manager
+from infoset.snmp import snmp_info
+from infoset.web import ws_device
 
 # import sys
 # from pprint import pprint
@@ -26,12 +23,12 @@ def main():
         None
     """
     # Initialize key variables
-    additional_help = """\
-Utility script for the project.
-"""
+    additional_help = """\ 
+	Utility script for the project.
+	"""
 
     # Process the CLI
-    cli_object = interfaces.Cli(additional_help=additional_help)
+    cli_object = Cli(additional_help=additional_help)
     cli_args = cli_object.args()
 
     # Process the config
@@ -52,6 +49,10 @@ Utility script for the project.
     # Create pages
     if cli_args.mode == 'pagemaker':
         do_pages(config, cli_args.verbose)
+
+    if cli_args.mode == 'monitor':
+        do_monitor(config, cli_args.verbose)
+
 
 
 def do_config(cli_args, config):
@@ -127,6 +128,17 @@ def do_poll(config, verbose=False):
     """
     # Poll
     poll.snmp(config, verbose)
+
+
+def do_monitor(config, verbose=False):
+    """Process 'run' CLI option.
+
+    Args:
+        config: Configuration object
+        verbose: Verbose output if True
+    Returns:
+        None
+    """
 
 
 if __name__ == "__main__":
