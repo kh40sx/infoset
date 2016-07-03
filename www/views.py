@@ -1,37 +1,23 @@
-from flask import render_template, jsonify, send_file
+from flask import render_template, jsonify, send_file, request
 from www import infoset
-from os import listdir, walk, path
+from www import celery
+from os import listdir, walk, path, makedirs, remove
+from infoset.utils.rrd.rrd_xlate import RrdXlate
 import yaml
-import requests
-from infoset.utils.rrd import rrdagent
-import time
-import threading
-import os.path
+
+
+@celery.task
+def count(number):
+    while True:
+        for n in range(number):
+            print(n)
 
 
 @infoset.route('/')
 def index():
     hosts = getHosts()
-    agent = rrdagent.RrdAgent('cpu.rrd', 5)
-    agent.create()
-    t = threading.Thread(target=chartCPU, args=(agent,))
-    t.daemon = True
-    t.start()
     return render_template('index.html',
                            hosts=hosts)
-
-
-def chartCPU(agent):
-    count = 0
-    while True:
-        time.sleep(5)
-        agent.update()
-        agent.graph()
-
-
-@infoset.route('/hosts/<host>/cpu')
-def getCpu(host):
-    return send_file('static/img/cpu.png', mimetype='image/gif')
 
 
 @infoset.route('/hosts')
@@ -81,6 +67,47 @@ def layerTwo(host):
     return jsonify(layer2)
 
 
+@infoset.route('/devices')
+def devices():
+    hosts = getHosts()
+    devices = getDevices()
+    return render_template('devices.html',
+                           hosts=hosts,
+                           devices=devices)
+
+@infoset.route('/devices/<uid>')
+def device_details(uid):
+    devices = getDevices()
+    device_details = getDeviceDetails(uid)
+    device_path = "./www/static/devices/linux/" + str(uid)
+    rrd_root = RrdXlate(device_path)
+    rrd_root.rrd_graph()
+    return render_template('device.html',
+                           uid=uid,
+                           devices=devices,
+                           details=device_details)
+
+@infoset.route('/receive/<uid>', methods=["POST"])
+def receive(uid):
+    device_path = "./www/static/devices/linux/" + str(uid)
+    content = request.json
+    if not path.exists(device_path):
+        makedirs(device_path)
+
+    active_yaml_path = device_path + "/active.yaml"
+    # Out with the old
+    remove(active_yaml_path)
+    # In with the new
+    with open(active_yaml_path, "w+") as active_file:
+        active_file.write(yaml.dump(content, default_flow_style=False))
+        active_file.close()
+
+    rrd_root = RrdXlate("./www/static/devices/linux/")
+
+    rrd_root.rrd_update()
+    return "Recieved"
+
+
 def getHosts():
     hosts = {}
     for root, directories, files in walk('./www/static/yaml'):
@@ -88,3 +115,31 @@ def getHosts():
             filepath = path.join(root, filename)
             hosts[filename[:-5]] = filepath  # Add it to the list.
     return hosts
+
+def getDeviceDetails(uid):
+    active_yaml = {}
+    filepath="./www/static/devices/linux/" + str(uid) + "/active.yaml"
+    with open(filepath, 'r') as stream:
+        try:
+            active_yaml = yaml.load(stream)
+        except Exception as e:
+            raise e
+    return active_yaml
+
+def getDevices():
+    active_yamls = {}
+    devices = []
+    root="./www/static/devices/linux/"
+    directories = [d for d in listdir(root) if path.isdir(path.join(root, d))]
+
+    for directory in directories:
+        filepath = "./www/static/devices/linux/" + directory + "/active.yaml"
+        active_yamls[directory] = filepath
+
+        with open(filepath, 'r') as stream:
+            try:
+                yaml_dump = yaml.load(stream)
+            except Exception as e:
+                raise e
+        devices.append(yaml_dump)
+    return devices
