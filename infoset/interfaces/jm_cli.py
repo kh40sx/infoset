@@ -62,6 +62,7 @@ class Cli(object):
         # Parse "test", return object used for parser
         _cli_test(subparsers, width=width)
 
+        _cli_monitor(subparsers, width=width)
         # Return the CLI arguments
         args = parser.parse_args()
 
@@ -257,7 +258,7 @@ def _cli_monitor(subparsers, width=80):
     parser = subparsers.add_parser(
         'monitor',
         help=textwrap.fill(
-            'Create web pages.', width=width)
+            'SNMP monitoring.', width=width)
     )
 
     # Process directory
