@@ -9,6 +9,7 @@ from infoset.snmp.mib_entity import EntityQuery
 from infoset.snmp.mib_essswitch import EssSwitchQuery
 from infoset.snmp.mib_etherlike import EtherlikeQuery
 from infoset.snmp.mib_if import IfQuery
+from infoset.snmp.mib_if_64 import IfQuery
 from infoset.snmp.mib_ip import IpQuery
 from infoset.snmp.mib_ipv6 import Ipv6Query
 from infoset.snmp.mib_lldp import LldpQuery
@@ -33,7 +34,7 @@ QUERIES = [CiscoC2900Query, CiscoVtpQuery, CiscoIetfIpQuery,
            Ipv6Query, EtherlikeQuery, EntityQuery, LldpQuery,
            EssSwitchQuery, JuniperVlanQuery, QbridgeQuery]
 
-# TODO fix args docstring
+
 def get_queries(layer):
     """Get mib queries which gather information related to a specific OSI layer.
 

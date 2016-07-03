@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Class interacts with devices supporting IfMIB."""
+"""Class interacts with devices supporting IfMIB. (32 Bit COunters)."""
 
 
 from collections import defaultdict
@@ -90,7 +90,7 @@ class IfQuery(Query):
         _get_data('ifDescr', self.ifdescr, final)
 
         # Get interface ifAlias data
-        _get_data('ifAlian', self.ifalias, final)
+        _get_data('ifAlias', self.ifalias, final)
 
         # Get interface ifSpeed data
         _get_data('ifSpeed', self.ifspeed, final)
@@ -113,14 +113,23 @@ class IfQuery(Query):
         # Get interface ifPhysAddress data
         _get_data('ifPhysAddress', self.ifphysaddress, final)
 
-        # Get interface ifHighSpeed data
-        _get_data('ifHighSpeed', self.ifhighspeed, final)
-
         # Get interface ifInOctets data
         _get_data('ifInOctets', self.ifinoctets, final)
 
         # Get interface ifOutOctets data
         _get_data('ifOutOctets', self.ifoutoctets, final)
+
+        # Get interface ifInBroadcastPkts data
+        _get_data('ifInBroadcastPkts', self.ifinbroadcastpkts, final)
+
+        # Get interface ifOutBroadcastPkts data
+        _get_data('ifOutBroadcastPkts', self.ifoutbroadcastpkts, final)
+
+        # Get interface ifInMulticastPkts data
+        _get_data('ifInMulticastPkts', self.ifinmulticastpkts, final)
+
+        # Get interface ifOutMulticastPkts data
+        _get_data('ifOutMulticastPkts', self.ifoutmulticastpkts, final)
 
         # Get interface ifLastChange data
         _get_data('ifLastChange', self.iflastchange, final)
@@ -405,21 +414,90 @@ class IfQuery(Query):
         # Return the interface descriptions
         return data_dict
 
-    def ifhighspeed(self):
-        """Return dict of IFMIB ifHighSpeed for each ifIndex for device.
+    def ifinmulticastpkts(self):
+        """Return dict of IFMIB ifInMulticastPkts for each ifIndex for device.
 
         Args:
             None
 
         Returns:
-            data_dict: Dict of ifHighSpeed using the oid's last node as key
+            data_dict: Dict of ifInMulticastPkts. Key = OID's last node.
 
         """
         # Initialize key variables
         data_dict = defaultdict(dict)
 
         # Process OID
-        oid = '.1.3.6.1.2.1.31.1.1.1.15'
+        oid = '.1.3.6.1.2.1.31.1.1.1.2'
+        results = self.snmp_object.walk(oid, normalized=True)
+        for key, value in results.items():
+            # Process OID
+            data_dict[int(key)] = value
+
+        # Return the interface descriptions
+        return data_dict
+
+    def ifoutmulticastpkts(self):
+        """Return dict of IFMIB ifOutMulticastPkts for each ifIndex for device.
+
+        Args:
+            None
+
+        Returns:
+            data_dict: Dict of ifOutMulticastPkts. Key = OID's last node.
+
+        """
+        # Initialize key variables
+        data_dict = defaultdict(dict)
+
+        # Process OID
+        oid = '.1.3.6.1.2.1.31.1.1.1.4'
+        results = self.snmp_object.walk(oid, normalized=True)
+        for key, value in results.items():
+            # Process OID
+            data_dict[int(key)] = value
+
+        # Return the interface descriptions
+        return data_dict
+
+    def ifinbroadcastpkts(self):
+        """Return dict of IFMIB ifInBroadcastPkts for each ifIndex for device.
+
+        Args:
+            None
+
+        Returns:
+            data_dict: Dict of ifInBroadcastPkts. Key = OID's last node.
+
+        """
+        # Initialize key variables
+        data_dict = defaultdict(dict)
+
+        # Process OID
+        oid = '.1.3.6.1.2.1.31.1.1.1.3'
+        results = self.snmp_object.walk(oid, normalized=True)
+        for key, value in results.items():
+            # Process OID
+            data_dict[int(key)] = value
+
+        # Return the interface descriptions
+        return data_dict
+
+    def ifoutbroadcastpkts(self):
+        """Return dict of IFMIB ifOutBroadcastPkts for each ifIndex for device.
+
+        Args:
+            None
+
+        Returns:
+            data_dict: Dict of ifOutBroadcastPkts. Key = OID's last node.
+
+        """
+        # Initialize key variables
+        data_dict = defaultdict(dict)
+
+        # Process OID
+        oid = '.1.3.6.1.2.1.31.1.1.1.5'
         results = self.snmp_object.walk(oid, normalized=True)
         for key, value in results.items():
             # Process OID
