@@ -139,7 +139,7 @@ def do_monitor(config, verbose=False):
     Returns:
         None
     """
-    print("here")
+    
 
 if __name__ == "__main__":
     main()
