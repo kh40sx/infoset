@@ -23,7 +23,7 @@ def main():
         None
     """
     # Initialize key variables
-    additional_help = """\ 
+    additional_help = """\
 	Utility script for the project.
 	"""
 
@@ -139,7 +139,7 @@ def do_monitor(config, verbose=False):
     Returns:
         None
     """
-
+    print("here")
 
 if __name__ == "__main__":
     main()
