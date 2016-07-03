@@ -1,14 +1,11 @@
-cpu_count: 2
-cpu_percentage:
-- 4.9
-- 3.0
-- 2.0
-- 1.0
+chartable:
+  cpu_percentage: 12.4
+  free_memory: 3155316736
+  total_memory: 8286711808
+  used_memory: 5131395072
+cpu_count: 4
 distribution: arch Arch Linux
-free_memory: 2067214336
 release: 4.6.2-1-ARCH
 system: Linux
-total_memory: 8286711808
 uid: '7'
-used_memory: 6219497472
 version: '#1 SMP PREEMPT Wed Jun 8 08:40:59 CEST 2016'

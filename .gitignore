@@ -15,7 +15,6 @@ __pycache__
 
 # Ignore files in these directories and ALL subdirectories
 data/**
-www/static/**
 
 # Ignore files in these directories,  _BUT_
 # their subdirectories will be placed in the repository.
