@@ -33,7 +33,7 @@ QUERIES = [CiscoC2900Query, CiscoVtpQuery, CiscoIetfIpQuery,
            Ipv6Query, EtherlikeQuery, EntityQuery, LldpQuery,
            EssSwitchQuery, JuniperVlanQuery, QbridgeQuery]
 
-
+# TODO fix args docstring
 def get_queries(layer):
     """Get mib queries which gather information related to a specific OSI layer.
 
