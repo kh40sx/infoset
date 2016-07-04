@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Class interacts with devices supporting IfMIB. (32 Bit COunters)."""
+"""Class interacts with devices supporting IfMIB. (32 Bit Counters)."""
 
 
 from collections import defaultdict

@@ -9,7 +9,7 @@ from infoset.snmp.mib_entity import EntityQuery
 from infoset.snmp.mib_essswitch import EssSwitchQuery
 from infoset.snmp.mib_etherlike import EtherlikeQuery
 from infoset.snmp.mib_if import IfQuery
-from infoset.snmp.mib_if_64 import IfQuery
+from infoset.snmp.mib_if_64 import If64Query
 from infoset.snmp.mib_ip import IpQuery
 from infoset.snmp.mib_ipv6 import Ipv6Query
 from infoset.snmp.mib_lldp import LldpQuery

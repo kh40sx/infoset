@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Class interacts with devices supporting IfMIB. (64 bit counters)."""
+"""Class interacts with devices supporting IfMIB. (64 Bit Counters)."""
 
 
 from collections import defaultdict
@@ -9,15 +9,15 @@ from infoset.snmp.base_query import Query
 
 def get_query():
     """Return this module's Query class."""
-    return IfQuery
+    return If64Query
 
 
 def init_query(snmp_object):
     """Return initialize and return this module's Query class."""
-    return IfQuery(snmp_object)
+    return If64Query(snmp_object)
 
 
-class IfQuery(Query):
+class If64Query(Query):
     """Class interacts with devices supporting IfMIB.
 
     Args:

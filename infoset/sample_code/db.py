@@ -87,6 +87,9 @@ class Database(object):
         Args:
             sql_statement: SQL statement
             error_code: Error number to use if one occurs
+            data_list: If not False, then the SQL statement is referring
+                to a bulk update using a list of tuples contained in
+                data_list.
 
         Returns:
             query_results: Query results
