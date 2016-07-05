@@ -43,7 +43,48 @@ class Validate(object):
             None
 
         Returns:
-            val: OID value
+            credentials: Dict of snmp_credentials to use
+
+        """
+        # Initialize key variables
+        cache_exists = False
+
+        # Determine whether cached value exists
+        home_dir = os.environ['HOME']
+        snmp_dir = ('%s/.infoset/snmp_cache') % (home_dir)
+        filename = ('%s/%s') % (snmp_dir, self.hostname)
+
+        # Create UID directory / file if not yet created
+        if os.path.exists(snmp_dir) is False:
+            os.makedirs(snmp_dir)
+        if os.path.exists(filename) is True:
+            cache_exists = True
+
+        if cache_exists is False
+            # Get credentials
+            credentials = self._credentials()
+
+            # Save credentials if successful
+            if credentials is not None:
+                _update_cache(filename, credentials['group_name'])
+
+        else:
+            # Read environment file with UID if it exists
+            if os.path.isfile(filename):
+                with open(filename) as f_handle:
+                    group_name = f_handle.readline()
+
+        # Return
+        return credentials
+
+    def _credentials(self, group=None):
+        """Determine the valid SNMP credentials for a host.
+
+        Args:
+            group: SNMP group name to try
+
+        Returns:
+            credentials: Dict of snmp_credentials to use
 
         """
         # Initialize key variables
@@ -54,11 +95,17 @@ class Validate(object):
             # Update credentials
             params_dict['snmp_hostname'] = self.hostname
 
-            # Verify connectivity
-            query = Interact(params_dict)
-            if query.contactable() is True:
-                credentials = params_dict
-                break
+            # Try successive groups
+            if group is None:
+                # Verify connectivity
+                if _contactable(params_dict) is True:
+                    credentials = params_dict
+                    break
+            else:
+                if params_dict['group_name'] == group:
+                    # Verify connectivity
+                    if _contactable(params_dict) is True:
+                        credentials = params_dict
 
         # Return
         return credentials
@@ -729,3 +776,42 @@ def oid_valid_format(oid):
 
     # Otherwise valid
     return True
+
+
+def _update_cache(filename, snmp_group):
+    """Update the SNMP credentials cache file with successful snmp_group.
+
+    Args:
+        filename: Cache filename
+        group: SNMP group that successfully authenticated
+
+    Returns:
+        None
+
+    """
+    # Do update
+    with open(filename, 'w+') as env:
+        env.write(snmp_group)
+
+
+def _contactable(params_dict):
+    """Determine whether host is contactable.
+
+    Args:
+        params_dict: Dict of SNMP parameters to try
+
+    Returns:
+        alive: True if contactable
+
+    """
+    # Initialize key variables
+    alive = False
+
+    # Verify connectivity
+    query = Interact(params_dict)
+    if query.contactable() is True:
+        alive = True
+
+    # Return
+    return alive
+
