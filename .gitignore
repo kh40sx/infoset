@@ -29,6 +29,9 @@ __pycache__
 # Placed to reduce the risk of contributors uploading sensitive data
 #############################################################################
 
+# Ignore hidden environment files / directory
+*.env
+
 # Ignore files in these directories and ALL subdirectories
 data/**
 
