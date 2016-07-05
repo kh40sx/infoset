@@ -6,6 +6,8 @@ from pysnmp.proto import rfc1905
 from pysnmp.proto import rfc1902
 from pysnmp.smi import rfc1902 as smi
 
+from pprint import pprint
+
 # Import project libraries
 from infoset.utils import jm_general
 from infoset.snmp import jm_iana_enterprise
@@ -62,7 +64,7 @@ class Validate(object):
         return credentials
 
 
-class Interact:
+class Interact(object):
     """Class Gets SNMP data.
 
     Args:
@@ -186,7 +188,7 @@ class Interact:
 
         # Get sysObjectID
         results = self.get(oid, connectivity_check=connectivity_check)
-        if results is not None and bool(results) is not False:
+        if bool(results) is True:
             object_id = ('.%s') % (results[oid].decode('utf-8'))
 
         # Return
@@ -549,45 +551,30 @@ def _convert(value):
         converted: converted value
 
     """
-    converted = value
-
-    def get_converted_value(instance, val):
-        """Return converted value based input format.
-
-        Args:
-            instance: the type of the input data
-            value: the value of input data
-
-        Returns:
-            value: the converted value
-
-        """
-        cases = {rfc1902.OctetString: bytes(val),
-                 rfc1902.Opaque: bytes(val),
-                 rfc1902.Bits: bytes(val),
-                 rfc1902.IpAddress: bytes(val),
-                 smi.ObjectIdentity: bytes(str(val), 'utf-8'),
-                 rfc1902.Integer: int(val),
-                 rfc1902.Integer32: int(val),
-                 rfc1902.Counter32: int(val),
-                 rfc1902.Gauge32: int(val),
-                 rfc1902.Unsigned32: int(val),
-                 rfc1902.TimeTicks: int(val),
-                 rfc1902.Counter64: int(val)}
-
-        return cases[instance]
-
-    instances = (rfc1902.OctetString, rfc1902.Opaque, rfc1902.Bits,
-                 rfc1902.IpAddress, smi.ObjectIdentity, rfc1902.Integer,
-                 rfc1902.Integer32, rfc1902.Counter32, rfc1902.Gauge32,
-                 rfc1902.Unsigned32, rfc1902.TimeTicks,
-                 rfc1902.Counter64)
-
-    # Convert values accordingly
-    for instance in instances:
-        if isinstance(value, instance):
-            converted = get_converted_value(instance, value)
-            break
+    # Convert string type values to bytes
+    if isinstance(value, rfc1902.OctetString) is True:
+        converted = bytes(value)
+    elif isinstance(value, rfc1902.Opaque) is True:
+        converted = bytes(value)
+    elif isinstance(value, rfc1902.Bits) is True:
+        converted = bytes(value)
+    elif isinstance(value, rfc1902.IpAddress) is True:
+        converted = bytes(value)
+    elif isinstance(value, smi.ObjectIdentity) is True:
+        converted = bytes(str(value), 'utf-8')
+    elif isinstance(value, rfc1905.NoSuchInstance) is True:
+        # Nothing if OID not found
+        converted = None
+    else:
+        # Convert everything else into integer values
+        # rfc1902.Integer
+        # rfc1902.Integer32
+        # rfc1902.Counter32
+        # rfc1902.Gauge32
+        # rfc1902.Unsigned32
+        # rfc1902.TimeTicks
+        # rfc1902.Counter64
+        converted = int(value)
 
     # Return
     return converted
@@ -623,7 +610,7 @@ def _get_auth_object(snmp_params):
             else:
                 authproto_object = cmdgen.usmHMACSHAAuthProtocol
 
-        # Setup privProtocol (Default AES128)
+        # Setup privProtocol (Default AES256)
         if snmp_params['snmp_privprotocol'] is None:
             privproto_object = cmdgen.usmNoPrivProtocol
         else:

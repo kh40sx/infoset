@@ -108,7 +108,7 @@ class Sentry3Query(Query):
         results = self.snmp_object.walk(oid, normalized=False)
         for key, value in results.items():
             # Process OID
-            data_dict[int(key)] = value
+            data_dict[key] = value
 
         # Return
         return data_dict
@@ -131,7 +131,7 @@ class Sentry3Query(Query):
         results = self.snmp_object.walk(oid, normalized=False)
         for key, value in results.items():
             # Process OID
-            data_dict[int(key)] = value
+            data_dict[key] = value
 
         # Return
         return data_dict
@@ -154,7 +154,7 @@ class Sentry3Query(Query):
         results = self.snmp_object.walk(oid, normalized=False)
         for key, value in results.items():
             # Process OID
-            data_dict[int(key)] = value / 100
+            data_dict[key] = value / 100
 
         # Return
         return data_dict
@@ -177,7 +177,7 @@ class Sentry3Query(Query):
         results = self.snmp_object.walk(oid, normalized=False)
         for key, value in results.items():
             # Process OID
-            data_dict[int(key)] = value
+            data_dict[key] = value
 
         # Return
         return data_dict
@@ -200,7 +200,7 @@ class Sentry3Query(Query):
         results = self.snmp_object.walk(oid, normalized=False)
         for key, value in results.items():
             # Process OID
-            data_dict[int(key)] = value
+            data_dict[key] = value
 
         # Return
         return data_dict
