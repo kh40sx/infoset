@@ -23,7 +23,6 @@ import hashlib
 import argparse
 import datetime
 from collections import defaultdict
-from pprint import pprint
 
 # pip3 libraries
 import requests
