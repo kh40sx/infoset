@@ -613,9 +613,8 @@ def create_environment(hostname):
 
     """
     # Initialize key variables
-    script_dir = os.path.realpath(os.path.dirname(sys.argv[0]))
-    parent_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
-    uid_dir = ('%s/.env') % (parent_dir)
+    home_dir = os.environ['HOME']
+    uid_dir = ('%s/.infoset/uid') % (home_dir)
     filename = ('%s/%s') % (uid_dir, hostname)
 
     # Create UID directory if not yet created

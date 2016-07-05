@@ -30,7 +30,7 @@ __pycache__
 #############################################################################
 
 # Ignore hidden environment files / directory
-*.env
+*.infoset
 
 # Ignore files in these directories and ALL subdirectories
 data/**

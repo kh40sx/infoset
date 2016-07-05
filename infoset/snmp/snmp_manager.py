@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """SNMP manager class."""
 
+import os
+
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 from pysnmp.proto import rfc1905
 from pysnmp.proto import rfc1902
 from pysnmp.smi import rfc1902 as smi
-
-from pprint import pprint
 
 # Import project libraries
 from infoset.utils import jm_general
@@ -48,6 +48,7 @@ class Validate(object):
         """
         # Initialize key variables
         cache_exists = False
+        group_key = 'group_name'
 
         # Determine whether cached value exists
         home_dir = os.environ['HOME']
@@ -60,19 +61,30 @@ class Validate(object):
         if os.path.exists(filename) is True:
             cache_exists = True
 
-        if cache_exists is False
+        if cache_exists is False:
             # Get credentials
             credentials = self._credentials()
 
             # Save credentials if successful
             if credentials is not None:
-                _update_cache(filename, credentials['group_name'])
+                _update_cache(filename, credentials[group_key])
 
         else:
-            # Read environment file with UID if it exists
+            # Read credentials from cache
             if os.path.isfile(filename):
                 with open(filename) as f_handle:
                     group_name = f_handle.readline()
+
+            # Get credentials
+            credentials = self._credentials(group_name)
+
+            # Try the rest if these credentials fail
+            if credentials is None:
+                credentials = self._credentials()
+
+            # Update cache if found
+            if credentials is not None:
+                _update_cache(filename, credentials[group_key])
 
         # Return
         return credentials
@@ -598,6 +610,9 @@ def _convert(value):
         converted: converted value
 
     """
+    # Initialieze key values
+    converted = None
+
     # Convert string type values to bytes
     if isinstance(value, rfc1902.OctetString) is True:
         converted = bytes(value)
@@ -814,4 +829,3 @@ def _contactable(params_dict):
 
     # Return
     return alive
-
