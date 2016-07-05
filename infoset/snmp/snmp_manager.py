@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """SNMP manager class."""
 
+import os
+
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 from pysnmp.proto import rfc1905
 from pysnmp.proto import rfc1902
@@ -41,7 +43,60 @@ class Validate(object):
             None
 
         Returns:
-            val: OID value
+            credentials: Dict of snmp_credentials to use
+
+        """
+        # Initialize key variables
+        cache_exists = False
+        group_key = 'group_name'
+
+        # Determine whether cached value exists
+        home_dir = os.environ['HOME']
+        snmp_dir = ('%s/.infoset/snmp_cache') % (home_dir)
+        filename = ('%s/%s') % (snmp_dir, self.hostname)
+
+        # Create UID directory / file if not yet created
+        if os.path.exists(snmp_dir) is False:
+            os.makedirs(snmp_dir)
+        if os.path.exists(filename) is True:
+            cache_exists = True
+
+        if cache_exists is False:
+            # Get credentials
+            credentials = self._credentials()
+
+            # Save credentials if successful
+            if credentials is not None:
+                _update_cache(filename, credentials[group_key])
+
+        else:
+            # Read credentials from cache
+            if os.path.isfile(filename):
+                with open(filename) as f_handle:
+                    group_name = f_handle.readline()
+
+            # Get credentials
+            credentials = self._credentials(group_name)
+
+            # Try the rest if these credentials fail
+            if credentials is None:
+                credentials = self._credentials()
+
+            # Update cache if found
+            if credentials is not None:
+                _update_cache(filename, credentials[group_key])
+
+        # Return
+        return credentials
+
+    def _credentials(self, group=None):
+        """Determine the valid SNMP credentials for a host.
+
+        Args:
+            group: SNMP group name to try
+
+        Returns:
+            credentials: Dict of snmp_credentials to use
 
         """
         # Initialize key variables
@@ -52,17 +107,23 @@ class Validate(object):
             # Update credentials
             params_dict['snmp_hostname'] = self.hostname
 
-            # Verify connectivity
-            query = Interact(params_dict)
-            if query.contactable() is True:
-                credentials = params_dict
-                break
+            # Try successive groups
+            if group is None:
+                # Verify connectivity
+                if _contactable(params_dict) is True:
+                    credentials = params_dict
+                    break
+            else:
+                if params_dict['group_name'] == group:
+                    # Verify connectivity
+                    if _contactable(params_dict) is True:
+                        credentials = params_dict
 
         # Return
         return credentials
 
 
-class Interact:
+class Interact(object):
     """Class Gets SNMP data.
 
     Args:
@@ -186,7 +247,7 @@ class Interact:
 
         # Get sysObjectID
         results = self.get(oid, connectivity_check=connectivity_check)
-        if results is not None and bool(results) is not False:
+        if bool(results) is True:
             object_id = ('.%s') % (results[oid].decode('utf-8'))
 
         # Return
@@ -549,45 +610,33 @@ def _convert(value):
         converted: converted value
 
     """
-    converted = value
+    # Initialieze key values
+    converted = None
 
-    def get_converted_value(instance, val):
-        """Return converted value based input format.
-
-        Args:
-            instance: the type of the input data
-            value: the value of input data
-
-        Returns:
-            value: the converted value
-
-        """
-        cases = {rfc1902.OctetString: bytes(val),
-                 rfc1902.Opaque: bytes(val),
-                 rfc1902.Bits: bytes(val),
-                 rfc1902.IpAddress: bytes(val),
-                 smi.ObjectIdentity: bytes(str(val), 'utf-8'),
-                 rfc1902.Integer: int(val),
-                 rfc1902.Integer32: int(val),
-                 rfc1902.Counter32: int(val),
-                 rfc1902.Gauge32: int(val),
-                 rfc1902.Unsigned32: int(val),
-                 rfc1902.TimeTicks: int(val),
-                 rfc1902.Counter64: int(val)}
-
-        return cases[instance]
-
-    instances = (rfc1902.OctetString, rfc1902.Opaque, rfc1902.Bits,
-                 rfc1902.IpAddress, smi.ObjectIdentity, rfc1902.Integer,
-                 rfc1902.Integer32, rfc1902.Counter32, rfc1902.Gauge32,
-                 rfc1902.Unsigned32, rfc1902.TimeTicks,
-                 rfc1902.Counter64)
-
-    # Convert values accordingly
-    for instance in instances:
-        if isinstance(value, instance):
-            converted = get_converted_value(instance, value)
-            break
+    # Convert string type values to bytes
+    if isinstance(value, rfc1902.OctetString) is True:
+        converted = bytes(value)
+    elif isinstance(value, rfc1902.Opaque) is True:
+        converted = bytes(value)
+    elif isinstance(value, rfc1902.Bits) is True:
+        converted = bytes(value)
+    elif isinstance(value, rfc1902.IpAddress) is True:
+        converted = bytes(value)
+    elif isinstance(value, smi.ObjectIdentity) is True:
+        converted = bytes(str(value), 'utf-8')
+    elif isinstance(value, rfc1905.NoSuchInstance) is True:
+        # Nothing if OID not found
+        converted = None
+    else:
+        # Convert everything else into integer values
+        # rfc1902.Integer
+        # rfc1902.Integer32
+        # rfc1902.Counter32
+        # rfc1902.Gauge32
+        # rfc1902.Unsigned32
+        # rfc1902.TimeTicks
+        # rfc1902.Counter64
+        converted = int(value)
 
     # Return
     return converted
@@ -623,7 +672,7 @@ def _get_auth_object(snmp_params):
             else:
                 authproto_object = cmdgen.usmHMACSHAAuthProtocol
 
-        # Setup privProtocol (Default AES128)
+        # Setup privProtocol (Default AES256)
         if snmp_params['snmp_privprotocol'] is None:
             privproto_object = cmdgen.usmNoPrivProtocol
         else:
@@ -742,3 +791,41 @@ def oid_valid_format(oid):
 
     # Otherwise valid
     return True
+
+
+def _update_cache(filename, snmp_group):
+    """Update the SNMP credentials cache file with successful snmp_group.
+
+    Args:
+        filename: Cache filename
+        group: SNMP group that successfully authenticated
+
+    Returns:
+        None
+
+    """
+    # Do update
+    with open(filename, 'w+') as env:
+        env.write(snmp_group)
+
+
+def _contactable(params_dict):
+    """Determine whether host is contactable.
+
+    Args:
+        params_dict: Dict of SNMP parameters to try
+
+    Returns:
+        alive: True if contactable
+
+    """
+    # Initialize key variables
+    alive = False
+
+    # Verify connectivity
+    query = Interact(params_dict)
+    if query.contactable() is True:
+        alive = True
+
+    # Return
+    return alive
