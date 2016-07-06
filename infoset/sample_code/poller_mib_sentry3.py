@@ -12,13 +12,9 @@ Description:
 
 """
 # Standard libraries
-import sys
 import os
 from threading import Timer
 import logging
-from random import randint
-import time
-import hashlib
 import argparse
 from collections import defaultdict
 
@@ -270,44 +266,6 @@ def _normalize_keys(data, nodes=2):
     return result
 
 
-def create_environment(hostname):
-    """Create a permanent UID for the agent.
-
-    Args:
-        hostname: Host to create UID for
-
-    Returns:
-        uid: UID for agent
-
-    """
-    # Initialize key variables
-    home_dir = os.environ['HOME']
-    uid_dir = ('%s/.infoset/uid') % (home_dir)
-    filename = ('%s/%s') % (uid_dir, hostname)
-
-    # Create UID directory if not yet created
-    if os.path.exists(uid_dir) is False:
-        os.makedirs(uid_dir)
-
-    # Read environment file with UID if it exists
-    if os.path.isfile(filename):
-        with open(filename) as f_handle:
-            uid = f_handle.readline()
-    else:
-        # Create a UID and save
-        prehash = ('%s%s') % (randint(0, 50), time.time())
-        hasher = hashlib.sha256()
-        hasher.update(bytes(prehash.encode()))
-        uid = hasher.hexdigest()
-
-        # Save UID
-        with open(filename, 'w+') as env:
-            env.write(str(uid))
-
-    # Return
-    return uid
-
-
 def process_cli(additional_help=None):
     """Return all the CLI options.
 
@@ -395,7 +353,7 @@ def main():
         jm_general.die(1001, log_message)
 
     # Get the UID for the agent after all preliminary checks are OK
-    uid_env = create_environment(args.hostname)
+    uid_env = agent.get_uid(args.hostname)
 
     # Post data to the remote server
     phone_home(uid_env, config, query)
