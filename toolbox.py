@@ -104,6 +104,7 @@ def do_test(cli_args, config):
         jm_general.logit(1006, log_message)
 
 
+# TODO remove deprecated pagemaker functions
 def do_pages(config, verbose=False):
     """Process 'pagemaker' CLI option.
 

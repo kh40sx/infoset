@@ -1,16 +1,8 @@
 from flask import render_template, jsonify, send_file, request
 from www import infoset
-from www import celery
 from os import listdir, walk, path, makedirs, remove
 from infoset.utils.rrd.rrd_xlate import RrdXlate
 import yaml
-
-
-@celery.task
-def count(number):
-    while True:
-        for n in range(number):
-            print(n)
 
 
 @infoset.route('/')

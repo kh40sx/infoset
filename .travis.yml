@@ -1,3 +1,4 @@
+sudo: required
 language: python
 python:
   -  3.3
@@ -9,6 +10,8 @@ branches:
     - master
 
 # command to install dependencies
-install: "pip install -r requirements.txt"
+install: 
+  - sudo apt-get install python3-dev librrd-dev rrdtool
+  - pip install -r requirements.txt
 # command to run tests
 script: nosetests --exe --verbosity=2
