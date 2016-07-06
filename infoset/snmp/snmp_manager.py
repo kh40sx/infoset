@@ -209,12 +209,14 @@ class Interact(object):
         """
         # Define key variables
         contactable = False
+        result = None
 
         # Try to reach device
         try:
             # If we can poll the SNMP sysObjectID,
             # then the device is contactable
-            if self.sysobjectid(connectivity_check=True) is not None:
+            result = self.sysobjectid(connectivity_check=True)
+            if bool(result) is True:
                 contactable = True
 
         except Exception as _:
@@ -607,7 +609,7 @@ def _convert(value):
         value: Value to convert
 
     Returns:
-        converted: converted value
+        converted: converted value. Only returns BYTES and INTEGERS
 
     """
     # Initialieze key values
@@ -623,6 +625,7 @@ def _convert(value):
     elif isinstance(value, rfc1902.IpAddress) is True:
         converted = bytes(value)
     elif isinstance(value, smi.ObjectIdentity) is True:
+        # DO NOT CHANGE !!!
         converted = bytes(str(value), 'utf-8')
     elif isinstance(value, rfc1905.NoSuchInstance) is True:
         # Nothing if OID not found
