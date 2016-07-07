@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """SNMP manager class."""
 
+import os
+
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 from pysnmp.proto import rfc1905
 from pysnmp.proto import rfc1902
 from pysnmp.smi import rfc1902 as smi
-
-from pprint import pprint
 
 # Import project libraries
 from infoset.utils import jm_general
@@ -43,7 +43,60 @@ class Validate(object):
             None
 
         Returns:
-            val: OID value
+            credentials: Dict of snmp_credentials to use
+
+        """
+        # Initialize key variables
+        cache_exists = False
+        group_key = 'group_name'
+
+        # Determine whether cached value exists
+        home_dir = os.environ['HOME']
+        snmp_dir = ('%s/.infoset/snmp_cache') % (home_dir)
+        filename = ('%s/%s') % (snmp_dir, self.hostname)
+
+        # Create UID directory / file if not yet created
+        if os.path.exists(snmp_dir) is False:
+            os.makedirs(snmp_dir)
+        if os.path.exists(filename) is True:
+            cache_exists = True
+
+        if cache_exists is False:
+            # Get credentials
+            credentials = self._credentials()
+
+            # Save credentials if successful
+            if credentials is not None:
+                _update_cache(filename, credentials[group_key])
+
+        else:
+            # Read credentials from cache
+            if os.path.isfile(filename):
+                with open(filename) as f_handle:
+                    group_name = f_handle.readline()
+
+            # Get credentials
+            credentials = self._credentials(group_name)
+
+            # Try the rest if these credentials fail
+            if credentials is None:
+                credentials = self._credentials()
+
+            # Update cache if found
+            if credentials is not None:
+                _update_cache(filename, credentials[group_key])
+
+        # Return
+        return credentials
+
+    def _credentials(self, group=None):
+        """Determine the valid SNMP credentials for a host.
+
+        Args:
+            group: SNMP group name to try
+
+        Returns:
+            credentials: Dict of snmp_credentials to use
 
         """
         # Initialize key variables
@@ -54,11 +107,17 @@ class Validate(object):
             # Update credentials
             params_dict['snmp_hostname'] = self.hostname
 
-            # Verify connectivity
-            query = Interact(params_dict)
-            if query.contactable() is True:
-                credentials = params_dict
-                break
+            # Try successive groups
+            if group is None:
+                # Verify connectivity
+                if _contactable(params_dict) is True:
+                    credentials = params_dict
+                    break
+            else:
+                if params_dict['group_name'] == group:
+                    # Verify connectivity
+                    if _contactable(params_dict) is True:
+                        credentials = params_dict
 
         # Return
         return credentials
@@ -150,12 +209,14 @@ class Interact(object):
         """
         # Define key variables
         contactable = False
+        result = None
 
         # Try to reach device
         try:
             # If we can poll the SNMP sysObjectID,
             # then the device is contactable
-            if self.sysobjectid(connectivity_check=True) is not None:
+            result = self.sysobjectid(connectivity_check=True)
+            if bool(result) is True:
                 contactable = True
 
         except Exception as _:
@@ -548,9 +609,12 @@ def _convert(value):
         value: Value to convert
 
     Returns:
-        converted: converted value
+        converted: converted value. Only returns BYTES and INTEGERS
 
     """
+    # Initialieze key values
+    converted = None
+
     # Convert string type values to bytes
     if isinstance(value, rfc1902.OctetString) is True:
         converted = bytes(value)
@@ -561,6 +625,7 @@ def _convert(value):
     elif isinstance(value, rfc1902.IpAddress) is True:
         converted = bytes(value)
     elif isinstance(value, smi.ObjectIdentity) is True:
+        # DO NOT CHANGE !!!
         converted = bytes(str(value), 'utf-8')
     elif isinstance(value, rfc1905.NoSuchInstance) is True:
         # Nothing if OID not found
@@ -729,3 +794,41 @@ def oid_valid_format(oid):
 
     # Otherwise valid
     return True
+
+
+def _update_cache(filename, snmp_group):
+    """Update the SNMP credentials cache file with successful snmp_group.
+
+    Args:
+        filename: Cache filename
+        group: SNMP group that successfully authenticated
+
+    Returns:
+        None
+
+    """
+    # Do update
+    with open(filename, 'w+') as env:
+        env.write(snmp_group)
+
+
+def _contactable(params_dict):
+    """Determine whether host is contactable.
+
+    Args:
+        params_dict: Dict of SNMP parameters to try
+
+    Returns:
+        alive: True if contactable
+
+    """
+    # Initialize key variables
+    alive = False
+
+    # Verify connectivity
+    query = Interact(params_dict)
+    if query.contactable() is True:
+        alive = True
+
+    # Return
+    return alive

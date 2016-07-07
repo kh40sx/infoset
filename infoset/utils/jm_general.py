@@ -3,24 +3,66 @@
 
 import sys
 import os
+import datetime
+import time
 import shutil
 import json
 import yaml
 
 
-def logit(error_num, error_string, is_error=True):
+def log(code, message, filename, error=False):
+    """Log message to file.
+
+    Args:
+        code: Message code
+        message: Message text
+        filename: Log filename
+        error: If True, create a different message string
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    output = _message(code, message, error)
+
+    # Write to file
+    with open(filename, 'a') as f_handle:
+        f_handle.write(
+            ('%s\n') % (output)
+        )
+
+    # Log to screen if necessary
+    if error is True:
+        logit(code, message, error=True)
+
+
+def die(error_num, error_string):
     """Log to STDOUT.
 
     Args:
         error_num: Error number
         error_string: Descriptive error string
-        is_error: Is this an error or not?
+
+    Returns:
+        None
+    """
+    logit(error_num, error_string, error=True)
+
+
+def logit(error_num, error_string, error=True):
+    """Log to STDOUT.
+
+    Args:
+        error_num: Error number
+        error_string: Descriptive error string
+        error: Is this an error or not?
 
     Returns:
         None
     """
     # Log the message
-    if is_error is True:
+    if error is True:
         meta_message = ('(%s): %s') % (error_num, error_string)
         log_message = ('ERROR %s') % (meta_message)
         print(log_message)
@@ -125,3 +167,30 @@ def cleanstring(data):
 
     # Return
     return result
+
+
+def _message(code, message, error=True):
+    """Create a formatted message string.
+
+    Args:
+        code: Message code
+        message: Message text
+        error: If True, create a different message string
+
+    Returns:
+        output: Message result
+
+    """
+    # Initialize key variables
+    time_object = datetime.datetime.fromtimestamp(time.time())
+    timestring = time_object.strftime('%Y-%m-%d %H:%M:%S,%f')
+
+    # Format string for error message, print and die
+    if error is True:
+        prefix = 'ERROR'
+    else:
+        prefix = 'STATUS'
+    output = ('%s - %s - [%s] (%s)') % (timestring, prefix, code, message)
+
+    # Return
+    return output

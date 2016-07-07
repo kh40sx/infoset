@@ -177,7 +177,7 @@ class Sentry3Query(Query):
         results = self.snmp_object.walk(oid, normalized=False)
         for key, value in results.items():
             # Process OID
-            data_dict[key] = value
+            data_dict[key] = str(bytes(value), encoding='utf-8')
 
         # Return
         return data_dict
@@ -200,7 +200,7 @@ class Sentry3Query(Query):
         results = self.snmp_object.walk(oid, normalized=False)
         for key, value in results.items():
             # Process OID
-            data_dict[key] = value
+            data_dict[key] = str(bytes(value), encoding='utf-8')
 
         # Return
         return data_dict

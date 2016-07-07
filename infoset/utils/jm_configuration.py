@@ -104,6 +104,7 @@ class ConfigReader(object):
         seed_dict['snmp_privprotocol'] = None
         seed_dict['snmp_privpassword'] = None
         seed_dict['snmp_port'] = 161
+        seed_dict['group_name'] = None
 
         # Read configuration's SNMP information. Return 'None' if none found
         if 'snmp_groups' in self.config_dict:
