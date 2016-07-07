@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
-"""Class to process database."""
+"""Class to process connection."""
 
 # pip3 libraries
 import pymysql
 
 # Infoset libraries
-import jm_general
+from infoset.utils import jm_general
 
 
 class Database(object):
-    """Class interacts with the database.
+    """Class interacts with the connection.
 
     Args:
         None
@@ -33,13 +33,9 @@ class Database(object):
 
         """
         # Intialize key variables
-        self.database = pymysql.connect(
-            host=config.db_hostname(),
-            user=config.db_username(),
-            passwd=config.db_password(),
-            db=config.db_name())
+        self.config = config
 
-    def db_query(self, sql_statement, error_code):
+    def query(self, sql_statement, error_code):
         """Do a database query.
 
         Args:
@@ -58,7 +54,12 @@ class Database(object):
             jm_general.logit(error_code, log_message)
 
         # Open database connection. Prepare cursor
-        cursor = self.database.cursor()
+        connection = pymysql.connect(
+            host=self.config.db_hostname(),
+            user=self.config.db_username(),
+            passwd=self.config.db_password(),
+            db=self.config.db_name())
+        cursor = connection.cursor()
 
         try:
             # Execute the SQL command
@@ -67,7 +68,7 @@ class Database(object):
 
         except Exception as exception_error:
             log_message = (
-                'Unable to fetch data from database. '
+                'Unable to fetch data from connection. '
                 'SQL statement: \"%s\" Error: \"%s\"') % (
                     sql_statement, exception_error)
             jm_general.logit(error_code, log_message)
@@ -77,11 +78,11 @@ class Database(object):
             jm_general.logit(error_code, log_message)
 
         # Disconnect from server
-        self.database.close()
+        connection.close()
 
         return query_results
 
-    def db_modify(self, sql_statement, error_code, data_list=False):
+    def modify(self, sql_statement, error_code, data_list=False):
         """Do a database modification.
 
         Args:
@@ -108,7 +109,12 @@ class Database(object):
             jm_general.logit(error_code, log_message)
 
         # Open database connection. Prepare cursor
-        cursor = self.database.cursor()
+        connection = pymysql.connect(
+            host=self.config.db_hostname(),
+            user=self.config.db_username(),
+            passwd=self.config.db_password(),
+            db=self.config.db_name())
+        cursor = connection.cursor()
 
         try:
             # If a list is provided, then do an executemany
@@ -120,20 +126,20 @@ class Database(object):
                 cursor.execute(sql_statement)
 
             # Commit  change
-            self.database.commit()
+            connection.commit()
 
         except Exception as exception_error:
-            self.database.rollback()
+            connection.rollback()
             log_message = (
-                'Unable to modify database. '
+                'Unable to modify connection. '
                 'SQL statement: \"%s\" Error: \"%s\"') % (
                     sql_statement, exception_error)
             jm_general.logit(error_code, log_message)
         except:
-            self.database.rollback()
+            connection.rollback()
             log_message = ('Unexpected exception. SQL statement: \"%s\"') % (
                 sql_statement)
             jm_general.logit(error_code, log_message)
 
         # disconnect from server
-        self.database.close()
+        connection.close()

@@ -1,2 +1,7 @@
 web_directory: /home/infoset/public_html
 data_directory: /home/infoset/infoset/data
+cache_directory: /tmp/infoset_cache
+db_hostname: localhost
+db_username: infoset
+db_password: B3bFHgxQfsEy86TN
+db_name: infoset

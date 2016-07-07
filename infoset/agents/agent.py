@@ -18,6 +18,8 @@ import json
 import logging
 import time
 from collections import defaultdict
+import hashlib
+from random import random
 
 # pip3 libraries
 import requests
@@ -234,7 +236,16 @@ class Agent(object):
             response = True
         except:
             if save is True:
-                filename = ('%s/%s.json') % (self.cache_dir, self.timestamp)
+                # Create a unique very long filename to reduce risk of
+                # overwriting from multiple daemons
+                prehash = ('%s%s%s%s%s') % (
+                    random(), random(), random(), random(), time.time())
+                hasher = hashlib.sha256()
+                hasher.update(bytes(prehash.encode()))
+                filename = ('%s/%s_%s.json') % (
+                    self.cache_dir, int(time.time()), hasher.hexdigest())
+
+                # Save data
                 with open(filename, 'w') as f_handle:
                     json.dump(self.data, f_handle)
 
@@ -293,3 +304,42 @@ class Agent(object):
                     'contacting server %s'
                     '') % (filepath, self.url)
                 jm_general.log(1009, log_message, self.config.log_file())
+
+
+def get_uid(hostname):
+    """Create a permanent UID for the agent.
+
+    Args:
+        hostname: Host to create UID for
+
+    Returns:
+        uid: UID for agent
+
+    """
+    # Initialize key variables
+    home_dir = os.environ['HOME']
+    uid_dir = ('%s/.infoset/uid') % (home_dir)
+    filename = ('%s/%s') % (uid_dir, hostname)
+
+    # Create UID directory if not yet created
+    if os.path.exists(uid_dir) is False:
+        os.makedirs(uid_dir)
+
+    # Read environment file with UID if it exists
+    if os.path.isfile(filename):
+        with open(filename) as f_handle:
+            uid = f_handle.readline()
+    else:
+        # Create a UID and save
+        prehash = ('%s%s%s%s%s') % (
+            random(), random(), random(), random(), time.time())
+        hasher = hashlib.sha256()
+        hasher.update(bytes(prehash.encode()))
+        uid = hasher.hexdigest()
+
+        # Save UID
+        with open(filename, 'w+') as env:
+            env.write(str(uid))
+
+    # Return
+    return uid
