@@ -8,7 +8,7 @@ import yaml
 from infoset.utils import jm_general
 
 
-class ConfigReader(object):
+class ConfigServer(object):
     """Class gathers all configuration information.
 
     Args:
@@ -185,6 +185,49 @@ class ConfigReader(object):
         # Return
         return value
 
+    def ingest_cache_directory(self):
+        """Determine the ingest_cache_directory.
+
+        Args:
+            None
+
+        Returns:
+            value: configured ingest_cache_directory
+
+        """
+        # Get parameter
+        value = self.config_dict['ingest_cache_directory']
+
+        # Check if value exists
+        if os.path.isdir(value) is False:
+            log_message = (
+                'ingest_cache_directory: "%s" '
+                'in configuration doesn\'t exist!') % (value)
+            jm_general.logit(1017, log_message)
+
+        # Return
+        return value
+
+    def poller_cache_directory(self):
+        """Determine the poller_cache_directory.
+
+        Args:
+            None
+
+        Returns:
+            value: configured poller_cache_directory
+
+        """
+        # Get parameter
+        value = self.config_dict['poller_cache_directory']
+
+        # Check if value exists
+        if os.path.isdir(value) is False:
+            log_message = (
+                'poller_cache_directory: "%s" '
+                'in configuration doesn\'t exist!') % (value)
+            jm_general.logit(1017, log_message)
+
     def snmp_directory(self):
         """Determine the snmp_directory.
 
@@ -216,3 +259,87 @@ class ConfigReader(object):
 
         # Return
         return value
+
+    def db_name(self):
+        """Get db_name.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        result = self.config_dict['db_name']
+        return result
+
+    def db_username(self):
+        """Get db_username.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        result = self.config_dict['db_username']
+        return result
+
+    def db_password(self):
+        """Get db_password.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        result = self.config_dict['db_password']
+        return result
+
+    def db_hostname(self):
+        """Get db_hostname.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        result = self.config_dict['db_hostname']
+        return result
+
+    def ingest_threads(self):
+        """Get ingest_threads.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        result = self.config_dict['ingest_threads']
+        return result
+
+    def log_file(self):
+        """Get log_file.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        result = self.config_dict['log_file']
+        return result
