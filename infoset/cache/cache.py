@@ -365,6 +365,9 @@ class FillDB(threading.Thread):
                 # Purge source file
                 ingest.purge()
 
+            # All done!
+            self.queue.task_done()
+
 
 def _insert_gauge_data(ingest, config):
     """Insert data into the database "iset_data" table.
