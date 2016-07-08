@@ -60,7 +60,7 @@ snmp_groups:
         tmpfile = ('%s/config.yaml') % (cls.tmpdir)
         with open(tmpfile, 'w') as f_handle:
             f_handle.write(configuration)
-        cls.testobj = test_class.ConfigReader(cls.tmpdir)
+        cls.testobj = test_class.ConfigServer(cls.tmpdir)
 
     @classmethod
     def tearDownClass(cls):

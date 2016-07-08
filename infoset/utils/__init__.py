@@ -6,5 +6,5 @@ enough to warrant their own package
 
 """
 
-from infoset.utils.jm_configuration import ConfigReader
+from infoset.utils.jm_configuration import ConfigServer
 from infoset.utils.xlate_snmp import Translator

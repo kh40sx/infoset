@@ -649,9 +649,9 @@ def process(config):
 
     """
     # Initialize key variables
-    threads_in_pool = 10
+    threads_in_pool = config.ingest_threads()
     uid_metadata = defaultdict(lambda: defaultdict(dict))
-    cache_dir = config.cache_directory()
+    cache_dir = config.ingest_cache_directory()
 
     # Get a list of active agents and datapoints
     agents = _agents(config)

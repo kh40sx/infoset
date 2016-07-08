@@ -62,7 +62,7 @@ def main():
     args = process_cli()
 
     # Get data from the cache directory
-    config = jm_configuration.ConfigReader(args.config_dir)
+    config = jm_configuration.ConfigServer(args.config_dir)
     cache.process(config)
 
     # Do the daemon thing
