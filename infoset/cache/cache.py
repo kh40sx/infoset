@@ -18,7 +18,7 @@ import re
 
 # Infoset libraries
 from infoset.db import db
-from infoset.db import agent
+from infoset.db import db_agent as agent
 
 # Define a key global variable
 THREAD_QUEUE = Queue.Queue()

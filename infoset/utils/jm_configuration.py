@@ -85,6 +85,48 @@ class ConfigServer(object):
         # Return
         return value
 
+    def snmp_directory(self):
+        """Determine the snmp_directory.
+
+        Args:
+            None
+
+        Returns:
+            value: configured snmp_directory
+
+        """
+        # Get parameter
+        value = ('%s/snmp') % (self.data_directory())
+
+        print('boo')
+        # Check if value exists
+        if os.path.isdir(value) is False and os.path.exists(value) is True:
+            log_message = (
+                'snmp_directory: "%s" '
+                'in configuration doesn\'t exist!') % (value)
+            jm_general.logit(1040, log_message)
+        else:
+            os.mkdir(value)
+
+        # Return
+        return value
+
+    def snmp_device_file(self, host):
+        """Determine the snmp_device_file.
+
+        Args:
+            host: Hostname
+
+        Returns:
+            value: configured snmp_device_file
+
+        """
+        # Get parameter
+        value = ('%s/%s.yaml') % (self.snmp_directory(), host)
+
+        # Return
+        return value
+
     def web_directory(self):
         """Determine the web_directory.
 

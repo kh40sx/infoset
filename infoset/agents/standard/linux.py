@@ -32,43 +32,90 @@ logging.getLogger('requests').setLevel(logging.WARNING)
 logging.basicConfig(level=logging.DEBUG)
 
 
-def phone_home(config):
-    """Post system data to the central server.
+class PollingAgent(object):
+    """Infoset agent that gathers data.
 
     Args:
-        config: Configuration object
+        None
 
     Returns:
         None
 
+    Functions:
+        __init__:
+        populate:
+        post:
     """
-    # Get hostname
-    hostname = socket.getfqdn()
 
-    # Get the UID for the agent
-    uid = Agent.get_uid(hostname)
+    def __init__(self, config_dir):
+        """Method initializing the class.
 
-    # Initialize key variables
-    agent = Agent.Agent(uid, config, hostname)
+        Args:
+            config_dir: Configuration directory
 
-    # Update agent with system data
-    update_agent_system(agent)
+        Returns:
+            None
 
-    # Update agent with disk data
-    update_agent_disk(agent)
+        """
+        # Initialize key variables
+        agent_name = 'linux'
 
-    # Update agent with network data
-    update_agent_net(agent)
+        # Get configuration
+        self.config = jm_configuration.ConfigAgent(config_dir, agent_name)
 
-    # Post data
-    success = agent.post()
+    def query(self):
+        """Query all remote hosts for data.
 
-    # Purge cache if success is True
-    if success is True:
-        agent.purge()
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Post data to the remote server
+        self.upload()
+
+        # Do the daemon thing
+        Timer(300, main).start()
+
+    def upload(self):
+        """Post system data to the central server.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Get hostname
+        hostname = socket.getfqdn()
+
+        # Get the UID for the agent
+        uid = Agent.get_uid(hostname)
+
+        # Initialize key variables
+        agent = Agent.Agent(uid, self.config, hostname)
+
+        # Update agent with system data
+        _update_agent_system(agent)
+
+        # Update agent with disk data
+        _update_agent_disk(agent)
+
+        # Update agent with network data
+        _update_agent_net(agent)
+
+        # Post data
+        success = agent.post()
+
+        # Purge cache if success is True
+        if success is True:
+            agent.purge()
 
 
-def update_agent_system(agent):
+def _update_agent_system(agent):
     """Update agent with system data.
 
     Args:
@@ -120,7 +167,7 @@ def update_agent_system(agent):
     agent.populate_named_tuple('memory', psutil.virtual_memory())
 
 
-def update_agent_disk(agent):
+def _update_agent_disk(agent):
     """Update agent with disk data.
 
     Args:
@@ -176,7 +223,7 @@ def update_agent_disk(agent):
     agent.populate_dict('disk_io', counterkey, base_type='counter64')
 
 
-def update_agent_net(agent):
+def _update_agent_net(agent):
     """Update agent with network data.
 
     Args:
@@ -241,18 +288,12 @@ def main():
         None
 
     """
-    # Initialize key variables
-    agent_name = 'linux'
-
     # Get configuration
     args = process_cli()
-    config = jm_configuration.ConfigAgent(args.config_dir, agent_name)
 
-    # Post data to the remote server
-    phone_home(config)
-
-    # Do the daemon thing
-    Timer(300, main).start()
+    # Instantiate and poll
+    poller = PollingAgent(args.config_dir)
+    poller.query()
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Test the jm_general module."""
 
 import unittest
@@ -7,6 +8,7 @@ import os
 import string
 
 from infoset.utils import jm_general as testimport
+
 
 class KnownValues(unittest.TestCase):
     """Checks all functions and methods."""

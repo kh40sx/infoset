@@ -60,6 +60,7 @@ def logit(error_num, error_string, error=True):
 
     Returns:
         None
+
     """
     # Log the message
     if error is True:
