@@ -26,7 +26,7 @@ class KnownValues(unittest.TestCase):
         # Try logging with exit
         log_message = self.random_string
         with self.assertRaises(SystemExit):
-            testimport.logit(1000, log_message, True)
+            testimport.logit(1021, log_message, True)
 
         # Try logging with noexit
         result = testimport.logit(1000, log_message, False)

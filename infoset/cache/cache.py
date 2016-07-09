@@ -55,7 +55,7 @@ class Drain(object):
         self.metadata = []
         self.agent_meta = {}
         data_types = ['chartable', 'other']
-        agent_meta_keys = ['timestamp', 'uid', 'agent']
+        agent_meta_keys = ['timestamp', 'uid', 'agent', 'hostname']
 
         # Ingest data
         with open(filename, 'r') as f_handle:
@@ -143,6 +143,22 @@ class Drain(object):
         # Return
         return data
 
+    def hostname(self):
+        """Return hostname.
+
+        Args:
+            None
+
+        Returns:
+            data: Agent hostname
+
+        """
+        # Initialize key variables
+        data = self.agent_meta['hostname']
+
+        # Return
+        return data
+
     def counter32(self):
         """Return counter32 chartable data from file.
 
@@ -189,8 +205,8 @@ class Drain(object):
         # Return
         return data
 
-    def gauge(self):
-        """Return gauge chartable data from file.
+    def floating(self):
+        """Return floating chartable data from file.
 
         Args:
             None
@@ -205,7 +221,7 @@ class Drain(object):
         """
         # Initialize key variables
         if 1 in self.data['chartable']:
-            data = self.data['chartable']['gauge']
+            data = self.data['chartable']['floating']
         else:
             data = []
 
@@ -253,7 +269,7 @@ class Drain(object):
         # Initialize key variables
         data = []
 
-        # Return (Ignore whether gauge or counter)
+        # Return (Ignore whether floating or counter)
         for _, value in self.data['other'].items():
             data.extend(value)
         return data
@@ -335,10 +351,13 @@ class FillDB(threading.Thread):
                 ingest = Drain(filepath)
 
                 # Double check that the UID and timestamp in the
-                # filename matches that in the file
+                # filename matches that in the file.
+                # Delete invalid files as a safety measure.
                 if uid != ingest.uid():
+                    os.remove(filepath)
                     continue
                 if timestamp != ingest.timestamp():
+                    os.remove(filepath)
                     continue
 
                 # Update agent table if not there
@@ -346,6 +365,7 @@ class FillDB(threading.Thread):
                     _insert_agent(
                         ingest.uid(),
                         ingest.agent(),
+                        ingest.hostname(),
                         config
                         )
                     # Append the new insertion to the list
@@ -360,7 +380,7 @@ class FillDB(threading.Thread):
                         datapoints.append(did)
 
                 # Update chartable data
-                _insert_gauge_data(ingest, config)
+                _update_measurements(ingest, config)
 
                 # Purge source file
                 ingest.purge()
@@ -369,7 +389,7 @@ class FillDB(threading.Thread):
             self.queue.task_done()
 
 
-def _insert_gauge_data(ingest, config):
+def _update_measurements(ingest, config):
     """Insert data into the database "iset_data" table.
 
     Args:
@@ -388,7 +408,7 @@ def _insert_gauge_data(ingest, config):
     # Create map of DIDs to database row index values
     mapping = _datapoints_by_did(config)
 
-    # Update gauge data
+    # Update data
     for item in data:
         # Process each datapoint item found
         (_, did, value, timestamp) = item
@@ -418,7 +438,7 @@ def _insert_gauge_data(ingest, config):
 
     # Do query and get results
     database = db.Database(config)
-    database.modify(sql_insert, 1096, data_list=data_list)
+    database.modify(sql_insert, 1037, data_list=data_list)
 
     # Change the last updated timestamp
     for idx_datapoint, last_timestamp in timestamp_tracker.items():
@@ -426,7 +446,7 @@ def _insert_gauge_data(ingest, config):
         sql_modify = (
             'UPDATE iset_datapoint SET last_timestamp=%s '
             'WHERE iset_datapoint.idx=%s') % (last_timestamp, idx_datapoint)
-        database.modify(sql_modify, 1096)
+        database.modify(sql_modify, 1044)
 
 
 def _insert_datapoint(metadata, config):
@@ -463,15 +483,17 @@ def _insert_datapoint(metadata, config):
 
     # Do query and get results
     database = db.Database(config)
-    database.modify(sql_query, 1074)
+    database.modify(sql_query, 1032)
 
 
-def _insert_agent(uid, name, config):
+def _insert_agent(uid, name, hostname, config):
     """Insert new agent into database.
 
     Args:
         uid: Agent uid
-        name: agent name
+        name: Agent name
+        Hostname: Hostname the agent gets data from
+        config: Configuration object
 
     Returns:
         None
@@ -479,12 +501,13 @@ def _insert_agent(uid, name, config):
     """
     # Prepare SQL query to read a record from the database.
     sql_query = (
-        'INSERT INTO iset_agent (id, name) VALUES ("%s", "%s")'
-        '') % (uid, name)
+        'INSERT INTO iset_agent (id, name, hostname) '
+        'VALUES ("%s", "%s", "%s")'
+        '') % (uid, name, hostname)
 
     # Do query and get results
     database = db.Database(config)
-    database.modify(sql_query, 1074)
+    database.modify(sql_query, 1033)
 
 
 def _datapoints(config):
@@ -507,7 +530,7 @@ def _datapoints(config):
 
     # Do query and get results
     database = db.Database(config)
-    query_results = database.query(sql_query, 1074)
+    query_results = database.query(sql_query, 1034)
 
     # Massage data
     for row in query_results:
@@ -542,7 +565,7 @@ def _datapoints_by_did(config):
 
     # Do query and get results
     database = db.Database(config)
-    query_results = database.query(sql_query, 1074)
+    query_results = database.query(sql_query, 1035)
 
     # Massage data
     for row in query_results:
@@ -576,7 +599,7 @@ def _agents(config):
 
     # Do query and get results
     database = db.Database(config)
-    query_results = database.query(sql_query, 1074)
+    query_results = database.query(sql_query, 1036)
 
     # Massage data
     for row in query_results:
@@ -625,7 +648,7 @@ def _base_type(data):
         value = data
 
     # Assign base type code
-    if value.lower() == 'gauge':
+    if value.lower() == 'floating':
         base_type = 1
     elif value.lower() == 'counter32':
         base_type = 32

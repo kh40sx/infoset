@@ -432,7 +432,7 @@ class Interact(object):
         valid_format = oid_valid_format(oid_to_get)
         if valid_format is False:
             log_message = ('OID %s has an invalid format') % (oid_to_get)
-            jm_general.logit(1000, log_message, True)
+            jm_general.logit(1020, log_message, True)
 
         # Create the object
         snmp_object = cmdgen.CommandGenerator()
@@ -466,7 +466,7 @@ class Interact(object):
                 'OID %s from %s: (%s)') % (oid_to_get,
                                            snmp_params['snmp_hostname'],
                                            exception_error)
-            jm_general.logit(1001, log_message, True)
+            jm_general.logit(1023, log_message, True)
         except:
             log_message = ('Unexpected error')
             jm_general.logit(1002, log_message, True)

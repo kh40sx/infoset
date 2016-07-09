@@ -55,7 +55,7 @@ class Get(object):
 
         # Do query and get results
         database = db.Database(config)
-        query_results = database.query(sql_query, 1301)
+        query_results = database.query(sql_query, 1038)
 
         # Massage data
         for row in query_results:
