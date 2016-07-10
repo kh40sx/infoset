@@ -12,7 +12,7 @@ branches:
 # Set environmental variables
 env:
   global:
-    - INFOSET_CONFIGDIR=infoset/sample_code/etc
+    - INFOSET_CONFIGDIR=~/infoset/infoset/sample_code/etc
 
 # command to install dependencies
 install:
