@@ -7,7 +7,7 @@ import datetime
 import time
 
 # Infoset imports
-from infoset.utils import jm_configuration
+# from infoset.utils import jm_configuration
 
 
 def log2die_safe(code, message):
