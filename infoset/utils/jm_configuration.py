@@ -2,7 +2,6 @@
 """infoset classes that manage various configurations."""
 
 import os.path
-from pprint import pprint
 
 # Import project libraries
 from infoset.utils import jm_general
@@ -215,22 +214,6 @@ class ConfigServer(object):
                 'ingest_cache_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
             jm_general.log2die(1030, log_message)
-
-        # Return
-        return value
-
-    def snmp_directory(self):
-        """Determine the snmp_directory.
-
-        Args:
-            None
-
-        Returns:
-            value: Implied snmp_directory
-
-        """
-        # Get parameter
-        value = ('%s/snmp') % self.data_directory()
 
         # Return
         return value
