@@ -8,6 +8,53 @@ from pprint import pprint
 from infoset.utils import jm_general
 
 
+class ConfigCommon(object):
+    """Class gathers all configuration information.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Functions:
+        __init__:
+        hosts:
+        snmp_auth:
+    """
+
+    def __init__(self, root_directory):
+        """Function for intializing the class.
+
+        Args:
+            root_directory: Root configuration directory
+
+        Returns:
+            None
+
+        """
+        # Update the configuration directory
+        common_directory = ('%s/common') % (root_directory)
+        directories = [common_directory]
+
+        # Return
+        self.config_dict = jm_general.read_yaml_files(directories)
+
+    def log_file(self):
+        """Get log_file.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        result = self.config_dict['log_file']
+        return result
+
+
 class ConfigServer(object):
     """Class gathers all configuration information.
 
@@ -80,7 +127,7 @@ class ConfigServer(object):
             log_message = (
                 'data_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
-            jm_general.logit(1007, log_message)
+            jm_general.log2die(1007, log_message)
 
         # Return
         return value
@@ -98,13 +145,12 @@ class ConfigServer(object):
         # Get parameter
         value = ('%s/snmp') % (self.data_directory())
 
-        print('boo')
         # Check if value exists
         if os.path.isdir(value) is False and os.path.exists(value) is True:
             log_message = (
                 'snmp_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
-            jm_general.logit(1040, log_message)
+            jm_general.log2die(1040, log_message)
         else:
             os.mkdir(value)
 
@@ -145,7 +191,7 @@ class ConfigServer(object):
             log_message = (
                 'web_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
-            jm_general.logit(1016, log_message)
+            jm_general.log2die(1016, log_message)
 
         # Return
         return value
@@ -168,7 +214,7 @@ class ConfigServer(object):
             log_message = (
                 'ingest_cache_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
-            jm_general.logit(1030, log_message)
+            jm_general.log2die(1030, log_message)
 
         # Return
         return value
@@ -400,7 +446,7 @@ class ConfigAgent(object):
             log_message = (
                 'agent_cache_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
-            jm_general.logit(1031, log_message)
+            jm_general.log2die(1031, log_message)
 
         # Return
         return value

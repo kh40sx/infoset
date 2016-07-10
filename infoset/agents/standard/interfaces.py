@@ -10,7 +10,6 @@ Description:
 
 """
 # Standard libraries
-from threading import Timer
 import logging
 from collections import defaultdict
 
@@ -85,9 +84,6 @@ class PollingAgent(object):
             None
 
         """
-        # Initialize key variables
-        log_file = self.config.log_file()
-
         # Check each hostname
         hostnames = self.config.agent_snmp_hostnames()
         for hostname in hostnames:
@@ -101,7 +97,7 @@ class PollingAgent(object):
                 log_message = (
                     'No valid SNMP configuration found '
                     'for host "%s" ') % (hostname)
-                jm_general.log(1022, log_message, log_file, error=False)
+                jm_general.log2quiet(1022, log_message)
                 continue
 
             # Create Query make sure MIB is supported
@@ -112,7 +108,7 @@ class PollingAgent(object):
                 log_message = (
                     'The IF-MIB is not supported by host  "%s"'
                     '') % (hostname)
-                jm_general.log(1024, log_message, log_file, error=False)
+                jm_general.log2quiet(1024, log_message)
                 continue
 
             # Get the UID for the agent after all preliminary checks are OK
@@ -120,9 +116,6 @@ class PollingAgent(object):
 
             # Post data to the remote server
             self.upload(uid_env, hostname, query, query64)
-
-        # Do the daemon thing
-        Timer(300, main).start()
 
     def upload(self, uid, hostname, query, query64):
         """Post system data to the central server.
@@ -147,11 +140,16 @@ class PollingAgent(object):
             if value != 1:
                 ignore.append(key)
 
+        # Get descriptions
+        descriptions = query.ifdescr(safe=True)
+        if bool(descriptions) is False:
+            return
+
         # Update 32 bit data
-        _update_32(agent, ignore, query)
+        _update_32(agent, ignore, descriptions, query)
 
         # Update 64 bit data
-        _update_64(agent, ignore, query, query64)
+        _update_64(agent, ignore, descriptions, query64)
 
         # Post data
         success = agent.post()
@@ -161,13 +159,13 @@ class PollingAgent(object):
             agent.purge()
 
 
-def _update_64(agent, ignore, query, query64):
+def _update_64(agent, ignore, descriptions, query64):
     """Return all the CLI options.
 
     Args:
         agent: Agent object
         ignore: List of ifIndexes to ignore
-        query: SNMP query object
+        descriptions: Dict keyed by ifIndex of ifDescr values
         query64: SNMP query object (64 bit)
 
     Returns:
@@ -187,28 +185,33 @@ def _update_64(agent, ignore, query, query64):
     # Handle 64 bit counters
     ##########################################################################
     labels = ['ifHCInOctets', 'ifHCOutOctets']
-    state['ifHCInOctets'] = query64.ifhcinoctets()
-    state['ifHCOutOctets'] = query64.ifhcoutoctets()
-    state['ifDescr'] = query.ifdescr()
+    state['ifHCInOctets'] = query64.ifhcinoctets(safe=True)
+    state['ifHCOutOctets'] = query64.ifhcoutoctets(safe=True)
+
+    # Make sure we received values
+    for label in labels:
+        if bool(state[label]) is False:
+            return
 
     # Create dictionary for eventual posting
     for label in labels:
         for key, value in state[label].items():
             if key in ignore:
                 continue
-            source = state['ifDescr'][key]
+            source = descriptions[key]
             data[label][source] = value * 8
 
     # Populate agent
     agent.populate_dict(prefix, data, base_type='counter64')
 
 
-def _update_32(agent, ignore, query):
+def _update_32(agent, ignore, descriptions, query):
     """Return all the CLI options.
 
     Args:
         agent: Agent object
         ignore: List of ifIndexes to ignore
+        descriptions: Dict keyed by ifIndex of ifDescr values
         query: SNMP query object
 
     Returns:
@@ -225,16 +228,20 @@ def _update_32(agent, ignore, query):
     ##########################################################################
     # Get results from querying device
     labels = ['ifInOctets', 'ifOutOctets']
-    state['ifInOctets'] = query.ifinoctets()
-    state['ifOutOctets'] = query.ifoutoctets()
-    state['ifDescr'] = query.ifdescr()
+    state['ifInOctets'] = query.ifinoctets(safe=True)
+    state['ifOutOctets'] = query.ifoutoctets(safe=True)
+
+    # Make sure we received values
+    for label in labels:
+        if bool(state[label]) is False:
+            return
 
     # Create dictionary for eventual posting
     for label in labels:
         for key, value in state[label].items():
             if key in ignore:
                 continue
-            source = state['ifDescr'][key]
+            source = descriptions[key]
             data[label][source] = value * 8
 
     # Populate agent

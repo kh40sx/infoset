@@ -56,7 +56,7 @@ class PollAllSNMP(threading.Thread):
                     log_message = (
                         'Uncontactable host %s or no valid SNMP '
                         'credentials found for it.') % (host)
-                    jm_general.logit(1019, log_message, False)
+                    jm_general.log2die(1019, log_message, False)
                 continue
 
             # Process if valid

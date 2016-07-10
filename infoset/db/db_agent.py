@@ -62,7 +62,7 @@ class Get(object):
             # uid found?
             if not row[0]:
                 log_message = ('uid %s not found.') % (uid)
-                jm_general.die(1302, log_message)
+                jm_general.log2die(1302, log_message)
 
             # Assign values
             self.data_dict['idx'] = row[0]

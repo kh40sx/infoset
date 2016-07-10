@@ -91,9 +91,6 @@ class PollingAgent(object):
         # Post data to the remote server
         self.upload()
 
-        # Do the daemon thing
-        Timer(300, main).start()
-
     def upload(self):
         """Post system data to the central server.
 
@@ -258,39 +255,6 @@ def _update_agent_net(agent):
         for label, value in system_dict.items():
             counterkey[label][source] = value
     agent.populate_dict('network', counterkey, base_type='counter64')
-
-
-def process_cli(additional_help=None):
-    """Return all the CLI options.
-
-    Args:
-        None
-
-    Returns:
-        args: Namespace() containing all of our CLI arguments as objects
-            - filename: Path to the configuration file
-
-    """
-    # Header for the help menu of the application
-    parser = argparse.ArgumentParser(
-        description=additional_help,
-        formatter_class=argparse.RawTextHelpFormatter)
-
-    # CLI argument for the config directory
-    parser.add_argument(
-        '--config_dir',
-        dest='config_dir',
-        required=True,
-        default=None,
-        type=str,
-        help='Config directory to use.'
-    )
-
-    # Return the CLI arguments
-    args = parser.parse_args()
-
-    # Return our parsed CLI arguments
-    return args
 
 
 def main():

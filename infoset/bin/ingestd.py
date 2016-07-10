@@ -9,7 +9,7 @@ This could be a modified to be a daemon
 # Standard libraries
 import os
 import sys
-from threading import Timer
+import time
 import argparse
 
 # Infoset libraries
@@ -63,8 +63,9 @@ class IngestDaemon(Daemon):
 
         """
         # Do the daemon thing
-        cache.process(self.config)
-        Timer(60, self.run).start()
+        while True:
+            cache.process(self.config)
+            time.sleep(60)
 
 
 class IngestCLI(object):
@@ -91,22 +92,8 @@ class IngestCLI(object):
         # Initialize key variables
         self.parser = None
 
-        # Get environment
-        if 'INFOSET_CONFIGDIR' not in os.environ:
-            log_message = (
-                'Environment variables $INFOSET_CONFIGDIR needs '
-                'to be set to the infoset configuration directory.')
-            jm_general.logit(1041, log_message)
-
-        # Get configuration directory
+        jm_general.check_environment()
         self.config_directory = os.environ['INFOSET_CONFIGDIR']
-        if (os.path.exists(self.config_directory) is False) or (
-                os.path.isdir(self.config_directory) is False):
-            log_message = (
-                'Environment variables $INFOSET_CONFIGDIR set to '
-                'directory %s that does not exist'
-                '') % (self.config_directory)
-            jm_general.logit(1042, log_message)
 
     def config_dir(self):
         """Return configuration directory.

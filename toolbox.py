@@ -101,7 +101,7 @@ def do_test(cli_args, config):
         log_message = (
             'Uncontactable host %s or no valid SNMP '
             'credentials found for it.') % (cli_args.host)
-        jm_general.logit(1039, log_message)
+        jm_general.log2die(1039, log_message)
 
 
 # TODO remove deprecated pagemaker functions

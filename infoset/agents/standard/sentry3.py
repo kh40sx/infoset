@@ -10,7 +10,6 @@ Description:
 
 """
 # Standard libraries
-from threading import Timer
 import logging
 from collections import defaultdict
 
@@ -84,9 +83,6 @@ class PollingAgent(object):
             None
 
         """
-        # Initialize key variables
-        log_file = self.config.log_file()
-
         # Check each hostname
         hostnames = self.config.agent_snmp_hostnames()
         for hostname in hostnames:
@@ -100,7 +96,7 @@ class PollingAgent(object):
                 log_message = (
                     'No valid SNMP configuration found '
                     'for host "%s" ') % (hostname)
-                jm_general.log(1006, log_message, log_file, error=False)
+                jm_general.log2quiet(1006, log_message)
                 continue
 
             # Create Query make sure MIB is supported
@@ -110,7 +106,7 @@ class PollingAgent(object):
                 log_message = (
                     'The Sentry3 MIB is not supported by host  "%s"'
                     '') % (hostname)
-                jm_general.log(1001, log_message, log_file, error=False)
+                jm_general.log2quiet(1001, log_message)
                 continue
 
             # Get the UID for the agent after all preliminary checks are OK
@@ -118,9 +114,6 @@ class PollingAgent(object):
 
             # Post data to the remote server
             self.upload(uid_env, hostname, snmp_query)
-
-        # Do the daemon thing
-        Timer(300, self.query()).start()
 
     def upload(self, uid, hostname, query):
         """Post system data to the central server.
@@ -142,10 +135,17 @@ class PollingAgent(object):
         prefix = 'Sentry3'
 
         # Get results from querying Servertech device
-        state['infeedPower'] = _normalize_keys(query.infeedpower())
+        state['infeedPower'] = _normalize_keys(query.infeedpower(safe=True))
         state['infeedLoadValue'] = _normalize_keys(
-            query.infeedloadvalue())
-        state['infeedID'] = _normalize_keys(query.infeedid())
+            query.infeedloadvalue(safe=True))
+        state['infeedID'] = _normalize_keys(query.infeedid(safe=True))
+
+        # Make sure we received values
+        for label in labels:
+            if bool(state[label]) is False:
+                return
+        if bool(state['infeedID']) is False:
+            return
 
         # Create dictionary for eventual posting
         for label in labels:

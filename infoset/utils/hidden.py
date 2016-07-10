@@ -145,4 +145,4 @@ def _mkdir(directory):
             log_message = (
                 '%s is not a directory.'
                 '') % (directory)
-            jm_general.logit(1043, log_message)
+            jm_general.log2die(1043, log_message)

@@ -180,7 +180,7 @@ def make(config, verbose=False):
                 'No YAML device file for host %s found in %s. '
                 'Run toolbox.py with the "poll" option first.'
                 '') % (host, config.snmp_directory())
-            jm_general.logit(1018, log_message, False)
+            jm_general.log2die(1018, log_message, False)
             continue
         else:
             device_file_found = True

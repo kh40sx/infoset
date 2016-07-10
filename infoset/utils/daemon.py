@@ -70,11 +70,11 @@ class Daemon:
         sys.stdout.flush()
         sys.stderr.flush()
         f_handle_si = open(os.devnull, 'r')
-        f_handle_so = open(os.devnull, 'a+')
+        # f_handle_so = open(os.devnull, 'a+')
         f_handle_se = open(os.devnull, 'a+')
 
         os.dup2(f_handle_si.fileno(), sys.stdin.fileno())
-        #os.dup2(f_handle_so.fileno(), sys.stdout.fileno())
+        # os.dup2(f_handle_so.fileno(), sys.stdout.fileno())
         os.dup2(f_handle_se.fileno(), sys.stderr.fileno())
 
         # write pidfile
@@ -170,8 +170,24 @@ class Daemon:
         Returns:
 
         """
+        # Restart
         self.stop()
         self.start()
+
+    def status(self):
+        """Get daemon status.
+
+        Args:
+            None
+
+        Returns:
+
+        """
+        # Get status
+        if os.path.exists(self.pidfile) is True:
+            print('Daemon is running')
+        else:
+            print('Daemon is stopped')
 
     def run(self):
         """You should override this method when you subclass Daemon.

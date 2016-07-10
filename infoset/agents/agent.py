@@ -114,7 +114,7 @@ class Agent(object):
             log_message = (
                 'base_type %s is unsupported for label "%s"'
                 '') % (base_type, label)
-            jm_general.logit(1025, log_message)
+            jm_general.log2die(1025, log_message)
 
         # Convert data to list of tuples if required
         if isinstance(data, list) is False:
@@ -260,13 +260,12 @@ class Agent(object):
             log_message = (
                 'Successfully contacted server %s'
                 '') % (self.url)
-            jm_general.log(1027, log_message, self.config.log_file())
+            jm_general.log2quiet(1027, log_message)
         else:
             log_message = (
                 'Failed to contact server %s'
                 '') % (self.url)
-            jm_general.log(
-                1028, log_message, self.config.log_file())
+            jm_general.log2quiet(1028, log_message)
 
         # Return
         return success
@@ -304,7 +303,7 @@ class Agent(object):
                     'Purging cache file %s after successfully '
                     'contacting server %s'
                     '') % (filepath, self.url)
-                jm_general.log(1029, log_message, self.config.log_file())
+                jm_general.log2quiet(1029, log_message)
 
 
 class AgentDaemon(Daemon):
@@ -350,7 +349,9 @@ class AgentDaemon(Daemon):
 
         """
         # Start polling
-        self.poller.query()
+        while True:
+            self.poller.query()
+            time.sleep(300)
 
 
 class AgentCLI(object):
@@ -377,22 +378,9 @@ class AgentCLI(object):
         # Initialize key variables
         self.parser = None
 
-        # Get environment
-        if 'INFOSET_CONFIGDIR' not in os.environ:
-            log_message = (
-                'Environment variables $INFOSET_CONFIGDIR needs '
-                'to be set to the infoset configuration directory.')
-            jm_general.logit(1041, log_message)
-
-        # Get configuration directory
+        # Check environment
+        jm_general.check_environment()
         self.config_directory = os.environ['INFOSET_CONFIGDIR']
-        if (os.path.exists(self.config_directory) is False) or (
-                os.path.isdir(self.config_directory) is False):
-            log_message = (
-                'Environment variables $INFOSET_CONFIGDIR set to '
-                'directory %s that does not exist'
-                '') % (self.config_directory)
-            jm_general.logit(1042, log_message)
 
     def config_dir(self):
         """Return configuration directory.
@@ -442,6 +430,15 @@ class AgentCLI(object):
             help='Start the agent daemon.'
         )
 
+        # CLI argument for starting
+        parser.add_argument(
+            '--status',
+            required=False,
+            default=False,
+            action='store_true',
+            help='Get daemon daemon status.'
+        )
+
         # CLI argument for restarting
         parser.add_argument(
             '--restart',
@@ -477,6 +474,8 @@ class AgentCLI(object):
             daemon.stop()
         elif args.restart is True:
             daemon.restart()
+        elif args.status is True:
+            daemon.status()
         else:
             parser.print_help()
             sys.exit(2)
