@@ -350,6 +350,7 @@ class AgentDaemon(Daemon):
         """
         # Start polling
         while True:
+            time.sleep(1)
             self.poller.query()
             time.sleep(300)
 

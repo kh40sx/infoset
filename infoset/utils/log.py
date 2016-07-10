@@ -7,7 +7,7 @@ import datetime
 import time
 
 # Infoset imports
-# from infoset.utils import ConfigCommon
+from infoset.utils import jm_configuration
 
 def log2die_safe(code, message):
     """Log message to STDOUT only and die.
@@ -88,12 +88,12 @@ def _logit(code, message, error=True, verbose=True):
     # Log the message
     if error is True:
         print(output)
-        _update_logfile(message)
+        _update_logfile(output)
         sys.exit(3)
     else:
         if verbose is True:
             print(output)
-        _update_logfile(message)
+        _update_logfile(output)
 
 
 def _update_logfile(message):
@@ -107,10 +107,10 @@ def _update_logfile(message):
 
     """
     # Get log filename
-    # config_dir = os.environ['INFOSET_CONFIGDIR']
-    # config = ConfigCommon(config_dir)
-    # filename = config.log_file()
-    filename = '/tmp/infoset.log'
+    config_dir = os.environ['INFOSET_CONFIGDIR']
+    config = jm_configuration.ConfigCommon(config_dir)
+    filename = config.log_file()
+    # filename = '/tmp/infoset.log'
 
     # Write to file
     with open(filename, 'a') as f_handle:
