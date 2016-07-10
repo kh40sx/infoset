@@ -7,7 +7,7 @@ import datetime
 import time
 
 # Infoset imports
-from infoset.utils import jm_configuration
+# from infoset.utils import jm_configuration
 
 def log2die_safe(code, message):
     """Log message to STDOUT only and die.
@@ -107,10 +107,10 @@ def _update_logfile(message):
 
     """
     # Get log filename
-    config_dir = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.ConfigCommon(config_dir)
-    filename = config.log_file()
-    # filename = '/tmp/infoset.log'
+    # config_dir = os.environ['INFOSET_CONFIGDIR']
+    # config = ConfigCommon(config_dir)
+    # filename = config.log_file()
+    filename = '/tmp/infoset.log'
 
     # Write to file
     with open(filename, 'a') as f_handle:
