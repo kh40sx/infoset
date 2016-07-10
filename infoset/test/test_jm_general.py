@@ -23,17 +23,6 @@ class KnownValues(unittest.TestCase):
     random_string = ''.join([random.choice(
         string.ascii_letters + string.digits) for n in range(9)])
 
-    def test_logit(self):
-        """Testing method / function logit."""
-        # Try logging with exit
-        log_message = self.random_string
-        with self.assertRaises(SystemExit):
-            testimport._logit(1021, log_message, True)
-
-        # Try logging with noexit
-        result = testimport._logit(1000, log_message, False)
-        self.assertEqual(result, None)
-
     def test_dict2yaml(self):
         """Testing method / function dict2yaml."""
         # Initializing key variables
