@@ -6,7 +6,7 @@ import yaml
 
 
 # Infoset imports
-from infoset.log import log
+from infoset.utils import log
 
 
 class Translator(object):

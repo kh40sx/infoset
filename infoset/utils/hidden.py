@@ -3,8 +3,7 @@
 import os
 
 # Infoset imports
-from infoset.utils import jm_general
-from infoset.log import log
+from infoset.utils import log
 
 
 class Directory:
@@ -146,4 +145,4 @@ def _mkdir(directory):
             log_message = (
                 '%s is not a directory.'
                 '') % (directory)
-            jm_general.log2die(1043, log_message)
+            log.log2die(1043, log_message)

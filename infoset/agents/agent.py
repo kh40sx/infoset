@@ -26,7 +26,7 @@ import requests
 # infoset libraries
 from infoset.utils import hidden
 from infoset.utils import Daemon
-from infoset.log import log
+from infoset.utils import log
 
 
 logging.getLogger('requests').setLevel(logging.WARNING)

@@ -11,7 +11,7 @@ import threading
 from infoset.utils import jm_general
 from infoset.snmp import snmp_manager
 from infoset.snmp import snmp_info
-from infoset.log import log
+from infoset.utils import log
 
 
 # Define a key global variable

@@ -5,7 +5,7 @@ import os.path
 
 # Import project libraries
 from infoset.utils import jm_general
-from infoset.log import log
+from infoset.utils import log
 
 
 class ConfigCommon(object):

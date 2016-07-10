@@ -15,7 +15,7 @@ from collections import defaultdict
 
 # infoset libraries
 from infoset.agents import agent as Agent
-from infoset.log import log
+from infoset.utils import log
 from infoset.utils import jm_configuration
 from infoset.snmp import snmp_manager
 from infoset.snmp import mib_if

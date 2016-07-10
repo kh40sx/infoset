@@ -7,7 +7,7 @@ import json
 import yaml
 
 # Infoset libraries
-from infoset.log import log
+from infoset.utils import log
 
 
 def dict2yaml(data_dict):

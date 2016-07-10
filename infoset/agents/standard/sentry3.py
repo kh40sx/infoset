@@ -18,7 +18,7 @@ from infoset.agents import agent
 from infoset.utils import jm_configuration
 from infoset.snmp import snmp_manager
 from infoset.snmp import mib_sentry3
-from infoset.log import log
+from infoset.utils import log
 
 logging.getLogger('requests').setLevel(logging.WARNING)
 logging.basicConfig(level=logging.DEBUG)

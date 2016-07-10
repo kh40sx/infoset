@@ -8,7 +8,7 @@ Classes for agent data
 from collections import defaultdict
 
 # Infoset libraries
-from infoset.log import log
+from infoset.utils import log
 from infoset.db import db
 
 

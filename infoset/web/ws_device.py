@@ -8,7 +8,7 @@ import os
 import queue as Queue
 import threading
 
-from infoset.log import log
+from infoset.utils import log
 from infoset.utils import jm_general
 from infoset.utils import Translator
 

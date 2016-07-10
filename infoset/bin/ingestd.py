@@ -14,7 +14,7 @@ import argparse
 
 # Infoset libraries
 from infoset.cache import cache
-from infoset.log import log
+from infoset.utils import log
 from infoset.utils import jm_configuration
 from infoset.utils import hidden
 from infoset.utils import Daemon

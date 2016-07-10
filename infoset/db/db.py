@@ -6,7 +6,7 @@
 import pymysql
 
 # Infoset libraries
-from infoset.log import log
+from infoset.utils import log
 
 
 class Database(object):

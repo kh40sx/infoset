@@ -9,7 +9,7 @@ from pysnmp.proto import rfc1902
 from pysnmp.smi import rfc1902 as smi
 
 # Import project libraries
-from infoset.log import log
+from infoset.utils import log
 from infoset.utils import hidden
 from infoset.snmp import jm_iana_enterprise
 
