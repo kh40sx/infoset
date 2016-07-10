@@ -12,7 +12,6 @@ Description:
 # Standard libraries
 from threading import Timer
 import logging
-import argparse
 from collections import defaultdict
 
 # infoset libraries
@@ -52,13 +51,28 @@ class PollingAgent(object):
 
         """
         # Initialize key variables
-        agent_name = 'sentry3'
+        self.agent_name = 'sentry3'
 
         # Get configuration
-        self.config = jm_configuration.ConfigAgent(config_dir, agent_name)
+        self.config = jm_configuration.ConfigAgent(
+            config_dir, self.agent_name)
 
         # Get snmp configuration information from infoset
         self.snmp_config = jm_configuration.ConfigSNMP(config_dir)
+
+    def name(self):
+        """Return agent name.
+
+        Args:
+            None
+
+        Returns:
+            value: Name of agent
+
+        """
+        # Return
+        value = self.agent_name
+        return value
 
     def query(self):
         """Query all remote hosts for data.
@@ -181,39 +195,6 @@ def _normalize_keys(data, nodes=2):
     return result
 
 
-def process_cli(additional_help=None):
-    """Return all the CLI options.
-
-    Args:
-        None
-
-    Returns:
-        args: Namespace() containing all of our CLI arguments as objects
-            - filename: Path to the configuration file
-
-    """
-    # Header for the help menu of the application
-    parser = argparse.ArgumentParser(
-        description=additional_help,
-        formatter_class=argparse.RawTextHelpFormatter)
-
-    # CLI argument for the auth directory
-    parser.add_argument(
-        '--config_dir',
-        dest='config_dir',
-        required=True,
-        default=None,
-        type=str,
-        help='Configuration directory to use.'
-    )
-
-    # Return the CLI arguments
-    args = parser.parse_args()
-
-    # Return our parsed CLI arguments
-    return args
-
-
 def main():
     """Start the infoset agent.
 
@@ -225,11 +206,13 @@ def main():
 
     """
     # Get configuration
-    args = process_cli()
+    cli = agent.AgentCLI()
+    config_dir = cli.config_dir()
+    poller = PollingAgent(config_dir)
 
-    # Instantiate and poll
-    poller = PollingAgent(args.config_dir)
-    poller.query()
+    # Do control
+    cli.control(poller)
+
 
 if __name__ == "__main__":
     main()

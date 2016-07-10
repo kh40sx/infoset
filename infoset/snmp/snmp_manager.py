@@ -10,6 +10,7 @@ from pysnmp.smi import rfc1902 as smi
 
 # Import project libraries
 from infoset.utils import jm_general
+from infoset.utils import hidden
 from infoset.snmp import jm_iana_enterprise
 
 
@@ -51,9 +52,10 @@ class Validate(object):
         group_key = 'group_name'
 
         # Determine whether cached value exists
-        home_dir = os.environ['HOME']
-        snmp_dir = ('%s/.infoset/snmp_cache') % (home_dir)
-        filename = ('%s/%s') % (snmp_dir, self.hostname)
+        filez = hidden.File()
+        dirz = hidden.Directory()
+        snmp_dir = dirz.snmp_cache()
+        filename = filez.snmp_cache(self.hostname)
 
         # Create UID directory / file if not yet created
         if os.path.exists(snmp_dir) is False:

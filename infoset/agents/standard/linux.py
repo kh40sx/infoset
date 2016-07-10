@@ -58,10 +58,25 @@ class PollingAgent(object):
 
         """
         # Initialize key variables
-        agent_name = 'linux'
+        self.agent_name = 'linux'
 
         # Get configuration
-        self.config = jm_configuration.ConfigAgent(config_dir, agent_name)
+        self.config = jm_configuration.ConfigAgent(
+            config_dir, self.agent_name)
+
+    def name(self):
+        """Return agent name.
+
+        Args:
+            None
+
+        Returns:
+            value: Name of agent
+
+        """
+        # Return
+        value = self.agent_name
+        return value
 
     def query(self):
         """Query all remote hosts for data.
@@ -289,11 +304,12 @@ def main():
 
     """
     # Get configuration
-    args = process_cli()
+    cli = Agent.AgentCLI()
+    config_dir = cli.config_dir()
+    poller = PollingAgent(config_dir)
 
-    # Instantiate and poll
-    poller = PollingAgent(args.config_dir)
-    poller.query()
+    # Do control
+    cli.control(poller)
 
 
 if __name__ == "__main__":

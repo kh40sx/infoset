@@ -11,18 +11,23 @@ Description:
 """
 # Standard libraries
 import os
+import sys
 import json
 import logging
 import time
 from collections import defaultdict
 import hashlib
 from random import random
+import argparse
 
 # pip3 libraries
 import requests
 
 # infoset libraries
 from infoset.utils import jm_general
+from infoset.utils import hidden
+from infoset.utils import Daemon
+
 
 logging.getLogger('requests').setLevel(logging.WARNING)
 logging.basicConfig(level=logging.DEBUG)
@@ -302,6 +307,181 @@ class Agent(object):
                 jm_general.log(1029, log_message, self.config.log_file())
 
 
+class AgentDaemon(Daemon):
+    """Class that manages polling.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+
+    def __init__(self, poller):
+        """Method initializing the class.
+
+        Args:
+            poller: PollingAgent object
+
+        Returns:
+            None
+
+        """
+        # Instantiate poller
+        self.poller = poller
+
+        # Get PID filename
+        agent_name = self.poller.name()
+        f_obj = hidden.File()
+        self.pidfile = f_obj.pid(agent_name)
+
+        # Call up the base daemon
+        Daemon.__init__(self, self.pidfile)
+
+    def run(self):
+        """Start polling.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Start polling
+        self.poller.query()
+
+
+class AgentCLI(object):
+    """Class that manages the agent CLI.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+
+    def __init__(self):
+        """Method initializing the class.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        self.parser = None
+
+        # Get environment
+        if 'INFOSET_CONFIGDIR' not in os.environ:
+            log_message = (
+                'Environment variables $INFOSET_CONFIGDIR needs '
+                'to be set to the infoset configuration directory.')
+            jm_general.logit(1041, log_message)
+
+        # Get configuration directory
+        self.config_directory = os.environ['INFOSET_CONFIGDIR']
+        if (os.path.exists(self.config_directory) is False) or (
+                os.path.isdir(self.config_directory) is False):
+            log_message = (
+                'Environment variables $INFOSET_CONFIGDIR set to '
+                'directory %s that does not exist'
+                '') % (self.config_directory)
+            jm_general.logit(1042, log_message)
+
+    def config_dir(self):
+        """Return configuration directory.
+
+        Args:
+            None
+
+        Returns:
+            value: Configuration directory
+
+        """
+        # Return
+        value = self.config_directory
+        return value
+
+    def process(self, additional_help=None):
+        """Return all the CLI options.
+
+        Args:
+            None
+
+        Returns:
+            args: Namespace() containing all of our CLI arguments as objects
+                - filename: Path to the configuration file
+
+        """
+        # Header for the help menu of the application
+        parser = argparse.ArgumentParser(
+            description=additional_help,
+            formatter_class=argparse.RawTextHelpFormatter)
+
+        # CLI argument for stopping
+        parser.add_argument(
+            '--stop',
+            required=False,
+            default=False,
+            action='store_true',
+            help='Stop the agent daemon.'
+        )
+
+        # CLI argument for starting
+        parser.add_argument(
+            '--start',
+            required=False,
+            default=False,
+            action='store_true',
+            help='Start the agent daemon.'
+        )
+
+        # CLI argument for restarting
+        parser.add_argument(
+            '--restart',
+            required=False,
+            default=False,
+            action='store_true',
+            help='Restart the agent daemon.'
+        )
+
+        # Get the parser value
+        self.parser = parser
+
+    def control(self, poller):
+        """Start the infoset agent.
+
+        Args:
+            poller: PollingAgent object
+
+        Returns:
+            None
+
+        """
+        # Get the CLI arguments
+        self.process()
+        parser = self.parser
+        args = parser.parse_args()
+
+        # Run daemon
+        daemon = AgentDaemon(poller)
+        if args.start is True:
+            daemon.start()
+        elif args.stop is True:
+            daemon.stop()
+        elif args.restart is True:
+            daemon.restart()
+        else:
+            parser.print_help()
+            sys.exit(2)
+
+
 def get_uid(hostname):
     """Create a permanent UID for the agent.
 
@@ -313,9 +493,10 @@ def get_uid(hostname):
 
     """
     # Initialize key variables
-    home_dir = os.environ['HOME']
-    uid_dir = ('%s/.infoset/uid') % (home_dir)
-    filename = ('%s/%s') % (uid_dir, hostname)
+    filez = hidden.File()
+    dirz = hidden.Directory()
+    uid_dir = dirz.uid()
+    filename = filez.uid(hostname)
 
     # Create UID directory if not yet created
     if os.path.exists(uid_dir) is False:
