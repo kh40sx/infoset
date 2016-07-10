@@ -15,9 +15,7 @@ Description:
 import os
 import re
 import platform
-from threading import Timer
 import logging
-import argparse
 from collections import defaultdict
 import socket
 

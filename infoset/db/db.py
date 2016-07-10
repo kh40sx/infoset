@@ -6,7 +6,7 @@
 import pymysql
 
 # Infoset libraries
-from infoset.utils import jm_general
+from infoset.log import log
 
 
 class Database(object):
@@ -51,7 +51,7 @@ class Database(object):
         if first_word.lower() != 'select':
             log_message = ('db_query function can only do SELECT: '
                            'SQL statement %s') % (sql_statement)
-            jm_general.log2die(error_code, log_message)
+            log.log2die(error_code, log_message)
 
         # Open database connection. Prepare cursor
         connection = pymysql.connect(
@@ -71,11 +71,11 @@ class Database(object):
                 'Unable to fetch data from connection. '
                 'SQL statement: \"%s\" Error: \"%s\"') % (
                     sql_statement, exception_error)
-            jm_general.log2die(error_code, log_message)
+            log.log2die(error_code, log_message)
         except:
             log_message = ('Unexpected exception. SQL statement: \"%s\"') % (
                 sql_statement)
-            jm_general.log2die(error_code, log_message)
+            log.log2die(error_code, log_message)
 
         # Disconnect from server
         connection.close()
@@ -106,7 +106,7 @@ class Database(object):
             log_message = ('db_modify function can only do '
                            'INSERT, UPDATE, DELETE or REPLACE: '
                            'SQL statement %s') % (sql_statement)
-            jm_general.log2die(error_code, log_message)
+            log.log2die(error_code, log_message)
 
         # Open database connection. Prepare cursor
         connection = pymysql.connect(
@@ -134,12 +134,12 @@ class Database(object):
                 'Unable to modify connection. '
                 'SQL statement: \"%s\" Error: \"%s\"') % (
                     sql_statement, exception_error)
-            jm_general.log2die(error_code, log_message)
+            log.log2die(error_code, log_message)
         except:
             connection.rollback()
             log_message = ('Unexpected exception. SQL statement: \"%s\"') % (
                 sql_statement)
-            jm_general.log2die(error_code, log_message)
+            log.log2die(error_code, log_message)
 
         # disconnect from server
         connection.close()

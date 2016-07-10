@@ -5,6 +5,7 @@ import os.path
 
 # Import project libraries
 from infoset.utils import jm_general
+from infoset.log import log
 
 
 class ConfigCommon(object):
@@ -126,7 +127,7 @@ class ConfigServer(object):
             log_message = (
                 'data_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
-            jm_general.log2die(1007, log_message)
+            log.log2die(1007, log_message)
 
         # Return
         return value
@@ -144,12 +145,10 @@ class ConfigServer(object):
         # Get parameter
         value = ('%s/snmp') % (self.data_directory())
 
-        # Check if value exists
-        if os.path.isdir(value) is False:
-            log_message = (
-                'snmp_directory: "%s" '
-                'in configuration doesn\'t exist!') % (value)
-            jm_general.log2die(1040, log_message)
+        # Create directory if neccessary
+        if (os.path.isdir(self.data_directory()) is True) and (
+                os.path.isdir(value) is False):
+            os.mkdir(value)
 
         # Return
         return value
@@ -188,7 +187,7 @@ class ConfigServer(object):
             log_message = (
                 'web_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
-            jm_general.log2die(1016, log_message)
+            log.log2die(1016, log_message)
 
         # Return
         return value
@@ -211,7 +210,7 @@ class ConfigServer(object):
             log_message = (
                 'ingest_cache_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
-            jm_general.log2die(1030, log_message)
+            log.log2die(1030, log_message)
 
         # Return
         return value
@@ -427,7 +426,7 @@ class ConfigAgent(object):
             log_message = (
                 'agent_cache_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
-            jm_general.log2die(1031, log_message)
+            log.log2die(1031, log_message)
 
         # Return
         return value

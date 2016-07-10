@@ -24,9 +24,9 @@ import argparse
 import requests
 
 # infoset libraries
-from infoset.utils import jm_general
 from infoset.utils import hidden
 from infoset.utils import Daemon
+from infoset.log import log
 
 
 logging.getLogger('requests').setLevel(logging.WARNING)
@@ -114,7 +114,7 @@ class Agent(object):
             log_message = (
                 'base_type %s is unsupported for label "%s"'
                 '') % (base_type, label)
-            jm_general.log2die(1025, log_message)
+            log.log2die(1025, log_message)
 
         # Convert data to list of tuples if required
         if isinstance(data, list) is False:
@@ -260,12 +260,12 @@ class Agent(object):
             log_message = (
                 'Successfully contacted server %s'
                 '') % (self.url)
-            jm_general.log2quiet(1027, log_message)
+            log.log2quiet(1027, log_message)
         else:
             log_message = (
                 'Failed to contact server %s'
                 '') % (self.url)
-            jm_general.log2quiet(1028, log_message)
+            log.log2quiet(1028, log_message)
 
         # Return
         return success
@@ -303,7 +303,7 @@ class Agent(object):
                     'Purging cache file %s after successfully '
                     'contacting server %s'
                     '') % (filepath, self.url)
-                jm_general.log2quiet(1029, log_message)
+                log.log2quiet(1029, log_message)
 
 
 class AgentDaemon(Daemon):
@@ -379,7 +379,7 @@ class AgentCLI(object):
         self.parser = None
 
         # Check environment
-        jm_general.check_environment()
+        log.check_environment()
         self.config_directory = os.environ['INFOSET_CONFIGDIR']
 
     def config_dir(self):

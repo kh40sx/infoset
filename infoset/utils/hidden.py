@@ -4,6 +4,7 @@ import os
 
 # Infoset imports
 from infoset.utils import jm_general
+from infoset.log import log
 
 
 class Directory:

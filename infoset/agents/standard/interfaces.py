@@ -15,8 +15,8 @@ from collections import defaultdict
 
 # infoset libraries
 from infoset.agents import agent as Agent
+from infoset.log import log
 from infoset.utils import jm_configuration
-from infoset.utils import jm_general
 from infoset.snmp import snmp_manager
 from infoset.snmp import mib_if
 from infoset.snmp import mib_if_64
@@ -97,7 +97,7 @@ class PollingAgent(object):
                 log_message = (
                     'No valid SNMP configuration found '
                     'for host "%s" ') % (hostname)
-                jm_general.log2quiet(1022, log_message)
+                log.log2quiet(1022, log_message)
                 continue
 
             # Create Query make sure MIB is supported
@@ -108,7 +108,7 @@ class PollingAgent(object):
                 log_message = (
                     'The IF-MIB is not supported by host  "%s"'
                     '') % (hostname)
-                jm_general.log2quiet(1024, log_message)
+                log.log2quiet(1024, log_message)
                 continue
 
             # Get the UID for the agent after all preliminary checks are OK

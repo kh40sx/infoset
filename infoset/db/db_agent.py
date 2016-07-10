@@ -8,7 +8,7 @@ Classes for agent data
 from collections import defaultdict
 
 # Infoset libraries
-from infoset.utils import jm_general
+from infoset.log import log
 from infoset.db import db
 
 
@@ -62,7 +62,7 @@ class Get(object):
             # uid found?
             if not row[0]:
                 log_message = ('uid %s not found.') % (uid)
-                jm_general.log2die(1302, log_message)
+                log.log2die(1302, log_message)
 
             # Assign values
             self.data_dict['idx'] = row[0]

@@ -14,8 +14,8 @@ import argparse
 
 # Infoset libraries
 from infoset.cache import cache
+from infoset.log import log
 from infoset.utils import jm_configuration
-from infoset.utils import jm_general
 from infoset.utils import hidden
 from infoset.utils import Daemon
 
@@ -92,7 +92,7 @@ class IngestCLI(object):
         # Initialize key variables
         self.parser = None
 
-        jm_general.check_environment()
+        log.check_environment()
         self.config_directory = os.environ['INFOSET_CONFIGDIR']
 
     def config_dir(self):

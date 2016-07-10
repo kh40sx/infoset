@@ -5,7 +5,8 @@ import os
 import yaml
 
 
-from infoset.utils import jm_general
+# Infoset imports
+from infoset.log import log
 
 
 class Translator(object):
@@ -110,7 +111,7 @@ class Translator(object):
             log_message = (
                 'YAML file %s for host %s doesn\'t exist! '
                 'Try polling devices first.') % (yaml_file, host)
-            jm_general.log2die(1017, log_message)
+            log.log2die(1017, log_message)
 
         # Read file
         with open(yaml_file, 'r') as file_handle:
