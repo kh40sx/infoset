@@ -7,45 +7,193 @@ This could be a modified to be a daemon
 """
 
 # Standard libraries
+import os
+import sys
 from threading import Timer
 import argparse
 
 # Infoset libraries
 from infoset.cache import cache
 from infoset.utils import jm_configuration
+from infoset.utils import jm_general
+from infoset.utils import hidden
+from infoset.utils import Daemon
 
 
-def process_cli(additional_help=None):
-    """Return all the CLI options.
+class IngestDaemon(Daemon):
+    """Class that manages polling.
 
     Args:
         None
 
     Returns:
-        args: Namespace() containing all of our CLI arguments as objects
-            - filename: Path to the configuration file
+        None
 
     """
-    # Header for the help menu of the application
-    parser = argparse.ArgumentParser(
-        description=additional_help,
-        formatter_class=argparse.RawTextHelpFormatter)
 
-    # CLI argument for the config directory
-    parser.add_argument(
-        '--config_dir',
-        dest='config_dir',
-        required=True,
-        default=None,
-        type=str,
-        help='Configuration directory.'
-    )
+    def __init__(self, config):
+        """Method initializing the class.
 
-    # Return the CLI arguments
-    args = parser.parse_args()
+        Args:
+            config: ConfigServer Object
 
-    # Return our parsed CLI arguments
-    return args
+        Returns:
+            None
+
+        """
+        # Instantiate poller
+        self.config = config
+
+        # Get PID filename
+        agent_name = 'ingestd'
+        f_obj = hidden.File()
+        self.pidfile = f_obj.pid(agent_name)
+
+        # Call up the base daemon
+        Daemon.__init__(self, self.pidfile)
+
+    def run(self):
+        """Start polling.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Do the daemon thing
+        cache.process(self.config)
+        Timer(60, self.run).start()
+
+
+class IngestCLI(object):
+    """Class that manages the agent CLI.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+
+    def __init__(self):
+        """Method initializing the class.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        self.parser = None
+
+        # Get environment
+        if 'INFOSET_CONFIGDIR' not in os.environ:
+            log_message = (
+                'Environment variables $INFOSET_CONFIGDIR needs '
+                'to be set to the infoset configuration directory.')
+            jm_general.logit(1041, log_message)
+
+        # Get configuration directory
+        self.config_directory = os.environ['INFOSET_CONFIGDIR']
+        if (os.path.exists(self.config_directory) is False) or (
+                os.path.isdir(self.config_directory) is False):
+            log_message = (
+                'Environment variables $INFOSET_CONFIGDIR set to '
+                'directory %s that does not exist'
+                '') % (self.config_directory)
+            jm_general.logit(1042, log_message)
+
+    def config_dir(self):
+        """Return configuration directory.
+
+        Args:
+            None
+
+        Returns:
+            value: Configuration directory
+
+        """
+        # Return
+        value = self.config_directory
+        return value
+
+    def process(self, additional_help=None):
+        """Return all the CLI options.
+
+        Args:
+            None
+
+        Returns:
+            args: Namespace() containing all of our CLI arguments as objects
+                - filename: Path to the configuration file
+
+        """
+        # Header for the help menu of the application
+        parser = argparse.ArgumentParser(
+            description=additional_help,
+            formatter_class=argparse.RawTextHelpFormatter)
+
+        # CLI argument for stopping
+        parser.add_argument(
+            '--stop',
+            required=False,
+            default=False,
+            action='store_true',
+            help='Stop the agent daemon.'
+        )
+
+        # CLI argument for starting
+        parser.add_argument(
+            '--start',
+            required=False,
+            default=False,
+            action='store_true',
+            help='Start the agent daemon.'
+        )
+
+        # CLI argument for restarting
+        parser.add_argument(
+            '--restart',
+            required=False,
+            default=False,
+            action='store_true',
+            help='Restart the agent daemon.'
+        )
+
+        # Get the parser value
+        self.parser = parser
+
+    def control(self, config):
+        """Start the infoset agent.
+
+        Args:
+            config: ConfigServer Object
+
+        Returns:
+            None
+
+        """
+        # Get the CLI arguments
+        self.process()
+        parser = self.parser
+        args = parser.parse_args()
+
+        # Run daemon
+        daemon = IngestDaemon(config)
+        if args.start is True:
+            daemon.start()
+        elif args.stop is True:
+            daemon.stop()
+        elif args.restart is True:
+            daemon.restart()
+        else:
+            parser.print_help()
+            sys.exit(2)
 
 
 def main():
@@ -59,14 +207,12 @@ def main():
 
     """
     # Get configuration
-    args = process_cli()
+    cli = IngestCLI()
+    config_dir = cli.config_dir()
+    config = jm_configuration.ConfigServer(config_dir)
 
-    # Get data from the cache directory
-    config = jm_configuration.ConfigServer(args.config_dir)
-    cache.process(config)
-
-    # Do the daemon thing
-    Timer(10, main).start()
+    # Do control
+    cli.control(config)
 
 
 if __name__ == "__main__":
