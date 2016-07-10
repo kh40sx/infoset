@@ -15,11 +15,11 @@ from infoset.utils import ConfigServer
 
 infoset = Flask(__name__)
 
-db_config = ConfigServer('./infoset/sample_code/etc/server')
+global_config = ConfigServer('./infoset/sample_code/etc/server')
 
 infoset.config.update(
     SNMP_CONFIG='infoset/etc',
-    DB_CONFIG=db_config
+    GLOBAL_CONFIG=global_config
 )
 
 # Determines the destination of the build

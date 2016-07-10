@@ -73,10 +73,13 @@ def devices():
 
 @infoset.route('/receive/<uid>', methods=["POST"])
 def receive(uid):
-    cache_dir = "/tmp/infoset_cache/"
+    # TODO replace with config obj
+    config = infoset.config['GLOBAL_CONFIG']
+    cache_dir = config.ingest_cache_directory()
     # Get Json from incoming POST
     data = request.json
-    json_path = cache_dir + ("%s_%s.json") % (int(time.time()), str(uid))
+    timestamp = data['timestamp']
+    json_path = cache_dir + ("/%s_%s.json") % (timestamp, str(uid))
     with open(json_path, "w+") as temp_file:
         json.dump(data, temp_file)
         temp_file.close()
@@ -86,11 +89,11 @@ def receive(uid):
 
 @infoset.route('/fetch/agent/<uid>', methods=["GET", "POST"])
 def fetch_agent_dp(uid):
-    db_config = infoset.config['DB_CONFIG']
-    agent = Get(uid, db_config)
+    config = infoset.config['GLOBAL_CONFIG']
+    agent = Get(uid, config)
     idx = agent.idx()
     # Gets all associated datapoints
-    datapoints = GetDataPoint(idx, db_config)
+    datapoints = GetDataPoint(idx, config)
     print(datapoints.everything())
     return "PONG"
 
