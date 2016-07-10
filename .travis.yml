@@ -9,11 +9,6 @@ branches:
   only:
     - master
 
-# Set environmental variables
-env:
-  global:
-    - INFOSET_CONFIGDIR=$HOME/infoset/infoset/sample_code/etc
-
 # command to install dependencies
 install:
   - sudo apt-get install python3-dev librrd-dev rrdtool
