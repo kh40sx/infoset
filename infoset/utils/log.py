@@ -108,7 +108,8 @@ def _update_logfile(message):
 
     """
     # Get log filename
-    config = ConfigCommon(os.environ['INFOSET_CONFIGDIR'])
+    config_dir = os.environ['INFOSET_CONFIGDIR']
+    config = ConfigCommon(config_dir)
     filename = config.log_file()
     # filename = '/tmp/infoset.log'
 
