@@ -145,13 +145,11 @@ class ConfigServer(object):
         value = ('%s/snmp') % (self.data_directory())
 
         # Check if value exists
-        if os.path.isdir(value) is False and os.path.exists(value) is True:
+        if os.path.isdir(value) is False:
             log_message = (
                 'snmp_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
             jm_general.log2die(1040, log_message)
-        else:
-            os.mkdir(value)
 
         # Return
         return value
