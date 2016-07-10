@@ -108,8 +108,9 @@ def _update_logfile(message):
 
     """
     # Get log filename
-    config = jm_configuration.ConfigCommon(os.environ['INFOSET_CONFIGDIR'])
-    filename = config.log_file()
+    # config = jm_configuration.ConfigCommon(os.environ['INFOSET_CONFIGDIR'])
+    # filename = config.log_file()
+    filename = /tmp/infoset.log
 
     # Write to file
     with open(filename, 'a') as f_handle:
