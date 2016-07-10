@@ -29,7 +29,7 @@ class Get(object):
         """Function for intializing the class.
 
         Args:
-            uid: UID of agent
+            data_point: Hashed id of the data point
             config: Config object
 
         Returns:
@@ -44,32 +44,33 @@ class Get(object):
         # Only active oids
         sql_query = (
             'SELECT iset_agent.idx, '
+            'iset_agent.id, '
             'iset_agent.name, '
             'iset_agent.description, '
             'iset_agent.hostname, '
-            'iset_agent.enabled '
+            'iset_agent.enabled, '
+            'iset_agent.ts_modified '
             'FROM iset_agent '
             'WHERE '
-            '(iset_agent.id="%s") LIMIT 1') % (
+            '(iset_agent.id=\'%s\') LIMIT 1') % (
                 uid)
 
         # Do query and get results
         database = db.Database(config)
         query_results = database.query(sql_query, 1301)
-
         # Massage data
         for row in query_results:
             # uid found?
             if not row[0]:
                 log_message = ('uid %s not found.') % (uid)
                 jm_general.die(1302, log_message)
-
             # Assign values
             self.data_dict['idx'] = row[0]
             self.data_dict['name'] = row[1]
             self.data_dict['description'] = row[2]
             self.data_dict['hostname'] = row[3]
             self.data_dict['enabled'] = row[4]
+
             break
 
     def idx(self):
@@ -142,4 +143,232 @@ class Get(object):
         value = bool(self.data_dict['enabled'])
 
         # Return
+        return value
+
+
+class GetDataPoint(object):
+    """Class to return agent data.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Methods:
+
+    """
+
+    def __init__(self, idx, config):
+        """Function for intializing the class.
+
+        Args:
+            uid: idx of agent
+            config: Config object
+
+        Returns:
+            None
+
+        """
+        # Initialize important variables
+        self.data_point_dict = defaultdict(dict)
+        self.idx = idx
+        # Prepare SQL query to read a record from the database.
+        # Only active oids
+        sql_query = (
+            'SELECT iset_datapoint.idx, '
+            'iset_datapoint.idx_agent, '
+            'iset_datapoint.id, '
+            'iset_datapoint.agent_label, '
+            'iset_datapoint.agent_source, '
+            'iset_datapoint.enabled, '
+            'iset_datapoint.base_type, '
+            'iset_datapoint.multiplier, '
+            'iset_datapoint.last_timestamp, '
+            'iset_datapoint.ts_modified, '
+            'iset_datapoint.ts_created '
+            'FROM iset_datapoint '
+            'WHERE '
+            'iset_datapoint.idx=\'%s\'') % (
+                idx)
+        # Do query and get results
+        database = db.Database(config)
+        query_results = database.query(sql_query, 1301)
+
+        # Massage data
+        for row in query_results:
+            # uid found?
+            if not row[0]:
+                log_message = ('uid %s not found.') % (idx)
+                jm_general.die(1302, log_message)
+
+            # Assign values
+            self.data_point_dict[row[3]] = row[0]
+            break
+
+    def everything(self):
+        """Gets all datapoints.
+
+        Args:
+            None
+
+        Returns:
+            value: Dictionary of data_points
+
+        """
+        value = self.data_point_dict
+        return value
+
+    def idx(self):
+        """Get idx value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_point_dict['idx']
+        return value
+
+    def idx_agent(self):
+        """Get idx_agent value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_point_dict['idx_agent']
+        return value
+
+    def id(self):
+        """Get id value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_point_dict['id']
+        return value
+
+    def agent_label(self):
+        """Get agent_label value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['agent_label']
+        return value
+
+    def agent_source(self):
+        """Get agent_source value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['agent_source']
+        return value
+
+    def enabled(self):
+        """Get enabled value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['enabled']
+        return value
+
+    def base_type(self):
+        """Get base_type value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['base_type']
+        return value
+
+    def multiplier(self):
+        """Get multiplier value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['multiplier']
+        return value
+
+    def last_timestamp(self):
+        """Get last_timestamp name.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['last_timestamp']
+        return value
+
+    def ts_modified(self):
+        """Get ts_modified name.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['ts_modified']
+        return value
+
+    def ts_created(self):
+        """Get ts_created name.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['ts_created']
         return value

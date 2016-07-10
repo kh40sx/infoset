@@ -11,11 +11,15 @@ Example:
 from flask import Flask, url_for
 from datetime import timedelta
 import os
+from infoset.utils import ConfigServer
 
 infoset = Flask(__name__)
 
+db_config = ConfigServer('./infoset/sample_code/etc/server')
+
 infoset.config.update(
-    SNMP_CONFIG='infoset/etc'
+    SNMP_CONFIG='infoset/etc',
+    DB_CONFIG=db_config
 )
 
 # Determines the destination of the build
