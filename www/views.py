@@ -1,7 +1,7 @@
 import yaml
 import time
 import json
-from infoset.db.agent import Get, GetDataPoint
+from infoset.db.agent import Get, GetDataPoint, GetData
 from flask import render_template, jsonify, send_file, request
 from www import infoset
 from os import listdir, walk, path, makedirs, remove
@@ -94,8 +94,16 @@ def fetch_agent_dp(uid):
     idx = agent.idx()
     # Gets all associated datapoints
     datapoints = GetDataPoint(idx, config)
-    print(datapoints.everything())
-    return "PONG"
+    return jsonify(datapoints.everything())
+
+
+@infoset.route('/fetch/agent/<uid>/<datapoint>', methods=["GET", "POST"])
+def fetch_dp(uid, datapoint):
+    config = infoset.config['GLOBAL_CONFIG']
+    data = GetData(datapoint, config)
+    data_values = data.everything()
+    # Gets all associated datapoints
+    return jsonify(data_values)
 
 
 def getHosts():
