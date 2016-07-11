@@ -5,6 +5,7 @@ import yaml
 from infoset.interfaces import Cli
 from infoset.utils import ConfigReader
 from infoset.utils import jm_general
+from infoset.utils import log
 from infoset.snmp import poll
 from infoset.snmp import snmp_manager
 from infoset.snmp import snmp_info
@@ -101,7 +102,7 @@ def do_test(cli_args, config):
         log_message = (
             'Uncontactable host %s or no valid SNMP '
             'credentials found for it.') % (cli_args.host)
-        jm_general.log2die(1039, log_message)
+        log.log2die(1039, log_message)
 
 
 # TODO remove deprecated pagemaker functions

@@ -131,7 +131,7 @@ class IngestCLI(object):
             required=False,
             default=False,
             action='store_true',
-            help='Stop the agent daemon.'
+            help='Stop the ingest daemon.'
         )
 
         # CLI argument for starting
@@ -140,7 +140,7 @@ class IngestCLI(object):
             required=False,
             default=False,
             action='store_true',
-            help='Start the agent daemon.'
+            help='Start the ingest daemon.'
         )
 
         # CLI argument for restarting
@@ -149,7 +149,16 @@ class IngestCLI(object):
             required=False,
             default=False,
             action='store_true',
-            help='Restart the agent daemon.'
+            help='Restart the ingest daemon.'
+        )
+
+        # CLI argument for statusing
+        parser.add_argument(
+            '--status',
+            required=False,
+            default=False,
+            action='store_true',
+            help='Get the status of the ingest daemon.'
         )
 
         # Get the parser value
@@ -178,6 +187,8 @@ class IngestCLI(object):
             daemon.stop()
         elif args.restart is True:
             daemon.restart()
+        elif args.status is True:
+            daemon.status()
         else:
             parser.print_help()
             sys.exit(2)

@@ -139,7 +139,7 @@ def _mkdir(directory):
     """
     # Do work
     if os.path.exists(directory) is False:
-        os.mkdir(directory)
+        os.makedirs(directory)
     else:
         if os.path.isfile(directory) is True:
             log_message = (

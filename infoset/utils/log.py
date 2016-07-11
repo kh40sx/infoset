@@ -5,9 +5,11 @@ import sys
 import os
 import datetime
 import time
+import getpass
 
 # Infoset imports
 # from infoset.utils import jm_configuration
+
 
 def log2die_safe(code, message):
     """Log message to STDOUT only and die.
@@ -162,13 +164,15 @@ def _message(code, message, error=True):
     # Initialize key variables
     time_object = datetime.datetime.fromtimestamp(time.time())
     timestring = time_object.strftime('%Y-%m-%d %H:%M:%S,%f')
+    username = getpass.getuser()
 
     # Format string for error message, print and die
     if error is True:
         prefix = 'ERROR'
     else:
         prefix = 'STATUS'
-    output = ('%s - %s - [%s] %s') % (timestring, prefix, code, message)
+    output = ('%s - %s - %s - [%s] %s') % (
+        timestring, username, prefix, code, message)
 
     # Return
     return output

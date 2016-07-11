@@ -27,6 +27,7 @@ import requests
 from infoset.utils import hidden
 from infoset.utils import Daemon
 from infoset.utils import log
+from infoset.utils import jm_general
 
 
 logging.getLogger('requests').setLevel(logging.WARNING)
@@ -53,7 +54,7 @@ class Agent(object):
 
         Args:
             uid: Unique ID for Agent
-            config: Configuration object
+            config: ConfigAgent configuration object
             agent_name: Name of agent
             hostname: Hostname that the agent applies to
 
@@ -64,7 +65,7 @@ class Agent(object):
         # Initialize key variables
         self.data = defaultdict(lambda: defaultdict(dict))
         self.config = config
-        self.timestamp = (int(time.time()) // 300) * 300
+        self.timestamp = jm_general.normalized_timestamp()
 
         # Add timestamp
         self.data['timestamp'] = self.timestamp
@@ -86,6 +87,20 @@ class Agent(object):
         self.cache_dir = self.config.agent_cache_directory()
         if os.path.exists(self.cache_dir) is False:
             os.mkdir(self.cache_dir)
+
+    def name(self):
+        """Return the name of the agent.
+
+        Args:
+            None
+
+        Returns:
+            value: Name of agent
+
+        """
+        # Return
+        value = self.data['agent']
+        return value
 
     def populate(self, label, data, base_type='floating', chartable=False):
         """Populate data for agent to eventually send to server.
@@ -258,13 +273,13 @@ class Agent(object):
         # Log message
         if success is True:
             log_message = (
-                'Successfully contacted server %s'
-                '') % (self.url)
+                'Agent "%s" successfully contacted server %s'
+                '') % (self.name(), self.url)
             log.log2quiet(1027, log_message)
         else:
             log_message = (
-                'Failed to contact server %s'
-                '') % (self.url)
+                'Agent "%s" failed to contact server %s'
+                '') % (self.name(), self.url)
             log.log2quiet(1028, log_message)
 
         # Return

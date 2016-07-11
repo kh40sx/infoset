@@ -19,6 +19,8 @@ import re
 # Infoset libraries
 from infoset.db import db
 from infoset.db import db_agent as agent
+from infoset.utils import log
+from infoset.utils import jm_general
 
 # Define a key global variable
 THREAD_QUEUE = Queue.Queue()
@@ -64,11 +66,16 @@ class Drain(object):
         # Get universal parameters from file
         for key in agent_meta_keys:
             self.agent_meta[key] = information[key]
-        timestamp = information['timestamp']
+        timestamp = int(information['timestamp'])
         uid = information['uid']
 
         # Process chartable data
         for data_type in data_types:
+            # Skip if data type isn't in the data
+            if data_type not in information:
+                continue
+
+            # Process the data type
             for label, group in sorted(information[data_type].items()):
                 # Get universal parameters for group
                 base_type = _base_type(group['base_type'])
@@ -122,7 +129,7 @@ class Drain(object):
 
         """
         # Initialize key variables
-        data = self.agent_meta['timestamp']
+        data = int(self.agent_meta['timestamp'])
 
         # Return
         return data
@@ -174,10 +181,12 @@ class Drain(object):
 
         """
         # Initialize key variables
-        if 32 in self.data['chartable']:
-            data = self.data['chartable']['counter32']
-        else:
-            data = []
+        data = []
+
+        # Get data
+        if 'chartable' in self.data:
+            if 32 in self.data['chartable']:
+                data = self.data['chartable'][32]
 
         # Return
         return data
@@ -197,10 +206,12 @@ class Drain(object):
 
         """
         # Initialize key variables
-        if 64 in self.data['chartable']:
-            data = self.data['chartable']['counter64']
-        else:
-            data = []
+        data = []
+
+        # Get data
+        if 'chartable' in self.data:
+            if 64 in self.data['chartable']:
+                data = self.data['chartable'][64]
 
         # Return
         return data
@@ -220,10 +231,12 @@ class Drain(object):
 
         """
         # Initialize key variables
-        if 1 in self.data['chartable']:
-            data = self.data['chartable']['floating']
-        else:
-            data = []
+        data = []
+
+        # Get data
+        if 'chartable' in self.data:
+            if 1 in self.data['chartable']:
+                data = self.data['chartable'][1]
 
         # Return
         return data
@@ -246,8 +259,9 @@ class Drain(object):
         data = []
 
         # Initialize key variables
-        for key in self.data['chartable'].keys():
-            data.extend(self.data['chartable'][key])
+        data.extend(self.floating())
+        data.extend(self.counter32())
+        data.extend(self.counter64())
 
         # Return
         return data
@@ -270,8 +284,9 @@ class Drain(object):
         data = []
 
         # Return (Ignore whether floating or counter)
-        for _, value in self.data['other'].items():
-            data.extend(value)
+        if 'other' in self.data:
+            for _, value in self.data['other'].items():
+                data.extend(value)
         return data
 
     def sources(self):
@@ -314,6 +329,16 @@ class Drain(object):
         except:
             success = False
 
+        # Report success
+        if success is True:
+            log_message = (
+                'Ingest cache file %s deleted') % (self.filename)
+            log.log2quiet(1046, log_message)
+        else:
+            log_message = (
+                'Failed to delete ingest cache file %s') % (self.filename)
+            log.log2quiet(1047, log_message)
+
         # Return
         return success
 
@@ -352,12 +377,15 @@ class FillDB(threading.Thread):
 
                 # Double check that the UID and timestamp in the
                 # filename matches that in the file.
-                # Delete invalid files as a safety measure.
+                # Ignore invalid files as a safety measure.
+                # Don't try to delete. They could be owned by some
+                # one else and the daemon could crash
                 if uid != ingest.uid():
-                    os.remove(filepath)
                     continue
                 if timestamp != ingest.timestamp():
-                    os.remove(filepath)
+                    continue
+                if jm_general.validate_timestamp(
+                        ingest.timestamp()) is False:
                     continue
 
                 # Update agent table if not there
@@ -411,17 +439,19 @@ def _update_measurements(ingest, config):
     # Update data
     for item in data:
         # Process each datapoint item found
-        (_, did, value, timestamp) = item
-        idx_datapoint = mapping[did][0]
-        idx_agent = mapping[did][1]
-        last_timestamp = mapping[did][2]
+        (_, did, tuple_value, timestamp) = item
+        idx_datapoint = int(mapping[did][0])
+        idx_agent = int(mapping[did][1])
+        last_timestamp = int(mapping[did][2])
+        value = float(tuple_value)
 
         # Only update with data collected after
-        # the most recent update
+        # the most recent update. Don't do anything more
         if timestamp > last_timestamp:
             data_list.append(
                 (idx_datapoint, idx_agent, value, timestamp)
             )
+            continue
 
         # Update DID's last updated timestamp
         if idx_datapoint in timestamp_tracker:
@@ -430,23 +460,31 @@ def _update_measurements(ingest, config):
         else:
             timestamp_tracker[idx_datapoint] = timestamp
 
-    # Prepare SQL query to read a record from the database.
-    sql_insert = (
-        'REPLACE INTO iset_data '
-        '(idx_datapoint, idx_agent, value, timestamp) VALUES '
-        '(%s, "%s", %s, %s)')
-
-    # Do query and get results
-    database = db.Database(config)
-    database.modify(sql_insert, 1037, data_list=data_list)
-
-    # Change the last updated timestamp
-    for idx_datapoint, last_timestamp in timestamp_tracker.items():
+    # Update if there is data
+    if bool(data_list) is True:
         # Prepare SQL query to read a record from the database.
-        sql_modify = (
-            'UPDATE iset_datapoint SET last_timestamp=%s '
-            'WHERE iset_datapoint.idx=%s') % (last_timestamp, idx_datapoint)
-        database.modify(sql_modify, 1044)
+        sql_insert = (
+            'REPLACE INTO iset_data '
+            '(idx_datapoint, idx_agent, value, timestamp) VALUES '
+            '(%s, %s, %s, %s)')
+
+        # Do query and get results
+        database = db.Database(config)
+        database.modify(sql_insert, 1037, data_list=data_list)
+
+        # Change the last updated timestamp
+        for idx_datapoint, last_timestamp in timestamp_tracker.items():
+            # Prepare SQL query to read a record from the database.
+            sql_modify = (
+                'UPDATE iset_datapoint SET last_timestamp=%s '
+                'WHERE iset_datapoint.idx=%s'
+                '') % (last_timestamp, idx_datapoint)
+            database.modify(sql_modify, 1044)
+
+        # Report success
+        log_message = ('Successful cache drain for UID %s at timestamp %s') % (
+            ingest.uid(), ingest.timestamp())
+        log.log2quiet(1045, log_message)
 
 
 def _insert_datapoint(metadata, config):
@@ -706,10 +744,10 @@ def process(config):
             # Create a complete filepath
             filepath = os.path.join(cache_dir, filename)
 
-            # Only read files that are 5 seconds or older
+            # Only read files that are 15 seconds or older
             # to prevent corruption caused by reading a file that could be
             # updating simultaneously
-            if time.time() - os.path.getmtime(filepath) < 5:
+            if time.time() - os.path.getmtime(filepath) < 15:
                 continue
 
             # Create a dict of UIDs, timestamps and filepaths

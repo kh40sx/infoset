@@ -4,10 +4,50 @@
 import os
 import shutil
 import json
+import time
 import yaml
 
 # Infoset libraries
 from infoset.utils import log
+
+
+def validate_timestamp(timestamp):
+    """Validate timestamp to be a multiple of 300 seconds.
+
+    Args:
+        timestamp: epoch timestamp in seconds
+
+    Returns:
+        valid: True if valid
+
+    """
+    # Initialize key variables
+    valid = False
+
+    # Process data
+    test = (int(timestamp) // 300) * 300
+    if test == timestamp:
+        valid = True
+
+    # Return
+    return valid
+
+
+def normalized_timestamp():
+    """Normalize timestamp to a multiple of 300 seconds.
+
+    Args:
+        timestamp: epoch timestamp in seconds
+
+    Returns:
+        value: Normalized value
+
+    """
+    # Process data
+    value = (int(time.time()) // 300) * 300
+
+    # Return
+    return value
 
 
 def dict2yaml(data_dict):
