@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-"""Demonstration Script that extracts agent data from cache directory files.
+"""Infoset ingest cache daemon.
 
-This could be a modified to be a daemon
+Extracts agent data from cache directory files.
 
 """
 
