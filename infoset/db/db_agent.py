@@ -43,7 +43,8 @@ class Get(object):
         # Prepare SQL query to read a record from the database.
         # Only active oids
         sql_query = (
-            'SELECT iset_agent.idx, '
+            'SELECT '
+            'iset_agent.idx, '
             'iset_agent.name, '
             'iset_agent.description, '
             'iset_agent.hostname, '
@@ -142,4 +143,66 @@ class Get(object):
         value = bool(self.data_dict['enabled'])
 
         # Return
+        return value
+
+
+class GetDataPoint(object):
+    """Class to return agent data.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Methods:
+
+    """
+
+    def __init__(self, idx, config):
+        """Function for intializing the class.
+
+        Args:
+            uid: idx of agent
+            config: Config object
+
+        Returns:
+            None
+
+        """
+        # Initialize important variables
+        self.data_point_dict = defaultdict(dict)
+        self.idx = idx
+        # Prepare SQL query to read a record from the database.
+        # Only active oids
+        print("IDX_AGENT: %s" % idx)
+        sql_query = (
+            'SELECT * '
+            'FROM iset_datapoint '
+            'WHERE '
+            'idx_agent=\'%s\'') % (
+                idx)
+        # Do query and get results
+        database = db.Database(config)
+        query_results = list(database.query(sql_query, 1301))
+        # Massage data
+        for row in query_results:
+            # uid found?
+            if not id:
+                log_message = ('uid %s not found.') % (idx)
+                jm_general.die(1302, log_message)
+            # Assign values
+            self.data_point_dict[row[0]] = [row[3], row[4]]
+
+    def everything(self):
+        """Gets all datapoints.
+
+        Args:
+            None
+
+        Returns:
+            value: Dictionary of data_points
+
+        """
+        value = self.data_point_dict
         return value
