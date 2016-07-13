@@ -18,6 +18,71 @@ from infoset.db import db_data
 __author__ = 'peter@colovore.com (Peter Harrison)'
 
 
+class ChartParameters(object):
+    """Class to manage chart parameters.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Methods:
+
+    """
+
+    def __init__(self):
+        """Function for intializing the class.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Set initial values
+        defaults = {
+            'font_size_label': 15,
+            'font_size_title': 20,
+            'font_size_tick': 10,
+            'text_color': '#808080',
+            'line_color': '#000000',
+            'image_width': 8,
+            'image_height': 8
+        }
+        for key, value in defaults.items():
+            setattr(self, key, value)
+
+    def set(self, **kwargs):
+        """Set chart parameters.
+
+        Args:
+            kwargs: Whatever you want
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def get(self, **kwargs):
+        """get chart parameters.
+
+        Args:
+            kwargs: Whatever you want
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        for key, value in kwargs.items():
+            getattr(self, key, value)
+
+
 class Chart(object):
     """Class to create charts.
 
@@ -48,6 +113,9 @@ class Chart(object):
         datapointer = db_data.GetIDX(idx, config, start=start, stop=stop)
         self.data = datapointer.everything()
 
+        # Get parameters
+        self.paramx = ChartParameters()
+
     def single_line(self, title, label, color, filepath):
         """Create chart from data.
 
@@ -64,9 +132,6 @@ class Chart(object):
         lines2plot = []
         labels = []
 
-        # Get global parameters
-        parameters = _image_parameters(None)
-
         #####################################################################
         #
         # Create Charts
@@ -79,32 +144,51 @@ class Chart(object):
         # Convert data dict to two lists for matplotlib
         (x_values, y_values) = _timestamps2dates(self.data)
 
+        #####################################################################
+        # Apply generic chart settings that don't require custom variables
+        #####################################################################
+
         # Create chart
-        _chart_setup(fig, axes, parameters, ymax=max(y_values))
+        self._generic_settings(fig, axes, ymax=max(y_values))
 
-        # Define chart labels
-        axes.set_xlabel(
-            'Date / Time', color=parameters['text_color'],
-            size=parameters['font_size_label'])
-        axes.set_ylabel(
-            'Values', color=parameters['text_color'],
-            size=parameters['font_size_label'])
-
-        # Create chart.
-        data_line = _chart_generic(
-            (x_values, y_values), axes, color, fill=True)
-        lines2plot.append(data_line)
-        labels.append(label)
-
-        # Create legend
-        fig.legend(
-            tuple(lines2plot), tuple(labels),
-            loc='lower center', fontsize=10, ncol=2, frameon=False)
+        #####################################################################
+        # Apply image specific settings that are not part of subplots and
+        # require custom variables
+        #####################################################################
 
         # Define chart title
         axes.set_title(
             title,
-            size=parameters['font_size_title'], y=1.01)
+            size=self.paramx.font_size_title,
+            y=1.01)
+
+        # Define chart labels
+        axes.set_xlabel(
+            'Date / Time',
+            color=self.paramx.text_color,
+            size=self.paramx.font_size_label)
+        axes.set_ylabel(
+            'Values',
+            color=self.paramx.text_color,
+            size=self.paramx.font_size_label)
+
+        #####################################################################
+        # Create chart for each sub plot.
+        #####################################################################
+
+        data_line = _subplot(
+            (x_values, y_values), axes, color, fill=True)
+        lines2plot.append(data_line)
+        labels.append(label)
+
+        # Create legend for each sub plot
+        fig.legend(
+            tuple(lines2plot), tuple(labels),
+            loc='lower center', fontsize=10, ncol=2, frameon=False)
+
+        #####################################################################
+        # Finish up
+        #####################################################################
 
         # Create image file
         fig.savefig(filepath)
@@ -112,8 +196,59 @@ class Chart(object):
         # Close figure to conserve memory
         plt.close(fig)
 
+    def _generic_settings(self, fig, axes, ymin=0, ymax=None):
+        """Do basic chart setup.
 
-def _chart_generic(power, axes, line_color, fill=True):
+        Args:
+            fig: Matplotlib figure object
+            axes: Matplotlib axis object
+            ymin: Minimum Y value
+            ymax: Maximum Y value
+
+        Returns:
+            plot_line: Plot plot_line for creating a legend
+
+        """
+        # Start y-axis at zero, versus autoscaling to lowest Y value
+        if ymax is None:
+            axes.set_ylim(ymin=ymin)
+        else:
+            axes.set_ylim(ymin=ymin, ymax=ymax)
+
+        # Turn on autoscaling for X axis
+        axes.autoscale_view()
+
+        # Auto rotate x-axis labels if too big
+        fig.autofmt_xdate()
+
+        # Define how dates are placed on the x-axis
+        xtick_locator = mdates.AutoDateLocator()
+        xtick_formatter = mdates.AutoDateFormatter(xtick_locator)
+        axes.xaxis.set_major_locator(xtick_locator)
+        axes.xaxis.set_major_formatter(xtick_formatter)
+
+        # Remove scientific notation in subplot
+        axes.xaxis.get_offset_text().set_visible(False)
+        axes.yaxis.get_offset_text().set_visible(False)
+
+        #####################################################################
+        # Start settign **kwargs values
+        #####################################################################
+
+        # Set figure size
+        fig.set_size_inches(
+            self.paramx.image_width, self.paramx.image_height)
+
+        # Turn on grid lines
+        axes.grid(True, color=self.paramx.text_color, linestyle='-')
+
+        # Tick label colors
+        axes.tick_params(
+            colors=self.paramx.text_color,
+            labelsize=self.paramx.font_size_tick)
+
+
+def _subplot(power, axes, line_color, fill=True):
     """Return total power consumption over time period as PNG HTML link.
 
     Args:
@@ -187,88 +322,6 @@ def _chart_generic(power, axes, line_color, fill=True):
 
     # Return
     return plot_line
-
-
-def _chart_setup(fig, axes, parameters, ymin=0, ymax=None):
-    """Do basic chart setup.
-
-    Args:
-        fig: Matplotlib figure object
-        axes: Matplotlib axis object
-        parameters: Image parameters to use
-        ymin: Minimum Y value
-        ymax: Maximum Y value
-
-    Returns:
-        plot_line: Plot plot_line for creating a legend
-
-    """
-    # Start y-axis at zero, versus autoscaling to lowest Y value
-    if ymax is None:
-        axes.set_ylim(ymin=ymin)
-    else:
-        axes.set_ylim(ymin=ymin, ymax=ymax)
-
-    # Turn on autoscaling for X axis
-    axes.autoscale_view()
-
-    # Auto rotate x-axis labels if too big
-    fig.autofmt_xdate()
-
-    # Set figure size
-    fig.set_size_inches(
-        parameters['image_width'], parameters['image_height'])
-
-    # Define how dates are placed on the x-axis
-    xtick_locator = mdates.AutoDateLocator()
-    xtick_formatter = mdates.AutoDateFormatter(xtick_locator)
-    axes.xaxis.set_major_locator(xtick_locator)
-    axes.xaxis.set_major_formatter(xtick_formatter)
-
-    # Tick label colors
-    axes.tick_params(
-        colors=parameters['text_color'],
-        labelsize=parameters['font_size_tick'])
-
-    # Turn on grid lines
-    axes.grid(True, color=parameters['text_color'], linestyle='-')
-
-
-def _image_parameters(parameters):
-    """Return dict of parameters for charts.
-
-    Args:
-        parameters: Matplotlib graph parameters
-
-    Returns:
-        values: Dict of new parameters
-
-    """
-    # Define parameters
-    defaults = {
-        'font_size_label': 15,
-        'font_size_title': 20,
-        'font_size_tick': 10,
-        'text_color': '#808080',
-        'line_color': '#000000',
-        'max_color': '#FF0000',
-        'commit_color': '#0000FF',
-        'image_width': 8,
-        'image_height': 8
-    }
-    values = {}
-
-    # Process parameters
-    if isinstance(parameters, dict) is False:
-        return defaults
-    else:
-        for key in defaults.keys():
-            values[key] = defaults[key]
-        for key in parameters.keys():
-            values[key] = parameters[key]
-
-    # Return
-    return values
 
 
 def _timestamps2dates(data):
