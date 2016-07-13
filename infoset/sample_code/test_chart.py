@@ -70,10 +70,13 @@ def main():
     config = jm_configuration.ConfigServer(config_dir)
 
     # Chart data
-    chart = db_chart.Chart(idx_datapoint, config)
+    chart = db_chart.Chart(idx_datapoint, config,
+        image_width=8,
+        image_height=5)
     chart.single_line(
         'Test Chart', 'Data',
-        '#0000FF', args.filename)
+        '#0000FF', args.filename,
+        )
 
 
 if __name__ == "__main__":

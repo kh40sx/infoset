@@ -12,6 +12,7 @@ import matplotlib.dates as mdates
 from matplotlib.patches import Polygon
 import matplotlib.colors as mcolors
 
+
 # Import Colovore libraries
 from infoset.db import db_data
 
@@ -31,7 +32,7 @@ class ChartParameters(object):
 
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """Function for intializing the class.
 
         Args:
@@ -45,6 +46,7 @@ class ChartParameters(object):
         defaults = {
             'font_size_label': 15,
             'font_size_title': 20,
+            'font_size_legend': 10,
             'font_size_tick': 10,
             'text_color': '#808080',
             'line_color': '#000000',
@@ -52,6 +54,8 @@ class ChartParameters(object):
             'image_height': 8
         }
         for key, value in defaults.items():
+            setattr(self, key, value)
+        for key, value in kwargs.items():
             setattr(self, key, value)
 
     def set(self, **kwargs):
@@ -96,7 +100,7 @@ class Chart(object):
 
     """
 
-    def __init__(self, idx, config, start=None, stop=None):
+    def __init__(self, idx, config, start=None, stop=None, **kwargs):
         """Function for intializing the class.
 
         Args:
@@ -104,6 +108,7 @@ class Chart(object):
             config: Config object
             start: Starting timestamp
             stop: Ending timesta
+            **kwargs: Used by ChartParameters
 
         Returns:
             None
@@ -114,9 +119,9 @@ class Chart(object):
         self.data = datapointer.everything()
 
         # Get parameters
-        self.paramx = ChartParameters()
+        self.paramx = ChartParameters(**kwargs)
 
-    def single_line(self, title, label, color, filepath):
+    def single_line(self, title, label, color, filepath, **kwargs):
         """Create chart from data.
 
         Args:
@@ -149,7 +154,7 @@ class Chart(object):
         #####################################################################
 
         # Create chart
-        self._generic_settings(fig, axes, ymax=max(y_values))
+        self._generic_settings(fig, axes, ymax=max(y_values) * 1.1)
 
         #####################################################################
         # Apply image specific settings that are not part of subplots and
@@ -163,10 +168,11 @@ class Chart(object):
             y=1.01)
 
         # Define chart labels
-        axes.set_xlabel(
-            'Date / Time',
-            color=self.paramx.text_color,
-            size=self.paramx.font_size_label)
+
+        # axes.set_xlabel(
+        #    'Date / Time',
+        #    color=self.paramx.text_color,
+        #    size=self.paramx.font_size_label)
         axes.set_ylabel(
             'Values',
             color=self.paramx.text_color,
@@ -184,14 +190,18 @@ class Chart(object):
         # Create legend for each sub plot
         fig.legend(
             tuple(lines2plot), tuple(labels),
-            loc='lower center', fontsize=10, ncol=2, frameon=False)
+            loc='lower center',
+            fontsize=self.paramx.font_size_legend, ncol=2, frameon=False)
+
+        # Add space below chart for legend
+        fig.subplots_adjust(bottom=0.2)
 
         #####################################################################
         # Finish up
         #####################################################################
 
         # Create image file
-        fig.savefig(filepath)
+        fig.savefig(filepath, bbox_inches='tight')
 
         # Close figure to conserve memory
         plt.close(fig)
@@ -232,7 +242,7 @@ class Chart(object):
         axes.yaxis.get_offset_text().set_visible(False)
 
         #####################################################################
-        # Start settign **kwargs values
+        # Start setting **kwargs values
         #####################################################################
 
         # Set figure size
@@ -248,11 +258,11 @@ class Chart(object):
             labelsize=self.paramx.font_size_tick)
 
 
-def _subplot(power, axes, line_color, fill=True):
-    """Return total power consumption over time period as PNG HTML link.
+def _subplot(data, axes, line_color, fill=True):
+    """Return total data consumption over time period as PNG HTML link.
 
     Args:
-        power: Tuple of lists of data to plot
+        data: Tuple of lists of data to plot
         axes: Matplotlib axis object
         line_color: Image parameters
         fill: Fill in under the line if True
@@ -261,8 +271,8 @@ def _subplot(power, axes, line_color, fill=True):
         plot_line: Plot plot_line for creating a legend
 
     """
-    # Convert power dict to two lists for matplotlib
-    (x_values, y_values) = power
+    # Convert data dict to two lists for matplotlib
+    (x_values, y_values) = data
 
     #####################################################################
     #
