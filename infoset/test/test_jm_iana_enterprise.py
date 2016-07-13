@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Test the jm_iana_enterprise module."""
 
 import unittest

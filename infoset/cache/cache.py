@@ -18,7 +18,9 @@ import re
 
 # Infoset libraries
 from infoset.db import db
-from infoset.db import agent
+from infoset.db import db_agent as agent
+from infoset.utils import log
+from infoset.utils import jm_general
 
 # Define a key global variable
 THREAD_QUEUE = Queue.Queue()
@@ -55,7 +57,7 @@ class Drain(object):
         self.metadata = []
         self.agent_meta = {}
         data_types = ['chartable', 'other']
-        agent_meta_keys = ['timestamp', 'uid', 'agent']
+        agent_meta_keys = ['timestamp', 'uid', 'agent', 'hostname']
 
         # Ingest data
         with open(filename, 'r') as f_handle:
@@ -64,11 +66,16 @@ class Drain(object):
         # Get universal parameters from file
         for key in agent_meta_keys:
             self.agent_meta[key] = information[key]
-        timestamp = information['timestamp']
+        timestamp = int(information['timestamp'])
         uid = information['uid']
 
         # Process chartable data
         for data_type in data_types:
+            # Skip if data type isn't in the data
+            if data_type not in information:
+                continue
+
+            # Process the data type
             for label, group in sorted(information[data_type].items()):
                 # Get universal parameters for group
                 base_type = _base_type(group['base_type'])
@@ -122,7 +129,7 @@ class Drain(object):
 
         """
         # Initialize key variables
-        data = self.agent_meta['timestamp']
+        data = int(self.agent_meta['timestamp'])
 
         # Return
         return data
@@ -143,6 +150,22 @@ class Drain(object):
         # Return
         return data
 
+    def hostname(self):
+        """Return hostname.
+
+        Args:
+            None
+
+        Returns:
+            data: Agent hostname
+
+        """
+        # Initialize key variables
+        data = self.agent_meta['hostname']
+
+        # Return
+        return data
+
     def counter32(self):
         """Return counter32 chartable data from file.
 
@@ -158,10 +181,12 @@ class Drain(object):
 
         """
         # Initialize key variables
-        if 32 in self.data['chartable']:
-            data = self.data['chartable']['counter32']
-        else:
-            data = []
+        data = []
+
+        # Get data
+        if 'chartable' in self.data:
+            if 32 in self.data['chartable']:
+                data = self.data['chartable'][32]
 
         # Return
         return data
@@ -181,16 +206,18 @@ class Drain(object):
 
         """
         # Initialize key variables
-        if 64 in self.data['chartable']:
-            data = self.data['chartable']['counter64']
-        else:
-            data = []
+        data = []
+
+        # Get data
+        if 'chartable' in self.data:
+            if 64 in self.data['chartable']:
+                data = self.data['chartable'][64]
 
         # Return
         return data
 
-    def gauge(self):
-        """Return gauge chartable data from file.
+    def floating(self):
+        """Return floating chartable data from file.
 
         Args:
             None
@@ -204,10 +231,12 @@ class Drain(object):
 
         """
         # Initialize key variables
-        if 1 in self.data['chartable']:
-            data = self.data['chartable']['gauge']
-        else:
-            data = []
+        data = []
+
+        # Get data
+        if 'chartable' in self.data:
+            if 1 in self.data['chartable']:
+                data = self.data['chartable'][1]
 
         # Return
         return data
@@ -230,8 +259,9 @@ class Drain(object):
         data = []
 
         # Initialize key variables
-        for key in self.data['chartable'].keys():
-            data.extend(self.data['chartable'][key])
+        data.extend(self.floating())
+        data.extend(self.counter32())
+        data.extend(self.counter64())
 
         # Return
         return data
@@ -253,9 +283,10 @@ class Drain(object):
         # Initialize key variables
         data = []
 
-        # Return (Ignore whether gauge or counter)
-        for _, value in self.data['other'].items():
-            data.extend(value)
+        # Return (Ignore whether floating or counter)
+        if 'other' in self.data:
+            for _, value in self.data['other'].items():
+                data.extend(value)
         return data
 
     def sources(self):
@@ -298,6 +329,16 @@ class Drain(object):
         except:
             success = False
 
+        # Report success
+        if success is True:
+            log_message = (
+                'Ingest cache file %s deleted') % (self.filename)
+            log.log2quiet(1046, log_message)
+        else:
+            log_message = (
+                'Failed to delete ingest cache file %s') % (self.filename)
+            log.log2quiet(1047, log_message)
+
         # Return
         return success
 
@@ -335,10 +376,16 @@ class FillDB(threading.Thread):
                 ingest = Drain(filepath)
 
                 # Double check that the UID and timestamp in the
-                # filename matches that in the file
+                # filename matches that in the file.
+                # Ignore invalid files as a safety measure.
+                # Don't try to delete. They could be owned by some
+                # one else and the daemon could crash
                 if uid != ingest.uid():
                     continue
                 if timestamp != ingest.timestamp():
+                    continue
+                if jm_general.validate_timestamp(
+                        ingest.timestamp()) is False:
                     continue
 
                 # Update agent table if not there
@@ -346,6 +393,7 @@ class FillDB(threading.Thread):
                     _insert_agent(
                         ingest.uid(),
                         ingest.agent(),
+                        ingest.hostname(),
                         config
                         )
                     # Append the new insertion to the list
@@ -360,7 +408,7 @@ class FillDB(threading.Thread):
                         datapoints.append(did)
 
                 # Update chartable data
-                _insert_gauge_data(ingest, config)
+                _update_measurements(ingest, config)
 
                 # Purge source file
                 ingest.purge()
@@ -369,7 +417,7 @@ class FillDB(threading.Thread):
             self.queue.task_done()
 
 
-def _insert_gauge_data(ingest, config):
+def _update_measurements(ingest, config):
     """Insert data into the database "iset_data" table.
 
     Args:
@@ -388,20 +436,22 @@ def _insert_gauge_data(ingest, config):
     # Create map of DIDs to database row index values
     mapping = _datapoints_by_did(config)
 
-    # Update gauge data
+    # Update data
     for item in data:
         # Process each datapoint item found
-        (_, did, value, timestamp) = item
-        idx_datapoint = mapping[did][0]
-        idx_agent = mapping[did][1]
-        last_timestamp = mapping[did][2]
+        (_, did, tuple_value, timestamp) = item
+        idx_datapoint = int(mapping[did][0])
+        idx_agent = int(mapping[did][1])
+        last_timestamp = int(mapping[did][2])
+        value = float(tuple_value)
 
         # Only update with data collected after
-        # the most recent update
+        # the most recent update. Don't do anything more
         if timestamp > last_timestamp:
             data_list.append(
                 (idx_datapoint, idx_agent, value, timestamp)
             )
+            continue
 
         # Update DID's last updated timestamp
         if idx_datapoint in timestamp_tracker:
@@ -410,23 +460,31 @@ def _insert_gauge_data(ingest, config):
         else:
             timestamp_tracker[idx_datapoint] = timestamp
 
-    # Prepare SQL query to read a record from the database.
-    sql_insert = (
-        'REPLACE INTO iset_data '
-        '(idx_datapoint, idx_agent, value, timestamp) VALUES '
-        '(%s, "%s", %s, %s)')
-
-    # Do query and get results
-    database = db.Database(config)
-    database.modify(sql_insert, 1096, data_list=data_list)
-
-    # Change the last updated timestamp
-    for idx_datapoint, last_timestamp in timestamp_tracker.items():
+    # Update if there is data
+    if bool(data_list) is True:
         # Prepare SQL query to read a record from the database.
-        sql_modify = (
-            'UPDATE iset_datapoint SET last_timestamp=%s '
-            'WHERE iset_datapoint.idx=%s') % (last_timestamp, idx_datapoint)
-        database.modify(sql_modify, 1096)
+        sql_insert = (
+            'REPLACE INTO iset_data '
+            '(idx_datapoint, idx_agent, value, timestamp) VALUES '
+            '(%s, %s, %s, %s)')
+
+        # Do query and get results
+        database = db.Database(config)
+        database.modify(sql_insert, 1037, data_list=data_list)
+
+        # Change the last updated timestamp
+        for idx_datapoint, last_timestamp in timestamp_tracker.items():
+            # Prepare SQL query to read a record from the database.
+            sql_modify = (
+                'UPDATE iset_datapoint SET last_timestamp=%s '
+                'WHERE iset_datapoint.idx=%s'
+                '') % (last_timestamp, idx_datapoint)
+            database.modify(sql_modify, 1044)
+
+        # Report success
+        log_message = ('Successful cache drain for UID %s at timestamp %s') % (
+            ingest.uid(), ingest.timestamp())
+        log.log2quiet(1045, log_message)
 
 
 def _insert_datapoint(metadata, config):
@@ -463,15 +521,17 @@ def _insert_datapoint(metadata, config):
 
     # Do query and get results
     database = db.Database(config)
-    database.modify(sql_query, 1074)
+    database.modify(sql_query, 1032)
 
 
-def _insert_agent(uid, name, config):
+def _insert_agent(uid, name, hostname, config):
     """Insert new agent into database.
 
     Args:
         uid: Agent uid
-        name: agent name
+        name: Agent name
+        Hostname: Hostname the agent gets data from
+        config: Configuration object
 
     Returns:
         None
@@ -479,12 +539,13 @@ def _insert_agent(uid, name, config):
     """
     # Prepare SQL query to read a record from the database.
     sql_query = (
-        'INSERT INTO iset_agent (id, name) VALUES ("%s", "%s")'
-        '') % (uid, name)
+        'INSERT INTO iset_agent (id, name, hostname) '
+        'VALUES ("%s", "%s", "%s")'
+        '') % (uid, name, hostname)
 
     # Do query and get results
     database = db.Database(config)
-    database.modify(sql_query, 1074)
+    database.modify(sql_query, 1033)
 
 
 def _datapoints(config):
@@ -507,7 +568,7 @@ def _datapoints(config):
 
     # Do query and get results
     database = db.Database(config)
-    query_results = database.query(sql_query, 1074)
+    query_results = database.query(sql_query, 1034)
 
     # Massage data
     for row in query_results:
@@ -542,7 +603,7 @@ def _datapoints_by_did(config):
 
     # Do query and get results
     database = db.Database(config)
-    query_results = database.query(sql_query, 1074)
+    query_results = database.query(sql_query, 1035)
 
     # Massage data
     for row in query_results:
@@ -576,7 +637,7 @@ def _agents(config):
 
     # Do query and get results
     database = db.Database(config)
-    query_results = database.query(sql_query, 1074)
+    query_results = database.query(sql_query, 1036)
 
     # Massage data
     for row in query_results:
@@ -625,7 +686,7 @@ def _base_type(data):
         value = data
 
     # Assign base type code
-    if value.lower() == 'gauge':
+    if value.lower() == 'floating':
         base_type = 1
     elif value.lower() == 'counter32':
         base_type = 32
@@ -683,10 +744,10 @@ def process(config):
             # Create a complete filepath
             filepath = os.path.join(cache_dir, filename)
 
-            # Only read files that are 5 seconds or older
+            # Only read files that are 15 seconds or older
             # to prevent corruption caused by reading a file that could be
             # updating simultaneously
-            if time.time() - os.path.getmtime(filepath) < 5:
+            if time.time() - os.path.getmtime(filepath) < 15:
                 continue
 
             # Create a dict of UIDs, timestamps and filepaths

@@ -8,6 +8,7 @@ import os
 import queue as Queue
 import threading
 
+from infoset.utils import log
 from infoset.utils import jm_general
 from infoset.utils import Translator
 
@@ -180,7 +181,7 @@ def make(config, verbose=False):
                 'No YAML device file for host %s found in %s. '
                 'Run toolbox.py with the "poll" option first.'
                 '') % (host, config.snmp_directory())
-            jm_general.logit(1018, log_message, False)
+            log.log2quiet(1018, log_message)
             continue
         else:
             device_file_found = True

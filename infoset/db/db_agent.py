@@ -8,7 +8,7 @@ Classes for agent data
 from collections import defaultdict
 
 # Infoset libraries
-from infoset.utils import jm_general
+from infoset.utils import log
 from infoset.db import db
 import pprint
 
@@ -44,8 +44,8 @@ class Get(object):
         # Prepare SQL query to read a record from the database.
         # Only active oids
         sql_query = (
-            'SELECT iset_agent.idx, '
-            'iset_agent.id, '
+            'SELECT '
+            'iset_agent.idx, '
             'iset_agent.name, '
             'iset_agent.description, '
             'iset_agent.hostname, '
@@ -58,13 +58,15 @@ class Get(object):
 
         # Do query and get results
         database = db.Database(config)
-        query_results = database.query(sql_query, 1301)
+        query_results = database.query(sql_query, 1038)
+
         # Massage data
         for row in query_results:
             # uid found?
             if not row[0]:
                 log_message = ('uid %s not found.') % (uid)
-                jm_general.die(1302, log_message)
+                log.log2die(1302, log_message)
+
             # Assign values
             self.data_dict['idx'] = row[0]
             self.data_dict['name'] = row[1]
@@ -206,65 +208,4 @@ class GetDataPoint(object):
 
         """
         value = self.data_point_dict
-        return value
-
-
-class GetData(object):
-    """Class to return agent data.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    Methods:
-
-    """
-
-    def __init__(self, idx_datapoint, config):
-        """Function for intializing the class.
-
-        Args:
-            uid: idx of agent
-            config: Config object
-
-        Returns:
-            None
-
-        """
-        # Initialize important variables
-        self.data = defaultdict(dict)
-        self.idx_datapoint = idx_datapoint
-        # Prepare SQL query to read a record from the database.
-        # Only active oids
-        sql_query = (
-            'SELECT * '
-            'FROM iset_data '
-            'WHERE '
-            'idx_datapoint=\'%s\'') % (
-                idx_datapoint)
-        # Do query and get results
-        database = db.Database(config)
-        query_results = list(database.query(sql_query, 1301))
-        # Massage data
-        for row in query_results:
-            # uid found?
-            if not id:
-                log_message = ('uid %s not found.') % (idx)
-                jm_general.die(1302, log_message)
-            # Assign values
-            self.data[row[2]] = row[3]
-
-    def everything(self):
-        """Gets all datapoints.
-
-        Args:
-            None
-
-        Returns:
-            value: Dictionary of data_points
-
-        """
-        value = self.data
         return value

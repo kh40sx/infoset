@@ -1,76 +1,53 @@
 #!/usr/bin/env python3
-"""Nagios check general library."""
+"""Infoset general library."""
 
-import sys
 import os
-import datetime
-import time
 import shutil
 import json
+import time
 import yaml
 
+# Infoset libraries
+from infoset.utils import log
 
-def log(code, message, filename, error=False):
-    """Log message to file.
+
+def validate_timestamp(timestamp):
+    """Validate timestamp to be a multiple of 300 seconds.
 
     Args:
-        code: Message code
-        message: Message text
-        filename: Log filename
-        error: If True, create a different message string
+        timestamp: epoch timestamp in seconds
 
     Returns:
-        None
+        valid: True if valid
 
     """
     # Initialize key variables
-    output = _message(code, message, error)
+    valid = False
 
-    # Write to file
-    with open(filename, 'a') as f_handle:
-        f_handle.write(
-            ('%s\n') % (output)
-        )
+    # Process data
+    test = (int(timestamp) // 300) * 300
+    if test == timestamp:
+        valid = True
 
-    # Log to screen if necessary
-    if error is True:
-        logit(code, message, error=True)
+    # Return
+    return valid
 
 
-def die(error_num, error_string):
-    """Log to STDOUT.
+def normalized_timestamp():
+    """Normalize timestamp to a multiple of 300 seconds.
 
     Args:
-        error_num: Error number
-        error_string: Descriptive error string
+        timestamp: epoch timestamp in seconds
 
     Returns:
-        None
+        value: Normalized value
+
     """
-    logit(error_num, error_string, error=True)
+    # Process data
+    value = (int(time.time()) // 300) * 300
 
-
-def logit(error_num, error_string, error=True):
-    """Log to STDOUT.
-
-    Args:
-        error_num: Error number
-        error_string: Descriptive error string
-        error: Is this an error or not?
-
-    Returns:
-        None
-    """
-    # Log the message
-    if error is True:
-        meta_message = ('(%s): %s') % (error_num, error_string)
-        log_message = ('ERROR %s') % (meta_message)
-        print(log_message)
-        sys.exit(3)
-    else:
-        meta_message = ('(%sS): %s') % (error_num, error_string)
-        log_message = ('STATUS %s') % (meta_message)
-        print(log_message)
+    # Return
+    return value
 
 
 def dict2yaml(data_dict):
@@ -105,13 +82,13 @@ def move_files(source_dir, target_dir):
     if os.path.exists(source_dir) is False:
         log_message = ('Directory %s does not exist.') % (
             source_dir)
-        logit(1011, log_message, True)
+        log.log2die(1011, log_message)
 
     # Make sure target directory exists
     if os.path.exists(target_dir) is False:
         log_message = ('Directory %s does not exist.') % (
             target_dir)
-        logit(1012, log_message, True)
+        log.log2die(1012, log_message)
 
     source_files = os.listdir(source_dir)
     for filename in source_files:
@@ -133,7 +110,7 @@ def delete_files(target_dir):
     if os.path.exists(target_dir) is False:
         log_message = ('Directory %s does not exist.') % (
             target_dir)
-        logit(1013, log_message, True)
+        log.log2die(1013, log_message)
 
     # Delete all files in the tmp folder
     for the_file in os.listdir(target_dir):
@@ -144,10 +121,10 @@ def delete_files(target_dir):
         except Exception as exception_error:
             log_message = ('Error: deleting files in %s. Error: %s') % (
                 target_dir, exception_error)
-            logit(1014, log_message, True)
+            log.log2die(1014, log_message)
         except:
             log_message = ('Unexpected error')
-            logit(1015, log_message, True)
+            log.log2die(1015, log_message)
 
 
 def cleanstring(data):
@@ -169,28 +146,52 @@ def cleanstring(data):
     return result
 
 
-def _message(code, message, error=True):
-    """Create a formatted message string.
+def read_yaml_files(directories):
+    """Read the contents of all yaml files in a directory.
 
     Args:
-        code: Message code
-        message: Message text
-        error: If True, create a different message string
+        directories: List of directory names with configuration files
 
     Returns:
-        output: Message result
+        config_dict: Dict of yaml read
 
     """
     # Initialize key variables
-    time_object = datetime.datetime.fromtimestamp(time.time())
-    timestring = time_object.strftime('%Y-%m-%d %H:%M:%S,%f')
+    yaml_found = False
+    yaml_from_file = ''
+    all_yaml_read = ''
 
-    # Format string for error message, print and die
-    if error is True:
-        prefix = 'ERROR'
-    else:
-        prefix = 'STATUS'
-    output = ('%s - %s - [%s] (%s)') % (timestring, prefix, code, message)
+    # Check each directory in sequence
+    for config_directory in directories:
+        # Check if config_directory exists
+        if os.path.isdir(config_directory) is False:
+            log_message = (
+                'Configuration directory "%s" '
+                'doesn\'t exist!' % config_directory)
+            log.log2die(1009, log_message)
+
+        # Cycle through list of files in directory
+        for filename in os.listdir(config_directory):
+            # Examine all the '.yaml' files in directory
+            if filename.endswith('.yaml'):
+                # YAML files found
+                yaml_found = True
+
+                # Read file and add to string
+                file_path = ('%s/%s') % (config_directory, filename)
+                with open(file_path, 'r') as file_handle:
+                    yaml_from_file = file_handle.read()
+
+                # Append yaml from file to all yaml previously read
+                all_yaml_read = ('%s\n%s') % (all_yaml_read, yaml_from_file)
+
+        # Verify YAML files found in directory
+        if yaml_found is False:
+            log_message = (
+                'No files found in directory "%s" with ".yaml" '
+                'extension.') % (config_directory)
+            log.log2die(1010, log_message)
 
     # Return
-    return output
+    config_dict = yaml.load(all_yaml_read)
+    return config_dict

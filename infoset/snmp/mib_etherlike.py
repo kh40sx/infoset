@@ -102,5 +102,4 @@ class EtherlikeQuery(Query):
             data_dict[int(key)] = value
 
         # Return the interface descriptions
-        print('\nboo', data_dict, '\n')
         return data_dict

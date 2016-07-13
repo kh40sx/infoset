@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Test the jm_general module."""
 
 import unittest
@@ -7,6 +8,7 @@ import os
 import string
 
 from infoset.utils import jm_general as testimport
+
 
 class KnownValues(unittest.TestCase):
     """Checks all functions and methods."""
@@ -20,17 +22,6 @@ class KnownValues(unittest.TestCase):
 
     random_string = ''.join([random.choice(
         string.ascii_letters + string.digits) for n in range(9)])
-
-    def test_logit(self):
-        """Testing method / function logit."""
-        # Try logging with exit
-        log_message = self.random_string
-        with self.assertRaises(SystemExit):
-            testimport.logit(1000, log_message, True)
-
-        # Try logging with noexit
-        result = testimport.logit(1000, log_message, False)
-        self.assertEqual(result, None)
 
     def test_dict2yaml(self):
         """Testing method / function dict2yaml."""

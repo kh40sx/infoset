@@ -90,11 +90,11 @@ class Sentry3Query(Query):
         # Return
         return final
 
-    def infeedcapacity(self):
+    def infeedcapacity(self, safe=False):
         """Return dict of Sentry3 MIB infeedCapacity for each ifIndex for device.
 
         Args:
-            None
+            safe: Do a failsafe walk if True
 
         Returns:
             data_dict: Dict of infeedCapacity. Key = OID's last node.
@@ -105,7 +105,10 @@ class Sentry3Query(Query):
 
         # Process OID
         oid = '.1.3.6.1.4.1.1718.3.2.2.1.10'
-        results = self.snmp_object.walk(oid, normalized=False)
+        if safe is False:
+            results = self.snmp_object.walk(oid, normalized=False)
+        else:
+            results = self.snmp_object.swalk(oid, normalized=False)
         for key, value in results.items():
             # Process OID
             data_dict[key] = value
@@ -113,11 +116,11 @@ class Sentry3Query(Query):
         # Return
         return data_dict
 
-    def infeedpower(self):
+    def infeedpower(self, safe=False):
         """Return dict of Sentry3 MIB infeedPower for each ifIndex for device.
 
         Args:
-            None
+            safe: Do a failsafe walk if True
 
         Returns:
             data_dict: Dict of infeedPower. Key = OID's last node.
@@ -128,7 +131,10 @@ class Sentry3Query(Query):
 
         # Process OID
         oid = '.1.3.6.1.4.1.1718.3.2.2.1.12'
-        results = self.snmp_object.walk(oid, normalized=False)
+        if safe is False:
+            results = self.snmp_object.walk(oid, normalized=False)
+        else:
+            results = self.snmp_object.swalk(oid, normalized=False)
         for key, value in results.items():
             # Process OID
             data_dict[key] = value
@@ -136,11 +142,11 @@ class Sentry3Query(Query):
         # Return
         return data_dict
 
-    def infeedloadvalue(self):
+    def infeedloadvalue(self, safe=False):
         """Return dict of Sentry3 MIB infeedLoadValue for each ifIndex for device.
 
         Args:
-            None
+            safe: Do a failsafe walk if True
 
         Returns:
             data_dict: Dict of infeedLoadValue. Key = OID's last node.
@@ -151,7 +157,10 @@ class Sentry3Query(Query):
 
         # Process OID
         oid = '.1.3.6.1.4.1.1718.3.2.2.1.7'
-        results = self.snmp_object.walk(oid, normalized=False)
+        if safe is False:
+            results = self.snmp_object.walk(oid, normalized=False)
+        else:
+            results = self.snmp_object.swalk(oid, normalized=False)
         for key, value in results.items():
             # Process OID
             data_dict[key] = value / 100
@@ -159,11 +168,11 @@ class Sentry3Query(Query):
         # Return
         return data_dict
 
-    def infeedid(self):
+    def infeedid(self, safe=False):
         """Return dict of Sentry3 MIB infeedID for each ifIndex for device.
 
         Args:
-            None
+            safe: Do a failsafe walk if True
 
         Returns:
             data_dict: Dict of infeedID. Key = OID's last node.
@@ -174,7 +183,10 @@ class Sentry3Query(Query):
 
         # Process OID
         oid = '.1.3.6.1.4.1.1718.3.2.2.1.2'
-        results = self.snmp_object.walk(oid, normalized=False)
+        if safe is False:
+            results = self.snmp_object.walk(oid, normalized=False)
+        else:
+            results = self.snmp_object.swalk(oid, normalized=False)
         for key, value in results.items():
             # Process OID
             data_dict[key] = str(bytes(value), encoding='utf-8')
@@ -182,11 +194,11 @@ class Sentry3Query(Query):
         # Return
         return data_dict
 
-    def infeedname(self):
+    def infeedname(self, safe=False):
         """Return dict of Sentry3 MIB infeedName for each ifIndex for device.
 
         Args:
-            None
+            safe: Do a failsafe walk if True
 
         Returns:
             data_dict: Dict of infeedName. Key = OID's last node.
@@ -197,7 +209,10 @@ class Sentry3Query(Query):
 
         # Process OID
         oid = '.1.3.6.1.4.1.1718.3.2.2.1.3'
-        results = self.snmp_object.walk(oid, normalized=False)
+        if safe is False:
+            results = self.snmp_object.walk(oid, normalized=False)
+        else:
+            results = self.snmp_object.swalk(oid, normalized=False)
         for key, value in results.items():
             # Process OID
             data_dict[key] = str(bytes(value), encoding='utf-8')
