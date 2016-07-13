@@ -274,6 +274,14 @@ def _subplot(data, axes, line_color, fill=True):
     # Convert data dict to two lists for matplotlib
     (x_values, y_values) = data
 
+    # Replace zeros in y_values with numpy NaNs to prevent them from
+    # being charted
+    y_new = [np.nan] * len(y_values)
+    for (idx, item) in enumerate(y_values):
+        if item == 0:
+            continue
+        y_new[idx] = y_values[idx]
+
     #####################################################################
     #
     # Create Charts
@@ -282,7 +290,7 @@ def _subplot(data, axes, line_color, fill=True):
 
     # Create chart plot object (Array)
     plot_line, = axes.plot(
-        x_values, y_values, line_color, linewidth=1)
+        x_values, y_new, line_color, linewidth=1)
 
     #####################################################################
     # Gradient fill under line (start)
