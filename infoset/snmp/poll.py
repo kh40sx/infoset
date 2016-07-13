@@ -11,6 +11,7 @@ import threading
 from infoset.utils import jm_general
 from infoset.snmp import snmp_manager
 from infoset.snmp import snmp_info
+from infoset.utils import log
 
 
 # Define a key global variable
@@ -56,7 +57,7 @@ class PollAllSNMP(threading.Thread):
                     log_message = (
                         'Uncontactable host %s or no valid SNMP '
                         'credentials found for it.') % (host)
-                    jm_general.logit(1019, log_message, False)
+                    log.log2quiet(1019, log_message)
                 continue
 
             # Process if valid

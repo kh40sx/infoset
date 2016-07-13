@@ -9,7 +9,8 @@ from pysnmp.proto import rfc1902
 from pysnmp.smi import rfc1902 as smi
 
 # Import project libraries
-from infoset.utils import jm_general
+from infoset.utils import log
+from infoset.utils import hidden
 from infoset.snmp import jm_iana_enterprise
 
 
@@ -51,9 +52,10 @@ class Validate(object):
         group_key = 'group_name'
 
         # Determine whether cached value exists
-        home_dir = os.environ['HOME']
-        snmp_dir = ('%s/.infoset/snmp_cache') % (home_dir)
-        filename = ('%s/%s') % (snmp_dir, self.hostname)
+        filez = hidden.File()
+        dirz = hidden.Directory()
+        snmp_dir = dirz.snmp_cache()
+        filename = filez.snmp_cache(self.hostname)
 
         # Create UID directory / file if not yet created
         if os.path.exists(snmp_dir) is False:
@@ -153,13 +155,13 @@ class Interact(object):
             log_message = (
                 'SNMP version is "None". Non existent host? - %s'
                 '') % (snmp_parameters['snmp_hostname'])
-            jm_general.logit(1004, log_message, True)
+            log.log2die(1004, log_message)
 
         # Fail if snmp_parameters dictionary is empty
         if not snmp_parameters:
             log_message = ('SNMP parameters provided are blank. '
                            'Non existent host?')
-            jm_general.logit(1005, log_message, True)
+            log.log2die(1005, log_message)
 
     def enterprise_number(self):
         """Return SNMP enterprise number for the device.
@@ -227,7 +229,7 @@ class Interact(object):
             # Log a message
             log_message = ('Unexpected SNMP error for device %s') % (
                 self.snmp_params['snmp_hostname'])
-            jm_general.logit(1008, log_message, True)
+            log.log2die(1008, log_message)
 
         # Return
         return contactable
@@ -432,7 +434,7 @@ class Interact(object):
         valid_format = oid_valid_format(oid_to_get)
         if valid_format is False:
             log_message = ('OID %s has an invalid format') % (oid_to_get)
-            jm_general.logit(1000, log_message, True)
+            log.log2die(1020, log_message)
 
         # Create the object
         snmp_object = cmdgen.CommandGenerator()
@@ -466,10 +468,10 @@ class Interact(object):
                 'OID %s from %s: (%s)') % (oid_to_get,
                                            snmp_params['snmp_hostname'],
                                            exception_error)
-            jm_general.logit(1001, log_message, True)
+            log.log2die(1023, log_message)
         except:
             log_message = ('Unexpected error')
-            jm_general.logit(1002, log_message, True)
+            log.log2die(1002, log_message)
 
         # Crash on error, return blank results if doing certain types of
         # connectivity checks
@@ -551,7 +553,7 @@ def _process_error(
     else:
         action_taken = 'SNMPwalk'
     log_message = ('%s - %s') % (action_taken, log_message)
-    jm_general.logit(1003, log_message, True)
+    log.log2die(1003, log_message)
 
 
 def _format_results(normalized=False, get=False, var_binds=None):
