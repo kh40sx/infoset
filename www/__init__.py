@@ -13,10 +13,13 @@ from datetime import timedelta
 import os
 from infoset.utils import ConfigServer
 
+# Initializes the Flask Object
 infoset = Flask(__name__)
 
+# Initializes configurations for server
 global_config = ConfigServer('./infoset/sample_code/etc/server')
 
+# Adds objects to global dict
 infoset.config.update(
     SNMP_CONFIG='infoset/etc',
     GLOBAL_CONFIG=global_config

@@ -1,34 +1,52 @@
+"""Module of infoset webserver routes.
+
+Contains all routes that infoset's Flask webserver uses
+
+"""
 import yaml
 import time
 import json
+from infoset.db.agent import Get, GetDataPoint, GetData
+from flask import render_template, jsonify, send_file, request
+from www import infoset
+from os import listdir, walk, path, makedirs, remove
+
+# Matplotlib imports, Do not edit order
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import style
 style.use("ggplot")
-from infoset.db.agent import Get, GetDataPoint, GetData
-from flask import render_template, jsonify, send_file, request
-from www import infoset
-from os import listdir, walk, path, makedirs, remove
-from infoset.utils.rrd.rrd_xlate import RrdXlate
+# End of Imports
+
 
 
 @infoset.route('/')
 def index():
-    hosts = getHosts()
-    return render_template('index.html',
-                           hosts=hosts)
+    """Function for handling home route.
 
+    Args:
+        None
 
-@infoset.route('/hosts')
-def hosts():
-    hosts = getHosts()
-    return jsonify(hosts)
+    Returns:
+        Home Page
+
+    """
+    return render_template('index.html')
 
 
 @infoset.route('/hosts/<host>')
 def host(host):
+    """Function for handling /hosts/<host> route.
+
+    Args:
+        host: IP address of a local host
+
+    Returns:
+        JSON response of different layers of specified host
+
+    """
     filename = host + ".yaml"
     filepath = path.join("./www/static/yaml/", filename)
     yaml_dump = {}
@@ -42,70 +60,117 @@ def host(host):
 
 @infoset.route('/hosts/<host>/layer1')
 def layerOne(host):
+    """Function for handling /hosts/<host>/layer1 route.
+
+    Args:
+        host: IP address of a local host
+
+    Returns:
+        JSON response of layer1 of the OSI model of the specified host
+
+    """
     filename = host + ".yaml"
     filepath = path.join("./www/static/yaml/", filename)
     yaml_dump = {}
+
     with open(filepath, 'r') as stream:
         try:
             yaml_dump = yaml.load(stream)
         except Exception as e:
             raise e
+    
     layer1 = yaml_dump['layer1']
     return jsonify(layer1)
 
 
 @infoset.route('/hosts/<host>/layer2')
 def layerTwo(host):
+    """Function for handling /hosts/<host>/layer2 route.
+
+    Args:
+        host: IP address of a local host
+
+    Returns:
+        JSON response of layer2 of the OSI model of the specified host
+
+    """    
     filename = host + ".yaml"
     filepath = path.join("./www/static/yaml/", filename)
     yaml_dump = {}
+
     with open(filepath, 'r') as stream:
         try:
             yaml_dump = yaml.load(stream)
         except Exception as e:
             raise e
+    # Gets layer2 from loaded yaml
     layer2 = yaml_dump['layer2']
+
     return jsonify(layer2)
-
-
-@infoset.route('/devices')
-def devices():
-    hosts = getHosts()
-    devices = getDevices()
-    return render_template('devices.html',
-                           hosts=hosts,
-                           devices=devices)
 
 
 @infoset.route('/receive/<uid>', methods=["POST"])
 def receive(uid):
+    """Function for handling /receive/<uid> route.
+
+    Args:
+        uid: Unique Identifier of an Infoset Agent
+
+    Returns:
+        Text response of Received
+
+    """    
     # TODO replace with config obj
     config = infoset.config['GLOBAL_CONFIG']
     cache_dir = config.ingest_cache_directory()
-    # Get Json from incoming POST
+    
+    # Get Json from incoming agent POST
     data = request.json
     timestamp = data['timestamp']
     data_uid = data['uid']
     json_path = cache_dir + ("/%s_%s.json") % (timestamp, str(data_uid))
+
     with open(json_path, "w+") as temp_file:
         json.dump(data, temp_file)
         temp_file.close()
+    
     print("Agent:%s recieved" % uid)
-    return "Recieved"
+    return "Received"
 
 
 @infoset.route('/fetch/agent/<uid>', methods=["GET", "POST"])
 def fetch_agent_dp(uid):
+    """Function for handling /fetch/agent/<uid> route.
+
+    Args:
+        uid: Unique Identifier of an Infoset Agent
+
+    Returns:
+        JSON response of all datapoints
+
+    """  
     config = infoset.config['GLOBAL_CONFIG']
+
+    # Fetches agent from mysql by uid
     agent = Get(uid, config)
     idx = agent.idx()
-    # Gets all associated datapoints
+    
+    # Gets all datapoints associated with agent
     datapoints = GetDataPoint(idx, config)
     return jsonify(datapoints.everything())
 
 
 @infoset.route('/fetch/agent/<uid>/<datapoint>', methods=["GET", "POST"])
 def fetch_dp(uid, datapoint):
+    """Function for handling /fetch/agent/<uid>/<datapoint> route.
+
+    Args:
+        uid: Unique Identifier of an Infoset Agent
+
+    Returns:
+        JSON response of all data under specific datapoint
+
+    """ 
     # TODO implement start and stop times
     config = infoset.config['GLOBAL_CONFIG']
     data = GetData(datapoint, config)
@@ -123,41 +188,3 @@ def fetch_dp(uid, datapoint):
     plt.savefig("/home/proxima/public_html/graph.png")
     """
     return jsonify(data_values)
-
-def getHosts():
-    hosts = {}
-    for root, directories, files in walk('./www/static/yaml'):
-        for filename in files:
-            filepath = path.join(root, filename)
-            hosts[filename[:-5]] = filepath  # Add it to the list.
-    return hosts
-
-
-def getDeviceDetails(uid):
-    active_yaml = {}
-    filepath = "./www/static/devices/linux/" + str(uid) + "/active.yaml"
-    with open(filepath, 'r') as stream:
-        try:
-            active_yaml = yaml.load(stream)
-        except Exception as e:
-            raise e
-    return active_yaml
-
-
-def getDevices():
-    active_yamls = {}
-    devices = []
-    root = "./www/static/devices/linux/"
-    directories = [d for d in listdir(root) if path.isdir(path.join(root, d))]
-
-    for directory in directories:
-        filepath = "./www/static/devices/linux/" + directory + "/active.yaml"
-        active_yamls[directory] = filepath
-
-        with open(filepath, 'r') as stream:
-            try:
-                yaml_dump = yaml.load(stream)
-            except Exception as e:
-                raise e
-        devices.append(yaml_dump)
-    return devices
