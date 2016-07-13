@@ -5,6 +5,7 @@ Classes for agent data
 """
 # Python standard libraries
 from collections import defaultdict
+from pprint import pprint
 
 # Infoset libraries
 from infoset.utils import log
@@ -48,19 +49,19 @@ class GetIDX(object):
 
         # Redefine start / stop times
         if start is None:
-            ts_start = 0
+            self.ts_start = jm_general.normalized_timestamp() - (3600 * 24)
         else:
             # Adjust for counters
             if self.base_type == 1:
-                ts_start = start
+                self.ts_start = start
             else:
-                ts_start = start - 300
+                self.ts_start = start - 300
         if stop is None:
-            ts_stop = jm_general.normalized_timestamp()
+            self.ts_stop = jm_general.normalized_timestamp()
         else:
-            ts_stop = stop
-        if ts_start > ts_stop:
-            ts_start = ts_stop
+            self.ts_stop = stop
+        if self.ts_start > self.ts_stop:
+            self.ts_start = self.ts_stop
 
         # Prepare SQL query to read a record from the database.
         # Only active oids
@@ -70,7 +71,7 @@ class GetIDX(object):
             'WHERE '
             '(timestamp >= %s AND timestamp <= %s) AND '
             'idx_datapoint=\'%s\'') % (
-                ts_start, ts_stop, idx)
+                self.ts_start, self.ts_stop, idx)
 
         # Do query and get results
         database = db.Database(config)
@@ -99,50 +100,60 @@ class GetIDX(object):
 
         """
         # Return data
-        if self.base_type == 1:
-            value = self.data
-        else:
-            value = _counter(self.data, base_type=self.base_type)
+        value = self._counter()
         return value
 
+    def _counter(self):
+        """Convert counter data to gauge.
 
-def _counter(data, base_type=1):
-    """Convert counter data to gauge.
+        Args:
+            None
 
-    Args:
-        data: Dict of data keyed by timestamp
+        Returns:
+            values: Converted dict of data keyed by timestamp
 
-    Returns:
-        values: Converted dict of data keyed by timestamp
+        """
+        # Initialize key variables
+        count = 0
 
-    """
-    # Initialize key variables
-    count = 0
-    values = defaultdict(dict)
-
-    # Start conversion
-    for timestamp, value in sorted(data.items()):
-        # Skip first value
-        if count == 0:
-            old_timestamp = timestamp
-            count += 1
-            continue
-
-        # Get new value
-        new_value = value - data[old_timestamp]
-
-        # Do conversion
-        if new_value >= 0:
-            values[timestamp] = new_value
+        # Populate values dictionary with zeros. This ensures that
+        # all timestamp values are covered if we have lost contact
+        # with the agent at some point along the time series.
+        if self.base_type == 1:
+            values = dict.fromkeys(
+                range(self.ts_start, self.ts_stop + 300, 300), 0)
         else:
-            if base_type == 32:
-                fixed_value = 4294967296 + abs(value) - 1
+            values = dict.fromkeys(
+                range(self.ts_start + 300, self.ts_stop + 300, 300), 0)
+
+        # Start conversion
+        for timestamp, value in sorted(self.data.items()):
+            # Process counter values
+            if self.base_type != 1:
+                # Skip first value
+                if count == 0:
+                    old_timestamp = timestamp
+                    count += 1
+                    continue
+
+                # Get new value
+                new_value = value - self.data[old_timestamp]
+
+                # Do conversion
+                if new_value >= 0:
+                    values[timestamp] = new_value
+                else:
+                    if self.base_type == 32:
+                        fixed_value = 4294967296 + abs(value) - 1
+                    else:
+                        fixed_value = (4294967296 * 4294967296) + abs(value) - 1
+                    values[timestamp] = fixed_value
             else:
-                fixed_value = (4294967296 * 4294967296) + abs(value) - 1
-            values[timestamp] = fixed_value
+                # Process gauge values
+                values[timestamp] = self.data[timestamp]
 
-        # Save old timestamp
-        old_timestamp = timestamp
+            # Save old timestamp
+            old_timestamp = timestamp
 
-    # Return
-    return values
+        # Return
+        return values
