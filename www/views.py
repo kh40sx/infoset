@@ -1,6 +1,12 @@
 import yaml
 import time
 import json
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from matplotlib import style
+style.use("ggplot")
 from infoset.db.agent import Get, GetDataPoint, GetData
 from flask import render_template, jsonify, send_file, request
 from www import infoset
@@ -79,7 +85,8 @@ def receive(uid):
     # Get Json from incoming POST
     data = request.json
     timestamp = data['timestamp']
-    json_path = cache_dir + ("/%s_%s.json") % (timestamp, str(uid))
+    data_uid = data['uid']
+    json_path = cache_dir + ("/%s_%s.json") % (timestamp, str(data_uid))
     with open(json_path, "w+") as temp_file:
         json.dump(data, temp_file)
         temp_file.close()
@@ -99,12 +106,23 @@ def fetch_agent_dp(uid):
 
 @infoset.route('/fetch/agent/<uid>/<datapoint>', methods=["GET", "POST"])
 def fetch_dp(uid, datapoint):
+    # TODO implement start and stop times
     config = infoset.config['GLOBAL_CONFIG']
     data = GetData(datapoint, config)
     data_values = data.everything()
     # Gets all associated datapoints
+    """
+    x_axis = []
+    y_axis = []
+    for key, value in data_values.items():
+        x_axis.append(key)
+        y_axis.append(value)
+    np_x_axis = np.asarray(x_axis)
+    np_y_axis = np.asarray(y_axis)
+    plt.plot(np_x_axis, np_y_axis)
+    plt.savefig("/home/proxima/public_html/graph.png")
+    """
     return jsonify(data_values)
-
 
 def getHosts():
     hosts = {}
