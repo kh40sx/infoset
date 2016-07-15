@@ -63,7 +63,7 @@ class Get(object):
             # uid found?
             if not row[0]:
                 log_message = ('uid %s not found.') % (uid)
-                log.log2die(1302, log_message)
+                log.log2die(1049, log_message)
 
             # Assign values
             self.data_dict['idx'] = row[0]
@@ -190,7 +190,7 @@ class GetDataPoint(object):
             # uid found?
             if not id:
                 log_message = ('uid %s not found.') % (idx)
-                jm_general.die(1302, log_message)
+                jm_general.die(1050, log_message)
             # Assign values
             self.data_point_dict[row[0]] = [row[3], row[4]]
 

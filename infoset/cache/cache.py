@@ -102,6 +102,25 @@ class Drain(object):
                         (uid, did, label, source, description, base_type)
                     )
 
+        # Create global information dict
+        self.information = information
+
+    def valid(self):
+        """Determine whether data is valid.
+
+        Args:
+            None
+
+        Returns:
+            isvalid: Valid if true
+
+        """
+        # Initialize key variables
+        isvalid = _validated(self.information, self.filename)
+
+        # Return
+        return isvalid
+
     def uid(self):
         """Return uid.
 
@@ -337,7 +356,7 @@ class Drain(object):
         else:
             log_message = (
                 'Failed to delete ingest cache file %s') % (self.filename)
-            log.log2quiet(1047, log_message)
+            log.log2warn(1050, log_message)
 
         # Return
         return success
@@ -699,6 +718,74 @@ def _base_type(data):
     return base_type
 
 
+def _validated(information, filename):
+    """Validate incoming agent json data.
+
+    Args:
+        information: Agent json data
+        filename: Filename that provided the data
+
+    Returns:
+        valid: True if validated
+
+    """
+    # Initialize key variables
+    valid = True
+    agent_name = 'Unknown'
+    data_types = ['chartable', 'other']
+    agent_meta_keys = ['timestamp', 'uid', 'agent', 'hostname']
+
+    # Get universal parameters from file
+    for key in agent_meta_keys:
+        if key not in information:
+            valid = False
+
+    # Get agent name for future reporting
+    if valid is True:
+        agent_name = information['agent']
+
+    # Timestamp must be an integer
+    try:
+        int(information['timestamp'])
+    except:
+        valid = False
+
+    # Process chartable data
+    for data_type in data_types:
+        # Skip if data type isn't in the data
+        if data_type not in information:
+            continue
+
+        # Process the data type
+        for _, group in sorted(information[data_type].items()):
+            # Process keys
+            for key in ['base_type', 'description', 'data']:
+                if key not in group:
+                    valid = False
+
+            # Process data
+            for datapoint in group['data']:
+                if len(datapoint) != 3:
+                    valid = False
+
+                # Check to make sure value is numeric
+                value = datapoint[1]
+                try:
+                    float(value)
+                except:
+                    valid = False
+
+    # Error message
+    if valid is False:
+        log_message = (
+            'Cache file %s for agent %s is invalid'
+            '') % (filename, agent_name)
+        log.log2warn(1021, log_message)
+
+    # Return
+    return valid
+
+
 def process(config):
     """Method initializing the class.
 
@@ -713,6 +800,10 @@ def process(config):
     threads_in_pool = config.ingest_threads()
     uid_metadata = defaultdict(lambda: defaultdict(dict))
     cache_dir = config.ingest_cache_directory()
+
+    # Filenames must start with a numeric timestamp and #
+    # end with a hex string. This will be tested later
+    regex = re.compile(r'^\d+_[0-9a-f]+.json')
 
     # Get a list of active agents and datapoints
     agents = _agents(config)
@@ -735,10 +826,6 @@ def process(config):
 
     # Process only valid agent filenames
     for filename in all_filenames:
-        # Filenames must start with a numeric timestamp and end with a hex
-        # string
-        regex = re.compile(r'^\d+_[0-9a-f]+.json')
-
         # Add valid data to lists
         if bool(regex.match(filename)) is True:
             # Create a complete filepath

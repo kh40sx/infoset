@@ -58,13 +58,13 @@ class Get(object):
 
         # Do query and get results
         database = db.Database(config)
-        query_results = database.query(sql_query, 1038)
+        query_results = database.query(sql_query, 1052)
         # Massage data
         for row in query_results:
             # uid found?
             if not row[0]:
                 log_message = ('did %s not found.') % (did)
-                log.log2die(1302, log_message)
+                log.log2die(1047, log_message)
             # Assign values
             self.data_dict['idx'] = row[0]
             self.data_dict['idx_agent,'] = row[1]
@@ -236,13 +236,13 @@ class GetIDX(object):
 
         # Do query and get results
         database = db.Database(config)
-        query_results = database.query(sql_query, 1038)
+        query_results = database.query(sql_query, 1053)
         # Massage data
         for row in query_results:
             # uid found?
             if not row[0]:
                 log_message = ('idx %s not found.') % (idx)
-                log.log2die(1302, log_message)
+                log.log2die(1048, log_message)
             # Assign values
             self.data_dict['id'] = row[0]
             self.data_dict['idx_agent,'] = row[1]
