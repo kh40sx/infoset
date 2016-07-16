@@ -46,7 +46,6 @@ venv/
 bin/infoset
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
