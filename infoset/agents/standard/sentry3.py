@@ -96,7 +96,7 @@ class PollingAgent(object):
                 log_message = (
                     'No valid SNMP configuration found '
                     'for host "%s" ') % (hostname)
-                log.log2quiet(1006, log_message)
+                log.log2warn(1006, log_message)
                 continue
 
             # Create Query make sure MIB is supported
@@ -106,7 +106,7 @@ class PollingAgent(object):
                 log_message = (
                     'The Sentry3 MIB is not supported by host  "%s"'
                     '') % (hostname)
-                log.log2quiet(1001, log_message)
+                log.log2warn(1001, log_message)
                 continue
 
             # Get the UID for the agent after all preliminary checks are OK

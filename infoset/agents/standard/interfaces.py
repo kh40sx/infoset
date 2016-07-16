@@ -97,7 +97,7 @@ class PollingAgent(object):
                 log_message = (
                     'No valid SNMP configuration found '
                     'for host "%s" ') % (hostname)
-                log.log2quiet(1022, log_message)
+                log.log2warn(1022, log_message)
                 continue
 
             # Create Query make sure MIB is supported
@@ -108,7 +108,7 @@ class PollingAgent(object):
                 log_message = (
                     'The IF-MIB is not supported by host  "%s"'
                     '') % (hostname)
-                log.log2quiet(1024, log_message)
+                log.log2warn(1024, log_message)
                 continue
 
             # Get the UID for the agent after all preliminary checks are OK

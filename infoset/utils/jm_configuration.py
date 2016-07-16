@@ -215,6 +215,26 @@ class ConfigServer(object):
         # Return
         return value
 
+    def ingest_failures_directory(self):
+        """Determine the ingest_failures_directory.
+
+        Args:
+            None
+
+        Returns:
+            value: configured ingest_failures_directory
+
+        """
+        # Get parameter
+        value = ('%s/failures') % (self.ingest_cache_directory())
+
+        # Check if value exists
+        if os.path.exists(value) is False:
+            os.makedirs(value)
+
+        # Return
+        return value
+
     def db_name(self):
         """Get db_name.
 

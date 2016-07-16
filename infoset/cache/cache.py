@@ -9,6 +9,7 @@ This could be a modified to be a daemon
 # Standard libraries
 import os
 import time
+import shutil
 import json
 import hashlib
 from collections import defaultdict
@@ -55,13 +56,32 @@ class Drain(object):
         self.filename = filename
         self.data = defaultdict(lambda: defaultdict(dict))
         self.metadata = []
+        self.validated = False
+        read_failure = False
         self.agent_meta = {}
         data_types = ['chartable', 'other']
         agent_meta_keys = ['timestamp', 'uid', 'agent', 'hostname']
+        information = {}
 
         # Ingest data
-        with open(filename, 'r') as f_handle:
-            information = json.load(f_handle)
+        try:
+            with open(filename, 'r') as f_handle:
+                information = json.load(f_handle)
+        except:
+            read_failure = True
+
+        # Validate data read from file.
+        # Provide information for self.valid() method.
+        # Stop further processing if invalid
+        if read_failure is False:
+            self.validated = _validated(information, filename)
+        else:
+            self.validated = False
+        if self.validated is False:
+            log_message = (
+                'Cache ingest file %s is invalid.') % (filename)
+            log.log2warn(1051, log_message)
+            return
 
         # Get universal parameters from file
         for key in agent_meta_keys:
@@ -102,9 +122,6 @@ class Drain(object):
                         (uid, did, label, source, description, base_type)
                     )
 
-        # Create global information dict
-        self.information = information
-
     def valid(self):
         """Determine whether data is valid.
 
@@ -116,7 +133,7 @@ class Drain(object):
 
         """
         # Initialize key variables
-        isvalid = _validated(self.information, self.filename)
+        isvalid = self.validated
 
         # Return
         return isvalid
@@ -393,6 +410,18 @@ class FillDB(threading.Thread):
             for (timestamp, filepath) in metadata:
                 # Read in data
                 ingest = Drain(filepath)
+
+                # Make sure file is OK
+                # Move it to a directory for further analysis
+                # by administrators
+                if ingest.valid() is False:
+                    log_message = (
+                        'Cache ingest file %s is invalid. Moving.'
+                        '') % (filepath)
+                    log.log2warn(1054, log_message)
+                    shutil.move(
+                        filepath, config.ingest_failures_directory())
+                    continue
 
                 # Double check that the UID and timestamp in the
                 # filename matches that in the file.
@@ -757,7 +786,7 @@ def _validated(information, filename):
             continue
 
         # Process the data type
-        for _, group in sorted(information[data_type].items()):
+        for category, group in sorted(information[data_type].items()):
             # Process keys
             for key in ['base_type', 'description', 'data']:
                 if key not in group:
@@ -769,11 +798,12 @@ def _validated(information, filename):
                     valid = False
 
                 # Check to make sure value is numeric
-                value = datapoint[1]
-                try:
-                    float(value)
-                except:
-                    valid = False
+                if category == 'chartable':
+                    value = datapoint[1]
+                    try:
+                        float(value)
+                    except:
+                        valid = False
 
     # Error message
     if valid is False:
