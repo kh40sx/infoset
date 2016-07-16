@@ -17,7 +17,7 @@ from infoset.utils import ConfigServer
 infoset = Flask(__name__)
 
 # Initializes configurations for server
-global_config = ConfigServer('./infoset/sample_code/etc/server')
+global_config = ConfigServer('./infoset/sample_code/etc/')
 
 # Adds objects to global dict
 infoset.config.update(

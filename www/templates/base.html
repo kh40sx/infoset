@@ -10,40 +10,63 @@
     <title>{% block title %}{% endblock %}</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
-    <link rel="stylesheet" href="{{ static('css/bootstrap.min.css') }}" type="text/css" media="screen" title="no title"
+    <link rel="stylesheet" href="{{ static('dist/css/bootstrap.min.css') }}" type="text/css" media="screen" title="no title"
           charset="utf-8">
-    <link rel="stylesheet" href="{{ static('css/styles.css') }}" type="text/css" media="screen" title="no title"
+    <link rel="stylesheet" href="{{ static('dist/css/font-awesome.min.css') }}" type="text/css" media="screen" title="no title"
+          charset="utf-8">
+    <link rel="stylesheet" href="{{ static('dist/css/styles.min.css') }}" type="text/css" media="screen" title="no title"
           charset="utf-8">
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
 </head>
 <body>
-<nav class="navbar navbar-default" role="navigation">
-    <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse"
-                    data-target="#bs-example-navbar-collapse-1">
-                <span>Toggle</span>
-            </button>
-            <a class="navbar-brand" href="/" style="color:#fff; font-weight:600;">Infoset</a>
-        </div>
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
+    <div id="wrapper">
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
                 <li>
-                    <a href="/devices">Devices</a>
+                    <a href="/" id="home-button">
+                        <p>Infoset</p>
+                    </a>
                 </li>
                 <li>
-                    <a href="">Ports</a>
+                    <a href="/" id="home-button">
+                        <i class="fa fa-home" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a id="search-button">
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="" id="graph-button">
+                        <i class="fa fa-area-chart" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="" id="logs-button">
+                        <i class="fa fa-file-text" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="" id="settings-button">
+                        <i class="fa fa-cogs" aria-hidden="true"></i>
+                    </a>
                 </li>
             </ul>
         </div>
-        <!-- /.navbar-collapse -->
-    </div>
-    <!-- /.container -->
-</nav>
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                         {% block body %}
 
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 <!-- This only works when I do  this, I really have no idea why -->
 <style>
     .navbar-default .navbar-nav > li > a {
@@ -55,9 +78,7 @@
     <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
     <![endif]-->
 
-{% block body %}
 
-{% endblock %}
 
 
 
@@ -87,13 +108,80 @@
 <script src="{{ static('js/vendors/bootstrap/bootstrap-collapse.js') }}"></script>
 <script src="{{ static('js/vendors/bootstrap/bootstrap-tab.js') }}"></script>
 <script src="{{ static('js/vendors/bootstrap/bootstrap.min.js') }}"></script>
-<!--angular lib and entry point -->
-<script src="{{ static('js/vendors/angular/angular.min.js') }}"></script>
-<script src="{{ static('js/index.js') }}"></script>
-<footer class="navbar-default navbar-fixed-bottom">
-    <div class="container-fluid">
-        <p>Calico</p>
-    </div>
+<script src="{{ static('dist/js/app.min.js') }}"></script>
+
+<footer id="search-wrapper" class="navbar-default navbar-fixed-bottom">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <form>
+                    <fieldset class="form-group">
+                        <label>Find By</label>
+                        <input type="text" name="query" class="form-control">
+                        <label>
+                            <input type="checkbox" name="Host Name"> Host Name
+                        </label>
+                        <label>
+                            <input type="checkbox" name="Host Name"> IP Address
+                        </label>
+                        <label>
+                            <input type="checkbox" name="Host Name"> Operating System
+                        </label>                        
+                    </fieldset>
+                </form>
+                <div class="box" id="search-box">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th data-field="devices-total" width="10%">Host Name</th>
+                            <th data-field="devices-total" width="10%">IP Address</th>
+                            <th data-field="devices-up" width="10%">Operating System</th>
+                            <th data-field="devices-down" width="10%">Version</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><p>calico</p></td>
+                            <td><p>192.168.1.14</p></td>
+                            <td><p>Arch Linux</p></td>
+                            <td><p>4.2.1</p></td>
+                        </tr>
+                        <tr>
+                            <td><p>calico</p></td>
+                            <td><p>192.168.1.14</p></td>
+                            <td><p>Arch Linux</p></td>
+                            <td><p>4.2.1</p></td>
+                        </tr>
+                        <tr>
+                            <td><p>calico</p></td>
+                            <td><p>192.168.1.14</p></td>
+                            <td><p>Arch Linux</p></td>
+                            <td><p>4.2.1</p></td>
+                        </tr>                            
+                        <tr>
+                            <td><p>calico</p></td>
+                            <td><p>192.168.1.14</p></td>
+                            <td><p>Arch Linux</p></td>
+                            <td><p>4.2.1</p></td>
+                        </tr>
+                        <tr>
+                            <td><p>calico</p></td>
+                            <td><p>192.168.1.14</p></td>
+                            <td><p>Arch Linux</p></td>
+                            <td><p>4.2.1</p></td>
+                        </tr>
+                        <tr>
+                            <td><p>calico</p></td>
+                            <td><p>192.168.1.14</p></td>
+                            <td><p>Arch Linux</p></td>
+                            <td><p>4.2.1</p></td>
+                        </tr>                                                         
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>    
 </footer>
 </body>
 </html>

@@ -1,0 +1,122 @@
+.navbar-default {
+    color: white;
+    background-color: #f05b5c
+}
+
+body {
+    background-image: url("../../img/pattern.png");
+    background-repeat: repeat;
+}
+/*SideBar Component*/
+#wrapper {
+    padding-left: 0;
+}
+
+#sidebar-wrapper {
+    z-index: 1000;
+    position: fixed;
+    left: 250px;
+    width: 100px;
+    height: 100%;
+    margin-left: -250px;
+    background-color: #343838;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#page-content-wrapper {
+    width: 100%;
+    overflow: hidden;
+    position: absolute;
+    padding: 15px;
+}
+
+.sidebar-nav {
+    position: absolute;
+    top: 0;
+    width: 100px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    li {
+	    text-indent: 20px;
+	    line-height: 60px;
+	    a {
+		    display: block;
+		    text-decoration: none;
+		    color: #fff;
+		    &:hover {
+		    	background-color: #00B4CC;
+		    }
+		    i {
+		    	font-size: 20px;
+		    }
+		}
+	}
+}
+
+#search-wrapper {
+	height: 0;
+	background-color: #00B4CC;
+	-webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;  
+}
+
+.search-box {
+	height: 100%;
+}
+
+.toggled {
+   	padding-bottom: 350px;
+   		
+	#search-wrapper {
+		height: 350px;
+	}
+}
+/*End of SideBar*/
+
+/*Search Bar*/
+.box {
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.24);
+    overflow: hidden;
+    margin-top: 10px;
+    background-color: white;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+#search-box {
+	overflow-y: scroll;
+	max-height: 230px; 
+}
+
+.table {
+    background-color: white;
+    margin-bottom: 0;
+    color: #000;
+    overflow-y: scroll;
+}
+/*End of Search Bar*/
+
+/*Home Box */
+#home-box {
+	.row {
+		p {
+			margin-top: 10px;
+		}
+	}
+}
+/*End of Home Box*/
+
+/*Data Boxes*/
+.data-box {
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.24);
+    overflow: hidden;
+    background-color: white;
+    margin-top: 20px;
+    padding-bottom: 20px;
+}

@@ -6,12 +6,15 @@ Contains all routes that infoset's Flask webserver uses
 import yaml
 import time
 import json
-from infoset.db.agent import Get, GetDataPoint, GetData
+from infoset.db.db_agent import Get
+from infoset.db.db_data import GetIDX
+from infoset.db.db_datapoint import Get
 from flask import render_template, jsonify, send_file, request
 from www import infoset
 from os import listdir, walk, path, makedirs, remove
 
 # Matplotlib imports, Do not edit order
+"""
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -19,7 +22,7 @@ import matplotlib.pyplot as plt
 from matplotlib import style
 style.use("ggplot")
 # End of Imports
-
+"""
 
 
 @infoset.route('/')
@@ -156,7 +159,7 @@ def fetch_agent_dp(uid):
     idx = agent.idx()
     
     # Gets all datapoints associated with agent
-    datapoints = GetDataPoint(idx, config)
+    datapoints = Get(idx, config)
     return jsonify(datapoints.everything())
 
 
@@ -173,7 +176,7 @@ def fetch_dp(uid, datapoint):
     """ 
     # TODO implement start and stop times
     config = infoset.config['GLOBAL_CONFIG']
-    data = GetData(datapoint, config)
+    data = GetIDX(datapoint, config)
     data_values = data.everything()
     # Gets all associated datapoints
     """
