@@ -64,44 +64,45 @@ class Drain(object):
         else:
             self.validated = True
 
-        # Get universal parameters from file
-        for key in agent_meta_keys:
-            self.agent_meta[key] = information[key]
-        timestamp = int(information['timestamp'])
-        uid = information['uid']
+        if self.validated is True:
+            # Get universal parameters from file
+            for key in agent_meta_keys:
+                self.agent_meta[key] = information[key]
+            timestamp = int(information['timestamp'])
+            uid = information['uid']
 
-        # Process chartable data
-        for data_type in data_types:
-            # Skip if data type isn't in the data
-            if data_type not in information:
-                continue
+            # Process chartable data
+            for data_type in data_types:
+                # Skip if data type isn't in the data
+                if data_type not in information:
+                    continue
 
-            # Process the data type
-            for label, group in sorted(information[data_type].items()):
-                # Get universal parameters for group
-                base_type = _base_type(group['base_type'])
-                description = group['description']
+                # Process the data type
+                for label, group in sorted(information[data_type].items()):
+                    # Get universal parameters for group
+                    base_type = _base_type(group['base_type'])
+                    description = group['description']
 
-                # Initialize base type
-                if base_type not in self.data[data_type]:
-                    self.data[data_type][base_type] = []
+                    # Initialize base type
+                    if base_type not in self.data[data_type]:
+                        self.data[data_type][base_type] = []
 
-                # Process data
-                for datapoint in group['data']:
-                    index = datapoint[0]
-                    value = datapoint[1]
-                    source = datapoint[2]
-                    did = _did(uid, label, index)
+                    # Process data
+                    for datapoint in group['data']:
+                        index = datapoint[0]
+                        value = datapoint[1]
+                        source = datapoint[2]
+                        did = _did(uid, label, index)
 
-                    # Update data
-                    self.data[data_type][base_type].append(
-                        (uid, did, value, timestamp)
-                    )
+                        # Update data
+                        self.data[data_type][base_type].append(
+                            (uid, did, value, timestamp)
+                        )
 
-                    # Update sources
-                    self.metadata.append(
-                        (uid, did, label, source, description, base_type)
-                    )
+                        # Update sources
+                        self.metadata.append(
+                            (uid, did, label, source, description, base_type)
+                        )
 
     def valid(self):
         """Determine whether data is valid.
