@@ -10,7 +10,6 @@ from collections import defaultdict
 # Infoset libraries
 from infoset.utils import log
 from infoset.db import db
-import pprint
 
 
 class Get(object):
@@ -30,7 +29,7 @@ class Get(object):
         """Function for intializing the class.
 
         Args:
-            data_point: Hashed id of the data point
+            uid: UID of agent
             config: Config object
 
         Returns:
@@ -49,11 +48,10 @@ class Get(object):
             'iset_agent.name, '
             'iset_agent.description, '
             'iset_agent.hostname, '
-            'iset_agent.enabled, '
-            'iset_agent.ts_modified '
+            'iset_agent.enabled '
             'FROM iset_agent '
             'WHERE '
-            '(iset_agent.id=\'%s\') LIMIT 1') % (
+            '(iset_agent.id="%s") LIMIT 1') % (
                 uid)
 
         # Do query and get results
@@ -73,7 +71,6 @@ class Get(object):
             self.data_dict['description'] = row[2]
             self.data_dict['hostname'] = row[3]
             self.data_dict['enabled'] = row[4]
-
             break
 
     def idx(self):

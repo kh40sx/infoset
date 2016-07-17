@@ -9,7 +9,7 @@ import json
 from infoset.db.db_agent import Get
 from infoset.db.db_data import GetIDX
 from infoset.db.db_agent import GetDataPoint
-import infoset.db.db_chart
+from infoset.db.db_chart import Chart
 from flask import render_template, jsonify, send_file, request, make_response
 from www import infoset
 from os import listdir, walk, path, makedirs, remove
@@ -198,7 +198,7 @@ def fetch_graph(uid, datapoint):
     filename = str(uid) + "_" + str(datapoint)
     filepath = "./www/static/img" + filename
     config = infoset.config['GLOBAL_CONFIG']
-    chart = db_chart.Chart(idx_datapoint, config,
+    chart = Chart(datapoint, config,
     image_width=8,
     image_height=5)
     png_output = chart.api_single_line(
