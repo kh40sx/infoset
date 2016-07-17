@@ -1,3 +1,4 @@
+agent_root_directory:
 web_directory: /home/infoset/public_html
 data_directory: /home/infoset/infoset/data
 ingest_cache_directory: /tmp/infoset_ingest_cache

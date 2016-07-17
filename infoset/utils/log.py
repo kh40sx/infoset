@@ -28,8 +28,26 @@ def log2die_safe(code, message):
     sys.exit(2)
 
 
+def log2warn(code, message):
+    """Log warning message to file only, but don't die.
+
+    Args:
+        code: Message code
+        message: Message text
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    output = _message(code, message, True)
+
+    # Log the message
+    _update_logfile(output)
+
+
 def log2quiet(code, message):
-    """Log message to file only, but don't die.
+    """Log status message to file only, but don't die.
 
     Args:
         code: Message code

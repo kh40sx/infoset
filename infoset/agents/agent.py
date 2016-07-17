@@ -280,7 +280,7 @@ class Agent(object):
             log_message = (
                 'Agent "%s" failed to contact server %s'
                 '') % (self.name(), self.url)
-            log.log2quiet(1028, log_message)
+            log.log2warn(1028, log_message)
 
         # Return
         return success
