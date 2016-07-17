@@ -8,8 +8,9 @@ import time
 import json
 from infoset.db.db_agent import Get
 from infoset.db.db_data import GetIDX
-from infoset.db.db_datapoint import Get
-from flask import render_template, jsonify, send_file, request
+from infoset.db.db_agent import GetDataPoint
+import infoset.db.db_chart
+from flask import render_template, jsonify, send_file, request, make_response
 from www import infoset
 from os import listdir, walk, path, makedirs, remove
 
@@ -159,7 +160,7 @@ def fetch_agent_dp(uid):
     idx = agent.idx()
     
     # Gets all datapoints associated with agent
-    datapoints = Get(idx, config)
+    datapoints = GetDataPoint(idx, config)
     return jsonify(datapoints.everything())
 
 
@@ -191,3 +192,19 @@ def fetch_dp(uid, datapoint):
     plt.savefig("/home/proxima/public_html/graph.png")
     """
     return jsonify(data_values)
+
+@infoset.route('/fetch/agent/graph/<uid>/<datapoint>', methods=["GET", "POST"])
+def fetch_graph(uid, datapoint):
+    filename = str(uid) + "_" + str(datapoint)
+    filepath = "./www/static/img" + filename
+    config = infoset.config['GLOBAL_CONFIG']
+    chart = db_chart.Chart(idx_datapoint, config,
+    image_width=8,
+    image_height=5)
+    png_output = chart.api_single_line(
+        'Test Chart', 'Data',
+        '#0000FF', filepath,
+        )
+    response = make_response(png_output.getvalue())
+    response.headers['Content-Type'] = 'image/png'
+    return response

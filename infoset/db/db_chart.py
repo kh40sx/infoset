@@ -3,7 +3,7 @@
 
 import datetime
 import numpy as np
-
+import StringIO
 # MatPlotLib imports. No pop up windows on a web server (order important)
 import matplotlib
 matplotlib.use('Agg')
@@ -107,7 +107,7 @@ class Chart(object):
             idx: idx of datapoint
             config: Config object
             start: Starting timestamp
-            stop: Ending timesta
+            stop: Ending timestamp
             **kwargs: Used by ChartParameters
 
         Returns:
@@ -205,6 +205,94 @@ class Chart(object):
 
         # Close figure to conserve memory
         plt.close(fig)
+
+    def api_single_line(self, title, label, color, filepath, **kwargs):
+        """Create chart from data.
+
+        Args:
+            label: Label for line in chart
+            color: Color of chart
+            filepath: Name of output file
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        lines2plot = []
+        labels = []
+
+        #####################################################################
+        #
+        # Create Charts
+        #
+        #####################################################################
+
+        # Create chart object
+        fig, axes = plt.subplots()
+
+        # Convert data dict to two lists for matplotlib
+        (x_values, y_values) = _timestamps2dates(self.data)
+
+        #####################################################################
+        # Apply generic chart settings that don't require custom variables
+        #####################################################################
+
+        # Create chart
+        self._generic_settings(fig, axes, ymax=max(y_values) * 1.1)
+
+        #####################################################################
+        # Apply image specific settings that are not part of subplots and
+        # require custom variables
+        #####################################################################
+
+        # Define chart title
+        axes.set_title(
+            title,
+            size=self.paramx.font_size_title,
+            y=1.01)
+
+        # Define chart labels
+
+        # axes.set_xlabel(
+        #    'Date / Time',
+        #    color=self.paramx.text_color,
+        #    size=self.paramx.font_size_label)
+        axes.set_ylabel(
+            'Values',
+            color=self.paramx.text_color,
+            size=self.paramx.font_size_label)
+
+        #####################################################################
+        # Create chart for each sub plot.
+        #####################################################################
+
+        data_line = _subplot(
+            (x_values, y_values), axes, color, fill=True)
+        lines2plot.append(data_line)
+        labels.append(label)
+
+        # Create legend for each sub plot
+        fig.legend(
+            tuple(lines2plot), tuple(labels),
+            loc='lower center',
+            fontsize=self.paramx.font_size_legend, ncol=2, frameon=False)
+
+        # Add space below chart for legend
+        fig.subplots_adjust(bottom=0.2)
+
+        #####################################################################
+        # Finish up
+        #####################################################################
+        canvas=FigureCanvas(fig)
+        png_output = StringIO.StringIO()
+        canvas.print_png(png_output)
+        # Create image file
+        return png_output
+        #fig.savefig(filepath, bbox_inches='tight')
+
+        # Close figure to conserve memory
+        #plt.close(fig)
 
     def _generic_settings(self, fig, axes, ymin=0, ymax=None):
         """Do basic chart setup.
