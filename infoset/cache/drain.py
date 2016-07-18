@@ -8,14 +8,12 @@ This could be a modified to be a daemon
 
 # Standard libraries
 import os
-import re
-import json
 import hashlib
 from collections import defaultdict
 
 # Infoset libraries
 from infoset.utils import log
-from infoset.utils import jm_general
+from infoset.cache import validate
 
 
 class Drain(object):
@@ -53,7 +51,8 @@ class Drain(object):
         agent_meta_keys = ['timestamp', 'uid', 'agent', 'hostname']
 
         # Ingest data
-        information = _validated(filename)
+        validator = validate.ValidateCache(filename)
+        information = validator.getinfo()
 
         # Log if data is bad
         if information is False:
@@ -411,113 +410,3 @@ def _base_type(data):
 
     # Return
     return base_type
-
-
-def _validated(filepath):
-    """Validate incoming agent json data.
-
-    Args:
-        filepath: Full path to file that provided the data
-
-    Returns:
-        valid: True if validated
-
-    """
-    # Initialize key variables
-    valid = True
-    agent_name = 'Unknown'
-    data_types = ['chartable', 'other']
-    agent_meta_keys = ['timestamp', 'uid', 'agent', 'hostname']
-    information = {}
-
-    # Filenames must start with a numeric timestamp and #
-    # end with a hex string. This will be tested later
-    regex = re.compile(r'^\d+_[0-9a-f]+.json')
-
-    # Try reading file if filename format is OK
-    filename = os.path.basename(filepath)
-    if bool(regex.match(filename)) is True:
-        # Ingest data
-        try:
-            with open(filepath, 'r') as f_handle:
-                information = json.load(f_handle)
-        except:
-            information = {}
-            valid = False
-    else:
-        valid = False
-
-    #########################################################################
-    # Validate data read from file.
-    #########################################################################
-
-    # Verify universal parameters from file
-    for key in agent_meta_keys:
-        if key not in information:
-            valid = False
-
-    # Get agent name for future reporting
-    if valid is True:
-        agent_name = information['agent']
-
-        # Timestamp must be an integer
-        try:
-            int(information['timestamp'])
-        except:
-            valid = False
-
-        # Parse filename for information
-        (name, _) = filename.split('.')
-        (tstamp, uid) = name.split('_')
-        timestamp = int(tstamp)
-
-        # Double check that the UID and timestamp in the
-        # filename matches that in the file.
-        # Ignore invalid files as a safety measure.
-        # Don't try to delete. They could be owned by some
-        # one else and the daemon could crash
-        if uid != information['uid']:
-            valid = False
-        if timestamp != information['timestamp']:
-            valid = False
-        if jm_general.validate_timestamp(timestamp) is False:
-            valid = False
-
-    # Process chartable data
-    for data_type in data_types:
-        # Skip if data type isn't in the data
-        if data_type not in information:
-            continue
-
-        # Process the data type
-        for category, group in sorted(information[data_type].items()):
-            # Process keys
-            for key in ['base_type', 'description', 'data']:
-                if key not in group:
-                    valid = False
-
-            # Process data
-            for datapoint in group['data']:
-                if len(datapoint) != 3:
-                    valid = False
-
-                # Check to make sure value is numeric
-                if category == 'chartable':
-                    value = datapoint[1]
-                    try:
-                        float(value)
-                    except:
-                        valid = False
-
-    # Error message
-    if valid is False:
-        log_message = (
-            'Cache file %s for agent %s is invalid'
-            '') % (filename, agent_name)
-        log.log2warn(1021, log_message)
-
-    # Return
-    if valid is False:
-        return valid
-    else:
-        return information
