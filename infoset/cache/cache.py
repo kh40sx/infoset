@@ -20,6 +20,7 @@ from infoset.db import db
 from infoset.db import db_agent as agent
 from infoset.utils import log
 from infoset.cache import drain
+from infoset.utils import hidden
 
 # Define a key global variable
 THREAD_QUEUE = Queue.Queue()
@@ -447,6 +448,22 @@ def process(config):
     uid_metadata = defaultdict(lambda: defaultdict(dict))
     cache_dir = config.ingest_cache_directory()
 
+    # Process lock file
+    f_obj = hidden.File()
+    lockfile = f_obj.lock('ingest')
+    if os.path.exists(lockfile) is True:
+        # Return if lock file is present
+        log_message = (
+            'Ingest lock file %s exists. Multiple ingest daemons running '
+            'or lost of cache files to ingest. Exiting ingest process. '
+            'Will try again later.'
+            '') % (lockfile)
+        log.log2warn(1069, log_message)
+        return
+    else:
+        # Create lockfile
+        open(lockfile, 'a').close()
+
     # Filenames must start with a numeric timestamp and #
     # end with a hex string. This will be tested later
     regex = re.compile(r'^\d+_[0-9a-f]+.json')
@@ -459,7 +476,20 @@ def process(config):
     for _ in range(threads_in_pool):
         update_thread = FillDB(THREAD_QUEUE)
         update_thread.daemon = True
-        update_thread.start()
+
+        # Sometimes we exhaust the thread abilities of the OS
+        # even with the "threads_in_pool" limit. This is because
+        # there could be a backlog of files to cache files process
+        # and we have overlapping ingests due to a deleted lockfile.
+        # This code ensures we don't exceed the limits.
+        try:
+            update_thread.start()
+        except RuntimeError:
+            log_message = (
+                'Too many threads created for cache ingest. '
+                'Verify that ingest lock file is present.')
+            log.log2die(1067, log_message)
+            break
 
     # Add files in cache directory to list
     all_filenames = [filename for filename in os.listdir(
@@ -520,3 +550,7 @@ def process(config):
     # The "time.sleep(1)" adds a delay to make sure things really terminate
     # properly. This seems to be an issue on virtual machines in Dev only
     time.sleep(1)
+
+    # Return if lock file is present
+    if os.path.exists(lockfile) is True:
+        os.remove(lockfile)

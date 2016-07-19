@@ -64,6 +64,20 @@ class Directory:
         value = ('%s/pid') % self.root
         return value
 
+    def lock(self):
+        """Method for defining the hidden lock directory.
+
+        Args:
+            None
+
+        Returns:
+            value: lock directory
+
+        """
+        # Return
+        value = ('%s/lock') % self.root
+        return value
+
 
 class File:
     """A class for creating the names of hidden files."""
@@ -124,6 +138,21 @@ class File:
         # Return
         _mkdir(self.directory.pid())
         value = ('%s/%s.pid') % (self.directory.pid(), prefix)
+        return value
+
+    def lock(self, prefix):
+        """Method for defining the hidden lock directory.
+
+        Args:
+            prefix: Prefix of file
+
+        Returns:
+            value: lock directory
+
+        """
+        # Return
+        _mkdir(self.directory.lock())
+        value = ('%s/%s.lock') % (self.directory.lock(), prefix)
         return value
 
 
