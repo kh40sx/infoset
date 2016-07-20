@@ -51,7 +51,7 @@ class Daemon:
                 sys.exit(0)
         except OSError as err:
             log_message = ('Daemon fork #1 failed: %s') % (err)
-            log_message = ('%s - PID file %s') % (log_message, self.pidfile)
+            log_message = ('%s - PID file: %s') % (log_message, self.pidfile)
             log.log2die(1060, log_message)
 
         # Decouple from parent environment
@@ -68,7 +68,7 @@ class Daemon:
                 sys.exit(0)
         except OSError as err:
             log_message = ('Daemon fork #2 failed: %s') % (err)
-            log_message = ('%s - PID file %s') % (log_message, self.pidfile)
+            log_message = ('%s - PID file: %s') % (log_message, self.pidfile)
             log.log2die(1061, log_message)
 
         # Redirect standard file descriptors
@@ -84,7 +84,6 @@ class Daemon:
 
         # write pidfile
         atexit.register(self.delpid)
-
         pid = str(os.getpid())
         with open(self.pidfile, 'w+') as f_handle:
             f_handle.write(pid + '\n')
@@ -121,12 +120,18 @@ class Daemon:
 
         if pid:
             log_message = (
-                'PID file %s already exists. Daemon already running?'
+                'PID file: %s already exists. Daemon already running?'
                 '') % (self.pidfile)
             log.log2die(1062, log_message)
 
         # Start the daemon
         self.daemonize()
+
+        # Log success
+        log_message = ('Daemon Started - PID file: %s') % (self.pidfile)
+        log.log2quiet(1070, log_message)
+
+        # Run code for daemon
         self.run()
 
     def stop(self):
@@ -147,7 +152,7 @@ class Daemon:
 
         if not pid:
             log_message = (
-                'PID file %s does not exist. Daemon not running?'
+                'PID file: %s does not exist. Daemon not running?'
                 '') % (self.pidfile)
             log.log2warn(1063, log_message)
             # Not an error in a restart
@@ -166,13 +171,17 @@ class Daemon:
             else:
                 log_message = (str(err.args))
                 log_message = (
-                    '%s - PID file %s') % (log_message, self.pidfile)
+                    '%s - PID file: %s') % (log_message, self.pidfile)
                 log.log2die(1068, log_message)
         except:
             log_message = (
-                'Unknown daemon "stop" error for PID file %s'
+                'Unknown daemon "stop" error for PID file: %s'
                 '') % (self.pidfile)
             log.log2die(1066, log_message)
+
+        # Log success
+        log_message = ('Daemon Stopped - PID file: %s') % (self.pidfile)
+        log.log2quiet(1071, log_message)
 
     def restart(self):
         """Restart the daemon.

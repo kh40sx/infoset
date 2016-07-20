@@ -488,7 +488,7 @@ def process(config):
             log_message = (
                 'Too many threads created for cache ingest. '
                 'Verify that ingest lock file is present.')
-            log.log2die(1067, log_message)
+            log.log2warn(1067, log_message)
             break
 
     # Add files in cache directory to list
