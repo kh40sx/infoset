@@ -522,8 +522,12 @@ def process(config):
                 log_message = (
                     'Too many threads created for cache ingest. '
                     'Verify that ingest lock file is present.')
-                log.log2warn(1067, log_message)
-                break
+                log.log2die(1067, log_message)
+            except:
+                log_message = (
+                    'Unknown error occurred when trying to '
+                    'create cache ingest threads')
+                log.log2die(1072, log_message)
 
         # Read each cache file
         for uid in uid_metadata.keys():
