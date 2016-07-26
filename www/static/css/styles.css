@@ -24,3 +24,21 @@ body {
 .graph-preview {
     max-width: 570px;
 }
+
+.searchbutton
+{
+   background-color: #ff1919;
+   border: none;
+   color: white;
+   padding: 3px 26px;
+   text-align: center;
+   display: inline-block;
+   font-size: 16px;
+}
+
+.searchbox
+{
+    margin-top: 10px;
+    float:right;
+}
+

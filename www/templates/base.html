@@ -21,6 +21,14 @@
 <nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
+        
+        <!-- Search Bar -->
+        <div class="searchbox" style="margin-top: 10px; float:right;">
+            <input type="text" id="searchquery" size="30" placeholder="Search...">
+            <input type="submit" class="searchbutton" value="Search" onClick="searchforNav()">
+        </div>
+         <!-- End of Search Bar -->
+         
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse"
                     data-target="#bs-example-navbar-collapse-1">
@@ -71,6 +79,13 @@
         g.src = ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js';
         s.parentNode.insertBefore(g, s)
     }(document, 'script'));
+</script>
+
+<script>
+      function searchforNav(){
+          var link = document.getElementById("seachquery").value;
+      		location.href = '/search/'+link;
+      }
 </script>
 
 <script src="{{ static('js/vendors/bootstrap/bootstrap-affix.js') }}"></script>
