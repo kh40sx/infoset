@@ -10,6 +10,41 @@ def index():
     hosts = getHosts()
     return render_template('index.html',
                            hosts=hosts)
+                    
+@infoset.route('/search')
+def search():
+    return render_template('search.html', results=[])
+
+
+@infoset.route('/search/<query>')
+def searchq(query):
+    info = getInfo() #This is a list of dictionaries
+    hosts = getHosts()
+    results = [] #results of search query
+
+    #if query is a mac address since ips normally start with one
+    if query[0] != '1':
+        query = query.replace('.',"")
+        query = query.replace(':',"")
+        query = query.replace('-',"")
+
+    for data in info:
+        for ip, mac in data.items():
+            if ip == query:
+                #print("%s | %s | %s" %(data['host'],ip,mac))
+                results.append(("Host: %s | IP Address: %s | MAC Address: %s"
+                                +" | DNS: | Port Label: ")
+                                %(data['host'],ip,mac))
+            elif mac == query:
+                #print("%s | %s | %s" %(data['host'],ip,mac))
+                results.append(("Host: %s | IP Address: %s | MAC Address: %s"
+                                +" | DNS: | Port Label: ")
+                                %(data['host'],ip,mac))
+
+    if results == []:
+        results.append("No Results Found")
+
+    return render_template('search.html', results=results)
 
 
 @infoset.route('/hosts')
@@ -135,3 +170,24 @@ def getDevices():
                 raise e
         devices.append(yaml_dump)
     return devices
+    
+def getLayer(host, layer):
+    filename = host + ".yaml"
+    filepath = path.join("./www/static/yaml/", filename)
+    yaml_dump = {}
+    with open(filepath, 'r') as stream:
+        try:
+            yaml_dump = yaml.load(stream)
+        except Exception as e:
+            raise e
+    layer = yaml_dump['layer'+str(layer)]
+    return layer
+
+def getInfo():
+    hosts = getHosts()
+    info = []
+    for host in hosts.keys():
+        for val in getLayer(host, 3).values():
+            val['host'] = host
+            info.append(val)
+    return info
