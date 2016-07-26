@@ -21,7 +21,7 @@ gulp.task('styles', function() {
         .pipe(gulp.dest('www/static/dist/css/'))
 })
 
-gulp.task('default', function() {
+gulp.task('default',['scripts', 'styles'], function() {
     gulp.watch('www/static/js/**', function(event) {
         gulp.run('scripts');
     })

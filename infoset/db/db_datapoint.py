@@ -12,7 +12,7 @@ from infoset.utils import log
 from infoset.db import db
 
 
-class Get(object):
+class GetSingleDataPoint(object):
     """Class to return agent data.
 
     Args:
@@ -25,7 +25,7 @@ class Get(object):
 
     """
 
-    def __init__(self, did, config):
+    def __init__(self, idx, config):
         """Function for intializing the class.
 
         Args:
@@ -43,18 +43,11 @@ class Get(object):
         # Only active oids
         sql_query = (
             'SELECT '
-            'idx, '
-            'idx_agent, '
-            'agent_label, '
-            'agent_source, '
-            'enabled, '
-            'base_type, '
-            'multiplier, '
-            'last_timestamp '
+            '* '
             'FROM iset_datapoint '
             'WHERE '
-            '(iset_datapoint.id=\'%s\') LIMIT 1') % (
-                did)
+            '(iset_datapoint.idx=%s) LIMIT 1') % (
+                idx)
 
         # Do query and get results
         database = db.Database(config)
@@ -67,8 +60,8 @@ class Get(object):
                 log.log2die(1047, log_message)
             # Assign values
             self.data_dict['idx'] = row[0]
-            self.data_dict['idx_agent,'] = row[1]
-            self.data_dict['agent_label'] = row[2]
+            self.data_dict['idx_agent'] = row[1]
+            self.data_dict['agent_label'] = row[3]
             self.data_dict['agent_source'] = row[3]
             self.data_dict['enabled'] = row[4]
             self.data_dict['base_type'] = row[5]
