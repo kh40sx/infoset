@@ -6,9 +6,36 @@
   <!-- Page Layout here -->
   <div class="box" id="graph-slider-box">
     <div class="container-fluid">
+      <div class="row box-title">
+        <div class="col-lg-12">
+          <h4>Today</h4>
+        </div>
+      </div>
+
       <div class="row">
+        <div class="col-lg-12">
+          <img class="big-graph center-block" src="/fetch/agent/graph/a172536ba0956f6bc4bf22ba9f04907bf1bb92cbeb9bac5b6d14062a8d8813fc/217" alt=""/>	
+        </div>
       </div>
     </div>
   </div>
+
+  {% for time in timestamps %}
+
+    <div class="box" id="graph-box">
+      <div class="container-fluid">
+        <div class="row box-title">
+          <div class="col-lg-12">
+            <h4>{{time.2}}</h4>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <img class="big-graph center-block" src="/fetch/agent/graph/a172536ba0956f6bc4bf22ba9f04907bf1bb92cbeb9bac5b6d14062a8d8813fc/217?start={{time.0}}&stop={{time.1}}" alt=""/>	
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
 </div>
 {% endblock %}

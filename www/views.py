@@ -6,11 +6,13 @@ Contains all routes that infoset's Flask webserver uses
 import yaml
 import time
 import json
+import pprint
 from infoset.db.db_agent import Get
 from infoset.db.db_data import GetIDX
 from infoset.db.db_agent import GetDataPoint
 from infoset.db.db_datapoint import GetSingleDataPoint
 from infoset.db.db_chart import Chart
+from infoset.utils import TimeStamp
 from flask import render_template, jsonify, send_file, request, make_response
 from www import infoset
 from os import listdir, walk, path, makedirs, remove
@@ -120,9 +122,12 @@ def layerTwo(host):
     return jsonify(layer2)
 
 
-@infoset.route('/graphs', methods=["GET", "POST"])
+@infoset.route('/graphs/', methods=["GET", "POST"])
 def graphs():
-    return render_template('graphs.html')
+    preset = TimeStamp()
+    timestamps = preset.getTimes()
+    return render_template('graphs.html',
+                           timestamps=timestamps)
 
 
 @infoset.route('/receive/<uid>', methods=["POST"])
