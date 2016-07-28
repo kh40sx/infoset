@@ -53,13 +53,13 @@ class GetIDX(object):
         else:
             # Adjust for counters
             if self.base_type == 1:
-                self.ts_start = start
+                self.ts_start = jm_general.normalized_timestamp(start)
             else:
                 self.ts_start = start - 300
         if stop is None:
             self.ts_stop = jm_general.normalized_timestamp()
         else:
-            self.ts_stop = stop
+            self.ts_stop = jm_general.normalized_timestamp(stop)
         if self.ts_start > self.ts_stop:
             self.ts_start = self.ts_stop
 

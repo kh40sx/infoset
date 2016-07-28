@@ -33,7 +33,7 @@ def validate_timestamp(timestamp):
     return valid
 
 
-def normalized_timestamp():
+def normalized_timestamp(timestamp=None):
     """Normalize timestamp to a multiple of 300 seconds.
 
     Args:
@@ -44,8 +44,10 @@ def normalized_timestamp():
 
     """
     # Process data
-    value = (int(time.time()) // 300) * 300
-
+    if timestamp is None:
+        value = (int(time.time()) // 300) * 300
+    else:
+        value = (int(timestamp) // 300) * 300
     # Return
     return value
 

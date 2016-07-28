@@ -13,6 +13,7 @@ from infoset.db.db_agent import GetDataPoint
 from infoset.db.db_datapoint import GetSingleDataPoint
 from infoset.db.db_chart import Chart
 from infoset.utils import TimeStamp
+from infoset.utils import ColorWheel
 from flask import render_template, jsonify, send_file, request, make_response
 from www import infoset
 from os import listdir, walk, path, makedirs, remove
@@ -129,7 +130,6 @@ def graphs():
     return render_template('graphs.html',
                            timestamps=timestamps)
 
-
 @infoset.route('/receive/<uid>', methods=["POST"])
 def receive(uid):
     """Function for handling /receive/<uid> route.
@@ -214,7 +214,6 @@ def fetch_dp(uid, datapoint):
 def fetch_graph(uid, datapoint):
     filename = str(uid) + "_" + str(datapoint)
     filepath = "./www/static/img/" + filename
-    
     # Getting start and stop parameters from url
     start = request.args.get('start')
     stop = request.args.get('stop')
@@ -236,9 +235,12 @@ def fetch_graph(uid, datapoint):
 
     # create specific chart
     single_datapoint = GetSingleDataPoint(datapoint, config)
+    agent_label = single_datapoint.agent_label()
+    color_palette = ColorWheel(agent_label) 
+    
     png_output = chart.api_single_line(
-        single_datapoint.agent_label(), 'Data',
-        '#00B4CC', filepath,
+        agent_label, 'Data',
+        color_palette.getScheme(), filepath,
     )
     response = make_response(png_output.getvalue())
     response.headers['Content-Type'] = 'image/png'
