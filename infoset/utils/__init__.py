@@ -14,3 +14,4 @@ from infoset.utils.xlate_snmp import Translator
 from infoset.utils.hidden import Directory
 from infoset.utils.hidden import File
 from infoset.utils.daemon import Daemon
+from infoset.utils.timestamp import TimeStamp

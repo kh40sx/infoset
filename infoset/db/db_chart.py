@@ -49,7 +49,7 @@ class ChartParameters(object):
             'font_size_title': 20,
             'font_size_legend': 10,
             'font_size_tick': 10,
-            'text_color': '#808080',
+            'text_color': '#777777',
             'line_color': '#000000',
             'image_width': 8,
             'image_height': 8
@@ -153,7 +153,6 @@ class Chart(object):
         #####################################################################
         # Apply generic chart settings that don't require custom variables
         #####################################################################
-
         # Create chart
         self._generic_settings(fig, axes, ymax=max(y_values) * 1.1)
 
@@ -200,7 +199,6 @@ class Chart(object):
         #####################################################################
         # Finish up
         #####################################################################
-
         # Create image file
         fig.savefig(filepath, bbox_inches='tight')
 
@@ -287,6 +285,7 @@ class Chart(object):
         #####################################################################
 
         # Create image file
+        fig.patch.set_facecolor('white')
         fig.savefig(filepath, bbox_inches='tight')
         canvas=FigureCanvas(fig)
         png_output = io.BytesIO()
@@ -396,9 +395,9 @@ def _subplot(data, axes, line_color, fill=True):
         alpha = plot_line.get_alpha()
         alpha = 1.0 if alpha is None else alpha
         gradient = np.empty((100, 1, 4), dtype=float)
-        rgb = mcolors.colorConverter.to_rgb(fill_color)
-        gradient[:, :, :3] = rgb
-        gradient[:, :, -1] = np.linspace(0, alpha, 100)[:, None]
+        #rgb = mcolors.colorConverter.to_rgb(fill_color)
+        #gradient[:, :, :3] = rgb
+        #gradient[:, :, -1] = np.linspace(100, alpha, 1)[:, None]
 
         # Magic to create a polygon shaped area under the curve. This will
         # be used as a bitmap mask later
@@ -407,7 +406,7 @@ def _subplot(data, axes, line_color, fill=True):
         vstacked_array = np.vstack(
             [[xmin, ymin], column_stacked_array, [xmax, ymin], [xmin, ymin]])
         clip_path = Polygon(
-            vstacked_array, facecolor='none', edgecolor='none', closed=True)
+            vstacked_array, facecolor=line_color, edgecolor=line_color, closed=True)
         axes.add_patch(clip_path)
 
         # Plot data, with gradient shading that only exposes
@@ -417,7 +416,7 @@ def _subplot(data, axes, line_color, fill=True):
             aspect='auto',
             origin='lower',
             zorder=zorder,
-            interpolation="bicubic",
+            interpolation="none",
             clip_path=clip_path, clip_on=True,
             extent=[xmin, xmax, 0, ymax])
 

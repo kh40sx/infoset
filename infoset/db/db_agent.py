@@ -175,7 +175,6 @@ class GetDataPoint(object):
         self.idx = idx
         # Prepare SQL query to read a record from the database.
         # Only active oids
-        print("IDX_AGENT: %s" % idx)
         sql_query = (
             'SELECT * '
             'FROM iset_datapoint '
@@ -192,7 +191,7 @@ class GetDataPoint(object):
                 log_message = ('uid %s not found.') % (idx)
                 jm_general.die(1050, log_message)
             # Assign values
-            self.data_point_dict[row[0]] = [row[3], row[4]]
+            self.data_point_dict[row[3]] = row[6]
 
     def everything(self):
         """Gets all datapoints.
