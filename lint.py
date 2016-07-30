@@ -9,17 +9,34 @@ import subprocess
 class functionObject:
     """Class represents a function that may be found within a file lint.py is checking"""
     def setName(self, newName):
-        """Sets the name of the function"""
+        """Sets the name of the function
+        Args:
+            newName : new name of the function
+        """
         self.name = newName
     def setFoundDef(self, newFoundDef):
-        """Sets whether or not the 'def' part of the function signature has been found"""
+        """Sets whether or not the 'def' part of the function signature has been found
+        Args:
+            newFoundDef : a boolean representing whether or not the function's "def" was found.
+
+        """
         self.foundDef = newFoundDef
     def appendToArguments(self, newArgument):
-        """Adds to the list of found function arguments in the signature"""
+        """Adds to the list of found function arguments in the signature
+        Args:
+            newArgument : The new argument to add to the list.
+        """
         self.arguments.append(newArgument)
+
     def hasName(self):
-        """Checks to see if the name of the function has been found and set already"""
-        return self.name != ""
+        """Checks to see if the name of the function has been found and set already
+            Returns:
+                nameFound : boolean representing if the function name was set
+        """
+        namefound = self.name != ""
+		return namefound
+
+
     def hasFoundDef(self):
         """Checks to see if 'def' part of the signature was found"""
         return self.foundDef
