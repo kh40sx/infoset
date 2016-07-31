@@ -9,6 +9,7 @@ Extracts agent data from cache directory files.
 # Standard libraries
 import os
 import time
+from datetime import datetime
 
 # Infoset libraries
 from infoset.cache import cache
@@ -31,6 +32,14 @@ def main():
 
     # Do the daemon thing
     while True:
+        # Print timestamp
+        print(
+            datetime.fromtimestamp(
+                int(time.time())
+            ).strftime('%Y-%m-%d %H:%M:%S')
+        )
+
+        # Process Cache
         cache.process(config)
         time.sleep(15)
 
