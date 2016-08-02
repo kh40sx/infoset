@@ -44,10 +44,13 @@ def index():
     config = infoset.config['GLOBAL_CONFIG']
     uid = "af14cb9149d49362d70ea708375455c5cd90795cc039de08e3e751873721c302"
     agent = Get(uid, config)
+    host = agent.hostname()
     datapoints = GetDataPoint(agent.idx(), config)
     data_point_dict = datapoints.everything()
     return render_template('index.html',
-                           data=data_point_dict)
+                           data=data_point_dict,
+                           uid=uid,
+                           hostname=host)
 
 
 @infoset.route('/hosts/<host>')

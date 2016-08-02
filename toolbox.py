@@ -55,7 +55,6 @@ def main():
         do_monitor(config, cli_args.verbose)
 
 
-
 def do_config(cli_args, config):
     """Process 'config' CLI option.
 
@@ -66,7 +65,6 @@ def do_config(cli_args, config):
     """
     # Show hosts if required
     if cli_args.hosts is True:
-        print('hosts:')
         print(yaml.dump(config.hosts(), default_flow_style=False))
 
     # Show hosts if required

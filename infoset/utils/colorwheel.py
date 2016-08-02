@@ -4,9 +4,9 @@ class ColorWheel(object):
         self.agent_label = agent_label
         self.color_palette = {
             "memory": "#00c8a4",
-            "disk": "#009DB2",
+            "disk": "#0291D9",
             "load": "#f37372",
-            "cpu": "#0291D9",
+            "cpu": "#009DB2",
             # "cpu": "#025AD9"
             "network": "#025AD9",
         }
