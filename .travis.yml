@@ -11,7 +11,7 @@ branches:
 
 # command to install dependencies
 install:
-  - sudo apt-get install python3-dev librrd-dev rrdtool
+  - sudo apt-get install python3-dev build-dep python-matplotlib
   - pip install -r requirements.txt
 # command to run tests
 script: nosetests --exe --verbosity=2
