@@ -10,6 +10,7 @@ import pprint
 from infoset.db.db_agent import Get
 from infoset.db.db_data import GetIDX
 from infoset.db.db_agent import GetDataPoint
+from infoset.db.db_agent import GetAgents
 from infoset.db.db_datapoint import GetSingleDataPoint
 from infoset.db.db_chart import Chart
 from infoset.utils import TimeStamp
@@ -29,6 +30,12 @@ style.use("ggplot")
 """
 
 
+@infoset.template_filter('strftime')
+def _jinja2_filter_datetime(timestamp, fmt=None):
+    timestamp = time.strftime('%H:%M (%d-%m-%Y) ', time.localtime(timestamp))
+    return timestamp
+
+
 @infoset.route('/')
 def index():
     """Function for handling home route.
@@ -43,12 +50,20 @@ def index():
     # Quick fix until host table implmented
     config = infoset.config['GLOBAL_CONFIG']
     uid = "af14cb9149d49362d70ea708375455c5cd90795cc039de08e3e751873721c302"
+    get_agents = GetAgents(config)
+    agent_list = []
+    agent_list = get_agents.get_all()
+    
     agent = Get(uid, config)
     host = agent.hostname()
+    pprint.pprint(agent.idx()) 
     datapoints = GetDataPoint(agent.idx(), config)
     data_point_dict = datapoints.everything()
+    pprint.pprint(data_point_dict)
+    
     return render_template('index.html',
                            data=data_point_dict,
+                           agent_list=agent_list,
                            uid=uid,
                            hostname=host)
 
@@ -126,12 +141,14 @@ def layerTwo(host):
     return jsonify(layer2)
 
 
-@infoset.route('/graphs/', methods=["GET", "POST"])
-def graphs():
+@infoset.route('/graphs/<uid>/<datapoint>', methods=["GET", "POST"])
+def graphs(uid, datapoint):
     preset = TimeStamp()
     timestamps = preset.getTimes()
     return render_template('graphs.html',
-                           timestamps=timestamps)
+                           timestamps=timestamps,
+                           uid=uid,
+                           datapoint=datapoint)
 
 @infoset.route('/receive/<uid>', methods=["POST"])
 def receive(uid):

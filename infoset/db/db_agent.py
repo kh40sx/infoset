@@ -10,7 +10,7 @@ from collections import defaultdict
 # Infoset libraries
 from infoset.utils import log
 from infoset.db import db
-
+import pprint
 
 class Get(object):
     """Class to return agent data.
@@ -57,7 +57,6 @@ class Get(object):
         # Do query and get results
         database = db.Database(config)
         query_results = database.query(sql_query, 1038)
-
         # Massage data
         for row in query_results:
             # uid found?
@@ -146,6 +145,73 @@ class Get(object):
         return value
 
 
+class GetAgents(object):
+    """Class to return agent data.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Methods:
+
+    """
+
+    def __init__(self, config):
+        """Function for intializing the class.
+
+        Args:
+            uid: UID of agent
+            config: Config object
+
+        Returns:
+            None
+
+        """
+        # Initialize important variables
+        self.data_dict = defaultdict(dict)
+        self.agent_list = []
+        # Prepare SQL query to read a record from the database.
+        # Only active oids
+        sql_query = (
+            'SELECT '
+            'iset_agent.idx, '
+            'iset_agent.id, '
+            'iset_agent.name, '
+            'iset_agent.description, '
+            'iset_agent.hostname, '
+            'iset_agent.enabled, '
+            'iset_agent.last_timestamp '
+            'FROM iset_agent ')
+
+        # Do query and get results
+        database = db.Database(config)
+        query_results = database.query(sql_query, 1038)
+        # Massage data
+        for row in query_results:
+            # uid found?
+            if not row[0]:
+                log_message = ('uid %s not found.') % (uid)
+                log.log2die(1049, log_message)
+
+            # Assign values
+            self.data_dict['idx'] = row[0]
+            self.data_dict['id'] = row[1]
+            self.data_dict['name'] = row[2]
+            self.data_dict['description'] = row[3]
+            self.data_dict['hostname'] = row[4]
+            self.data_dict['enabled'] = row[5]
+            self.data_dict['last_timestamp'] = row[6]
+            local_dict = self.data_dict
+            self.agent_list.append(local_dict.copy())
+
+    def get_all(self):
+        value = self.agent_list
+        return value
+
+
+
 class GetDataPoint(object):
     """Class to return agent data.
 
@@ -187,11 +253,11 @@ class GetDataPoint(object):
         # Massage data
         for row in query_results:
             # uid found?
-            if not id:
+            if not idx:
                 log_message = ('uid %s not found.') % (idx)
                 jm_general.die(1050, log_message)
-            # Assign values
-            self.data_point_dict[row[3]] = row[6]
+                # Assign values
+            self.data_point_dict[row[3]] = [row[0], row[6]]
 
     def everything(self):
         """Gets all datapoints.

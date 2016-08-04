@@ -18,6 +18,34 @@
           charset="utf-8">
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
+<script>window.jQuery || document.write('<script src="{{ static('js/vendors/jquery.min.js') }}"><\/script>')</script>
+
+<!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+<script>
+    var _gaq = [['_setAccount', 'UA-XXXXX-X'], ['_trackPageview']];
+    (function (d, t) {
+        var g = d.createElement(t), s = d.getElementsByTagName(t)[0];
+        g.src = ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g, s)
+    }(document, 'script'));
+</script>
+
+<script src="{{ static('js/vendors/bootstrap/bootstrap-affix.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-alert.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-dropdown.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-tooltip.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-modal.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-transition.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-button.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-popover.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-typeahead.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-carousel.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-scrollspy.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-collapse.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap-tab.js') }}"></script>
+<script src="{{ static('js/vendors/bootstrap/bootstrap.min.js') }}"></script>
+<script src="{{ static('dist/js/app.min.js') }}"></script>
+
 </head>
 <body>
     <div id="wrapper">
@@ -58,7 +86,7 @@
         <div id="page-content-wrapper">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-lg-12">
+                  <div class="col-lg-12">
                          {% block body %}
 
                         {% endblock %}
@@ -82,34 +110,6 @@
 
 
 
-<script>window.jQuery || document.write('<script src="{{ static('js/vendors/jquery.min.js') }}"><\/script>')</script>
-
-<!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-<script>
-    var _gaq = [['_setAccount', 'UA-XXXXX-X'], ['_trackPageview']];
-    (function (d, t) {
-        var g = d.createElement(t), s = d.getElementsByTagName(t)[0];
-        g.src = ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js';
-        s.parentNode.insertBefore(g, s)
-    }(document, 'script'));
-</script>
-
-<script src="{{ static('js/vendors/bootstrap/bootstrap-affix.js') }}"></script>
-<script src="{{ static('js/vendors/bootstrap/bootstrap-alert.js') }}"></script>
-<script src="{{ static('js/vendors/bootstrap/bootstrap-dropdown.js') }}"></script>
-<script src="{{ static('js/vendors/bootstrap/bootstrap-tooltip.js') }}"></script>
-<script src="{{ static('js/vendors/bootstrap/bootstrap-modal.js') }}"></script>
-<script src="{{ static('js/vendors/bootstrap/bootstrap-transition.js') }}"></script>
-<script src="{{ static('js/vendors/bootstrap/bootstrap-button.js') }}"></script>
-<script src="{{ static('js/vendors/bootstrap/bootstrap-popover.js') }}"></script>
-<script src="{{ static('js/vendors/bootstrap/bootstrap-typeahead.js') }}"></script>
-<script src="{{ static('js/vendors/bootstrap/bootstrap-carousel.js') }}"></script>
-<script src="{{ static('js/vendors/bootstrap/bootstrap-scrollspy.js') }}"></script>
-<script src="{{ static('js/vendors/bootstrap/bootstrap-collapse.js') }}"></script>
-<script src="{{ static('js/vendors/bootstrap/bootstrap-tab.js') }}"></script>
-<script src="{{ static('js/vendors/bootstrap/bootstrap.min.js') }}"></script>
-<script src="{{ static('dist/js/app.min.js') }}"></script>
-
 <footer id="search-wrapper" class="navbar-default navbar-fixed-bottom">
     <div class="container">
         <div class="row">
@@ -123,49 +123,33 @@
                     <table class="table">
                         <thead>
                         <tr>
+                            <th data-field="devices-total" width="10%">Agent Name</th>
                             <th data-field="devices-total" width="10%">Host Name</th>
-                            <th data-field="devices-total" width="10%">IP Address</th>
-                            <th data-field="devices-up" width="10%">Operating System</th>
-                            <th data-field="devices-down" width="10%">Version</th>
+                            <th data-field="devices-up" width="10%">Enabled</th>
+                            <th data-field="devices-down" width="10%">Last Active</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td><p>calico</p></td>
-                            <td><p>192.168.1.14</p></td>
-                            <td><p>Arch Linux</p></td>
-                            <td><p>4.2.1</p></td>
-                        </tr>
-                        <tr>
-                            <td><p>calico</p></td>
-                            <td><p>192.168.1.14</p></td>
-                            <td><p>Arch Linux</p></td>
-                            <td><p>4.2.1</p></td>
-                        </tr>
-                        <tr>
-                            <td><p>calico</p></td>
-                            <td><p>192.168.1.14</p></td>
-                            <td><p>Arch Linux</p></td>
-                            <td><p>4.2.1</p></td>
-                        </tr>                            
-                        <tr>
-                            <td><p>calico</p></td>
-                            <td><p>192.168.1.14</p></td>
-                            <td><p>Arch Linux</p></td>
-                            <td><p>4.2.1</p></td>
-                        </tr>
-                        <tr>
-                            <td><p>calico</p></td>
-                            <td><p>192.168.1.14</p></td>
-                            <td><p>Arch Linux</p></td>
-                            <td><p>4.2.1</p></td>
-                        </tr>
-                        <tr>
-                            <td><p>calico</p></td>
-                            <td><p>192.168.1.14</p></td>
-                            <td><p>Arch Linux</p></td>
-                            <td><p>4.2.1</p></td>
-                        </tr>                                                         
+                        {% for agent in agent_list %}
+                          <tr>
+                            <td>
+                              <p>{{ agent["name"] }}</p> 
+                            </td>
+                            <td>
+                              <p>{{ agent["hostname"] }}</p> 
+                            </td>
+                            <td>
+                              {% if agent["enabled"] == 1 %}
+                                <p>True</p>
+                              {% else %}
+                                <p>False</p>
+                              {% endif %}
+                            </td>
+                            <td>
+                              <p>{{ agent["last_timestamp"]|strftime }}</p> 
+                            </td>
+                          </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>

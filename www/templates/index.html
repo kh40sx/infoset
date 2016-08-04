@@ -2,7 +2,23 @@
 
 {% block body %}
 <script type="text/javascript" charset="utf-8">
+  
+  function loadImage(agent, datapoint ,width, height, target) {
+    $('<img src="/fetch/agent/graph/'+ agent +'/'+ datapoint +'">').load(function() {
+      $(this)
+        .width(width)
+        .height(height)
+        .appendTo(target)
+        .wrap('<a href="/graphs/'+ agent + '/' + datapoint + '"></a>');
+    });
+  }
+  {% for datapoint_name, value in data.items() %}
+    {% if "memory_free" in datapoint_name %}
+      loadImage("{{uid}}", "{{value[0]}}", 900, 258, "#memory-graph");
+    {% endif %}
+  {% endfor %}
 </script>
+
 <div class="container">
   <!-- Page Layout here -->
   <div class="box" id="home-box">
@@ -11,9 +27,9 @@
         <div class="col-lg-12">
           <p>Host Name:</p>
           <p>IP:</p>               								
-          <p>System: {{data['system']}}</p>      								
-          <p>OS: {{data['distribution']}}</p>
-          <p>Release: {{data['release']}}</p>      								
+          <p>System: {{data['system'][1]}}</p>      								
+          <p>OS: {{data['distribution'][1]}}</p>
+          <p>Release: {{data['release'][1]}}</p>      								
         </div>
       </div>
     </div>
@@ -90,18 +106,11 @@
               </div>
             </div>
           </div>
-
         </div>
-        <div class="col-lg-4">
-          <img class="graph" src="http://calico.palisadoes.org:5000/fetch/agent/graph/a172536ba0956f6bc4bf22ba9f04907bf1bb92cbeb9bac5b6d14062a8d8813fc/217" alt=""/>	
-        </div>
-        <div class="col-lg-4">
-          <img class="graph" src="http://calico.palisadoes.org:5000/fetch/agent/graph/a172536ba0956f6bc4bf22ba9f04907bf1bb92cbeb9bac5b6d14062a8d8813fc/218" alt=""/>	
-        </div>
-        <div class="col-lg-4">
-          <img class="graph" src="http://calico.palisadoes.org:5000/fetch/agent/graph/a172536ba0956f6bc4bf22ba9f04907bf1bb92cbeb9bac5b6d14062a8d8813fc/219" alt=""/>	
-        </div>
-      </div>       			
+      </div>
+      <div class="row" id="memory-graph">
+        
+      </div>
     </div>
   </div>
   <div class="data-box" id="memory-box">
