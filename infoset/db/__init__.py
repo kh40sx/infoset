@@ -20,6 +20,35 @@ from infoset.db import db_orm
 POOL = None
 
 
+def connection_mysql():
+    """Create a MySQL connection object to the database.
+
+    Args:
+        None
+
+    Returns:
+        connection: Connection object
+
+    """
+    # Initialize key variables
+    return
+
+    """
+    config_directory = os.environ['INFOSET_CONFIGDIR']
+    config = jm_configuration.ConfigServer(config_directory)
+
+    # Create connection object
+    connection = pymysql.connect(
+        host=config.db_hostname(),
+        user=config.db_username(),
+        passwd=config.db_password(),
+        db=config.db_name())
+
+    # Return
+    return connection
+    """
+
+
 def main():
     """Process agent data.
 
@@ -31,6 +60,7 @@ def main():
 
     """
     # Initialize key variables
+    use_mysql = True
     global POOL
 
     # Get configuration
@@ -40,10 +70,16 @@ def main():
     config = jm_configuration.ConfigServer(config_directory)
 
     # Create DB connection pool
-    db_uri = ('mysql+pymysql://%s:%s@%s/%s') % (
-        config.db_username(), config.db_password(),
-        config.db_hostname(), config.db_name())
-    POOL = create_engine(db_uri, echo=False)
+    if use_mysql is True:
+        db_uri = ('mysql+pymysql://%s:%s@%s/%s') % (
+            config.db_username(), config.db_password(),
+            config.db_hostname(), config.db_name())
+
+        # Add MySQL to the pool
+        POOL = create_engine(db_uri, echo=False)
+
+    else:
+        POOL = None
 
 
 if __name__ == 'infoset.db':

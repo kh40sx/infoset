@@ -53,12 +53,14 @@ class Database(object):
 
         # Open database connection. Prepare cursor
         connection = self.pool.connect()
-        cursor = connection.cursor()
+        cursor = self.pool
+        # connection = self.pool.connect()
+        # cursor = connection.cursor()
 
         try:
             # Execute the SQL command
-            cursor.execute(sql_statement)
-            query_results = cursor.fetchall()
+            query_results = cursor.execute(sql_statement)
+            # query_results = cursor.fetchall()
 
         except Exception as exception_error:
             log_message = (
@@ -104,7 +106,8 @@ class Database(object):
 
         # Open database connection. Prepare cursor
         connection = self.pool.connect()
-        cursor = connection.cursor()
+        cursor = self.pool
+        # cursor = connection.cursor()
 
         try:
             # If a list is provided, then do an executemany
