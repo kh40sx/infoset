@@ -146,12 +146,13 @@ def main():
     config_directory = os.environ['INFOSET_CONFIGDIR']
     config = jm_configuration.ConfigServer(config_directory)
 
-    # Create tables
+    # Create DB connection
     db_uri = ('mysql+pymysql://%s:%s@%s/%s') % (
         config.db_username(), config.db_password(),
         config.db_hostname(), config.db_name())
-    print(db_uri)
     engine = create_engine(db_uri, echo=True)
+
+    # Create database tables
     BASE.metadata.create_all(engine)
 
 
