@@ -18,6 +18,7 @@ psutil==4.2.0
 pyasn1==0.1.9
 pycrypto==2.6.1
 pylint==1.5.4
+PyMySQL==0.7.5
 pysmi==0.0.7
 pysnmp==4.3.2
 python-dateutil==2.5.3

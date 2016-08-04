@@ -160,11 +160,11 @@ class IfQuery(Query):
         # Return the interface descriptions
         return data_dict
 
-    def ifinoctets(self):
+    def ifinoctets(self, safe=False):
         """Return dict of IFMIB ifInOctets for each ifIndex for device.
 
         Args:
-            None
+            safe: Do a failsafe walk if True
 
         Returns:
             data_dict: Dict of ifInOctets using the oid's last node as key
@@ -175,7 +175,10 @@ class IfQuery(Query):
 
         # Process OID
         oid = '.1.3.6.1.2.1.2.2.1.10'
-        results = self.snmp_object.walk(oid, normalized=True)
+        if safe is False:
+            results = self.snmp_object.walk(oid, normalized=True)
+        else:
+            results = self.snmp_object.swalk(oid, normalized=True)
         for key, value in results.items():
             # Process OID
             data_dict[int(key)] = value
@@ -183,11 +186,11 @@ class IfQuery(Query):
         # Return the interface descriptions
         return data_dict
 
-    def ifoutoctets(self):
+    def ifoutoctets(self, safe=False):
         """Return dict of IFMIB ifOutOctets for each ifIndex for device.
 
         Args:
-            None
+            safe: Do a failsafe walk if True
 
         Returns:
             data_dict: Dict of ifOutOctets using the oid's last node as key
@@ -198,7 +201,10 @@ class IfQuery(Query):
 
         # Process OID
         oid = '.1.3.6.1.2.1.2.2.1.16'
-        results = self.snmp_object.walk(oid, normalized=True)
+        if safe is False:
+            results = self.snmp_object.walk(oid, normalized=True)
+        else:
+            results = self.snmp_object.swalk(oid, normalized=True)
         for key, value in results.items():
             # Process OID
             data_dict[int(key)] = value
@@ -206,11 +212,11 @@ class IfQuery(Query):
         # Return the interface descriptions
         return data_dict
 
-    def ifdescr(self):
+    def ifdescr(self, safe=False):
         """Return dict of IFMIB ifDesc for each ifIndex for device.
 
         Args:
-            None
+            safe: Do a failsafe walk if True
 
         Returns:
             data_dict: Dict of ifDescr using the oid's last node as key
@@ -221,7 +227,10 @@ class IfQuery(Query):
 
         # Process OID
         oid = '.1.3.6.1.2.1.2.2.1.2'
-        results = self.snmp_object.walk(oid, normalized=True)
+        if safe is False:
+            results = self.snmp_object.walk(oid, normalized=True)
+        else:
+            results = self.snmp_object.swalk(oid, normalized=True)
         for key, value in results.items():
             # Process OID
             data_dict[int(key)] = str(bytes(value), encoding='utf-8')

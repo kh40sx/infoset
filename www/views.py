@@ -1,25 +1,65 @@
-from flask import render_template, jsonify, send_file, request
+"""Module of infoset webserver routes.
+
+Contains all routes that infoset's Flask webserver uses
+
+"""
+import yaml
+import time
+import json
+import pprint
+from infoset.db.db_agent import Get
+from infoset.db.db_data import GetIDX
+from infoset.db.db_agent import GetDataPoint
+from infoset.db.db_datapoint import GetSingleDataPoint
+from infoset.db.db_chart import Chart
+from infoset.utils import TimeStamp
+from flask import render_template, jsonify, send_file, request, make_response
 from www import infoset
 from os import listdir, walk, path, makedirs, remove
-from infoset.utils.rrd.rrd_xlate import RrdXlate
-import yaml
+# Matplotlib imports, Do not edit order
+"""
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from matplotlib import style
+style.use("ggplot")
+# End of Imports
+"""
 
 
 @infoset.route('/')
 def index():
-    hosts = getHosts()
+    """Function for handling home route.
+
+    Args:
+        None
+
+    Returns:
+        Home Page
+
+    """
+    # Quick fix until host table implmented
+    config = infoset.config['GLOBAL_CONFIG']
+    uid = "af14cb9149d49362d70ea708375455c5cd90795cc039de08e3e751873721c302"
+    agent = Get(uid, config)
+    datapoints = GetDataPoint(agent.idx(), config)
+    data_point_dict = datapoints.everything()
     return render_template('index.html',
-                           hosts=hosts)
-
-
-@infoset.route('/hosts')
-def hosts():
-    hosts = getHosts()
-    return jsonify(hosts)
+                           data=data_point_dict)
 
 
 @infoset.route('/hosts/<host>')
 def host(host):
+    """Function for handling /hosts/<host> route.
+
+    Args:
+        host: IP address of a local host
+
+    Returns:
+        JSON response of different layers of specified host
+
+    """
     filename = host + ".yaml"
     filepath = path.join("./www/static/yaml/", filename)
     yaml_dump = {}
@@ -33,105 +73,173 @@ def host(host):
 
 @infoset.route('/hosts/<host>/layer1')
 def layerOne(host):
+    """Function for handling /hosts/<host>/layer1 route.
+
+    Args:
+        host: IP address of a local host
+
+    Returns:
+        JSON response of layer1 of the OSI model of the specified host
+
+    """
     filename = host + ".yaml"
     filepath = path.join("./www/static/yaml/", filename)
     yaml_dump = {}
+
     with open(filepath, 'r') as stream:
         try:
             yaml_dump = yaml.load(stream)
         except Exception as e:
             raise e
+
     layer1 = yaml_dump['layer1']
     return jsonify(layer1)
 
 
 @infoset.route('/hosts/<host>/layer2')
 def layerTwo(host):
+    """Function for handling /hosts/<host>/layer2 route.
+
+    Args:
+        host: IP address of a local host
+
+    Returns:
+        JSON response of layer2 of the OSI model of the specified host
+
+    """    
     filename = host + ".yaml"
     filepath = path.join("./www/static/yaml/", filename)
     yaml_dump = {}
+
     with open(filepath, 'r') as stream:
         try:
             yaml_dump = yaml.load(stream)
         except Exception as e:
             raise e
+    # Gets layer2 from loaded yaml
     layer2 = yaml_dump['layer2']
+
     return jsonify(layer2)
 
 
-@infoset.route('/devices')
-def devices():
-    hosts = getHosts()
-    devices = getDevices()
-    return render_template('devices.html',
-                           hosts=hosts,
-                           devices=devices)
+@infoset.route('/graphs/', methods=["GET", "POST"])
+def graphs():
+    preset = TimeStamp()
+    timestamps = preset.getTimes()
+    return render_template('graphs.html',
+                           timestamps=timestamps)
 
-@infoset.route('/devices/<uid>')
-def device_details(uid):
-    devices = getDevices()
-    device_details = getDeviceDetails(uid)
-    device_path = "./www/static/devices/linux/" + str(uid)
-    rrd_root = RrdXlate(device_path)
-    rrd_root.rrd_graph()
-    return render_template('device.html',
-                           uid=uid,
-                           devices=devices,
-                           details=device_details)
 
 @infoset.route('/receive/<uid>', methods=["POST"])
 def receive(uid):
-    device_path = "./www/static/devices/linux/" + str(uid)
-    content = request.json
-    if not path.exists(device_path):
-        makedirs(device_path)
+    """Function for handling /receive/<uid> route.
 
-    active_yaml_path = device_path + "/active.yaml"
-    # Out with the old
-    remove(active_yaml_path)
-    # In with the new
-    with open(active_yaml_path, "w+") as active_file:
-        active_file.write(yaml.dump(content, default_flow_style=False))
-        active_file.close()
+    Args:
+        uid: Unique Identifier of an Infoset Agent
 
-    rrd_root = RrdXlate("./www/static/devices/linux/")
+    Returns:
+        Text response of Received
 
-    rrd_root.rrd_update()
-    return "Recieved"
+    """    
+    # TODO replace with config obj
+    config = infoset.config['GLOBAL_CONFIG']
+    cache_dir = config.ingest_cache_directory()
+
+    # Get Json from incoming agent POST
+    data = request.json
+    timestamp = data['timestamp']
+    data_uid = data['uid']
+    json_path = cache_dir + ("/%s_%s.json") % (timestamp, str(data_uid))
+
+    with open(json_path, "w+") as temp_file:
+        json.dump(data, temp_file)
+        temp_file.close()
+
+    print("Agent:%s recieved" % uid)
+    return "Received"
 
 
-def getHosts():
-    hosts = {}
-    for root, directories, files in walk('./www/static/yaml'):
-        for filename in files:
-            filepath = path.join(root, filename)
-            hosts[filename[:-5]] = filepath  # Add it to the list.
-    return hosts
+@infoset.route('/fetch/agent/<uid>', methods=["GET", "POST"])
+def fetch_agent_dp(uid):
+    """Function for handling /fetch/agent/<uid> route.
 
-def getDeviceDetails(uid):
-    active_yaml = {}
-    filepath="./www/static/devices/linux/" + str(uid) + "/active.yaml"
-    with open(filepath, 'r') as stream:
-        try:
-            active_yaml = yaml.load(stream)
-        except Exception as e:
-            raise e
-    return active_yaml
+    Args:
+        uid: Unique Identifier of an Infoset Agent
 
-def getDevices():
-    active_yamls = {}
-    devices = []
-    root="./www/static/devices/linux/"
-    directories = [d for d in listdir(root) if path.isdir(path.join(root, d))]
+    Returns:
+        JSON response of all datapoints
 
-    for directory in directories:
-        filepath = "./www/static/devices/linux/" + directory + "/active.yaml"
-        active_yamls[directory] = filepath
+    """  
+    config = infoset.config['GLOBAL_CONFIG']
 
-        with open(filepath, 'r') as stream:
-            try:
-                yaml_dump = yaml.load(stream)
-            except Exception as e:
-                raise e
-        devices.append(yaml_dump)
-    return devices
+    # Fetches agent from mysql by uid
+    agent = Get(uid, config)
+    idx = agent.idx()
+
+    # Gets all datapoints associated with agent
+    datapoints = GetDataPoint(idx, config)
+    return jsonify(datapoints.everything())
+
+
+@infoset.route('/fetch/agent/<uid>/<datapoint>', methods=["GET", "POST"])
+def fetch_dp(uid, datapoint):
+    """Function for handling /fetch/agent/<uid>/<datapoint> route.
+
+    Args:
+        uid: Unique Identifier of an Infoset Agent
+
+    Returns:
+        JSON response of all data under specific datapoint
+
+    """ 
+    # TODO implement start and stop times
+    config = infoset.config['GLOBAL_CONFIG']
+    data = GetIDX(datapoint, config)
+    data_values = data.everything()
+    # Gets all associated datapoints
+    """
+    x_axis = []
+    y_axis = []
+    for key, value in data_values.items():
+        x_axis.append(key)
+        y_axis.append(value)
+        np_x_axis = np.asarray(x_axis)
+        np_y_axis = np.asarray(y_axis)
+        plt.plot(np_x_axis, np_y_axis)
+        plt.savefig("/home/proxima/public_html/graph.png")
+        """
+    return jsonify(data_values)
+
+@infoset.route('/fetch/agent/graph/<uid>/<datapoint>', methods=["GET", "POST"])
+def fetch_graph(uid, datapoint):
+    filename = str(uid) + "_" + str(datapoint)
+    filepath = "./www/static/img/" + filename
+    
+    # Getting start and stop parameters from url
+    start = request.args.get('start')
+    stop = request.args.get('stop')
+    # Config object
+    config = infoset.config['GLOBAL_CONFIG']
+    
+    if start and stop:
+        chart = Chart(datapoint, config,
+                      image_width=12,
+                      image_height=4,
+                      text_color='#272727',
+                      start=int(start),
+                      stop=int(stop))
+    else: 
+        chart = Chart(datapoint, config,
+                      image_width=12,
+                      image_height=4,
+                      text_color='#272727')
+
+    # create specific chart
+    single_datapoint = GetSingleDataPoint(datapoint, config)
+    png_output = chart.api_single_line(
+        single_datapoint.agent_label(), 'Data',
+        '#00B4CC', filepath,
+    )
+    response = make_response(png_output.getvalue())
+    response.headers['Content-Type'] = 'image/png'
+    return response
