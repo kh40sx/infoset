@@ -40,10 +40,9 @@ def index():
 
     """
     # Quick fix until host table implmented
-    config = infoset.config['GLOBAL_CONFIG']
     uid = "af14cb9149d49362d70ea708375455c5cd90795cc039de08e3e751873721c302"
-    agent = Get(uid, config)
-    datapoints = GetDataPoint(agent.idx(), config)
+    agent = Get(uid)
+    datapoints = GetDataPoint(agent.idx())
     data_point_dict = datapoints.everything()
     return render_template('index.html',
                            data=data_point_dict)
@@ -106,7 +105,7 @@ def layerTwo(host):
     Returns:
         JSON response of layer2 of the OSI model of the specified host
 
-    """    
+    """
     filename = host + ".yaml"
     filepath = path.join("./www/static/yaml/", filename)
     yaml_dump = {}
@@ -140,7 +139,7 @@ def receive(uid):
     Returns:
         Text response of Received
 
-    """    
+    """
     # TODO replace with config obj
     config = infoset.config['GLOBAL_CONFIG']
     cache_dir = config.ingest_cache_directory()
@@ -169,15 +168,13 @@ def fetch_agent_dp(uid):
     Returns:
         JSON response of all datapoints
 
-    """  
-    config = infoset.config['GLOBAL_CONFIG']
-
+    """
     # Fetches agent from mysql by uid
-    agent = Get(uid, config)
+    agent = Get(uid)
     idx = agent.idx()
 
     # Gets all datapoints associated with agent
-    datapoints = GetDataPoint(idx, config)
+    datapoints = GetDataPoint(idx)
     return jsonify(datapoints.everything())
 
 
@@ -191,10 +188,9 @@ def fetch_dp(uid, datapoint):
     Returns:
         JSON response of all data under specific datapoint
 
-    """ 
+    """
     # TODO implement start and stop times
-    config = infoset.config['GLOBAL_CONFIG']
-    data = GetIDX(datapoint, config)
+    data = GetIDX(datapoint)
     data_values = data.everything()
     # Gets all associated datapoints
     """
@@ -214,28 +210,25 @@ def fetch_dp(uid, datapoint):
 def fetch_graph(uid, datapoint):
     filename = str(uid) + "_" + str(datapoint)
     filepath = "./www/static/img/" + filename
-    
+
     # Getting start and stop parameters from url
     start = request.args.get('start')
     stop = request.args.get('stop')
-    # Config object
-    config = infoset.config['GLOBAL_CONFIG']
-    
     if start and stop:
-        chart = Chart(datapoint, config,
+        chart = Chart(datapoint,
                       image_width=12,
                       image_height=4,
                       text_color='#272727',
                       start=int(start),
                       stop=int(stop))
-    else: 
-        chart = Chart(datapoint, config,
+    else:
+        chart = Chart(datapoint,
                       image_width=12,
                       image_height=4,
                       text_color='#272727')
 
     # create specific chart
-    single_datapoint = GetSingleDataPoint(datapoint, config)
+    single_datapoint = GetSingleDataPoint(datapoint)
     png_output = chart.api_single_line(
         single_datapoint.agent_label(), 'Data',
         '#00B4CC', filepath,

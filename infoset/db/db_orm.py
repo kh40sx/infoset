@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Infoset ingest cache daemon.
+"""Infoset ORM classes.
 
-Extracts agent data from cache directory files.
+Manages connection pooling among other things.
 
 """
 
@@ -128,33 +128,3 @@ class DataPoint(BASE):
 
     ts_created = Column(
         TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
-
-
-def main():
-    """Process agent data.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    """
-    # Get configuration
-    log.check_environment()
-
-    config_directory = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.ConfigServer(config_directory)
-
-    # Create DB connection
-    db_uri = ('mysql+pymysql://%s:%s@%s/%s') % (
-        config.db_username(), config.db_password(),
-        config.db_hostname(), config.db_name())
-    engine = create_engine(db_uri, echo=True)
-
-    # Create database tables
-    BASE.metadata.create_all(engine)
-
-
-if __name__ == "__main__":
-    main()

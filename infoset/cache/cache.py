@@ -78,8 +78,7 @@ class FillDB(threading.Thread):
                     _insert_agent(
                         ingest.uid(),
                         ingest.agent(),
-                        ingest.hostname(),
-                        config
+                        ingest.hostname()
                         )
                     # Append the new insertion to the list
                     agents.append(ingest.uid())
@@ -88,16 +87,16 @@ class FillDB(threading.Thread):
                 for item in ingest.sources():
                     did = item[1]
                     if did not in datapoints:
-                        _insert_datapoint(item, config)
+                        _insert_datapoint(item)
                         # Append the new insertion to the list
                         datapoints.append(did)
 
                 # Create map of DIDs to database row index values
-                mapping = _datapoints_by_did(config)
+                mapping = _datapoints_by_did()
 
                 # Update chartable data
-                _update_chartable(mapping, ingest, config)
-                _update_unchartable(mapping, ingest, config)
+                _update_chartable(mapping, ingest)
+                _update_unchartable(mapping, ingest)
 
                 # Get the max timestamp
                 max_timestamp = max(timestamp, max_timestamp)
@@ -106,19 +105,18 @@ class FillDB(threading.Thread):
                 ingest.purge()
 
             # Update the last time the agent was contacted
-            _update_agent_last_update(uid, max_timestamp, config)
+            _update_agent_last_update(uid, max_timestamp)
 
             # All done!
             self.queue.task_done()
 
 
-def _update_chartable(mapping, ingest, config):
+def _update_chartable(mapping, ingest):
     """Insert data into the database "iset_data" table.
 
     Args:
         mapping: Map of DIDs to database row index values
         ingest: Drain object
-        config: Config object
 
     Returns:
         None
@@ -161,7 +159,7 @@ def _update_chartable(mapping, ingest, config):
             '(%s, %s, %s, %s)')
 
         # Do query and get results
-        database = db.Database(config)
+        database = db.Database()
         database.modify(sql_insert, 1056, data_list=data_list)
 
         # Change the last updated timestamp
@@ -180,13 +178,12 @@ def _update_chartable(mapping, ingest, config):
         log.log2quiet(1058, log_message)
 
 
-def _update_unchartable(mapping, ingest, config):
+def _update_unchartable(mapping, ingest):
     """Update unchartable data into the database "iset_datapoint" table.
 
     Args:
         mapping: Map of DIDs to database row index values
         ingest: Drain object
-        config: Config object
 
     Returns:
         None
@@ -231,7 +228,7 @@ def _update_unchartable(mapping, ingest, config):
                 'idx=%s') % (fixed_value, idx_datapoint)
 
             # Do query and get results
-            database = db.Database(config)
+            database = db.Database()
             database.modify(sql_modify, 1037)
 
         # Change the last updated timestamp
@@ -251,14 +248,13 @@ def _update_unchartable(mapping, ingest, config):
         log.log2quiet(1045, log_message)
 
 
-def _update_agent_last_update(uid, last_timestamp, config):
+def _update_agent_last_update(uid, last_timestamp):
     """Insert new datapoint into database.
 
     Args:
         uid: UID of agent
         last_timestamp: The last time a DID for the agent was updated
             in the database
-        config: Config object
 
     Returns:
         None
@@ -269,11 +265,11 @@ def _update_agent_last_update(uid, last_timestamp, config):
         'UPDATE iset_agent SET iset_agent.last_timestamp=%s '
         'WHERE iset_agent.id="%s"'
         '') % (last_timestamp, uid)
-    database = db.Database(config)
+    database = db.Database()
     database.modify(sql_modify, 1055)
 
 
-def _insert_datapoint(metadata, config):
+def _insert_datapoint(metadata):
     """Insert new datapoint into database.
 
     Args:
@@ -285,7 +281,6 @@ def _insert_datapoint(metadata, config):
             source: Source of the data (subsystem being tracked)
             description: Description provided by agent config file (unused)
             base_type = SNMP base type (Counter32, Counter64, Gauge etc.)
-        config: Configuration object
 
     Returns:
         None
@@ -295,7 +290,7 @@ def _insert_datapoint(metadata, config):
     (uid, did, label, source, _, base_type) = metadata
 
     # Get agent index value
-    agent_object = agent.Get(uid, config)
+    agent_object = agent.Get(uid)
     idx_agent = agent_object.idx()
 
     # Prepare SQL query to read a record from the database.
@@ -306,18 +301,17 @@ def _insert_datapoint(metadata, config):
         '') % (did, idx_agent, label, source, base_type)
 
     # Do query and get results
-    database = db.Database(config)
+    database = db.Database()
     database.modify(sql_query, 1032)
 
 
-def _insert_agent(uid, name, hostname, config):
+def _insert_agent(uid, name, hostname):
     """Insert new agent into database.
 
     Args:
         uid: Agent uid
         name: Agent name
         Hostname: Hostname the agent gets data from
-        config: Configuration object
 
     Returns:
         None
@@ -330,15 +324,15 @@ def _insert_agent(uid, name, hostname, config):
         '') % (uid, name, hostname)
 
     # Do query and get results
-    database = db.Database(config)
+    database = db.Database()
     database.modify(sql_query, 1033)
 
 
-def _datapoints(config):
+def _datapoints():
     """Create list of enabled datapoints.
 
     Args:
-        config: Configuration object
+        None
 
     Returns:
         data: List of active datapoints
@@ -353,7 +347,7 @@ def _datapoints(config):
         'FROM iset_datapoint WHERE (iset_datapoint.enabled=1)')
 
     # Do query and get results
-    database = db.Database(config)
+    database = db.Database()
     query_results = database.query(sql_query, 1034)
 
     # Massage data
@@ -364,11 +358,11 @@ def _datapoints(config):
     return data
 
 
-def _datapoints_by_did(config):
+def _datapoints_by_did():
     """Create dict of enabled datapoints and their corresponding indices.
 
     Args:
-        config: Configuration object
+        None: Configuration object
 
     Returns:
         data: Dict keyed by datapoint ID,
@@ -388,7 +382,7 @@ def _datapoints_by_did(config):
         'FROM iset_datapoint WHERE (iset_datapoint.enabled=1)')
 
     # Do query and get results
-    database = db.Database(config)
+    database = db.Database()
     query_results = database.query(sql_query, 1035)
 
     # Massage data
@@ -403,11 +397,11 @@ def _datapoints_by_did(config):
     return data
 
 
-def _agents(config):
+def _agents():
     """Create list of active agent UIDs.
 
     Args:
-        config: Configuration object
+        None
 
     Returns:
         data: List of active agents
@@ -422,7 +416,7 @@ def _agents(config):
         'FROM iset_agent WHERE (iset_agent.enabled=1)')
 
     # Do query and get results
-    database = db.Database(config)
+    database = db.Database()
     query_results = database.query(sql_query, 1036)
 
     # Massage data
@@ -453,8 +447,8 @@ def process(config):
     regex = re.compile(r'^\d+_[0-9a-f]+.json')
 
     # Get a list of active agents and datapoints
-    agents = _agents(config)
-    datapoints = _datapoints(config)
+    agents = _agents()
+    datapoints = _datapoints()
 
     # Add files in cache directory to list
     all_filenames = [filename for filename in os.listdir(

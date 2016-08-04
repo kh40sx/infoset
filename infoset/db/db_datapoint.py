@@ -25,7 +25,7 @@ class GetSingleDataPoint(object):
 
     """
 
-    def __init__(self, idx, config):
+    def __init__(self, idx):
         """Function for intializing the class.
 
         Args:
@@ -50,13 +50,14 @@ class GetSingleDataPoint(object):
                 idx)
 
         # Do query and get results
-        database = db.Database(config)
+        database = db.Database()
         query_results = database.query(sql_query, 1052)
+
         # Massage data
         for row in query_results:
             # uid found?
             if not row[0]:
-                log_message = ('did %s not found.') % (did)
+                log_message = ('did %s not found.') % (idx)
                 log.log2die(1047, log_message)
             # Assign values
             self.data_dict['idx'] = row[0]
@@ -196,12 +197,11 @@ class GetIDX(object):
 
     """
 
-    def __init__(self, idx, config):
+    def __init__(self, idx):
         """Function for intializing the class.
 
         Args:
             idx: Datapoint Index
-            config: Config object
 
         Returns:
             None
@@ -228,7 +228,7 @@ class GetIDX(object):
                 idx)
 
         # Do query and get results
-        database = db.Database(config)
+        database = db.Database()
         query_results = database.query(sql_query, 1053)
         # Massage data
         for row in query_results:

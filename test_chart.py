@@ -65,12 +65,9 @@ def main():
     args = process()
     idx_datapoint = args.idx_datapoint
 
-    # Get configuration object
-    config_dir = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.ConfigServer(config_dir)
-
     # Chart data
-    chart = db_chart.Chart(idx_datapoint, config,
+    chart = db_chart.Chart(
+        idx_datapoint,
         image_width=8,
         image_height=5)
     chart.single_line(

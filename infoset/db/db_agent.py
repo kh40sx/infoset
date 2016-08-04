@@ -25,12 +25,11 @@ class Get(object):
 
     """
 
-    def __init__(self, uid, config):
+    def __init__(self, uid):
         """Function for intializing the class.
 
         Args:
             uid: UID of agent
-            config: Config object
 
         Returns:
             None
@@ -55,7 +54,7 @@ class Get(object):
                 uid)
 
         # Do query and get results
-        database = db.Database(config)
+        database = db.Database()
         query_results = database.query(sql_query, 1038)
 
         # Massage data
@@ -159,12 +158,11 @@ class GetDataPoint(object):
 
     """
 
-    def __init__(self, idx, config):
+    def __init__(self, idx):
         """Function for intializing the class.
 
         Args:
             uid: idx of agent
-            config: Config object
 
         Returns:
             None
@@ -182,19 +180,21 @@ class GetDataPoint(object):
             'idx_agent=\'%s\'') % (
                 idx)
         # Do query and get results
-        database = db.Database(config)
+        database = db.Database()
         query_results = list(database.query(sql_query, 1301))
+
         # Massage data
         for row in query_results:
             # uid found?
             if not id:
                 log_message = ('uid %s not found.') % (idx)
-                jm_general.die(1050, log_message)
+                log.log2die(1050, log_message)
+
             # Assign values
             self.data_point_dict[row[3]] = row[6]
 
     def everything(self):
-        """Gets all datapoints.
+        """Get all datapoints.
 
         Args:
             None
@@ -203,5 +203,6 @@ class GetDataPoint(object):
             value: Dictionary of data_points
 
         """
+        # Return
         value = self.data_point_dict
         return value

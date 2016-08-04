@@ -2,11 +2,9 @@
 
 """Class to process connection."""
 
-# pip3 libraries
-import pymysql
-
 # Infoset libraries
 from infoset.utils import log
+from infoset.db import POOL
 
 
 class Database(object):
@@ -22,7 +20,7 @@ class Database(object):
 
     """
 
-    def __init__(self, config):
+    def __init__(self):
         """Function for intializing the class.
 
         Args:
@@ -33,7 +31,7 @@ class Database(object):
 
         """
         # Intialize key variables
-        self.config = config
+        self.pool = POOL
 
     def query(self, sql_statement, error_code):
         """Do a database query.
@@ -54,11 +52,7 @@ class Database(object):
             log.log2die(error_code, log_message)
 
         # Open database connection. Prepare cursor
-        connection = pymysql.connect(
-            host=self.config.db_hostname(),
-            user=self.config.db_username(),
-            passwd=self.config.db_password(),
-            db=self.config.db_name())
+        connection = self.pool.connect()
         cursor = connection.cursor()
 
         try:
@@ -109,11 +103,7 @@ class Database(object):
             log.log2die(error_code, log_message)
 
         # Open database connection. Prepare cursor
-        connection = pymysql.connect(
-            host=self.config.db_hostname(),
-            user=self.config.db_username(),
-            passwd=self.config.db_password(),
-            db=self.config.db_name())
+        connection = self.pool.connect()
         cursor = connection.cursor()
 
         try:

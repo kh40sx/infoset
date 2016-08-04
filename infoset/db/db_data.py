@@ -5,7 +5,6 @@ Classes for agent data
 """
 # Python standard libraries
 from collections import defaultdict
-from pprint import pprint
 
 # Infoset libraries
 from infoset.utils import log
@@ -27,12 +26,11 @@ class GetIDX(object):
 
     """
 
-    def __init__(self, idx, config, start=None, stop=None):
+    def __init__(self, idx, start=None, stop=None):
         """Function for intializing the class.
 
         Args:
             idx: idx of datapoint
-            config: Config object
             start: Starting timestamp
             stop: Ending timestamp
 
@@ -44,7 +42,7 @@ class GetIDX(object):
         self.data = defaultdict(dict)
 
         # Get the datapoint's base_type
-        datapointer = db_datapoint.GetIDX(idx, config)
+        datapointer = db_datapoint.GetIDX(idx)
         self.base_type = datapointer.base_type()
 
         # Redefine start / stop times
@@ -74,7 +72,7 @@ class GetIDX(object):
                 self.ts_start, self.ts_stop, idx)
 
         # Do query and get results
-        database = db.Database(config)
+        database = db.Database()
         query_results = database.query(sql_query, 1301)
 
         # Massage data
@@ -146,7 +144,8 @@ class GetIDX(object):
                     if self.base_type == 32:
                         fixed_value = 4294967296 + abs(value) - 1
                     else:
-                        fixed_value = (4294967296 * 4294967296) + abs(value) - 1
+                        fixed_value = (
+                            4294967296 * 4294967296) + abs(value) - 1
                     values[timestamp] = fixed_value
             else:
                 # Process gauge values
