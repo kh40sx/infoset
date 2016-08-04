@@ -33,7 +33,7 @@ CREATE TABLE iset_agent (
 ) ENGINE=InnoDB COMMENT='Agent Table' AUTO_INCREMENT=1 ;
 
 # Insert the very first agent, the infoset server
-INSERT INTO iset_agent (id, name, hostname) VALUES ("INFOSET", "INFOSET", "INFOSET")
+INSERT INTO iset_agent (id, name, hostname) VALUES ("INFOSET", "INFOSET", "INFOSET");
 
 #CREATE TRIGGER agent_insert_check BEFORE INSERT ON iset_agent
 #  FOR EACH ROW
