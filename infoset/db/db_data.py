@@ -5,12 +5,14 @@ Classes for agent data
 """
 # Python standard libraries
 from collections import defaultdict
+from sqlalchemy import and_
 
 # Infoset libraries
 from infoset.utils import log
 from infoset.utils import jm_general
 from infoset.db import db_datapoint
-from infoset.db import db
+from infoset.db import POOL
+from infoset.db.db_orm import Data
 
 
 class GetIDX(object):
@@ -61,31 +63,20 @@ class GetIDX(object):
         if self.ts_start > self.ts_stop:
             self.ts_start = self.ts_stop
 
-        # Prepare SQL query to read a record from the database.
-        # Only active oids
-        sql_query = (
-            'SELECT value, timestamp '
-            'FROM iset_data '
-            'WHERE '
-            '(timestamp >= %s AND timestamp <= %s) AND '
-            'idx_datapoint=\'%s\'') % (
-                self.ts_start, self.ts_stop, idx)
-
-        # Do query and get results
-        database = db.Database()
-        query_results = database.query(sql_query, 1301)
+        # Establish a database session
+        session = POOL()
+        query = session.query(Data.timestamp, Data.value).filter(and_(
+            Data.timestamp >= self.ts_start,
+            Data.timestamp <= self.ts_stop,
+            Data.idx_datapoint == idx))
 
         # Massage data
-        for row in query_results:
-            # uid found?
-            if not row[0]:
-                log_message = ('idx %s not found.') % (idx)
-                log.log2die(1302, log_message)
-
-            # Assign values
-            timestamp = row[1]
-            value = row[0]
-            self.data[timestamp] = value
+        if query.count() == 1:
+            for instance in query:
+                self.data[instance.timestamp] = instance.value
+        else:
+            log_message = ('idx %s not found.') % (idx)
+            log.log2die(1302, log_message)
 
     def everything(self):
         """Get all datapoints.

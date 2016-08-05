@@ -52,7 +52,7 @@ class Database(object):
             log.log2die(error_code, log_message)
 
         # Open database connection. Prepare cursor
-        session = self.pool
+        session = self.pool()
 
         try:
             # Execute the SQL command
@@ -74,7 +74,7 @@ class Database(object):
 
         return query_results
 
-    def modify(self, sql_statement, error_code, data_list=False):
+    def modify(self, sql_statement, error_code):
         """Do a database modification.
 
         Args:
@@ -85,11 +85,10 @@ class Database(object):
                 data_list.
 
         Returns:
-            query_results: Query results
+            None
 
         """
         # Make sure this is a UPDATE, INSERT or REPLACE statement
-        """
         first_word = sql_statement.split()[0]
         if ((first_word.lower() != 'update') and
                 (first_word.lower() != 'delete') and
@@ -100,20 +99,13 @@ class Database(object):
                            'INSERT, UPDATE, DELETE or REPLACE: '
                            'SQL statement %s') % (sql_statement)
             log.log2die(error_code, log_message)
-        """
 
         # Open database connection. Prepare cursor
-        session = self.pool
+        session = self.pool()
 
         try:
-            # If a list is provided, then do an executemany
-            if data_list:
-                # Execute the SQL command
-                table = sql_statement
-                session.execute(table.insert(), data_list)
-            else:
-                # Execute the SQL command
-                session.execute(sql_statement)
+            # Execute the SQL command
+            session.execute(sql_statement)
 
             # Commit  change
             session.commit()
@@ -129,6 +121,41 @@ class Database(object):
             session.rollback()
             log_message = ('Unexpected exception. SQL statement: \"%s\"') % (
                 sql_statement)
+            log.log2die(error_code, log_message)
+
+        # disconnect from server
+        session.close()
+
+    def add_all(self, data_list, error_code):
+        """Do a database modification.
+
+        Args:
+            data_list: List of sqlalchemy table objects
+            error_code: Error number to use if one occurs
+
+        Returns:
+            None
+
+        """
+        # Open database connection. Prepare cursor
+        session = self.pool()
+
+        try:
+            # Update the database cache
+            session.add_all(data_list)
+
+            # Commit  change
+            session.commit()
+
+        except Exception as exception_error:
+            session.rollback()
+            log_message = (
+                'Unable to modify database connection. '
+                'Error: \"%s\"') % (exception_error)
+            log.log2die(error_code, log_message)
+        except:
+            session.rollback()
+            log_message = ('Unexpected database exception')
             log.log2die(error_code, log_message)
 
         # disconnect from server

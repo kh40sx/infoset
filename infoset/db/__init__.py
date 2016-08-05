@@ -20,6 +20,7 @@ from infoset.db import db_orm
 # Setup a global pool for database connections
 #############################################################################
 POOL = None
+CONFIG = None
 
 
 def connection_mysql():
@@ -33,12 +34,12 @@ def connection_mysql():
 
     """
     # Initialize key variables
-    return
+    global CONFIG
+
+    config_directory = os.environ['INFOSET_CONFIGDIR']
+    CONFIG = jm_configuration.ConfigServer(config_directory)
 
     """
-    config_directory = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.ConfigServer(config_directory)
-
     # Create connection object
     connection = pymysql.connect(
         host=config.db_hostname(),
@@ -63,6 +64,8 @@ def main():
     """
     # Initialize key variables
     use_mysql = True
+    pool_size = 25
+    max_overflow = 25
     global POOL
 
     # Get configuration
@@ -78,14 +81,17 @@ def main():
             config.db_hostname(), config.db_name())
 
         # Add MySQL to the pool
-        db_engine = create_engine(db_uri, echo=False)
-        POOL = scoped_session(
-            sessionmaker(
-                autoflush=True,
-                autocommit=False,
-                bind=db_engine
-            )
+        db_engine = create_engine(
+            db_uri, echo=False,
+            max_overflow=max_overflow, pool_size=pool_size, pool_recycle=3600)
+        POOL = sessionmaker(
+            autoflush=True,
+            autocommit=False,
+            bind=db_engine
         )
+
+        # Load the config
+        connection_mysql()
 
     else:
         POOL = None

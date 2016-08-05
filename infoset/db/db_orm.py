@@ -21,7 +21,6 @@ from sqlalchemy.orm import sessionmaker, relationship, backref
 BASE = declarative_base()
 
 # Infoset libraries
-from infoset.cache import cache
 from infoset.utils import jm_configuration
 from infoset.utils import log
 
