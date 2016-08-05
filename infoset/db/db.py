@@ -89,6 +89,7 @@ class Database(object):
 
         """
         # Make sure this is a UPDATE, INSERT or REPLACE statement
+        """
         first_word = sql_statement.split()[0]
         if ((first_word.lower() != 'update') and
                 (first_word.lower() != 'delete') and
@@ -99,17 +100,17 @@ class Database(object):
                            'INSERT, UPDATE, DELETE or REPLACE: '
                            'SQL statement %s') % (sql_statement)
             log.log2die(error_code, log_message)
+        """
 
         # Open database connection. Prepare cursor
         session = self.pool
-        # connection = self.pool.connect()
-        # cursor = connection.cursor()
 
         try:
             # If a list is provided, then do an executemany
             if data_list:
                 # Execute the SQL command
-                session.executemany(sql_statement, data_list)
+                table = sql_statement
+                session.execute(table.insert(), data_list)
             else:
                 # Execute the SQL command
                 session.execute(sql_statement)

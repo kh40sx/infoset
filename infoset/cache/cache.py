@@ -17,6 +17,7 @@ import re
 
 # Infoset libraries
 from infoset.db import db
+from infoset.db import db_orm
 from infoset.db import db_agent as agent
 from infoset.utils import log
 from infoset.cache import drain
@@ -125,6 +126,7 @@ def _update_chartable(mapping, ingest):
     # Initialize key variables
     data = ingest.chartable()
     data_list = []
+    new_data_list = []
     timestamp_tracker = {}
 
     # Update data
@@ -139,6 +141,14 @@ def _update_chartable(mapping, ingest):
         # Only update with data collected after
         # the most recent update. Don't do anything more
         if timestamp > last_timestamp:
+            new_data_list.append(
+                {
+                    'idx_datapoint': idx_datapoint,
+                    'idx_agent': idx_agent,
+                    'value': value,
+                    'timestamp': timestamp
+                }
+            )
             data_list.append(
                 (idx_datapoint, idx_agent, value, timestamp)
             )
@@ -160,7 +170,8 @@ def _update_chartable(mapping, ingest):
 
         # Do query and get results
         database = db.Database()
-        database.modify(sql_insert, 1056, data_list=data_list)
+        table = db_orm.Data()
+        database.modify(table, 1056, data_list=new_data_list)
 
         # Change the last updated timestamp
         for idx_datapoint, last_timestamp in timestamp_tracker.items():
