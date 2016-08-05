@@ -52,15 +52,11 @@ class Database(object):
             log.log2die(error_code, log_message)
 
         # Open database connection. Prepare cursor
-        connection = self.pool.connect()
-        cursor = self.pool
-        # connection = self.pool.connect()
-        # cursor = connection.cursor()
+        session = self.pool
 
         try:
             # Execute the SQL command
-            query_results = cursor.execute(sql_statement)
-            # query_results = cursor.fetchall()
+            query_results = session.execute(sql_statement)
 
         except Exception as exception_error:
             log_message = (
@@ -74,7 +70,7 @@ class Database(object):
             log.log2die(error_code, log_message)
 
         # Disconnect from server
-        connection.close()
+        session.close()
 
         return query_results
 
@@ -105,34 +101,34 @@ class Database(object):
             log.log2die(error_code, log_message)
 
         # Open database connection. Prepare cursor
-        connection = self.pool.connect()
-        cursor = self.pool
+        session = self.pool
+        # connection = self.pool.connect()
         # cursor = connection.cursor()
 
         try:
             # If a list is provided, then do an executemany
             if data_list:
                 # Execute the SQL command
-                cursor.executemany(sql_statement, data_list)
+                session.executemany(sql_statement, data_list)
             else:
                 # Execute the SQL command
-                cursor.execute(sql_statement)
+                session.execute(sql_statement)
 
             # Commit  change
-            connection.commit()
+            session.commit()
 
         except Exception as exception_error:
-            connection.rollback()
+            session.rollback()
             log_message = (
                 'Unable to modify connection. '
                 'SQL statement: \"%s\" Error: \"%s\"') % (
                     sql_statement, exception_error)
             log.log2die(error_code, log_message)
         except:
-            connection.rollback()
+            session.rollback()
             log_message = ('Unexpected exception. SQL statement: \"%s\"') % (
                 sql_statement)
             log.log2die(error_code, log_message)
 
         # disconnect from server
-        connection.close()
+        session.close()

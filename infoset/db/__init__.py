@@ -8,6 +8,8 @@ Manages connection pooling among other things.
 # Main python libraries
 import os
 from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
 
 # Infoset libraries
 from infoset.utils import jm_configuration
@@ -76,7 +78,14 @@ def main():
             config.db_hostname(), config.db_name())
 
         # Add MySQL to the pool
-        POOL = create_engine(db_uri, echo=False)
+        db_engine = create_engine(db_uri, echo=False)
+        POOL = scoped_session(
+            sessionmaker(
+                autoflush=True,
+                autocommit=False,
+                bind=db_engine
+            )
+        )
 
     else:
         POOL = None
