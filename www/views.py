@@ -239,6 +239,7 @@ def fetch_graph(uid, datapoint):
     stop = request.args.get('stop')
     # Config object
     config = infoset.config['GLOBAL_CONFIG']
+
     
     if start and stop:
         chart = Chart(datapoint, config,

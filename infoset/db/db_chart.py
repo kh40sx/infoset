@@ -229,7 +229,6 @@ class Chart(object):
 
         # Create chart object
         fig, axes = plt.subplots()
-
         # Convert data dict to two lists for matplotlib
         (x_values, y_values) = _timestamps2dates(self.data)
 
@@ -244,6 +243,7 @@ class Chart(object):
         # Apply image specific settings that are not part of subplots and
         # require custom variables
         #####################################################################
+        
 
         # Define chart title
         axes.set_title(
@@ -261,7 +261,7 @@ class Chart(object):
             'Values',
             color=self.paramx.text_color,
             size=self.paramx.font_size_label)
-
+        
         #####################################################################
         # Create chart for each sub plot.
         #####################################################################

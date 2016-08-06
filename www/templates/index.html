@@ -4,7 +4,7 @@
 <script type="text/javascript" charset="utf-8">
   
   function loadImage(agent, datapoint ,width, height, target) {
-    $('<img src="/fetch/agent/graph/'+ agent +'/'+ datapoint +'">').load(function() {
+    $('<img class="center-block" src="/fetch/agent/graph/'+ agent +'/'+ datapoint +'">').load(function() {
       $(this)
         .width(width)
         .height(height)
@@ -13,8 +13,17 @@
     });
   }
   {% for datapoint_name, value in data.items() %}
-    {% if "memory_free" in datapoint_name %}
-      loadImage("{{uid}}", "{{value[0]}}", 900, 258, "#memory-graph");
+    {% if "memory_active" in datapoint_name %}
+      loadImage("{{uid}}", "{{value[0]}}", 900, 258, "#memory-graph-area");
+    {% endif %}
+    {% if "cpu_idle" in datapoint_name %}
+      loadImage("{{uid}}", "{{value[0]}}", 900, 258, "#cpu-graph-area");
+    {% endif %}
+    {% if "disk_usage_total" in datapoint_name %}
+      loadImage("{{uid}}", "{{value[0]}}", 900, 258, "#disk-graph-area");
+    {% endif %}
+    {% if "network_bytes_sent" in datapoint_name %}
+      loadImage("{{uid}}", "{{value[0]}}", 900, 258, "#network-graph-area");
     {% endif %}
   {% endfor %}
 </script>
@@ -25,8 +34,6 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-lg-12">
-          <p>Host Name:</p>
-          <p>IP:</p>               								
           <p>System: {{data['system'][1]}}</p>      								
           <p>OS: {{data['distribution'][1]}}</p>
           <p>Release: {{data['release'][1]}}</p>      								
@@ -45,70 +52,7 @@
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-lg-3">
-          <p>Total Memory</p>
-        </div>
-        <div class="col-lg-8">
-          <div class="progress">
-            <div class="progress-bar progress-bar-warning" style="width: 35%">
-            </div>
-            <div class="progress-bar progress-bar-info" style="width: 65%">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-6">
-          <div class="row">
-            <div class="col-lg-3">
-              <p>Used Memory</p>
-            </div>
-            <div class="col-lg-8">
-              <div class="progress">
-                <div class="progress-bar progress-bar-warning" style="width: 35%">
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-lg-3">
-              <p>Free Memory</p>
-            </div>
-            <div class="col-lg-8">
-              <div class="progress">
-                <div class="progress-bar progress-bar-info" style="width: 65%">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <div class="row">
-            <div class="col-lg-3">
-              <p>Free Swap</p>
-            </div>
-            <div class="col-lg-8">
-              <div class="progress">
-                <div class="progress-bar progress-bar-success" style="width: 35%">
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-lg-3">
-              <p>Used Swap</p>
-            </div>
-            <div class="col-lg-8">
-              <div class="progress">
-                <div class="progress-bar progress-bar-warning" style="width: 65%">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row" id="memory-graph">
+      <div class="row" id="memory-graph-area">
         
       </div>
     </div>
@@ -121,27 +65,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-lg-3">
-          <p>Placeholder</p> 
-        </div>
-        <div class="col-lg-8">
-          <div class="progress">
-            <div class="progress-bar progress-bar-warning" style="width: 35%">
-            </div>
-            <div class="progress-bar progress-bar-info" style="width: 65%">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-4">
-          <img class="graph" src="http://calico.palisadoes.org:5000/fetch/agent/graph/a172536ba0956f6bc4bf22ba9f04907bf1bb92cbeb9bac5b6d14062a8d8813fc/135" alt=""/>	
-        </div>
-        <div class="col-lg-4">
-          <img class="graph" src="http://calico.palisadoes.org:5000/fetch/agent/graph/a172536ba0956f6bc4bf22ba9f04907bf1bb92cbeb9bac5b6d14062a8d8813fc/136" alt=""/>	
-        </div>
-        <div class="col-lg-4">
-          <img class="graph" src="http://calico.palisadoes.org:5000/fetch/agent/graph/a172536ba0956f6bc4bf22ba9f04907bf1bb92cbeb9bac5b6d14062a8d8813fc/137" alt=""/>	
+        <div class="col-lg-12 center-block" id="cpu-graph-area">
         </div>
       </div>       			
     </div>
@@ -154,14 +78,8 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-lg-4">
-          <img class="graph" src="http://calico.palisadoes.org:5000/fetch/agent/graph/a172536ba0956f6bc4bf22ba9f04907bf1bb92cbeb9bac5b6d14062a8d8813fc/210" alt=""/>	
-        </div>
-        <div class="col-lg-4">
-          <img class="graph" src="http://calico.palisadoes.org:5000/fetch/agent/graph/a172536ba0956f6bc4bf22ba9f04907bf1bb92cbeb9bac5b6d14062a8d8813fc/211" alt=""/>	
-        </div>
-        <div class="col-lg-4">
-          <img class="graph" src="http://calico.palisadoes.org:5000/fetch/agent/graph/a172536ba0956f6bc4bf22ba9f04907bf1bb92cbeb9bac5b6d14062a8d8813fc/212" alt=""/>	
+        <div class="col-lg-12" id="disk-graph-area">
+          
         </div>
       </div>       			
     </div>
@@ -173,16 +91,8 @@
           <h4>Network</h4>
         </div>
       </div>
-      <div class="row">
-        <div class="col-lg-4">
-          <img class="graph" src="http://calico.palisadoes.org:5000/fetch/agent/graph/a172536ba0956f6bc4bf22ba9f04907bf1bb92cbeb9bac5b6d14062a8d8813fc/245" alt=""/>	
-        </div>
-        <div class="col-lg-4">
-          <img class="graph" src="http://calico.palisadoes.org:5000/fetch/agent/graph/a172536ba0956f6bc4bf22ba9f04907bf1bb92cbeb9bac5b6d14062a8d8813fc/246" alt=""/>	
-        </div>
-        <div class="col-lg-4">
-          <img class="graph" src="http://calico.palisadoes.org:5000/fetch/agent/graph/a172536ba0956f6bc4bf22ba9f04907bf1bb92cbeb9bac5b6d14062a8d8813fc/247" alt=""/>	
-        </div>
+      <div class="row" id="network-graph-area">
+      </div>
       </div>       			
     </div>
   </div>

@@ -20,6 +20,7 @@ tags
 *~
 .#*
 
+*.png
 # Ignore any compiled python code
 *.pyc
 __pycache__
