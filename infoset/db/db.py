@@ -52,7 +52,7 @@ class Database(object):
             log.log2die(error_code, log_message)
 
         # Open database connection. Prepare cursor
-        session = self.pool()
+        session = self.session()
 
         try:
             # Execute the SQL command
@@ -101,7 +101,7 @@ class Database(object):
             log.log2die(error_code, log_message)
 
         # Open database connection. Prepare cursor
-        session = self.pool()
+        session = self.session()
 
         try:
             # Execute the SQL command
@@ -138,12 +138,56 @@ class Database(object):
 
         """
         # Open database connection. Prepare cursor
-        session = self.pool()
+        session = self.session()
 
         try:
             # Update the database cache
             session.add_all(data_list)
 
+            # Commit  change
+            session.commit()
+
+        except Exception as exception_error:
+            session.rollback()
+            log_message = (
+                'Unable to modify database connection. '
+                'Error: \"%s\"') % (exception_error)
+            log.log2die(error_code, log_message)
+        except:
+            session.rollback()
+            log_message = ('Unexpected database exception')
+            log.log2die(error_code, log_message)
+
+        # disconnect from server
+        session.close()
+
+    def session(self):
+        """Return a session to the database pool.
+
+        Args:
+            None
+
+        Returns:
+            db_session: Session
+
+        """
+        # Initialize key variables
+        db_session = self.pool()
+        return db_session
+
+    def commit(self, session, error_code):
+        """Do a database modification.
+
+        Args:
+            session: Session
+            error_code: Error number to use if one occurs
+
+        Returns:
+            None
+
+        """
+        # Do commit
+        try:
             # Commit  change
             session.commit()
 
