@@ -85,7 +85,7 @@ class Agent(BASE):
         TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
 
 
-class DataPoint(BASE):
+class Datapoint(BASE):
     """Class defining the iset_datapoint table of the database."""
 
     __tablename__ = 'iset_datapoint'
@@ -115,8 +115,6 @@ class DataPoint(BASE):
     uncharted_value = Column(VARCHAR(128), nullable=True, default=None)
 
     base_type = Column(INTEGER(unsigned=True), server_default='1')
-
-    value = Column(FLOAT, server_default='1')
 
     last_timestamp = Column(
         BIGINT(unsigned=True), nullable=False, server_default='0')

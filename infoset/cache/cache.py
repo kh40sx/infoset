@@ -15,9 +15,15 @@ import queue as Queue
 import threading
 import re
 
+from sqlalchemy.sql.compiler import compile
+from sqlalchemy.orm.query import statement
+
+from sqlalchemy.dialects import mysql
+
 # Infoset libraries
 from infoset.db import db
-from infoset.db.db_orm import Data
+from infoset.db import POOL
+from infoset.db.db_orm import Data, Datapoint
 from infoset.db import db_agent as agent
 from infoset.utils import log
 from infoset.cache import drain
@@ -169,7 +175,19 @@ def _update_chartable(mapping, ingest):
                 'UPDATE iset_datapoint SET last_timestamp=%s '
                 'WHERE iset_datapoint.idx=%s'
                 '') % (last_timestamp, idx_datapoint)
-            database = db.Database()
+            print('boo', sql_modify)
+
+
+            # xxx
+            db_session = POOL()
+            record = db_session.query(
+                Datapoint).filter_by(idx=idx_datapoint).first()
+            record.last_timestamp = last_timestamp
+
+            print(record.statement)
+            print('hoo', str(record.compile(dialect=mysql.dialect())))
+            # print('hoo', str(record.statement.compile(dialect=mysql.dialect())))
+
             database.modify(sql_modify, 1057)
 
         # Report success
