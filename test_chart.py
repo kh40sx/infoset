@@ -66,7 +66,8 @@ def main():
     idx_datapoint = args.idx_datapoint
 
     # Chart data
-    chart = db_chart.Chart(idx_datapoint,
+    chart = db_chart.Chart(
+        idx_datapoint,
         image_width=8,
         image_height=5)
     chart.single_line(

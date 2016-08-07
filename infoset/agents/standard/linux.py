@@ -167,7 +167,8 @@ def _update_agent_system(agent):
         'load_average_15min', la_15, chartable=True)
 
     # Get CPU times
-    agent.populate_named_tuple('cpu', psutil.cpu_times())
+    agent.populate_named_tuple(
+        'cpu', psutil.cpu_times(), base_type='counter64')
 
     # Get CPU stats
     agent.populate_named_tuple(

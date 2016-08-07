@@ -2,8 +2,9 @@
 """FCGI script to show customer trend data."""
 
 import datetime
-import numpy as np
 import io
+import numpy as np
+
 # MatPlotLib imports. No pop up windows on a web server (order important)
 import matplotlib
 matplotlib.use('Agg')
@@ -101,12 +102,11 @@ class Chart(object):
 
     """
 
-    def __init__(self, idx, config, start=None, stop=None, **kwargs):
+    def __init__(self, idx, start=None, stop=None, **kwargs):
         """Function for intializing the class.
 
         Args:
             idx: idx of datapoint
-            config: Config object
             start: Starting timestamp
             stop: Ending timesta
             **kwargs: Used by ChartParameters
@@ -116,7 +116,7 @@ class Chart(object):
 
         """
         # Get data as dict
-        datapointer = db_data.GetIDX(idx, config, start=start, stop=stop)
+        datapointer = db_data.GetIDX(idx, start=start, stop=stop)
         self.data = datapointer.everything()
 
         # Get parameters
@@ -287,7 +287,7 @@ class Chart(object):
         # Create image file
         fig.patch.set_facecolor('white')
         fig.savefig(filepath, bbox_inches='tight')
-        canvas=FigureCanvas(fig)
+        canvas = FigureCanvas(fig)
         png_output = io.BytesIO()
         canvas.print_png(png_output)
         return png_output
@@ -390,14 +390,10 @@ def _subplot(data, axes, line_color, fill=True):
         ymax = max(y_values)
 
         # Create an object that will be used to gradient fill under the line
-        fill_color = plot_line.get_color()
         zorder = plot_line.get_zorder()
         alpha = plot_line.get_alpha()
         alpha = 1.0 if alpha is None else alpha
         gradient = np.empty((100, 1, 4), dtype=float)
-        #rgb = mcolors.colorConverter.to_rgb(fill_color)
-        #gradient[:, :, :3] = rgb
-        #gradient[:, :, -1] = np.linspace(100, alpha, 1)[:, None]
 
         # Magic to create a polygon shaped area under the curve. This will
         # be used as a bitmap mask later
@@ -406,7 +402,8 @@ def _subplot(data, axes, line_color, fill=True):
         vstacked_array = np.vstack(
             [[xmin, ymin], column_stacked_array, [xmax, ymin], [xmin, ymin]])
         clip_path = Polygon(
-            vstacked_array, facecolor=line_color, edgecolor=line_color, closed=True)
+            vstacked_array, facecolor=line_color,
+            edgecolor=line_color, closed=True)
         axes.add_patch(clip_path)
 
         # Plot data, with gradient shading that only exposes
