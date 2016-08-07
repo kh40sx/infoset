@@ -2,9 +2,12 @@
 
 """Class to process connection."""
 
+from sqlalchemy import and_
+
 # Infoset libraries
 from infoset.utils import log
 from infoset.db import POOL
+from infoset.db.db_orm import Agent
 
 
 class Database(object):
@@ -238,3 +241,34 @@ class Database(object):
 
         # disconnect from server
         session.close()
+
+
+def connectivity():
+    """Check connectivity to the database.
+
+    Args:
+        None
+
+    Returns:
+        valid: True if connectivity is OK
+
+    """
+    # Initialize key variables
+    valid = False
+
+    # Do test
+    session = Database().session()
+
+    try:
+        result = session.query(Agent).filter(
+            and_(Agent.id == '-1', Agent.idx == -1))
+        for _ in result:
+            pass
+        valid = True
+    except:
+        pass
+
+    session.close()
+
+    # Return
+    return valid

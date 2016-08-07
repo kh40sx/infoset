@@ -178,7 +178,7 @@ class GetDataPoint(object):
             # uid found?
             if not id:
                 log_message = ('Agent idx %s not found.') % (idx)
-                log.log2die(1050, log_message)
+                log.log2die(1034, log_message)
 
             # Assign values
             self.data_point_dict[row[3]] = row[6]

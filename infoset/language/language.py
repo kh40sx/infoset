@@ -64,7 +64,7 @@ class Agent(object):
         else:
             log_message = ('Agent language file %s does not exist.') % (
                 yaml_file)
-            log.log2die(1011, log_message)
+            log.log2die(1022, log_message)
 
     def label_description(self, agent_label):
         """Return the name of the agent.

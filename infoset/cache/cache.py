@@ -403,6 +403,15 @@ def process(config):
     uid_metadata = defaultdict(lambda: defaultdict(dict))
     cache_dir = config.ingest_cache_directory()
 
+    # Make sure we have database connectivity
+    if db.connectivity() is False:
+        log_message = (
+            'No connectivity to database. Check if running. '
+            'Check database authentication parameters.'
+            '')
+        log.log2warn(1053, log_message)
+        return
+
     # Filenames must start with a numeric timestamp and #
     # end with a hex string. This will be tested later
     regex = re.compile(r'^\d+_[0-9a-f]+.json')
@@ -448,7 +457,9 @@ def process(config):
             # Return if lock file is present
             log_message = (
                 'Ingest lock file %s exists. Multiple ingest daemons running '
-                'or lost of cache files to ingest. Exiting ingest process. '
+                'or lots of cache files to ingest. Ingester may have died '
+                'catastrophically in the past, in which case the lockfile '
+                'should be deleted. Exiting ingest process. '
                 'Will try again later.'
                 '') % (lockfile)
             log.log2warn(1069, log_message)
