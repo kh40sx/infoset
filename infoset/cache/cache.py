@@ -51,6 +51,11 @@ class ProcessUID(threading.Thread):
             metadata = data_dict['metadata']
             config = data_dict['config']
 
+            # Update agent database table if not there
+            if agent.uid_exists(uid) is True:
+                agent_object = agent.Get(uid)
+                last_timestamp = agent_object.last_timestamp()
+
             # Initialize other values
             max_timestamp = 0
 
@@ -70,6 +75,19 @@ class ProcessUID(threading.Thread):
                         'Cache ingest file %s is invalid. Moving.'
                         '') % (filepath)
                     log.log2warn(1054, log_message)
+                    shutil.move(
+                        filepath, config.ingest_failures_directory())
+                    continue
+
+                # Make sure timestamp is OK, cannot be older than
+                # the last time the agent's datapoint was updated
+                if timestamp <= last_timestamp:
+                    log_message = (
+                        'Cache ingest file %s previously processed. '
+                        'Outdated agent files may have been copied to the '
+                        'ingest directory. Moving.'
+                        '') % (filepath)
+                    log.log2warn(1040, log_message)
                     shutil.move(
                         filepath, config.ingest_failures_directory())
                     continue

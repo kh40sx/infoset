@@ -52,6 +52,7 @@ class Get(object):
                 self.data_dict['description'] = instance.description
                 self.data_dict['hostname'] = instance.hostname
                 self.data_dict['enabled'] = instance.enabled
+                self.data_dict['last_timestamp'] = instance.last_timestamp
                 break
         else:
             log_message = ('uid %s not found.') % (uid)
@@ -130,6 +131,20 @@ class Get(object):
         value = bool(self.data_dict['enabled'])
 
         # Return
+        return value
+
+    def last_timestamp(self):
+        """Get agent last_timestamp.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['last_timestamp']
         return value
 
 
