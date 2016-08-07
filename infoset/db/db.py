@@ -2,11 +2,9 @@
 
 """Class to process connection."""
 
-# pip3 libraries
-import pymysql
-
 # Infoset libraries
 from infoset.utils import log
+from infoset.db import POOL
 
 
 class Database(object):
@@ -22,7 +20,7 @@ class Database(object):
 
     """
 
-    def __init__(self, config):
+    def __init__(self):
         """Function for intializing the class.
 
         Args:
@@ -33,7 +31,7 @@ class Database(object):
 
         """
         # Intialize key variables
-        self.config = config
+        self.pool = POOL
 
     def query(self, sql_statement, error_code):
         """Do a database query.
@@ -54,17 +52,11 @@ class Database(object):
             log.log2die(error_code, log_message)
 
         # Open database connection. Prepare cursor
-        connection = pymysql.connect(
-            host=self.config.db_hostname(),
-            user=self.config.db_username(),
-            passwd=self.config.db_password(),
-            db=self.config.db_name())
-        cursor = connection.cursor()
+        session = self.session()
 
         try:
             # Execute the SQL command
-            cursor.execute(sql_statement)
-            query_results = cursor.fetchall()
+            query_results = session.execute(sql_statement)
 
         except Exception as exception_error:
             log_message = (
@@ -78,11 +70,11 @@ class Database(object):
             log.log2die(error_code, log_message)
 
         # Disconnect from server
-        connection.close()
+        session.close()
 
         return query_results
 
-    def modify(self, sql_statement, error_code, data_list=False):
+    def modify(self, sql_statement, error_code):
         """Do a database modification.
 
         Args:
@@ -93,7 +85,7 @@ class Database(object):
                 data_list.
 
         Returns:
-            query_results: Query results
+            None
 
         """
         # Make sure this is a UPDATE, INSERT or REPLACE statement
@@ -109,37 +101,106 @@ class Database(object):
             log.log2die(error_code, log_message)
 
         # Open database connection. Prepare cursor
-        connection = pymysql.connect(
-            host=self.config.db_hostname(),
-            user=self.config.db_username(),
-            passwd=self.config.db_password(),
-            db=self.config.db_name())
-        cursor = connection.cursor()
+        session = self.session()
 
         try:
-            # If a list is provided, then do an executemany
-            if data_list:
-                # Execute the SQL command
-                cursor.executemany(sql_statement, data_list)
-            else:
-                # Execute the SQL command
-                cursor.execute(sql_statement)
+            # Execute the SQL command
+            session.execute(sql_statement)
 
             # Commit  change
-            connection.commit()
+            session.commit()
 
         except Exception as exception_error:
-            connection.rollback()
+            session.rollback()
             log_message = (
                 'Unable to modify connection. '
                 'SQL statement: \"%s\" Error: \"%s\"') % (
                     sql_statement, exception_error)
             log.log2die(error_code, log_message)
         except:
-            connection.rollback()
+            session.rollback()
             log_message = ('Unexpected exception. SQL statement: \"%s\"') % (
                 sql_statement)
             log.log2die(error_code, log_message)
 
         # disconnect from server
-        connection.close()
+        session.close()
+
+    def add_all(self, data_list, error_code):
+        """Do a database modification.
+
+        Args:
+            data_list: List of sqlalchemy table objects
+            error_code: Error number to use if one occurs
+
+        Returns:
+            None
+
+        """
+        # Open database connection. Prepare cursor
+        session = self.session()
+
+        try:
+            # Update the database cache
+            session.add_all(data_list)
+
+            # Commit  change
+            session.commit()
+
+        except Exception as exception_error:
+            session.rollback()
+            log_message = (
+                'Unable to modify database connection. '
+                'Error: \"%s\"') % (exception_error)
+            log.log2die(error_code, log_message)
+        except:
+            session.rollback()
+            log_message = ('Unexpected database exception')
+            log.log2die(error_code, log_message)
+
+        # disconnect from server
+        session.close()
+
+    def session(self):
+        """Return a session to the database pool.
+
+        Args:
+            None
+
+        Returns:
+            db_session: Session
+
+        """
+        # Initialize key variables
+        db_session = self.pool()
+        return db_session
+
+    def commit(self, session, error_code):
+        """Do a database modification.
+
+        Args:
+            session: Session
+            error_code: Error number to use if one occurs
+
+        Returns:
+            None
+
+        """
+        # Do commit
+        try:
+            # Commit  change
+            session.commit()
+
+        except Exception as exception_error:
+            session.rollback()
+            log_message = (
+                'Unable to modify database connection. '
+                'Error: \"%s\"') % (exception_error)
+            log.log2die(error_code, log_message)
+        except:
+            session.rollback()
+            log_message = ('Unexpected database exception')
+            log.log2die(error_code, log_message)
+
+        # disconnect from server
+        session.close()
