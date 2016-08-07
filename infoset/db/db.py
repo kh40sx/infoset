@@ -260,10 +260,10 @@ def connectivity():
     session = Database().session()
 
     try:
-        result = session.query(Agent).filter(
-            and_(Agent.id == '-1', Agent.idx == -1))
+        result = session.query(Agent.id).filter(
+            and_(Agent.id == '-1'.encode(), Agent.idx == -1))
         for _ in result:
-            pass
+            break
         valid = True
     except:
         pass

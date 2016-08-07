@@ -55,6 +55,8 @@ class ProcessUID(threading.Thread):
             if agent.uid_exists(uid) is True:
                 agent_object = agent.Get(uid)
                 last_timestamp = agent_object.last_timestamp()
+            else:
+                last_timestamp = 0
 
             # Initialize other values
             max_timestamp = 0
@@ -261,10 +263,9 @@ class UpdateDB(object):
         # Update data
         for item in data:
             # Process each datapoint item found
-            (_, did, tuple_value, timestamp) = item
+            (_, did, value, timestamp) = item
             idx_datapoint = int(mapping[did][0])
             last_timestamp = int(mapping[did][2])
-            value = ('%s') % (tuple_value)
 
             # Only update with data collected after
             # the most recent update. Don't do anything more
@@ -284,14 +285,13 @@ class UpdateDB(object):
         if bool(data_list) is True:
             for item in data_list:
                 (idx_datapoint, value) = item
-                fixed_value = str(value)[0:128]
 
                 # Update database
                 database = db.Database()
                 session = database.session()
                 record = session.query(Datapoint).filter(
                     Datapoint.idx == idx_datapoint).one()
-                record.uncharted_value = fixed_value
+                record.uncharted_value = value
                 database.commit(session, 1037)
 
             # Change the last updated timestamp
@@ -458,8 +458,9 @@ def process(config):
 
             # Create a dict of UIDs, timestamps and filepaths
             (name, _) = filename.split('.')
-            (tstamp, uid) = name.split('_')
+            (tstamp, uid_string) = name.split('_')
             timestamp = int(tstamp)
+            uid = uid_string.encode()
             if uid in uid_metadata:
                 uid_metadata[uid].append(
                     (timestamp, filepath))

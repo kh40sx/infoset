@@ -64,11 +64,14 @@ class Drain(object):
             self.validated = True
 
         if self.validated is True:
-            # Get universal parameters from file
+            # Get universal parameters from file. Convert to unicode
             for key in agent_meta_keys:
-                self.agent_meta[key] = information[key]
-            timestamp = int(information['timestamp'])
-            uid = information['uid']
+                if key == 'timestamp':
+                    self.agent_meta[key] = int(information[key])
+                else:
+                    self.agent_meta[key] = information[key].encode()
+            timestamp = self.agent_meta['timestamp']
+            uid = self.agent_meta['uid']
 
             # Process chartable data
             for data_type in data_types:
@@ -77,10 +80,12 @@ class Drain(object):
                     continue
 
                 # Process the data type
-                for label, group in sorted(information[data_type].items()):
+                for string_label, group in sorted(
+                        information[data_type].items()):
                     # Get universal parameters for group
                     base_type = _base_type(group['base_type'])
-                    description = group['description']
+                    description = _encode(group['description'])
+                    label = _encode(string_label)
 
                     # Initialize base type
                     if base_type not in self.data[data_type]:
@@ -90,17 +95,23 @@ class Drain(object):
                     for datapoint in group['data']:
                         index = datapoint[0]
                         value = datapoint[1]
-                        source = datapoint[2]
+                        source = _encode(datapoint[2])
                         did = _did(uid, label, index)
 
                         # Update data
-                        self.data[data_type][base_type].append(
-                            (uid, did, value, timestamp)
-                        )
+                        if base_type != 0:
+                            self.data[data_type][base_type].append(
+                                (uid, did, value, timestamp)
+                            )
+                        else:
+                            self.data[data_type][base_type].append(
+                                (uid, did, _encode(value), timestamp)
+                            )
 
-                        # Update sources
+                        # Update sources after fixing encoding
                         self.metadata.append(
-                            (uid, did, label, source, description, base_type)
+                            (uid, did, label, source,
+                             description, base_type)
                         )
 
     def valid(self):
@@ -376,7 +387,7 @@ def _did(uid, label, index):
     prehash = ('%s%s%s') % (uid, label, index)
     hasher = hashlib.sha256()
     hasher.update(bytes(prehash.encode()))
-    did = hasher.hexdigest()
+    did = _encode(hasher.hexdigest())
 
     # Return
     return did
@@ -410,3 +421,23 @@ def _base_type(data):
 
     # Return
     return base_type
+
+
+def _encode(data):
+    """UTF8 encode data.
+
+    Args:
+        data: Data to encode
+
+    Returns:
+        result: Result of encoding
+
+    """
+    # Initialize key variables
+    if data is None:
+        result = data
+    else:
+        result = (('%s') % (data)).encode()
+
+    # Return
+    return result

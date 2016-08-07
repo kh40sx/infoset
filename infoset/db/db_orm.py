@@ -9,7 +9,7 @@ Manages connection pooling among other things.
 from sqlalchemy import UniqueConstraint, PrimaryKeyConstraint, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.mysql import BIGINT, TIMESTAMP, INTEGER
-from sqlalchemy.dialects.mysql import FLOAT, VARCHAR
+from sqlalchemy.dialects.mysql import FLOAT, VARBINARY
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 
@@ -55,13 +55,13 @@ class Agent(BASE):
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
 
-    id = Column(VARCHAR(64), unique=True, nullable=True, default=None)
+    id = Column(VARBINARY(512), unique=True, nullable=True, default=None)
 
-    name = Column(VARCHAR(64), nullable=True, default=None)
+    name = Column(VARBINARY(512), nullable=True, default=None)
 
-    description = Column(VARCHAR(64), nullable=True, default=None)
+    description = Column(VARBINARY(512), nullable=True, default=None)
 
-    hostname = Column(VARCHAR(75), nullable=True, default=None)
+    hostname = Column(VARBINARY(512), nullable=True, default=None)
 
     enabled = Column(INTEGER(unsigned=True), server_default='1')
 
@@ -95,15 +95,15 @@ class Datapoint(BASE):
         BIGINT(unsigned=True), ForeignKey('iset_agent.idx'),
         nullable=False, server_default='1')
 
-    id = Column(VARCHAR(64), unique=True, nullable=True, default=None)
+    id = Column(VARBINARY(512), unique=True, nullable=True, default=None)
 
-    agent_label = Column(VARCHAR(64), nullable=True, default=None)
+    agent_label = Column(VARBINARY(512), nullable=True, default=None)
 
-    agent_source = Column(VARCHAR(128), nullable=True, default=None)
+    agent_source = Column(VARBINARY(512), nullable=True, default=None)
 
     enabled = Column(INTEGER(unsigned=True), server_default='1')
 
-    uncharted_value = Column(VARCHAR(128), nullable=True, default=None)
+    uncharted_value = Column(VARBINARY(512), nullable=True, default=None)
 
     base_type = Column(INTEGER(unsigned=True), server_default='1')
 

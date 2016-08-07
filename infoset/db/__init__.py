@@ -8,7 +8,6 @@ Manages connection pooling among other things.
 # Main python libraries
 import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 
 # Infoset libraries
@@ -20,6 +19,7 @@ from infoset.db import db_orm
 # Setup a global pool for database connections
 #############################################################################
 POOL = None
+DBURL = None
 
 
 def main():
@@ -37,6 +37,7 @@ def main():
     pool_size = 25
     max_overflow = 25
     global POOL
+    global DBURL
 
     # Get configuration
     config_directory = os.environ['INFOSET_CONFIGDIR']
@@ -44,13 +45,14 @@ def main():
 
     # Create DB connection pool
     if use_mysql is True:
-        db_uri = ('mysql+pymysql://%s:%s@%s/%s') % (
+        DBURL = ('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4') % (
             config.db_username(), config.db_password(),
             config.db_hostname(), config.db_name())
 
         # Add MySQL to the pool
         db_engine = create_engine(
-            db_uri, echo=False,
+            DBURL, echo=False,
+            encoding='utf8',
             max_overflow=max_overflow,
             pool_size=pool_size, pool_recycle=3600)
 
