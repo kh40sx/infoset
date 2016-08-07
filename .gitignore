@@ -20,9 +20,10 @@ tags
 *~
 .#*
 
-# Ignore any compiled python code
-*.pyc
+# Ignore any byte-compiled / optimized / DLL files
 __pycache__
+__pycache__/
+*.py[cod]
 
 #############################################################################
 # <Developer Section>
@@ -34,6 +35,7 @@ __pycache__
 
 # Ignore files in these directories and ALL subdirectories
 data/**
+bin/agents/non-standard/**
 
 # Ignore files in these directories,  _BUT_
 # their subdirectories will be placed in the repository.

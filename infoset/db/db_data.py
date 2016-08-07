@@ -11,7 +11,7 @@ from sqlalchemy import and_
 from infoset.utils import log
 from infoset.utils import jm_general
 from infoset.db import db_datapoint
-from infoset.db import POOL
+from infoset.db import db
 from infoset.db.db_orm import Data
 
 
@@ -64,19 +64,23 @@ class GetIDX(object):
             self.ts_start = self.ts_stop
 
         # Establish a database session
-        session = POOL()
-        query = session.query(Data.timestamp, Data.value).filter(and_(
+        database = db.Database()
+        session = database.session()
+        result = session.query(Data.timestamp, Data.value).filter(and_(
             Data.timestamp >= self.ts_start,
             Data.timestamp <= self.ts_stop,
             Data.idx_datapoint == idx))
 
         # Massage data
-        if query.count() == 1:
-            for instance in query:
+        if result.count() == 1:
+            for instance in result:
                 self.data[instance.timestamp] = instance.value
         else:
             log_message = ('idx %s not found.') % (idx)
             log.log2die(1302, log_message)
+
+        # Return the session to the database pool after processing
+        session.close()
 
     def everything(self):
         """Get all datapoints.

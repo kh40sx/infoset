@@ -1,5 +1,0 @@
-agent_source_descriptions:
-    Sentry3_infeedPower: Input Power Per Phase
-    Sentry3_infeedLoadValue: Input Current Per Phase
-    Sentry3_infeedName: Input Power Phase Name
-    Sentry3_Sentry3_infeedID: Input Power Phase ID

@@ -54,6 +54,20 @@ class ConfigCommon(object):
         result = self.config_dict['log_file']
         return result
 
+    def language(self):
+        """Get language.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        result = self.config_dict['language']
+        return result
+
 
 class ConfigServer(object):
     """Class gathers all configuration information.
@@ -349,10 +363,9 @@ class ConfigAgent(object):
         """
         # Update the configuration directory
         agent_directory = ('%s/agents') % (root_directory)
-        descriptions_directory = ('%s/%s') % (agent_directory, agent_name)
         common_directory = ('%s/common') % (root_directory)
         directories = [
-            agent_directory, descriptions_directory, common_directory]
+            agent_directory, common_directory]
 
         # Return
         self.config_dict = jm_general.read_yaml_files(directories)
@@ -414,6 +427,20 @@ class ConfigAgent(object):
         result = self.config_dict['server_https']
         return result
 
+    def language(self):
+        """Get language.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        result = self.config_dict['language']
+        return result
+
     def log_file(self):
         """Get log_file.
 
@@ -450,20 +477,6 @@ class ConfigAgent(object):
 
         # Return
         return value
-
-    def agent_source_descriptions(self):
-        """Get agent_source_descriptions.
-
-        Args:
-            None
-
-        Returns:
-            result: result
-
-        """
-        # Get result
-        result = self.config_dict['agent_source_descriptions']
-        return result
 
     def agent_snmp_hostnames(self):
         """Get agent_snmp_hostnames.

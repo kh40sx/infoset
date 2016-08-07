@@ -5,24 +5,15 @@ Manages connection pooling among other things.
 
 """
 
-# Standard libraries
-from datetime import datetime
-import os
-
 # SQLobject stuff
-from sqlalchemy import UniqueConstraint, PrimaryKeyConstraint, func, text
+from sqlalchemy import UniqueConstraint, PrimaryKeyConstraint, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.mysql import BIGINT, TIMESTAMP, INTEGER
 from sqlalchemy.dialects.mysql import FLOAT, VARCHAR
-from sqlalchemy import Table, Column, create_engine
-from sqlalchemy import Integer, String, ForeignKey
-from sqlalchemy.orm import sessionmaker, relationship, backref
+from sqlalchemy import Column
+from sqlalchemy import ForeignKey
 
 BASE = declarative_base()
-
-# Infoset libraries
-from infoset.utils import jm_configuration
-from infoset.utils import log
 
 
 class Data(BASE):

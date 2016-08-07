@@ -204,3 +204,37 @@ class Database(object):
 
         # disconnect from server
         session.close()
+
+    def add(self, record, error_code):
+        """Add a record to the database.
+
+        Args:
+            record: Record object
+            error_code: Error number to use if one occurs
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        session = self.session()
+
+        # Do add
+        try:
+            # Commit change
+            session.add(record)
+            session.commit()
+
+        except Exception as exception_error:
+            session.rollback()
+            log_message = (
+                'Unable to modify database connection. '
+                'Error: \"%s\"') % (exception_error)
+            log.log2die(error_code, log_message)
+        except:
+            session.rollback()
+            log_message = ('Unexpected database exception')
+            log.log2die(error_code, log_message)
+
+        # disconnect from server
+        session.close()

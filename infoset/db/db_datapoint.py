@@ -9,7 +9,7 @@ from collections import defaultdict
 
 # Infoset libraries
 from infoset.utils import log
-from infoset.db import POOL
+from infoset.db import db
 from infoset.db.db_orm import Datapoint
 
 
@@ -41,12 +41,13 @@ class GetSingleDataPoint(object):
         self.data_dict = defaultdict(dict)
 
         # Establish a database session
-        session = POOL()
-        query = session.query(Datapoint).filter(Datapoint.idx == idx)
+        database = db.Database()
+        session = database.session()
+        result = session.query(Datapoint).filter(Datapoint.idx == idx)
 
         # Massage data
-        if query.count() == 1:
-            for instance in query:
+        if result.count() == 1:
+            for instance in result:
                 self.data_dict['idx'] = instance.idx
                 self.data_dict['id'] = instance.id
                 self.data_dict['idx_agent'] = instance.idx_agent
@@ -60,6 +61,9 @@ class GetSingleDataPoint(object):
         else:
             log_message = ('Datapoint idx %s not found.') % (idx)
             log.log2die(1047, log_message)
+
+        # Return the session to the database pool after processing
+        session.close()
 
     def last_timestamp(self):
         """Get last_timestamp value.
@@ -175,7 +179,7 @@ class GetSingleDataPoint(object):
 
 
 class GetIDX(object):
-    """Class to return datapoint data.
+    """Class to return datapoint data by datapoint idx.
 
     Args:
         None
@@ -201,12 +205,13 @@ class GetIDX(object):
         self.data_dict = defaultdict(dict)
 
         # Establish a database session
-        session = POOL()
-        query = session.query(Datapoint).filter(Datapoint.idx == idx)
+        database = db.Database()
+        session = database.session()
+        result = session.query(Datapoint).filter(Datapoint.idx == idx)
 
         # Massage data
-        if query.count() == 1:
-            for instance in query:
+        if result.count() == 1:
+            for instance in result:
                 self.data_dict['idx'] = instance.idx
                 self.data_dict['id'] = instance.id
                 self.data_dict['idx_agent'] = instance.idx_agent
@@ -220,6 +225,9 @@ class GetIDX(object):
         else:
             log_message = ('idx %s not found.') % (idx)
             log.log2die(1048, log_message)
+
+        # Return the session to the database pool after processing
+        session.close()
 
     def last_timestamp(self):
         """Get last_timestamp value.
@@ -332,3 +340,35 @@ class GetIDX(object):
         # Initialize key variables
         value = self.data_dict['agent_label']
         return value
+
+
+def did_exists(did):
+    """Determine whether the DID exists.
+
+    Args:
+        did: DID value for agent
+
+    Returns:
+        found: True if found
+
+    """
+    # Initialize key variables
+    found = False
+
+    # Establish a database session
+    database = db.Database()
+    session = database.session()
+    result = session.query(Datapoint.id).filter(Datapoint.id == did)
+
+    # Massage data
+    if result.count() == 1:
+        for instance in result:
+            _ = instance.id
+            break
+        found = True
+
+    # Return the session to the database pool after processing
+    session.close()
+
+    # Return
+    return found
