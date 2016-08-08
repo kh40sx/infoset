@@ -55,7 +55,6 @@ def index():
 
     agent = Get(uid)
     host = agent.hostname()
-    pprint.pprint(agent.idx())
     datapoints = GetDataPoint(agent.idx())
     data_point_dict = datapoints.everything()
     pprint.pprint(data_point_dict)
