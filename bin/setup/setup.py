@@ -64,5 +64,12 @@ def main():
         print('Applying Schemas')
         BASE.metadata.create_all(engine)
 
+        # Insert an entry for the infoset agent
+        sql_string = (
+            'INSERT INTO iset_agent (id, name, hostname) VALUES '
+            '("infoset", "infoset", "infoset")')
+        engine.execute(sql_string)
+
+
 if __name__ == '__main__':
     main()

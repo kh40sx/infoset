@@ -396,7 +396,10 @@ class ConfigAgent(object):
 
         """
         # Get result
-        result = self.config_dict['server_name']
+        if self.agent_name() == 'infoset':
+            result = 'localhost'
+        else:
+            result = self.config_dict['server_name']
         return result
 
     def server_port(self):

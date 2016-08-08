@@ -8,7 +8,7 @@ Manages connection pooling among other things.
 # SQLobject stuff
 from sqlalchemy import UniqueConstraint, PrimaryKeyConstraint, text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.mysql import BIGINT, TIMESTAMP, INTEGER
+from sqlalchemy.dialects.mysql import BIGINT, DATETIME, INTEGER
 from sqlalchemy.dialects.mysql import FLOAT, VARBINARY
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
@@ -69,11 +69,11 @@ class Agent(BASE):
         BIGINT(unsigned=True), nullable=False, server_default='0')
 
     ts_modified = Column(
-        TIMESTAMP, server_default=text(
+        DATETIME, server_default=text(
             'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
 
     ts_created = Column(
-        TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
 
 class Datapoint(BASE):
@@ -113,8 +113,8 @@ class Datapoint(BASE):
         BIGINT(unsigned=True), nullable=False, server_default='0')
 
     ts_modified = Column(
-        TIMESTAMP, server_default=text(
+        DATETIME, server_default=text(
             'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
 
     ts_created = Column(
-        TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
