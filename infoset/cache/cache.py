@@ -177,10 +177,20 @@ class UpdateDB(object):
         agent_name = self.ingest.agent()
         hostname = self.ingest.hostname()
 
-        # Prepare SQL query to read a record from the database.
-        record = Agent(id=uid, name=agent_name, hostname=hostname)
-        database = db.Database()
-        database.add(record, 1033)
+        # Update record one of the agent table
+        if agent_name == '_infoset'.encode():
+            # Update the database
+            database = db.Database()
+            session = database.session()
+            record = session.query(Agent).filter(Agent.idx == 1).one()
+            record.id = uid
+            record.hostname = hostname
+            database.commit(session, 1070)
+        else:
+            # Prepare SQL query to read a record from the database.
+            record = Agent(id=uid, name=agent_name, hostname=hostname)
+            database = db.Database()
+            database.add(record, 1033)
 
     def _update_chartable(self, mapping):
         """Insert data into the database "iset_data" table.

@@ -10,11 +10,16 @@ Description:
 
 """
 # Standard libraries
+import sys
 import logging
 from collections import defaultdict
 
 # infoset libraries
-from infoset.agents import agent as Agent
+try:
+    from infoset.agents import agent as Agent
+except:
+    print('You need to set your PYTHONPATH to include the infoset library')
+    sys.exit(2)
 from infoset.utils import log
 from infoset.utils import jm_configuration
 from infoset.snmp import snmp_manager

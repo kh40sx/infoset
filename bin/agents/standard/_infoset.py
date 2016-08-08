@@ -13,6 +13,7 @@ Description:
 """
 # Standard libraries
 import os
+import sys
 import re
 import platform
 import logging
@@ -23,7 +24,11 @@ import socket
 import psutil
 
 # infoset libraries
-from infoset.agents import agent as Agent
+try:
+    from infoset.agents import agent as Agent
+except:
+    print('You need to set your PYTHONPATH to include the infoset library')
+    sys.exit(2)
 from infoset.utils import jm_configuration
 
 logging.getLogger('requests').setLevel(logging.WARNING)
@@ -56,7 +61,7 @@ class PollingAgent(object):
 
         """
         # Initialize key variables
-        self.agent_name = 'infoset'
+        self.agent_name = '_infoset'
 
         # Get configuration
         self.config = jm_configuration.ConfigAgent(
@@ -100,7 +105,7 @@ class PollingAgent(object):
 
         """
         # Get hostname
-        hostname = socket.getfqdn()
+        hostname = '_infoset'
 
         # Get the UID for the agent
         uid = Agent.get_uid(hostname)

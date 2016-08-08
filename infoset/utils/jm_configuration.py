@@ -396,7 +396,7 @@ class ConfigAgent(object):
 
         """
         # Get result
-        if self.agent_name() == 'infoset':
+        if self.agent_name() == '_infoset':
             result = 'localhost'
         else:
             result = self.config_dict['server_name']

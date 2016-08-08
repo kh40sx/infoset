@@ -5,6 +5,8 @@ import os
 import shutil
 import json
 import time
+import subprocess
+import locale
 import yaml
 
 # Infoset libraries
@@ -195,3 +197,84 @@ def read_yaml_files(directories):
     # Return
     config_dict = yaml.load(all_yaml_read)
     return config_dict
+
+
+def run_script(cli_string):
+    """Run the cli_string UNIX CLI command and record output.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    encoding = locale.getdefaultlocale()[1]
+    header_returncode = ('[Return Code]')
+    header_stdout = ('[Output]')
+    header_stderr = ('[Error Message]')
+    header_bad_cmd = ('[ERROR: Bad Command]')
+    log_message = ''
+
+    # Create the subprocess object
+    do_command_list = list(cli_string.split(' '))
+    process = subprocess.Popen(
+        do_command_list,
+        shell=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE)
+    stdoutdata, stderrdata = process.communicate()
+    returncode = process.returncode
+
+    # Crash if the return code is not 0
+    if returncode != 0:
+        # Print the Return Code header, Return Code, STDOUT header
+        string2print = ('%s %s %s %s') % (
+            header_bad_cmd, cli_string,
+            header_returncode, returncode)
+        log_message = ('%s%s') % (log_message, string2print)
+
+        # Print the STDERR
+        string2print = ('%s') % (header_stderr)
+        log_message = ('%s %s') % (log_message, string2print)
+        for line in stderrdata.decode(encoding).split('\n'):
+            string2print = ('%s') % (line)
+            log_message = ('%s %s') % (log_message, string2print)
+
+        # Print the STDOUT
+        string2print = ('%s') % (header_stdout)
+        log_message = ('%s %s') % (log_message, string2print)
+        for line in stdoutdata.decode(encoding).split('\n'):
+            string2print = ('%s') % (line)
+            log_message = ('%s %s') % (log_message, string2print)
+
+        # All done
+        log.log2die(1071, log_message)
+
+    # Return
+    return stdoutdata
+
+
+def search_file(filename):
+    """Run the cli_string UNIX CLI command and record output.
+
+    Args:
+        filename: File to find
+
+    Returns:
+        result: Result
+
+    """
+    # Initialize key variables
+    result = None
+    search_path = os.environ['PATH']
+
+    paths = search_path.split(os.pathsep)
+    for path in paths:
+        if os.path.exists(os.path.join(path, filename)) is True:
+            result = os.path.abspath(os.path.join(path, filename))
+            break
+
+    # Return
+    return result

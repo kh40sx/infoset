@@ -7,11 +7,13 @@ Manages connection pooling among other things.
 
 # Main python libraries
 import os
+from pathlib import Path
 from sqlalchemy import create_engine
 
 # Infoset libraries
 from infoset.utils import log
 from infoset.utils import jm_configuration
+import infoset.utils
 from infoset.db.db_orm import BASE
 from infoset.db import DBURL
 
@@ -65,10 +67,27 @@ def main():
         BASE.metadata.create_all(engine)
 
         # Insert an entry for the infoset agent
-        sql_string = (
-            'INSERT INTO iset_agent (id, name, hostname) VALUES '
-            '("infoset", "infoset", "infoset")')
-        engine.execute(sql_string)
+        try:
+            sql_string = (
+                'INSERT INTO iset_agent (id, name, hostname) VALUES '
+                '("_infoset", "_infoset", "_infoset")')
+            engine.execute(sql_string)
+        except:
+            pass
+
+    # Install required PIP packages
+    print('Installing required pip3 packages')
+    pip3 = infoset.utils.jm_general.search_file('pip3')
+    if pip3 is None:
+        log_message = ('Cannot find python "pip3". Please install.')
+        log.log2die(1066, log_message)
+
+    utils_directory = infoset.utils.__path__[0]
+    requirements_file = ('%s/requirements.txt') % (
+        Path(utils_directory).parents[1])
+    script_name = (
+        'pip3 install --user --requirement %s') % (requirements_file)
+    infoset.utils.jm_general.run_script(script_name)
 
 
 if __name__ == '__main__':
