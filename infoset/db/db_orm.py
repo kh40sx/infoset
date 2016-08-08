@@ -107,6 +107,8 @@ class Datapoint(BASE):
 
     base_type = Column(INTEGER(unsigned=True), server_default='1')
 
+    multiplier = Column(FLOAT, server_default='1')
+
     last_timestamp = Column(
         BIGINT(unsigned=True), nullable=False, server_default='0')
 

@@ -77,8 +77,9 @@ class ProcessUID(threading.Thread):
                         'Cache ingest file %s is invalid. Moving.'
                         '') % (filepath)
                     log.log2warn(1054, log_message)
-                    shutil.move(
+                    shutil.copy(
                         filepath, config.ingest_failures_directory())
+                    os.remove(filepath)
                     continue
 
                 # Make sure timestamp is OK, cannot be older than
@@ -90,8 +91,9 @@ class ProcessUID(threading.Thread):
                         'ingest directory. Moving.'
                         '') % (filepath)
                     log.log2warn(1040, log_message)
-                    shutil.move(
+                    shutil.copy(
                         filepath, config.ingest_failures_directory())
+                    os.remove(filepath)
                     continue
 
                 # Update database
