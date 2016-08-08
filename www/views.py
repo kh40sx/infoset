@@ -12,6 +12,7 @@ from infoset.db.db_data import GetIDX
 from infoset.db.db_agent import GetDataPoint
 from infoset.db.db_agent import GetAgents
 from infoset.db.db_datapoint import GetSingleDataPoint
+from infoset.db.db_chart import StackedChart
 from infoset.db.db_chart import Chart
 from infoset.utils import TimeStamp
 from infoset.utils import ColorWheel
@@ -254,6 +255,47 @@ def fetch_graph(uid, datapoint):
         agent_label, 'Data',
         color_palette.getScheme(), filepath,
     )
+    response = make_response(png_output.getvalue())
+    response.headers['Content-Type'] = 'image/png'
+    return response
+
+
+@infoset.route('/fetch/agent/graph/stacked/<uid>/<datapoint>', methods=["GET", "POST"])
+def fetch_graph_stacked(uid, datapoint):
+    filename = str(uid) + "_" + str(datapoint)
+    filepath = "./www/static/img/" + filename
+    # Getting start and stop parameters from url
+    start = request.args.get('start')
+    stop = request.args.get('stop')
+    # Config object
+    config = infoset.config['GLOBAL_CONFIG']
+
+    datapoint_list = [242, 243, 244, 246, 247]
+    values = []
+    for datapoint in datapoint_list:
+        get_idx = GetIDX(datapoint, config)
+        data = get_idx.everything()
+        values.append(data)
+    new_chart = StackedChart(values)
+    if start and stop:
+        chart = Chart(datapoint, config,
+                      image_width=12,
+                      image_height=4,
+                      text_color='#272727',
+                      start=int(start),
+                      stop=int(stop))
+    else:
+        chart = Chart(datapoint, config,
+                      image_width=12,
+                      image_height=4,
+                      text_color='#272727')
+
+    # create specific chart
+    single_datapoint = GetSingleDataPoint(datapoint, config)
+    agent_label = single_datapoint.agent_label()
+    color_palette = ColorWheel(agent_label)
+
+    png_output = new_chart.create_stacked("Stacked", "test", "#000000", filepath)
     response = make_response(png_output.getvalue())
     response.headers['Content-Type'] = 'image/png'
     return response

@@ -288,6 +288,7 @@ class Chart(object):
         fig.patch.set_facecolor('white')
         fig.savefig(filepath, bbox_inches='tight')
         canvas = FigureCanvas(fig)
+        plt.close(fig)
         png_output = io.BytesIO()
         canvas.print_png(png_output)
         return png_output
@@ -452,3 +453,36 @@ def _timestamps2dates(data):
 
     # Return
     return (x_values, y_values)
+
+class StackedChart(object):
+
+    def __init__(self, data):
+        self.data = data
+
+    def create_stacked(self, name, title, color, filepath):
+        # Random colors for each plot
+        fig = plt.figure()
+        
+        axes = fig.add_subplot()
+        next_y_list = []
+        y_list = []
+        colors= []
+        prop_iter = iter(plt.rcParams['axes.prop_cycle'])
+        count=0
+        
+        for datapoint in self.data:
+            (x_values, y_values) = _timestamps2dates(datapoint) 
+            y_list.append(y_values)
+            colors.append(next(prop_iter)['color'])
+        
+        plt.stackplot(x_values,
+            y_list,
+            colors=colors)
+
+        # Create image file
+        fig.patch.set_facecolor('white')
+        fig.savefig(filepath, bbox_inches='tight')
+        canvas=FigureCanvas(fig)
+        png_output = io.BytesIO()
+        canvas.print_png(png_output)
+        return png_output
