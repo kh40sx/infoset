@@ -48,18 +48,18 @@ def index():
 
     """
     # Quick fix until host table implmented
-    uid = "af14cb9149d49362d70ea708375455c5cd90795cc039de08e3e751873721c302"
-    get_agents = GetAgents(config)
+    uid = "821083a01868b2763d52b3bf0f2e1e323ad99e40113da72880400c8e6d9d4ccd"
+    get_agents = GetAgents()
     agent_list = []
     agent_list = get_agents.get_all()
-    
-    agent = Get(uid, config)
+
+    agent = Get(uid)
     host = agent.hostname()
-    pprint.pprint(agent.idx()) 
-    datapoints = GetDataPoint(agent.idx(), config)
+    pprint.pprint(agent.idx())
+    datapoints = GetDataPoint(agent.idx())
     data_point_dict = datapoints.everything()
     pprint.pprint(data_point_dict)
-    
+
     return render_template('index.html',
                            data=data_point_dict,
                            agent_list=agent_list,
@@ -174,7 +174,6 @@ def receive(uid):
         json.dump(data, temp_file)
         temp_file.close()
 
-    print("Agent:%s recieved" % uid)
     return "Received"
 
 
@@ -249,9 +248,9 @@ def fetch_graph(uid, datapoint):
                       text_color='#272727')
 
     # create specific chart
-    single_datapoint = GetSingleDataPoint(datapoint, config)
+    single_datapoint = GetSingleDataPoint(datapoint)
     agent_label = single_datapoint.agent_label()
-    color_palette = ColorWheel(agent_label) 
+    color_palette = ColorWheel(agent_label)
     png_output = chart.api_single_line(
         agent_label, 'Data',
         color_palette.getScheme(), filepath,

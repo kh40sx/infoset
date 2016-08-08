@@ -143,12 +143,11 @@ class GetAgents(object):
 
     """
 
-    def __init__(self, config):
+    def __init__(self):
         """Function for intializing the class.
 
         Args:
             uid: UID of agent
-            config: Config object
 
         Returns:
             None
@@ -171,7 +170,7 @@ class GetAgents(object):
             'FROM iset_agent ')
 
         # Do query and get results
-        database = db.Database(config)
+        database = db.Database()
         query_results = database.query(sql_query, 1038)
         # Massage data
         for row in query_results:

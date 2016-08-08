@@ -243,7 +243,7 @@ class Chart(object):
         # Apply image specific settings that are not part of subplots and
         # require custom variables
         #####################################################################
-        
+
 
         # Define chart title
         axes.set_title(
@@ -261,7 +261,7 @@ class Chart(object):
             'Values',
             color=self.paramx.text_color,
             size=self.paramx.font_size_label)
-        
+
         #####################################################################
         # Create chart for each sub plot.
         #####################################################################

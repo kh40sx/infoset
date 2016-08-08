@@ -71,7 +71,7 @@ class GetIDX(object):
             Data.idx_datapoint == idx))
 
         # Massage data
-        if query.count() == 1:
+        if query.count() > 0:
             for instance in query:
                 self.data[instance.timestamp] = instance.value
         else:
