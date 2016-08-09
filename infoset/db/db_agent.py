@@ -9,7 +9,7 @@ from collections import defaultdict
 # Infoset libraries
 from infoset.utils import log
 from infoset.db import db
-from infoset.db.db_orm import Agent
+from infoset.db.db_orm import Agent, Datapoint
 
 
 class Get(object):
@@ -194,7 +194,7 @@ class GetAgents(object):
         for row in query_results:
             # uid found?
             if not row[0]:
-                log_message = ('uid %s not found.') % (uid)
+                log_message = ('No Agents Found')
                 log.log2die(1049, log_message)
 
             # Assign values
@@ -209,9 +209,17 @@ class GetAgents(object):
             self.agent_list.append(local_dict.copy())
 
     def get_all(self):
+        """Return all agent data.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
         value = self.agent_list
         return value
-
 
 
 class GetDataPoint(object):
@@ -227,7 +235,7 @@ class GetDataPoint(object):
 
     """
 
-    def __init__(self, idx):
+    def __init__(self, idx_agent):
         """Function for intializing the class.
 
         Args:
@@ -239,8 +247,8 @@ class GetDataPoint(object):
         """
         # Initialize important variables
         self.data_point_dict = defaultdict(dict)
-        self.idx = idx
 
+        """
         # Prepare SQL query to read a record from the database.
         # Only active oids
         sql_query = (
@@ -262,6 +270,26 @@ class GetDataPoint(object):
                 jm_general.die(1050, log_message)
                 # Assign values
             self.data_point_dict[row[3]] = [row[0], row[6]]
+        """
+        # Get the result
+        database = db.Database()
+        session = database.session()
+        result = session.query(Datapoint).filter(
+            Datapoint.idx_agent == idx_agent)
+
+        # Massage data
+        if result.count() > 0:
+            for instance in result:
+                did = instance.id.decode()
+                idx = instance.idx
+                uncharted_value = instance.uncharted_value
+                self.data_point_dict[did] = (idx, uncharted_value)
+        else:
+            log_message = ('Agent idx %s not found.') % (idx_agent)
+            log.log2die(1050, log_message)
+
+        # Return the session to the database pool after processing
+        session.close()
 
     def everything(self):
         """Get all datapoints.

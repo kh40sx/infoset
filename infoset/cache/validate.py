@@ -50,7 +50,7 @@ class ValidateCache(object):
 
         # Filenames must start with a numeric timestamp and #
         # end with a hex string. This will be tested later
-        regex = re.compile(r'^\d+_[0-9a-f]+.json')
+        regex = re.compile(r'^\d+_[0-9a-f]+_[0-9a-f]+.json')
 
         if filepath is not None:
             # Try reading file if filename format is OK
@@ -152,7 +152,7 @@ class ValidateCache(object):
             # Parse filename for information
             if self.filename is not None:
                 (name, _) = self.filename.split('.')
-                (tstamp, uid) = name.split('_')
+                (tstamp, uid, _) = name.split('_')
                 timestamp = int(tstamp)
 
                 # Double check that the UID and timestamp in the

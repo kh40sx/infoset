@@ -3,22 +3,30 @@
 Contains all routes that infoset's Flask webserver uses
 
 """
+# Standard imports
 import yaml
 import time
 import json
 import pprint
+from os import listdir, walk, path, makedirs, remove
+
+# Pip imports
+from flask import render_template, jsonify, send_file, request, make_response
+
+# Infoset imports
 from infoset.db.db_agent import Get
 from infoset.db.db_data import GetIDX
 from infoset.db.db_agent import GetDataPoint
 from infoset.db.db_agent import GetAgents
+from infoset.db.db_orm import Agent
 from infoset.db.db_datapoint import GetSingleDataPoint
 from infoset.db.db_chart import StackedChart
 from infoset.db.db_chart import Chart
+from infoset.db.db import Database
 from infoset.utils import TimeStamp
 from infoset.utils import ColorWheel
-from flask import render_template, jsonify, send_file, request, make_response
+from infoset.utils import jm_general
 from www import infoset
-from os import listdir, walk, path, makedirs, remove
 # Matplotlib imports, Do not edit order
 """
 import numpy as np
@@ -48,8 +56,13 @@ def index():
         Home Page
 
     """
-    # Quick fix until host table implmented
-    uid = "821083a01868b2763d52b3bf0f2e1e323ad99e40113da72880400c8e6d9d4ccd"
+    # Get UID
+    database = Database()
+    session = database.session()
+    record = session.query(Agent.id).filter(Agent.idx == 1).one()
+    uid = record.id
+    session.close()
+
     get_agents = GetAgents()
     agent_list = []
     agent_list = get_agents.get_all()
@@ -142,12 +155,23 @@ def layerTwo(host):
 
 @infoset.route('/graphs/<uid>/<datapoint>', methods=["GET", "POST"])
 def graphs(uid, datapoint):
+    """Create graphs.
+
+    Args:
+        uid: Agent uid
+        datpoint: Datapoint idx
+
+    Returns:
+        None
+
+    """
     preset = TimeStamp()
     timestamps = preset.getTimes()
     return render_template('graphs.html',
                            timestamps=timestamps,
                            uid=uid,
                            datapoint=datapoint)
+
 
 @infoset.route('/receive/<uid>', methods=["POST"])
 def receive(uid):
@@ -167,8 +191,12 @@ def receive(uid):
     # Get Json from incoming agent POST
     data = request.json
     timestamp = data['timestamp']
-    data_uid = data['uid']
-    json_path = cache_dir + ("/%s_%s.json") % (timestamp, str(data_uid))
+    uid = data['uid']
+    hostname = data['hostname']
+
+    # Create a hash of the hostname
+    host_hash = jm_general.hashstring(hostname, sha=1)
+    json_path = ('%s/%s_%s_%s.json') % (cache_dir, timestamp, uid, host_hash)
 
     with open(json_path, "w+") as temp_file:
         json.dump(data, temp_file)
@@ -225,13 +253,26 @@ def fetch_dp(uid, datapoint):
         """
     return jsonify(data_values)
 
+
 @infoset.route('/fetch/agent/graph/<uid>/<datapoint>', methods=["GET", "POST"])
 def fetch_graph(uid, datapoint):
+    """Create graph.
+
+    Args:
+        uid: Agent uid
+        datpoint: Datapoint idx
+
+    Returns:
+        None
+
+    """
     filename = str(uid) + "_" + str(datapoint)
     filepath = "./www/static/img/" + filename
+
     # Getting start and stop parameters from url
     start = request.args.get('start')
     stop = request.args.get('stop')
+
     # Config object
     config = infoset.config['GLOBAL_CONFIG']
     if start and stop:
@@ -260,17 +301,31 @@ def fetch_graph(uid, datapoint):
     return response
 
 
-@infoset.route('/fetch/agent/graph/stacked/<uid>/<datapoint>', methods=["GET", "POST"])
+@infoset.route(
+    '/fetch/agent/graph/stacked/<uid>/<datapoint>', methods=["GET", "POST"])
 def fetch_graph_stacked(uid, datapoint):
+    """Process stacked charts.
+
+    Args:
+        uid: Agent uid
+        datpoint: Datapoint idx
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
     filename = str(uid) + "_" + str(datapoint)
     filepath = "./www/static/img/" + filename
+
     # Getting start and stop parameters from url
     start = request.args.get('start')
     stop = request.args.get('stop')
+
     # Config object
     config = infoset.config['GLOBAL_CONFIG']
 
-    datapoint_list = [86,82]
+    datapoint_list = [86, 82]
     values = []
     for datapoint in datapoint_list:
         get_idx = GetIDX(datapoint)
@@ -296,7 +351,8 @@ def fetch_graph_stacked(uid, datapoint):
     agent_label = single_datapoint.agent_label()
     color_palette = ColorWheel(agent_label)
 
-    png_output = new_chart.create_stacked("Stacked", "test", "#000000", filepath)
+    png_output = new_chart.create_stacked(
+        "Stacked", "test", "#000000", filepath)
     response = make_response(png_output.getvalue())
     response.headers['Content-Type'] = 'image/png'
     return response

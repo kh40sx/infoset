@@ -16,7 +16,6 @@ import json
 import logging
 import time
 from collections import defaultdict
-import hashlib
 from random import random
 import argparse
 
@@ -257,8 +256,9 @@ class Agent(object):
         except:
             if save is True:
                 # Create a unique very long filename to reduce risk of
-                filename = ('%s/%s_%s.json') % (
-                    self.cache_dir, timestamp, uid)
+                hosthash = jm_general.hashstring(self.data['hostname'], sha=1)
+                filename = ('%s/%s_%s_%s.json') % (
+                    self.cache_dir, timestamp, uid, hosthash)
 
                 # Save data
                 with open(filename, 'w') as f_handle:
@@ -366,7 +366,7 @@ class AgentDaemon(Daemon):
         while True:
             time.sleep(1)
             self.poller.query()
-            time.sleep(300)
+            time.sleep(299)
 
 
 class AgentCLI(object):
@@ -524,9 +524,7 @@ def get_uid(hostname):
         # Create a UID and save
         prehash = ('%s%s%s%s%s') % (
             random(), random(), random(), random(), time.time())
-        hasher = hashlib.sha256()
-        hasher.update(bytes(prehash.encode()))
-        uid = hasher.hexdigest()
+        uid = jm_general.hashstring(prehash)
 
         # Save UID
         with open(filename, 'w+') as env:
