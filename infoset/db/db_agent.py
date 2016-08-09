@@ -271,6 +271,7 @@ class GetDataPoint(object):
                 # Assign values
             self.data_point_dict[row[3]] = [row[0], row[6]]
         """
+
         # Get the result
         database = db.Database()
         session = database.session()
