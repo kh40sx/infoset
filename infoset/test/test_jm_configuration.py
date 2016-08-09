@@ -297,13 +297,6 @@ class TestConfigAgent(unittest.TestCase):
         expected = self.configuration_dict['agent_cache_directory']
         self.assertEqual(result, expected)
 
-    def test_agent_source_descriptions(self):
-        """Testing for agent_source_descriptions."""
-        # Initializing key variables
-        result = self.testobj.agent_source_descriptions()
-        expected = self.configuration_dict['agent_source_descriptions']
-        self.assertEqual(result, expected)
-
     def test_agent_snmp_hostnames(self):
         """Testing for agent_snmp_hostnames."""
         # Initializing key variables
