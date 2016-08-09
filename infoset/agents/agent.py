@@ -28,6 +28,7 @@ from infoset.utils import hidden
 from infoset.utils import Daemon
 from infoset.utils import log
 from infoset.utils import jm_general
+from infoset.language import language
 
 
 logging.getLogger('requests').setLevel(logging.WARNING)
@@ -118,7 +119,7 @@ class Agent(object):
 
         """
         # Initialize key variables
-        descriptions = self.config.agent_source_descriptions()
+        agent_name = self.name()
         output = {}
         value_tuples = []
         index = 0
@@ -138,10 +139,8 @@ class Agent(object):
             value_sources = data
 
         # Get a description to use for label value
-        if label in descriptions:
-            description = descriptions[label]
-        else:
-            description = None
+        lang = language.Agent(agent_name)
+        description = lang.label_description(label)
 
         #####################################################################
         # This section fills self.data with lists of tuples keyed by "label"

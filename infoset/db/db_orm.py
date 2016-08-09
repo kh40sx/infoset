@@ -5,24 +5,15 @@ Manages connection pooling among other things.
 
 """
 
-# Standard libraries
-from datetime import datetime
-import os
-
 # SQLobject stuff
-from sqlalchemy import UniqueConstraint, PrimaryKeyConstraint, func, text
+from sqlalchemy import UniqueConstraint, PrimaryKeyConstraint, text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.mysql import BIGINT, TIMESTAMP, INTEGER
-from sqlalchemy.dialects.mysql import FLOAT, VARCHAR
-from sqlalchemy import Table, Column, create_engine
-from sqlalchemy import Integer, String, ForeignKey
-from sqlalchemy.orm import sessionmaker, relationship, backref
+from sqlalchemy.dialects.mysql import BIGINT, DATETIME, INTEGER
+from sqlalchemy.dialects.mysql import FLOAT, VARBINARY
+from sqlalchemy import Column
+from sqlalchemy import ForeignKey
 
 BASE = declarative_base()
-
-# Infoset libraries
-from infoset.utils import jm_configuration
-from infoset.utils import log
 
 
 class Data(BASE):
@@ -64,13 +55,13 @@ class Agent(BASE):
         BIGINT(unsigned=True), primary_key=True,
         autoincrement=True, nullable=False)
 
-    id = Column(VARCHAR(64), unique=True, nullable=True, default=None)
+    id = Column(VARBINARY(512), unique=True, nullable=True, default=None)
 
-    name = Column(VARCHAR(64), nullable=True, default=None)
+    name = Column(VARBINARY(512), nullable=True, default=None)
 
-    description = Column(VARCHAR(64), nullable=True, default=None)
+    description = Column(VARBINARY(512), nullable=True, default=None)
 
-    hostname = Column(VARCHAR(75), nullable=True, default=None)
+    hostname = Column(VARBINARY(512), nullable=True, default=None)
 
     enabled = Column(INTEGER(unsigned=True), server_default='1')
 
@@ -78,11 +69,11 @@ class Agent(BASE):
         BIGINT(unsigned=True), nullable=False, server_default='0')
 
     ts_modified = Column(
-        TIMESTAMP, server_default=text(
+        DATETIME, server_default=text(
             'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
 
     ts_created = Column(
-        TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
 
 
 class Datapoint(BASE):
@@ -104,15 +95,15 @@ class Datapoint(BASE):
         BIGINT(unsigned=True), ForeignKey('iset_agent.idx'),
         nullable=False, server_default='1')
 
-    id = Column(VARCHAR(64), unique=True, nullable=True, default=None)
+    id = Column(VARBINARY(512), unique=True, nullable=True, default=None)
 
-    agent_label = Column(VARCHAR(64), nullable=True, default=None)
+    agent_label = Column(VARBINARY(512), nullable=True, default=None)
 
-    agent_source = Column(VARCHAR(128), nullable=True, default=None)
+    agent_source = Column(VARBINARY(512), nullable=True, default=None)
 
     enabled = Column(INTEGER(unsigned=True), server_default='1')
 
-    uncharted_value = Column(VARCHAR(128), nullable=True, default=None)
+    uncharted_value = Column(VARBINARY(512), nullable=True, default=None)
 
     base_type = Column(INTEGER(unsigned=True), server_default='1')
 
@@ -122,8 +113,8 @@ class Datapoint(BASE):
         BIGINT(unsigned=True), nullable=False, server_default='0')
 
     ts_modified = Column(
-        TIMESTAMP, server_default=text(
+        DATETIME, server_default=text(
             'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
 
     ts_created = Column(
-        TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))

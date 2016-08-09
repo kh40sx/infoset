@@ -2,9 +2,12 @@
 
 """Class to process connection."""
 
+from sqlalchemy import and_
+
 # Infoset libraries
 from infoset.utils import log
 from infoset.db import POOL
+from infoset.db.db_orm import Agent
 
 
 class Database(object):
@@ -204,3 +207,68 @@ class Database(object):
 
         # disconnect from server
         session.close()
+
+    def add(self, record, error_code):
+        """Add a record to the database.
+
+        Args:
+            record: Record object
+            error_code: Error number to use if one occurs
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        session = self.session()
+
+        # Do add
+        try:
+            # Commit change
+            session.add(record)
+            session.commit()
+
+        except Exception as exception_error:
+            session.rollback()
+            log_message = (
+                'Unable to modify database connection. '
+                'Error: \"%s\"') % (exception_error)
+            log.log2die(error_code, log_message)
+        except:
+            session.rollback()
+            log_message = ('Unexpected database exception')
+            log.log2die(error_code, log_message)
+
+        # disconnect from server
+        session.close()
+
+
+def connectivity():
+    """Check connectivity to the database.
+
+    Args:
+        None
+
+    Returns:
+        valid: True if connectivity is OK
+
+    """
+    # Initialize key variables
+    valid = False
+
+    # Do test
+    session = Database().session()
+
+    try:
+        result = session.query(Agent.id).filter(
+            and_(Agent.id == '-1'.encode(), Agent.idx == -1))
+        for _ in result:
+            break
+        valid = True
+    except:
+        pass
+
+    session.close()
+
+    # Return
+    return valid

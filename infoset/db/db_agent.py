@@ -9,7 +9,6 @@ from collections import defaultdict
 # Infoset libraries
 from infoset.utils import log
 from infoset.db import db
-from infoset.db import POOL
 from infoset.db.db_orm import Agent
 
 
@@ -41,21 +40,26 @@ class Get(object):
         self.uid = uid
 
         # Establish a database session
-        session = POOL()
-        query = session.query(Agent).filter(Agent.id == uid)
+        database = db.Database()
+        session = database.session()
+        result = session.query(Agent).filter(Agent.id == uid)
 
         # Massage data
-        if query.count() == 1:
-            for instance in query:
+        if result.count() == 1:
+            for instance in result:
                 self.data_dict['idx'] = instance.idx
                 self.data_dict['name'] = instance.name
                 self.data_dict['description'] = instance.description
                 self.data_dict['hostname'] = instance.hostname
                 self.data_dict['enabled'] = instance.enabled
+                self.data_dict['last_timestamp'] = instance.last_timestamp
                 break
         else:
             log_message = ('uid %s not found.') % (uid)
             log.log2die(1049, log_message)
+
+        # Return the session to the database pool after processing
+        session.close()
 
     def idx(self):
         """Get idx value.
@@ -127,6 +131,20 @@ class Get(object):
         value = bool(self.data_dict['enabled'])
 
         # Return
+        return value
+
+    def last_timestamp(self):
+        """Get agent last_timestamp.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['last_timestamp']
         return value
 
 
@@ -258,3 +276,35 @@ class GetDataPoint(object):
         # Return
         value = self.data_point_dict
         return value
+
+
+def uid_exists(uid):
+    """Determine whether the UID exists.
+
+    Args:
+        uid: UID value for agent
+
+    Returns:
+        found: True if found
+
+    """
+    # Initialize key variables
+    found = False
+
+    # Establish a database session
+    database = db.Database()
+    session = database.session()
+    result = session.query(Agent.id).filter(Agent.id == uid)
+
+    # Massage data
+    if result.count() == 1:
+        for instance in result:
+            _ = instance.id
+            break
+        found = True
+
+    # Return the session to the database pool after processing
+    session.close()
+
+    # Return
+    return found

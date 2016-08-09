@@ -1,0 +1,13 @@
+agent_source_descriptions:
+    ifHCInOctets:
+        units: None
+        description: Input Bandwidth (64 bit)
+    ifHCOutOctets:
+        units: None
+        description: Output Bandwidth (64 bit)
+    ifInOctets:
+        units: None
+        description: Input Bandwidth
+    ifOutOctets:
+        units: None
+        description: Output Bandwidth

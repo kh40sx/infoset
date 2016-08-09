@@ -14,11 +14,13 @@ from collections import defaultdict
 import queue as Queue
 import threading
 import re
+from sqlalchemy import and_
 
 # Infoset libraries
 from infoset.db import db
-from infoset.db.db_orm import Data, Datapoint
+from infoset.db.db_orm import Data, Datapoint, Agent
 from infoset.db import db_agent as agent
+from infoset.db import db_datapoint as dpoint
 from infoset.utils import log
 from infoset.cache import drain
 from infoset.utils import hidden
@@ -27,8 +29,8 @@ from infoset.utils import hidden
 THREAD_QUEUE = Queue.Queue()
 
 
-class FillDB(threading.Thread):
-    """Threaded polling.
+class ProcessUID(threading.Thread):
+    """Threaded ingestion of agent files.
 
     Graciously modified from:
     http://www.ibm.com/developerworks/aix/library/au-threadingpython/
@@ -48,8 +50,13 @@ class FillDB(threading.Thread):
             uid = data_dict['uid']
             metadata = data_dict['metadata']
             config = data_dict['config']
-            agents = data_dict['agents']
-            datapoints = data_dict['datapoints']
+
+            # Update agent database table if not there
+            if agent.uid_exists(uid) is True:
+                agent_object = agent.Get(uid)
+                last_timestamp = agent_object.last_timestamp()
+            else:
+                last_timestamp = 0
 
             # Initialize other values
             max_timestamp = 0
@@ -57,7 +64,7 @@ class FillDB(threading.Thread):
             # Sort metadata by timestamp
             metadata.sort()
 
-            # Process file for each timestamp
+            # Process file for each timestamp, starting from the oldes file
             for (timestamp, filepath) in metadata:
                 # Read in data
                 ingest = drain.Drain(filepath)
@@ -70,34 +77,28 @@ class FillDB(threading.Thread):
                         'Cache ingest file %s is invalid. Moving.'
                         '') % (filepath)
                     log.log2warn(1054, log_message)
-                    shutil.move(
+                    shutil.copy(
                         filepath, config.ingest_failures_directory())
+                    os.remove(filepath)
                     continue
 
-                # Update agent table if not there
-                if ingest.uid() not in agents:
-                    _insert_agent(
-                        ingest.uid(),
-                        ingest.agent(),
-                        ingest.hostname()
-                        )
-                    # Append the new insertion to the list
-                    agents.append(ingest.uid())
+                # Make sure timestamp is OK, cannot be older than
+                # the last time the agent's datapoint was updated
+                if timestamp <= last_timestamp:
+                    log_message = (
+                        'Cache ingest file %s previously processed. '
+                        'Outdated agent files may have been copied to the '
+                        'ingest directory. Moving.'
+                        '') % (filepath)
+                    log.log2warn(1040, log_message)
+                    shutil.copy(
+                        filepath, config.ingest_failures_directory())
+                    os.remove(filepath)
+                    continue
 
-                # Update datapoint metadata if not there
-                for item in ingest.sources():
-                    did = item[1]
-                    if did not in datapoints:
-                        _insert_datapoint(item)
-                        # Append the new insertion to the list
-                        datapoints.append(did)
-
-                # Create map of DIDs to database row index values
-                mapping = _datapoints_by_did()
-
-                # Update chartable data
-                _update_chartable(mapping, ingest)
-                _update_unchartable(mapping, ingest)
+                # Update database
+                dbase = UpdateDB(ingest)
+                dbase.update()
 
                 # Get the max timestamp
                 max_timestamp = max(timestamp, max_timestamp)
@@ -112,170 +113,215 @@ class FillDB(threading.Thread):
             self.queue.task_done()
 
 
-def _update_chartable(mapping, ingest):
-    """Insert data into the database "iset_data" table.
+class UpdateDB(object):
+    """Update database with agent data."""
 
-    Args:
-        mapping: Map of DIDs to database row index values
-        ingest: Drain object
+    def __init__(self, ingest):
+        """Instantiate the class.
 
-    Returns:
-        None
+        Args:
+            ingest: Drain object
 
-    """
-    # Initialize key variables
-    data = ingest.chartable()
-    data_list = []
-    timestamp_tracker = {}
+        Returns:
+            None
 
-    # Update data
-    for item in data:
-        # Process each datapoint item found
-        (_, did, tuple_value, timestamp) = item
-        idx_datapoint = int(mapping[did][0])
-        idx_agent = int(mapping[did][1])
-        last_timestamp = int(mapping[did][2])
-        value = float(tuple_value)
+        """
+        self.ingest = ingest
 
-        # Only update with data collected after
-        # the most recent update. Don't do anything more
-        if timestamp > last_timestamp:
-            data_list.append(
-                Data(
-                    idx_datapoint=idx_datapoint,
-                    idx_agent=idx_agent,
-                    value=value,
-                    timestamp=timestamp
-                )
-            )
+    def update(self):
+        """Update the database.
 
-            # Update DID's last updated timestamp
-            if idx_datapoint in timestamp_tracker:
-                timestamp_tracker[idx_datapoint] = max(
-                    timestamp, timestamp_tracker[idx_datapoint])
-            else:
-                timestamp_tracker[idx_datapoint] = timestamp
+        Args:
+            None
 
-    # Update if there is data
-    if bool(data_list) is True:
-        # Do performance data update
-        database = db.Database()
-        database.add_all(data_list, 1056)
+        Returns:
+            None
 
-        # Change the last updated timestamp
-        for idx_datapoint, last_timestamp in timestamp_tracker.items():
-            # Prepare SQL query to read a record from the database.
-            """
-            sql_modify = (
-                'UPDATE iset_datapoint SET last_timestamp=%s '
-                'WHERE iset_datapoint.idx=%s'
-                '') % (last_timestamp, idx_datapoint)
-            database.modify(sql_modify, 1057)
-            """
+        """
+        # Initialize key variables
+        uid = self.ingest.uid()
 
+        # Update agent database table if not there
+        if agent.uid_exists(uid) is False:
+            self._insert_agent()
+
+        # Update datapoints if agent is enabled
+        agent_object = agent.Get(uid)
+        if agent_object.enabled() is True:
+            # Update datapoint metadata if not there
+            for item in self.ingest.sources():
+                did = item[1]
+                if dpoint.did_exists(did) is False:
+                    _insert_datapoint(item)
+
+            # Create map of DIDs to database row index values
+            idx_agent = agent_object.idx()
+            mapping = _datapoints_by_did(idx_agent)
+
+            # Update chartable data
+            self._update_chartable(mapping)
+            self._update_unchartable(mapping)
+
+    def _insert_agent(self):
+        """Insert new agent into database.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        uid = self.ingest.uid()
+        agent_name = self.ingest.agent()
+        hostname = self.ingest.hostname()
+
+        # Update record one of the agent table
+        if agent_name == '_infoset'.encode():
             # Update the database
-            session = db.Database().session()
-            record = session.query(
-                Datapoint).filter_by(idx=idx_datapoint).first()
-            record.last_timestamp = last_timestamp
-            database.commit(session, 1057)
-
-        # Report success
-        log_message = (
-            'Successful cache drain for UID %s at timestamp %s') % (
-                ingest.uid(), ingest.timestamp())
-        log.log2quiet(1058, log_message)
-
-
-def _update_unchartable(mapping, ingest):
-    """Update unchartable data into the database "iset_datapoint" table.
-
-    Args:
-        mapping: Map of DIDs to database row index values
-        ingest: Drain object
-
-    Returns:
-        None
-
-    """
-    # Initialize key variables
-    data = ingest.other()
-    data_list = []
-    timestamp_tracker = {}
-
-    # Update data
-    for item in data:
-        # Process each datapoint item found
-        (_, did, tuple_value, timestamp) = item
-        idx_datapoint = int(mapping[did][0])
-        last_timestamp = int(mapping[did][2])
-        value = ('%s') % (tuple_value)
-
-        # Only update with data collected after
-        # the most recent update. Don't do anything more
-        if timestamp > last_timestamp:
-            data_list.append(
-                (idx_datapoint, value)
-            )
-
-            # Update DID's last updated timestamp
-            if idx_datapoint in timestamp_tracker:
-                timestamp_tracker[idx_datapoint] = max(
-                    timestamp, timestamp_tracker[idx_datapoint])
-            else:
-                timestamp_tracker[idx_datapoint] = timestamp
-
-    # Update if there is data
-    if bool(data_list) is True:
-        for item in data_list:
-            (idx_datapoint, value) = item
-            fixed_value = str(value)[0:128]
-
-            # Prepare SQL query to read a record from the database.
-            sql_modify = (
-                'UPDATE iset_datapoint set uncharted_value="%s" WHERE '
-                'idx=%s') % (fixed_value, idx_datapoint)
-
-            # Do query and get results
             database = db.Database()
-            database.modify(sql_modify, 1037)
-
-        # Change the last updated timestamp
-        for idx_datapoint, last_timestamp in timestamp_tracker.items():
+            session = database.session()
+            record = session.query(Agent).filter(Agent.idx == 1).one()
+            record.id = uid
+            record.hostname = hostname
+            database.commit(session, 1070)
+        else:
             # Prepare SQL query to read a record from the database.
-            sql_modify = (
-                'UPDATE iset_datapoint SET last_timestamp=%s '
-                'WHERE iset_datapoint.idx=%s'
-                '') % (last_timestamp, idx_datapoint)
-            database.modify(sql_modify, 1044)
+            record = Agent(id=uid, name=agent_name, hostname=hostname)
+            database = db.Database()
+            database.add(record, 1033)
 
-        # Report success
-        log_message = (
-            'Successful cache drain (Uncharted Data) '
-            'for UID %s at timestamp %s') % (
-                ingest.uid(), ingest.timestamp())
-        log.log2quiet(1045, log_message)
+    def _update_chartable(self, mapping):
+        """Insert data into the database "iset_data" table.
 
+        Args:
+            mapping: Map of DIDs to database row index values
 
-def _update_agent_last_update(uid, last_timestamp):
-    """Insert new datapoint into database.
+        Returns:
+            None
 
-    Args:
-        uid: UID of agent
-        last_timestamp: The last time a DID for the agent was updated
-            in the database
+        """
+        # Initialize key variables
+        data = self.ingest.chartable()
+        data_list = []
+        timestamp_tracker = {}
 
-    Returns:
-        None
+        # Update data
+        for item in data:
+            # Process each datapoint item found
+            (_, did, string_value, timestamp) = item
+            idx_datapoint = int(mapping[did][0])
+            idx_agent = int(mapping[did][1])
+            last_timestamp = int(mapping[did][2])
+            value = float(string_value)
 
-    """
-    # Initialize key variables
-    sql_modify = (
-        'UPDATE iset_agent SET iset_agent.last_timestamp=%s '
-        'WHERE iset_agent.id="%s"'
-        '') % (last_timestamp, uid)
-    database = db.Database()
-    database.modify(sql_modify, 1055)
+            # Only update with data collected after
+            # the most recent update. Don't do anything more
+            if timestamp > last_timestamp:
+                data_list.append(
+                    Data(
+                        idx_datapoint=idx_datapoint,
+                        idx_agent=idx_agent,
+                        value=value,
+                        timestamp=timestamp
+                    )
+                )
+
+                # Update DID's last updated timestamp
+                if idx_datapoint in timestamp_tracker:
+                    timestamp_tracker[idx_datapoint] = max(
+                        timestamp, timestamp_tracker[idx_datapoint])
+                else:
+                    timestamp_tracker[idx_datapoint] = timestamp
+
+        # Update if there is data
+        if bool(data_list) is True:
+            # Do performance data update
+            database = db.Database()
+            database.add_all(data_list, 1056)
+
+            # Change the last updated timestamp
+            for idx_datapoint, last_timestamp in timestamp_tracker.items():
+                # Update the database
+                database = db.Database()
+                session = database.session()
+                record = session.query(Datapoint).filter(
+                    Datapoint.idx == idx_datapoint)
+                record.last_timestamp = last_timestamp
+                database.commit(session, 1057)
+
+            # Report success
+            log_message = (
+                'Successful cache drain for UID %s at timestamp %s') % (
+                    self.ingest.uid(), self.ingest.timestamp())
+            log.log2quiet(1058, log_message)
+
+    def _update_unchartable(self, mapping):
+        """Update unchartable data into the database "iset_datapoint" table.
+
+        Args:
+            mapping: Map of DIDs to database row index values
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        data = self.ingest.other()
+        data_list = []
+        timestamp_tracker = {}
+
+        # Update data
+        for item in data:
+            # Process each datapoint item found
+            (_, did, value, timestamp) = item
+            idx_datapoint = int(mapping[did][0])
+            last_timestamp = int(mapping[did][2])
+
+            # Only update with data collected after
+            # the most recent update. Don't do anything more
+            if timestamp > last_timestamp:
+                data_list.append(
+                    (idx_datapoint, value)
+                )
+
+                # Update DID's last updated timestamp
+                if idx_datapoint in timestamp_tracker:
+                    timestamp_tracker[idx_datapoint] = max(
+                        timestamp, timestamp_tracker[idx_datapoint])
+                else:
+                    timestamp_tracker[idx_datapoint] = timestamp
+
+        # Update if there is data
+        if bool(data_list) is True:
+            for item in data_list:
+                (idx_datapoint, value) = item
+
+                # Update database
+                database = db.Database()
+                session = database.session()
+                record = session.query(Datapoint).filter(
+                    Datapoint.idx == idx_datapoint).one()
+                record.uncharted_value = value
+                database.commit(session, 1037)
+
+            # Change the last updated timestamp
+            for idx_datapoint, last_timestamp in timestamp_tracker.items():
+                # Update database
+                database = db.Database()
+                session = database.session()
+                record = session.query(Datapoint).filter(
+                    Datapoint.idx == idx_datapoint).one()
+                record.last_timestamp = last_timestamp
+                database.commit(session, 1044)
+
+            # Report success
+            log_message = (
+                'Successful cache drain (Uncharted Data) '
+                'for UID %s at timestamp %s') % (
+                    self.ingest.uid(), self.ingest.timestamp())
+            log.log2quiet(1045, log_message)
 
 
 def _insert_datapoint(metadata):
@@ -296,82 +342,28 @@ def _insert_datapoint(metadata):
 
     """
     # Initialize key variables
-    (uid, did, label, source, _, base_type) = metadata
+    (uid, did, agent_label, agent_source, _, base_type) = metadata
 
     # Get agent index value
     agent_object = agent.Get(uid)
     idx_agent = agent_object.idx()
 
-    # Prepare SQL query to read a record from the database.
-    sql_query = (
-        'INSERT INTO iset_datapoint '
-        '(id, idx_agent, agent_label, agent_source, base_type ) VALUES '
-        '("%s", %d, "%s", "%s", %d)'
-        '') % (did, idx_agent, label, source, base_type)
-
-    # Do query and get results
+    # Insert record
+    record = Datapoint(
+        id=did,
+        idx_agent=idx_agent,
+        agent_label=agent_label,
+        agent_source=agent_source,
+        base_type=base_type)
     database = db.Database()
-    database.modify(sql_query, 1032)
+    database.add(record, 1032)
 
 
-def _insert_agent(uid, name, hostname):
-    """Insert new agent into database.
-
-    Args:
-        uid: Agent uid
-        name: Agent name
-        Hostname: Hostname the agent gets data from
-
-    Returns:
-        None
-
-    """
-    # Prepare SQL query to read a record from the database.
-    sql_query = (
-        'INSERT INTO iset_agent (id, name, hostname) '
-        'VALUES ("%s", "%s", "%s")'
-        '') % (uid, name, hostname)
-
-    # Do query and get results
-    database = db.Database()
-    database.modify(sql_query, 1033)
-
-
-def _datapoints():
-    """Create list of enabled datapoints.
-
-    Args:
-        None
-
-    Returns:
-        data: List of active datapoints
-
-    """
-    # Initialize key variables
-    data = []
-
-    # Prepare SQL query to read a record from the database.
-    sql_query = (
-        'SELECT iset_datapoint.id '
-        'FROM iset_datapoint WHERE (iset_datapoint.enabled=1)')
-
-    # Do query and get results
-    database = db.Database()
-    query_results = database.query(sql_query, 1034)
-
-    # Massage data
-    for row in query_results:
-        data.append(row[0])
-
-    # Return
-    return data
-
-
-def _datapoints_by_did():
+def _datapoints_by_did(idx_agent):
     """Create dict of enabled datapoints and their corresponding indices.
 
     Args:
-        None: Configuration object
+        idx_agent: Index of agent
 
     Returns:
         data: Dict keyed by datapoint ID,
@@ -384,56 +376,46 @@ def _datapoints_by_did():
     # Initialize key variables
     data = {}
 
-    # Prepare SQL query to read a record from the database.
-    sql_query = (
-        'SELECT iset_datapoint.id, iset_datapoint.idx, '
-        'iset_datapoint.idx_agent, iset_datapoint.last_timestamp '
-        'FROM iset_datapoint WHERE (iset_datapoint.enabled=1)')
-
-    # Do query and get results
-    database = db.Database()
-    query_results = database.query(sql_query, 1035)
+    # Update database
+    session = db.Database().session()
+    result = session.query(
+        Datapoint.id, Datapoint.idx,
+        Datapoint.idx_agent, Datapoint.last_timestamp).filter(
+            and_(Datapoint.enabled == 1, Datapoint.idx_agent == idx_agent))
 
     # Massage data
-    for row in query_results:
-        did = row[0]
-        idx = row[1]
-        idx_agent = row[2]
-        last_timestamp = row[3]
+    for instance in result:
+        did = instance.id
+        idx = instance.idx
+        idx_agent = instance.idx_agent
+        last_timestamp = instance.last_timestamp
         data[did] = (idx, idx_agent, last_timestamp)
 
+    # Return the session to the database pool after processing
+    session.close()
+
     # Return
     return data
 
 
-def _agents():
-    """Create list of active agent UIDs.
+def _update_agent_last_update(uid, last_timestamp):
+    """Insert new datapoint into database.
 
     Args:
-        None
+        uid: UID of agent
+        last_timestamp: The last time a DID for the agent was updated
+            in the database
 
     Returns:
-        data: List of active agents
+        None
 
     """
-    # Initialize key variables
-    data = []
-
-    # Prepare SQL query to read a record from the database.
-    sql_query = (
-        'SELECT iset_agent.id '
-        'FROM iset_agent WHERE (iset_agent.enabled=1)')
-
-    # Do query and get results
+    # Update the database
     database = db.Database()
-    query_results = database.query(sql_query, 1036)
-
-    # Massage data
-    for row in query_results:
-        data.append(row[0])
-
-    # Return
-    return data
+    session = database.session()
+    record = session.query(Agent).filter(Agent.id == uid).one()
+    record.last_timestamp = last_timestamp
+    database.commit(session, 1055)
 
 
 def process(config):
@@ -451,13 +433,18 @@ def process(config):
     uid_metadata = defaultdict(lambda: defaultdict(dict))
     cache_dir = config.ingest_cache_directory()
 
+    # Make sure we have database connectivity
+    if db.connectivity() is False:
+        log_message = (
+            'No connectivity to database. Check if running. '
+            'Check database authentication parameters.'
+            '')
+        log.log2warn(1053, log_message)
+        return
+
     # Filenames must start with a numeric timestamp and #
     # end with a hex string. This will be tested later
     regex = re.compile(r'^\d+_[0-9a-f]+.json')
-
-    # Get a list of active agents and datapoints
-    agents = _agents()
-    datapoints = _datapoints()
 
     # Add files in cache directory to list
     all_filenames = [filename for filename in os.listdir(
@@ -483,8 +470,9 @@ def process(config):
 
             # Create a dict of UIDs, timestamps and filepaths
             (name, _) = filename.split('.')
-            (tstamp, uid) = name.split('_')
+            (tstamp, uid_string) = name.split('_')
             timestamp = int(tstamp)
+            uid = uid_string.encode()
             if uid in uid_metadata:
                 uid_metadata[uid].append(
                     (timestamp, filepath))
@@ -500,7 +488,9 @@ def process(config):
             # Return if lock file is present
             log_message = (
                 'Ingest lock file %s exists. Multiple ingest daemons running '
-                'or lost of cache files to ingest. Exiting ingest process. '
+                'or lots of cache files to ingest. Ingester may have died '
+                'catastrophically in the past, in which case the lockfile '
+                'should be deleted. Exiting ingest process. '
                 'Will try again later.'
                 '') % (lockfile)
             log.log2warn(1069, log_message)
@@ -511,7 +501,7 @@ def process(config):
 
         # Spawn a pool of threads, and pass them queue instance
         for _ in range(threads_in_pool):
-            update_thread = FillDB(THREAD_QUEUE)
+            update_thread = ProcessUID(THREAD_QUEUE)
             update_thread.daemon = True
 
             # Sometimes we exhaust the thread abilities of the OS
@@ -551,8 +541,6 @@ def process(config):
             data_dict['uid'] = uid
             data_dict['metadata'] = uid_metadata[uid]
             data_dict['config'] = config
-            data_dict['agents'] = agents
-            data_dict['datapoints'] = datapoints
             THREAD_QUEUE.put(data_dict)
 
         # Wait on the queue until everything has been processed

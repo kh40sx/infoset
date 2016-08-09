@@ -1,6 +1,8 @@
 # Create the database from scratch
 drop database infoset;
-create database infoset;
+create database infoset
+  DEFAULT CHARACTER SET utf8mb4
+  DEFAULT COLLATE utf8mb4_general_ci;
 USE infoset;
 
 # ----------------------------------------------------------------------
@@ -20,24 +22,20 @@ CREATE TABLE iset_data (
 # Create table for agents
 CREATE TABLE iset_agent (
   idx BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  id VARCHAR(64),
-  name VARCHAR(64) DEFAULT NULL,
-  description VARCHAR(64) DEFAULT NULL,
-  hostname VARCHAR(75) DEFAULT NULL,
+  id VARBINARY(512),
+  name VARBINARY(512) DEFAULT NULL,
+  description VARBINARY(512) DEFAULT NULL,
+  hostname VARBINARY(512) DEFAULT NULL,
   enabled INTEGER UNSIGNED DEFAULT 1,
   last_timestamp BIGINT UNSIGNED DEFAULT 0,
-  ts_modified TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-  ts_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  ts_modified DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+  ts_created DATETIME DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY (id),
   PRIMARY KEY (idx)
 ) ENGINE=InnoDB COMMENT='Agent Table' AUTO_INCREMENT=1 ;
 
 # Insert the very first agent, the infoset server
-INSERT INTO iset_agent (id, name, hostname) VALUES ("INFOSET", "INFOSET", "INFOSET");
-
-#CREATE TRIGGER agent_insert_check BEFORE INSERT ON iset_agent
-#  FOR EACH ROW
-#  SET NEW.ts_created = CURRENT_TIMESTAMP;
+INSERT INTO iset_agent (id, name, hostname) VALUES ("infoset", "infoset", "infoset");
 
 # ----------------------------------------------------------------------
 
@@ -45,23 +43,20 @@ INSERT INTO iset_agent (id, name, hostname) VALUES ("INFOSET", "INFOSET", "INFOS
 CREATE TABLE iset_datapoint (
   idx BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   idx_agent BIGINT UNSIGNED NOT NULL DEFAULT 1,
-  id VARCHAR(64),
-  agent_label VARCHAR(64) DEFAULT NULL,
-  agent_source VARCHAR(128) DEFAULT NULL,
+  id VARBINARY(512),
+  agent_label VARBINARY(512) DEFAULT NULL,
+  agent_source VARBINARY(512) DEFAULT NULL,
   enabled INTEGER UNSIGNED DEFAULT 1,
-  uncharted_value VARCHAR(128) DEFAULT NULL,
+  uncharted_value VARBINARY(512) DEFAULT NULL,
   base_type INTEGER UNSIGNED DEFAULT 1,
   multiplier FLOAT DEFAULT 1,
   last_timestamp BIGINT UNSIGNED DEFAULT 0,
-  ts_modified TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-  ts_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  ts_modified DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+  ts_created DATETIME DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY (id),
   UNIQUE KEY (idx, idx_agent),
   PRIMARY KEY (idx)
 ) ENGINE=InnoDB COMMENT='Data Point Table' AUTO_INCREMENT=1 ;
-#CREATE TRIGGER datapoint_insert_check BEFORE INSERT ON iset_datapoint
-#  FOR EACH ROW
-#  SET NEW.ts_created = CURRENT_TIMESTAMP;
 
 # ----------------------------------------------------------------------
 # FOREIGN KEYS
