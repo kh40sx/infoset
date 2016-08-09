@@ -243,7 +243,7 @@ class GetDataPoint(object):
                 log_message = ('uid %s not found.') % (idx)
                 jm_general.die(1050, log_message)
                 # Assign values
-            self.data_point_dict[row[3].decode("utf-8")] = [row[0], row[6]]
+            self.data_point_dict[row[3]] = [row[0], row[6]]
 
     def everything(self):
         """Get all datapoints.

@@ -270,13 +270,14 @@ def fetch_graph_stacked(uid, datapoint):
     # Config object
     config = infoset.config['GLOBAL_CONFIG']
 
-    datapoint_list = [242, 243, 244, 246, 247]
+    datapoint_list = [86,82]
     values = []
     for datapoint in datapoint_list:
-        get_idx = GetIDX(datapoint, config)
+        get_idx = GetIDX(datapoint)
         data = get_idx.everything()
         values.append(data)
     new_chart = StackedChart(values)
+    """
     if start and stop:
         chart = Chart(datapoint, config,
                       image_width=12,
@@ -289,9 +290,9 @@ def fetch_graph_stacked(uid, datapoint):
                       image_width=12,
                       image_height=4,
                       text_color='#272727')
-
+    """
     # create specific chart
-    single_datapoint = GetSingleDataPoint(datapoint, config)
+    single_datapoint = GetSingleDataPoint(datapoint)
     agent_label = single_datapoint.agent_label()
     color_palette = ColorWheel(agent_label)
 

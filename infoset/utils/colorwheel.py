@@ -7,9 +7,10 @@ class ColorWheel(object):
             "disk": "#0291D9",
             "load": "#f37372",
             "cpu": "#009DB2",
-            # "cpu": "#025AD9"
             "network": "#025AD9",
         }
+        self.memory_stacked = ["#00c8a4", "#0291D9", "#f37372", "#009DB2", "#025AD9"]
+        self.network_stacked = ["#00c8a4", "#0291D9", "#f37372", "#009DB2", "#025AD9"]
     
     def getScheme(self):
         if "memory" in self.agent_label:
@@ -22,3 +23,8 @@ class ColorWheel(object):
             return self.color_palette["load"]
         elif "cpu" in self.agent_label:
             return self.color_palette["cpu"]
+
+    def getPalette(self):
+        if "memory" in self.agent_label:
+            return self.memory_stacked
+        

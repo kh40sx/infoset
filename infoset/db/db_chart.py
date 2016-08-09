@@ -3,6 +3,7 @@
 
 import datetime
 import io
+import pprint
 import numpy as np
 
 # MatPlotLib imports. No pop up windows on a web server (order important)
@@ -293,6 +294,31 @@ class Chart(object):
         canvas.print_png(png_output)
         return png_output
 
+    def create_stacked(self, name, title, color, filepath):
+        # Random colors for each plot
+        fig = plt.figure()
+        ax1 = fig.add_subplot()
+        next_y_list = []
+        y_list = []
+        colors= []
+        prop_iter = iter(plt.rcParams['axes.prop_cycle'])
+        count=0
+        for datapoint in self.data:
+            (x_values, y_values) = _timestamps2dates(datapoint)
+            y_list.append(y_values)
+            colors.append(next(prop_iter)['color'])
+        plt.stackplot(x_values,
+            y_list,
+            colors=colors)
+
+        # Create image file
+        fig.patch.set_facecolor('white')
+        fig.savefig(filepath, bbox_inches='tight')
+        canvas=FigureCanvas(fig)
+        png_output = io.BytesIO()
+        canvas.print_png(png_output)
+        return png_output
+
     def _generic_settings(self, fig, axes, ymin=0, ymax=None):
         """Do basic chart setup.
 
@@ -462,19 +488,17 @@ class StackedChart(object):
     def create_stacked(self, name, title, color, filepath):
         # Random colors for each plot
         fig = plt.figure()
-        
-        axes = fig.add_subplot()
+        ax1 = fig.add_subplot()
         next_y_list = []
         y_list = []
         colors= []
         prop_iter = iter(plt.rcParams['axes.prop_cycle'])
         count=0
-        
         for datapoint in self.data:
-            (x_values, y_values) = _timestamps2dates(datapoint) 
+            (x_values, y_values) = _timestamps2dates(datapoint)
             y_list.append(y_values)
             colors.append(next(prop_iter)['color'])
-        
+        pprint.pprint(y_list)
         plt.stackplot(x_values,
             y_list,
             colors=colors)
@@ -486,3 +510,5 @@ class StackedChart(object):
         png_output = io.BytesIO()
         canvas.print_png(png_output)
         return png_output
+
+
