@@ -8,11 +8,11 @@ This could be a modified to be a daemon
 
 # Standard libraries
 import os
-import hashlib
 from collections import defaultdict
 
 # Infoset libraries
 from infoset.utils import log
+from infoset.utils import jm_general
 from infoset.cache import validate
 
 
@@ -385,9 +385,8 @@ def _did(uid, label, index):
     """
     # Initialize key variables
     prehash = ('%s%s%s') % (uid, label, index)
-    hasher = hashlib.sha256()
-    hasher.update(bytes(prehash.encode()))
-    did = _encode(hasher.hexdigest())
+    result = jm_general.hashstring(prehash)
+    did = _encode(result)
 
     # Return
     return did

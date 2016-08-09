@@ -10,7 +10,7 @@ import time
 from infoset.utils import log
 
 
-class Daemon:
+class Daemon(object):
     """A generic daemon class.
 
     Usage: subclass the daemon class and override the run() method.

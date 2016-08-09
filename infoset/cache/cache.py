@@ -444,7 +444,7 @@ def process(config):
 
     # Filenames must start with a numeric timestamp and #
     # end with a hex string. This will be tested later
-    regex = re.compile(r'^\d+_[0-9a-f]+.json')
+    regex = re.compile(r'^\d+_[0-9a-f]+_[0-9a-f]+.json')
 
     # Add files in cache directory to list
     all_filenames = [filename for filename in os.listdir(
@@ -470,14 +470,16 @@ def process(config):
 
             # Create a dict of UIDs, timestamps and filepaths
             (name, _) = filename.split('.')
-            (tstamp, uid_string) = name.split('_')
+            (tstamp, uid_string, hosthash) = name.split('_')
             timestamp = int(tstamp)
             uid = uid_string.encode()
-            if uid in uid_metadata:
-                uid_metadata[uid].append(
-                    (timestamp, filepath))
+
+            # Keep track of hosts and the UIDs that track them
+            # Create a list of timestamp, host filepath tuples for each UID
+            if bool(uid_metadata[hosthash][uid]) is True:
+                uid_metadata[hosthash][uid].append((timestamp, filepath))
             else:
-                uid_metadata[uid] = [(timestamp, filepath)]
+                uid_metadata[hosthash][uid] = [(timestamp, filepath)]
 
     # Spawn processes only if we have files to process
     if bool(uid_metadata.keys()) is True:
@@ -529,19 +531,20 @@ def process(config):
                 log.log2die(1072, log_message)
 
         # Read each cache file
-        for uid in uid_metadata.keys():
-            ################################################################
-            #
-            # Define variables that will be required for the threading
-            # We have to initialize the dict during every loop to prevent
-            # data corruption
-            #
-            ################################################################
-            data_dict = {}
-            data_dict['uid'] = uid
-            data_dict['metadata'] = uid_metadata[uid]
-            data_dict['config'] = config
-            THREAD_QUEUE.put(data_dict)
+        for hosthash in uid_metadata.keys():
+            for uid in uid_metadata[hosthash].keys():
+                ##############################################################
+                #
+                # Define variables that will be required for the threading
+                # We have to initialize the dict during every loop to prevent
+                # data corruption
+                #
+                ##############################################################
+                data_dict = {}
+                data_dict['uid'] = uid
+                data_dict['metadata'] = uid_metadata[hosthash][uid]
+                data_dict['config'] = config
+                THREAD_QUEUE.put(data_dict)
 
         # Wait on the queue until everything has been processed
         THREAD_QUEUE.join()
