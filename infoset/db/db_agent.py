@@ -281,10 +281,10 @@ class GetDataPoint(object):
         # Massage data
         if result.count() > 0:
             for instance in result:
-                did = instance.id.decode()
+                agent_label = instance.agent_label.decode('utf8')
                 idx = instance.idx
                 uncharted_value = instance.uncharted_value
-                self.data_point_dict[did] = (idx, uncharted_value)
+                self.data_point_dict[agent_label] = (idx, uncharted_value)
         else:
             log_message = ('Agent idx %s not found.') % (idx_agent)
             log.log2die(1050, log_message)
