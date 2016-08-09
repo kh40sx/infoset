@@ -7,8 +7,36 @@ import datetime
 import time
 import getpass
 
-# Infoset imports
-# from infoset.utils import jm_configuration
+# Infoset libraries
+from infoset.utils import jm_configuration
+
+
+def check_environment():
+    """Check environmental variables. Die if incorrect.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Get environment
+    if 'INFOSET_CONFIGDIR' not in os.environ:
+        log_message = (
+            'Environment variables $INFOSET_CONFIGDIR needs '
+            'to be set to the infoset configuration directory.')
+        log2die_safe(1041, log_message)
+
+    # Verify configuration directory
+    config_directory = os.environ['INFOSET_CONFIGDIR']
+    if (os.path.exists(config_directory) is False) or (
+            os.path.isdir(config_directory) is False):
+        log_message = (
+            'Environment variables $INFOSET_CONFIGDIR set to '
+            'directory %s that does not exist'
+            '') % (config_directory)
+        log2die_safe(1042, log_message)
 
 
 def log2die_safe(code, message):
@@ -127,44 +155,15 @@ def _update_logfile(message):
 
     """
     # Get log filename
-    # config_dir = os.environ['INFOSET_CONFIGDIR']
-    # config = ConfigCommon(config_dir)
-    # filename = config.log_file()
-    filename = '/tmp/infoset.log'
+    config_directory = os.environ['INFOSET_CONFIGDIR']
+    config = jm_configuration.ConfigCommon(config_directory)
+    filename = config.log_file()
 
     # Write to file
     with open(filename, 'a') as f_handle:
         f_handle.write(
             ('%s\n') % (message)
         )
-
-
-def check_environment():
-    """Check environmental variables. Die if incorrect.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    """
-    # Get environment
-    if 'INFOSET_CONFIGDIR' not in os.environ:
-        log_message = (
-            'Environment variables $INFOSET_CONFIGDIR needs '
-            'to be set to the infoset configuration directory.')
-        log2die_safe(1041, log_message)
-
-    # Get configuration directory
-    config_directory = os.environ['INFOSET_CONFIGDIR']
-    if (os.path.exists(config_directory) is False) or (
-            os.path.isdir(config_directory) is False):
-        log_message = (
-            'Environment variables $INFOSET_CONFIGDIR set to '
-            'directory %s that does not exist'
-            '') % (config_directory)
-        log2die_safe(1042, log_message)
 
 
 def _message(code, message, error=True):
