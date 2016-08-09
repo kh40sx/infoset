@@ -210,11 +210,11 @@ class UpdateDB(object):
         # Update data
         for item in data:
             # Process each datapoint item found
-            (_, did, tuple_value, timestamp) = item
+            (_, did, string_value, timestamp) = item
             idx_datapoint = int(mapping[did][0])
             idx_agent = int(mapping[did][1])
             last_timestamp = int(mapping[did][2])
-            value = float(tuple_value)
+            value = float(string_value)
 
             # Only update with data collected after
             # the most recent update. Don't do anything more
