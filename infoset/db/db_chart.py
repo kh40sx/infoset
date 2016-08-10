@@ -238,7 +238,8 @@ class Chart(object):
         #####################################################################
 
         # Create chart
-        self._generic_settings(fig, axes, ymax=max(y_values) * 1.1)
+        ymax = max(tmpval for tmpval in y_values if tmpval is not None)
+        self._generic_settings(fig, axes, ymax=ymax * 1.1)
 
         #####################################################################
         # Apply image specific settings that are not part of subplots and
@@ -287,7 +288,8 @@ class Chart(object):
 
         # Create image file
         fig.patch.set_facecolor('white')
-        fig.savefig(filepath, bbox_inches='tight')
+        # fig.savefig(filepath, bbox_inches='tight')
+        fig.savefig(filepath)
         canvas = FigureCanvas(fig)
         plt.close(fig)
         png_output = io.BytesIO()
@@ -295,26 +297,35 @@ class Chart(object):
         return png_output
 
     def create_stacked(self, name, title, color, filepath):
+        """Create stacked chart from data.
+
+        Args:
+            title: Title of chart
+            color: Color of chart
+            filepath: Name of output file
+
+        Returns:
+            None
+
+        """
         # Random colors for each plot
         fig = plt.figure()
         ax1 = fig.add_subplot()
         next_y_list = []
         y_list = []
-        colors= []
+        colors = []
         prop_iter = iter(plt.rcParams['axes.prop_cycle'])
-        count=0
+        count = 0
         for datapoint in self.data:
             (x_values, y_values) = _timestamps2dates(datapoint)
             y_list.append(y_values)
             colors.append(next(prop_iter)['color'])
-        plt.stackplot(x_values,
-            y_list,
-            colors=colors)
+        plt.stackplot(x_values, y_list, colors=colors)
 
         # Create image file
         fig.patch.set_facecolor('white')
         fig.savefig(filepath, bbox_inches='tight')
-        canvas=FigureCanvas(fig)
+        canvas = FigureCanvas(fig)
         png_output = io.BytesIO()
         canvas.print_png(png_output)
         return png_output
@@ -387,11 +398,12 @@ def _subplot(data, axes, line_color, fill=True):
     # Convert data dict to two lists for matplotlib
     (x_values, y_values) = data
 
-    # Replace zeros in y_values with numpy NaNs to prevent them from
-    # being charted
-    y_new = [np.nan] * len(y_values)
+    # NOTE!!!
+    # Replace None values in y_values with zeros to prevent line fill
+    # errors
+    y_new = [0] * len(y_values)
     for (idx, item) in enumerate(y_values):
-        if item == 0:
+        if item is None:
             continue
         y_new[idx] = y_values[idx]
 
@@ -414,7 +426,7 @@ def _subplot(data, axes, line_color, fill=True):
         xmin = min(x_values)
         xmax = max(x_values)
         ymin = 0
-        ymax = max(y_values)
+        ymax = max(tmpval for tmpval in y_values if tmpval is not None)
 
         # Create an object that will be used to gradient fill under the line
         zorder = plot_line.get_zorder()
@@ -424,8 +436,7 @@ def _subplot(data, axes, line_color, fill=True):
 
         # Magic to create a polygon shaped area under the curve. This will
         # be used as a bitmap mask later
-        column_stacked_array = np.column_stack(
-            [x_values, y_values])
+        column_stacked_array = np.column_stack([x_values, y_new])
         vstacked_array = np.vstack(
             [[xmin, ymin], column_stacked_array, [xmax, ymin], [xmin, ymin]])
         clip_path = Polygon(
@@ -491,24 +502,20 @@ class StackedChart(object):
         ax1 = fig.add_subplot()
         next_y_list = []
         y_list = []
-        colors= []
+        colors = []
         prop_iter = iter(plt.rcParams['axes.prop_cycle'])
-        count=0
+        count = 0
         for datapoint in self.data:
             (x_values, y_values) = _timestamps2dates(datapoint)
             y_list.append(y_values)
             colors.append(next(prop_iter)['color'])
         pprint.pprint(y_list)
-        plt.stackplot(x_values,
-            y_list,
-            colors=colors)
+        plt.stackplot(x_values, y_list, colors=colors)
 
         # Create image file
         fig.patch.set_facecolor('white')
         fig.savefig(filepath, bbox_inches='tight')
-        canvas=FigureCanvas(fig)
+        canvas = FigureCanvas(fig)
         png_output = io.BytesIO()
         canvas.print_png(png_output)
         return png_output
-
-
