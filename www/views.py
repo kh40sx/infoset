@@ -264,7 +264,7 @@ def fetch_graph(uid, datapoint):
         None
 
     """
-    filename = uid + '_' + datapoint
+    filename = str(uid) + '_' + str(datapoint)
     filepath = './www/static/img/' + filename
 
     # Getting start and stop parameters from url
@@ -294,7 +294,7 @@ def fetch_graph(uid, datapoint):
     #########################################################################
     #########################################################################
     #########################################################################
-    # URL issue needs to be fixed.
+    # URL issue needs to be fixed. It is affecting png filenames too
     #########################################################################
     #########################################################################
     #########################################################################
