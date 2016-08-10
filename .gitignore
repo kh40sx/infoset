@@ -81,6 +81,7 @@ pip-selfcheck.json
 !data/snmp/.gitignore
 !data/aux/.gitignore
 !www/static/.gitignore
+!.gitignore
 
 #############################################################################
 # </Developer Section>
