@@ -35,6 +35,7 @@ __pycache__/
 # Ignore files in these directories and ALL subdirectories
 data/**
 bin/agents/non-standard/**
+www/static/img/**
 
 # Ignore files in these directories,  _BUT_
 # their subdirectories will be placed in the repository.
