@@ -60,7 +60,7 @@ def main():
                 'Verify database is created. '
                 'Verify that the configured database authentication '
                 'is correct.') % (config.db_name())
-            log.log2die(1065, log_message)
+            log.log2die(1036, log_message)
 
         # Apply schemas
         print('Applying Schemas')
@@ -80,7 +80,7 @@ def main():
     pip3 = infoset.utils.jm_general.search_file('pip3')
     if pip3 is None:
         log_message = ('Cannot find python "pip3". Please install.')
-        log.log2die(1066, log_message)
+        log.log2die(1052, log_message)
 
     utils_directory = infoset.utils.__path__[0]
     requirements_file = ('%s/requirements.txt') % (

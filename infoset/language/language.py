@@ -32,18 +32,18 @@ class Agent(object):
         post:
     """
 
-    def __init__(self, agent_name):
+    def __init__(self, encoded_agent_name):
         """Method initializing the class.
 
         Args:
-            agent_name: Name of agent.
+            encoded_agent_name: Name of agent.
 
         Returns:
             None
 
         """
         # Initialize key variables
-        self.agent_name = agent_name
+        self.agent_name = encoded_agent_name.decode()
         self.agent_yaml = None
 
         # Get the language used
@@ -54,7 +54,8 @@ class Agent(object):
         # Determine the agent's language yaml file
         root_directory = language.__path__[0]
         yaml_file = (
-            '%s/%s/agents/%s.yaml') % (root_directory, lang, agent_name)
+            '%s/%s/agents/%s.yaml') % (
+                root_directory, lang, self.agent_name)
 
         # Read the agent's language yaml file
         if os.path.exists(yaml_file) is True:
@@ -64,19 +65,20 @@ class Agent(object):
         else:
             log_message = ('Agent language file %s does not exist.') % (
                 yaml_file)
-            log.log2die(1022, log_message)
+            log.log2die(1034, log_message)
 
-    def label_description(self, agent_label):
+    def label_description(self, encoded_agent_label):
         """Return the name of the agent.
 
         Args:
-            agent_label: Agent label
+            encoded_agent_label: Agent label
 
         Returns:
             value: Label description
 
         """
         # Initialize key variables
+        agent_label = encoded_agent_label.decode()
         value = None
         top_key = 'agent_source_descriptions'
 
@@ -90,17 +92,18 @@ class Agent(object):
         # Return
         return value
 
-    def label_units(self, agent_label):
+    def label_units(self, encoded_agent_label):
         """Return the name of the agent.
 
         Args:
-            agent_label: Agent label
+            encoded_agent_label: Agent label
 
         Returns:
             value: Label units of measure
 
         """
         # Initialize key variables
+        agent_label = encoded_agent_label.decode()
         value = None
         top_key = 'agent_source_descriptions'
 

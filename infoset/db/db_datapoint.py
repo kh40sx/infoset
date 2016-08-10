@@ -346,7 +346,7 @@ def did_exists(did):
     """Determine whether the DID exists.
 
     Args:
-        did: DID value for agent
+        did: DID value for datapoint
 
     Returns:
         found: True if found
@@ -364,6 +364,38 @@ def did_exists(did):
     if result.count() == 1:
         for instance in result:
             _ = instance.id
+            break
+        found = True
+
+    # Return the session to the database pool after processing
+    session.close()
+
+    # Return
+    return found
+
+
+def idx_exists(idx):
+    """Determine whether the idx exists.
+
+    Args:
+        idx: idx value for datapoint
+
+    Returns:
+        found: True if found
+
+    """
+    # Initialize key variables
+    found = False
+
+    # Establish a database session
+    database = db.Database()
+    session = database.session()
+    result = session.query(Datapoint.idx).filter(Datapoint.idx == idx)
+
+    # Massage data
+    if result.count() == 1:
+        for instance in result:
+            _ = instance.idx
             break
         found = True
 

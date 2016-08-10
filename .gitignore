@@ -34,6 +34,7 @@ __pycache__/
 
 # Ignore files in these directories and ALL subdirectories
 data/**
+www/static/img/**
 bin/agents/non-standard/**
 
 # Ignore files in these directories,  _BUT_
@@ -80,6 +81,7 @@ pip-selfcheck.json
 !data/snmp/.gitignore
 !data/aux/.gitignore
 !www/static/.gitignore
+!.gitignore
 
 #############################################################################
 # </Developer Section>

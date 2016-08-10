@@ -2,7 +2,7 @@
 
 {% block body %}
 <script type="text/javascript" charset="utf-8">
-  
+
   function loadImage(agent, datapoint ,width, height, target) {
     $('<img class="center-block" src="/fetch/agent/graph/'+ agent +'/'+ datapoint +'">').load(function() {
       $(this)
@@ -13,16 +13,16 @@
     });
   }
   {% for datapoint_name, value in data.items() %}
-    {% if "memory_active" in datapoint_name %}
+    {% if "memory_active".encode() in datapoint_name %}
       loadImage("{{uid}}", "{{value[0]}}", 900, 258, "#memory-graph-area");
     {% endif %}
-    {% if "cpu_idle" in datapoint_name %}
+    {% if "cpu_idle".encode() in datapoint_name %}
       loadImage("{{uid}}", "{{value[0]}}", 900, 258, "#cpu-graph-area");
     {% endif %}
-    {% if "disk_usage_total" in datapoint_name %}
+    {% if "disk_usage_total".encode() in datapoint_name %}
       loadImage("{{uid}}", "{{value[0]}}", 900, 258, "#disk-graph-area");
     {% endif %}
-    {% if "network_bytes_sent" in datapoint_name %}
+    {% if "network_bytes_sent".encode() in datapoint_name %}
       loadImage("{{uid}}", "{{value[0]}}", 900, 258, "#network-graph-area");
     {% endif %}
   {% endfor %}
@@ -34,9 +34,9 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-lg-12">
-          <p>System: {{data['system'][1]}}</p>      								
+          <p>System: {{data['system'][1]}}</p>
           <p>OS: {{data['distribution'][1]}}</p>
-          <p>Release: {{data['release'][1]}}</p>      								
+          <p>Release: {{data['release'][1]}}</p>
         </div>
       </div>
     </div>
@@ -53,7 +53,7 @@
       </div>
 
       <div class="row" id="memory-graph-area">
-        
+
       </div>
     </div>
   </div>
@@ -67,7 +67,7 @@
       <div class="row">
         <div class="col-lg-12 center-block" id="cpu-graph-area">
         </div>
-      </div>       			
+      </div>
     </div>
   </div>
   <div class="data-box" id="memory-box">
@@ -79,9 +79,9 @@
       </div>
       <div class="row">
         <div class="col-lg-12" id="disk-graph-area">
-          
+
         </div>
-      </div>       			
+      </div>
     </div>
   </div>
   <div class="data-box" id="memory-box">
@@ -93,7 +93,7 @@
       </div>
       <div class="row" id="network-graph-area">
       </div>
-      </div>       			
+      </div>
     </div>
   </div>
 </div>

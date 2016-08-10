@@ -47,21 +47,26 @@ class GetIDX(object):
         datapointer = db_datapoint.GetIDX(idx)
         self.base_type = datapointer.base_type()
 
-        # Redefine start / stop times
+        # Redefine start times
         if start is None:
             self.ts_start = jm_general.normalized_timestamp() - (3600 * 24)
         else:
-            # Adjust for counters
-            if self.base_type == 1:
-                self.ts_start = jm_general.normalized_timestamp(start)
-            else:
-                self.ts_start = start - 300
+            self.ts_start = jm_general.normalized_timestamp(start)
+
+        # Redefine stop times
         if stop is None:
             self.ts_stop = jm_general.normalized_timestamp()
         else:
             self.ts_stop = jm_general.normalized_timestamp(stop)
+
+        # Fix edge cases
         if self.ts_start > self.ts_stop:
             self.ts_start = self.ts_stop
+
+        # Make sure datapoint exists
+        if db_datapoint.idx_exists(idx) is False:
+            log_message = ('idx %s not found.') % (idx)
+            log.log2die(1302, log_message)
 
         # Establish a database session
         database = db.Database()
@@ -72,12 +77,8 @@ class GetIDX(object):
             Data.idx_datapoint == idx))
 
         # Massage data
-        if result.count() > 0:
-            for instance in result:
-                self.data[instance.timestamp] = instance.value
-        else:
-            log_message = ('idx %s not found.') % (idx)
-            log.log2die(1302, log_message)
+        for instance in result:
+            self.data[instance.timestamp] = instance.value
 
         # Return the session to the database pool after processing
         session.close()
@@ -114,10 +115,10 @@ class GetIDX(object):
         # with the agent at some point along the time series.
         if self.base_type == 1:
             values = dict.fromkeys(
-                range(self.ts_start, self.ts_stop + 300, 300), 0)
+                range(self.ts_start, self.ts_stop + 300, 300), None)
         else:
             values = dict.fromkeys(
-                range(self.ts_start + 300, self.ts_stop + 300, 300), 0)
+                range(self.ts_start + 300, self.ts_stop + 300, 300), None)
 
         # Start conversion
         for timestamp, value in sorted(self.data.items()):
