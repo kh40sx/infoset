@@ -17,7 +17,6 @@ from flask import render_template, jsonify, send_file, request, make_response
 from infoset.db.db_agent import Get
 from infoset.db.db_data import GetIDX
 from infoset.db.db_agent import GetDataPoint
-from infoset.db.db_agent import GetAgents
 from infoset.db.db_orm import Agent
 from infoset.db.db_datapoint import GetSingleDataPoint
 from infoset.db.db_chart import StackedChart
@@ -26,6 +25,7 @@ from infoset.db.db import Database
 from infoset.utils import TimeStamp
 from infoset.utils import ColorWheel
 from infoset.utils import jm_general
+from infoset.language import language
 from www import infoset
 # Matplotlib imports, Do not edit order
 """
@@ -56,23 +56,21 @@ def index():
         Home Page
 
     """
-    # Get UID
+    # Get UID of _infoset agent
     database = Database()
     session = database.session()
     record = session.query(Agent.id).filter(Agent.idx == 1).one()
     uid = record.id
     session.close()
 
-    get_agents = GetAgents()
-    agent_list = []
-    agent_list = get_agents.get_all()
-
+    # Get agent information
     agent = Get(uid)
     host = agent.hostname()
+    agent_list = [agent.everything()]
     datapoints = GetDataPoint(agent.idx())
     data_point_dict = datapoints.everything()
-    pprint.pprint(data_point_dict)
 
+    # Render the home page
     return render_template('index.html',
                            data=data_point_dict,
                            agent_list=agent_list,
@@ -166,7 +164,7 @@ def graphs(uid, datapoint):
 
     """
     preset = TimeStamp()
-    timestamps = preset.getTimes()
+    timestamps = preset.get_times()
     return render_template('graphs.html',
                            timestamps=timestamps,
                            uid=uid,
@@ -266,8 +264,8 @@ def fetch_graph(uid, datapoint):
         None
 
     """
-    filename = str(uid) + "_" + str(datapoint)
-    filepath = "./www/static/img/" + filename
+    filename = uid + '_' + datapoint
+    filepath = './www/static/img/' + filename
 
     # Getting start and stop parameters from url
     start = request.args.get('start')
@@ -292,9 +290,29 @@ def fetch_graph(uid, datapoint):
     single_datapoint = GetSingleDataPoint(datapoint)
     agent_label = single_datapoint.agent_label()
     color_palette = ColorWheel(agent_label)
+
+    #########################################################################
+    #########################################################################
+    #########################################################################
+    # URL issue needs to be fixed.
+    #########################################################################
+    #########################################################################
+    #########################################################################
+
+    # Get the label for the chart from the language class
+    # Start with the agent name
+    # For some reason we are posting urls that appear to be bytes
+    # but are in fact strings. This strips the extraneous characters
+    uid_fixed= uid[2:-1].encode()
+    agent_name = Get(uid_fixed).name()
+    lang = language.Agent(agent_name)
+    chart_label = lang.label_description(agent_label)
+
+    # Print the chart
+    # chart_label = agent_label.decode()
     png_output = chart.api_single_line(
-        agent_label, 'Data',
-        color_palette.getScheme(), filepath,
+        chart_label, 'Data',
+        color_palette.get_scheme(), filepath,
     )
     response = make_response(png_output.getvalue())
     response.headers['Content-Type'] = 'image/png'
@@ -315,8 +333,8 @@ def fetch_graph_stacked(uid, datapoint):
 
     """
     # Initialize key variables
-    filename = str(uid) + "_" + str(datapoint)
-    filepath = "./www/static/img/" + filename
+    filename = str(uid) + '_' + str(datapoint)
+    filepath = './www/static/img/' + filename
 
     # Getting start and stop parameters from url
     start = request.args.get('start')
@@ -352,7 +370,7 @@ def fetch_graph_stacked(uid, datapoint):
     color_palette = ColorWheel(agent_label)
 
     png_output = new_chart.create_stacked(
-        "Stacked", "test", "#000000", filepath)
+        'Stacked', 'test', '#000000', filepath)
     response = make_response(png_output.getvalue())
     response.headers['Content-Type'] = 'image/png'
     return response

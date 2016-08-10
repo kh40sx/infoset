@@ -6,6 +6,8 @@ import os
 import datetime
 import time
 import getpass
+import logging
+
 
 # Infoset libraries
 from infoset.utils import jm_configuration
@@ -18,7 +20,7 @@ def check_environment():
         None
 
     Returns:
-        None
+        path: Path to config directory
 
     """
     # Get environment
@@ -37,6 +39,10 @@ def check_environment():
             'directory %s that does not exist'
             '') % (config_directory)
         log2die_safe(1042, log_message)
+
+    # Return
+    path = os.environ['INFOSET_CONFIGDIR']
+    return path
 
 
 def log2die_safe(code, message):
@@ -68,10 +74,8 @@ def log2warn(code, message):
 
     """
     # Initialize key variables
-    output = _message(code, message, True)
-
-    # Log the message
-    _update_logfile(output)
+    warning = ('WARNING - %s') % (message)
+    _logit(code, warning, error=False, verbose=False)
 
 
 def log2quiet(code, message):
@@ -117,53 +121,87 @@ def log2die(code, message):
     _logit(code, message, error=True)
 
 
-def _logit(code, message, error=True, verbose=True):
-    """Log to STDOUT and File.
+def _logit(error_num, error_string, error=False, verbose=False):
+    """Log slurpy errors to file and STDOUT.
 
     Args:
-        code: Error number
-        message: Descriptive error string
+        error_num: Error number
+        error_string: Descriptive error string
         error: Is this an error or not?
-        verbose: Quiet or not
+        verbose: If True print non errors to STDOUT
 
     Returns:
         None
 
     """
-    # Initialize key variables
-    output = _message(code, message, error)
+    # Define key variables
+    app_name = 'infoset'
+    username = getpass.getuser()
+
+    # Get the logging directory
+    config_directory = check_environment()
+    config = jm_configuration.ConfigServer(config_directory)
+    log_file = config.log_file()
+
+    # create logger with 'slurpy'
+    logger_file = logging.getLogger(('%s_file') % (app_name))
+    logger_stdout = logging.getLogger(('%s_console') % (app_name))
+
+    # Set logging levels to file and stdout
+    logger_stdout.setLevel(logging.DEBUG)
+    logger_file.setLevel(logging.DEBUG)
+
+    # create file handler which logs even debug messages
+    file_handle = logging.FileHandler(log_file)
+    file_handle.setLevel(logging.DEBUG)
+
+    # create console handler with a higher log level
+    stdout_handle = logging.StreamHandler()
+    stdout_handle.setLevel(logging.DEBUG)
+
+    # create formatter and add it to the handlers
+    formatter = logging.Formatter('%(asctime)s - %(name)s '
+                                  '- %(levelname)s - %(message)s')
+    file_handle.setFormatter(formatter)
+    stdout_handle.setFormatter(formatter)
+
+    # add the handlers to the logger
+    logger_file.addHandler(file_handle)
+    logger_stdout.addHandler(stdout_handle)
 
     # Log the message
-    if error is True:
-        print(output)
-        _update_logfile(output)
-        sys.exit(3)
+    if error:
+        log_message = (
+            'ERROR [%s] (%sE): %s') % (
+                username, error_num, error_string)
+        logger_stdout.debug('%s', log_message)
+        logger_file.debug(log_message)
+
+        # Remove handler
+        logger_file.removeHandler(file_handle)
+        logger_stdout.removeHandler(stdout_handle)
+
+        # Close handler
+        file_handle.close()
+        stdout_handle.close()
+
+        # All done
+        sys.exit(2)
     else:
-        if verbose is True:
-            print(output)
-        _update_logfile(output)
+        log_message = (
+            'STATUS [%s] (%sS): %s') % (
+                username, error_num, error_string)
+        logger_file.debug(log_message)
+        if verbose:
+            logger_stdout.debug('%s', log_message)
 
+    # Remove handler
+    logger_file.removeHandler(file_handle)
+    logger_stdout.removeHandler(stdout_handle)
 
-def _update_logfile(message):
-    """Write message to logfile.
-
-    Args:
-        message: Message to write
-
-    Returns:
-        None
-
-    """
-    # Get log filename
-    config_directory = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.ConfigCommon(config_directory)
-    filename = config.log_file()
-
-    # Write to file
-    with open(filename, 'a') as f_handle:
-        f_handle.write(
-            ('%s\n') % (message)
-        )
+    # Close handler
+    file_handle.close()
+    stdout_handle.close()
 
 
 def _message(code, message, error=True):

@@ -47,19 +47,19 @@ class GetIDX(object):
         datapointer = db_datapoint.GetIDX(idx)
         self.base_type = datapointer.base_type()
 
-        # Redefine start / stop times
+        # Redefine start times
         if start is None:
             self.ts_start = jm_general.normalized_timestamp() - (3600 * 24)
         else:
-            # Adjust for counters
-            if self.base_type == 1:
-                self.ts_start = jm_general.normalized_timestamp(start)
-            else:
-                self.ts_start = start - 300
+            self.ts_start = jm_general.normalized_timestamp(start)
+
+        # Redefine stop times
         if stop is None:
             self.ts_stop = jm_general.normalized_timestamp()
         else:
             self.ts_stop = jm_general.normalized_timestamp(stop)
+
+        # Fix edge cases
         if self.ts_start > self.ts_stop:
             self.ts_start = self.ts_stop
 

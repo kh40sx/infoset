@@ -227,8 +227,15 @@ def read_yaml_files(directories):
 
                 # Read file and add to string
                 file_path = ('%s/%s') % (config_directory, filename)
-                with open(file_path, 'r') as file_handle:
-                    yaml_from_file = file_handle.read()
+                try:
+                    with open(file_path, 'r') as file_handle:
+                        yaml_from_file = file_handle.read()
+                except:
+                    log_message = (
+                        'Error reading file %s. Check permissions, '
+                        'existence and file syntax.'
+                        '') % (file_path)
+                    log.log2die(1065, log_message)
 
                 # Append yaml from file to all yaml previously read
                 all_yaml_read = ('%s\n%s') % (all_yaml_read, yaml_from_file)
@@ -296,7 +303,7 @@ def run_script(cli_string):
             log_message = ('%s %s') % (log_message, string2print)
 
         # All done
-        log.log2die(1071, log_message)
+        log.log2die(1074, log_message)
 
     # Return
     return stdoutdata

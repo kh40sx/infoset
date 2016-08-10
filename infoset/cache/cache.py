@@ -185,7 +185,7 @@ class UpdateDB(object):
             record = session.query(Agent).filter(Agent.idx == 1).one()
             record.id = uid
             record.hostname = hostname
-            database.commit(session, 1070)
+            database.commit(session, 1073)
         else:
             # Prepare SQL query to read a record from the database.
             record = Agent(id=uid, name=agent_name, hostname=hostname)
