@@ -13,14 +13,14 @@ import time
 import argparse
 
 # Infoset libraries
-from infoset.cache import cache
+from infoset.agents import check
 from infoset.utils import log
 from infoset.utils import jm_configuration
 from infoset.utils import hidden
 from infoset.utils import Daemon
 
 
-class IngestDaemon(Daemon):
+class AgentCheckDaemon(Daemon):
     """Class that manages polling.
 
     Args:
@@ -45,7 +45,7 @@ class IngestDaemon(Daemon):
         self.config = config
 
         # Get PID filename
-        agent_name = 'ingestd'
+        agent_name = '_agentsd'
         f_obj = hidden.File()
         self.pidfile = f_obj.pid(agent_name)
 
@@ -64,11 +64,11 @@ class IngestDaemon(Daemon):
         """
         # Do the daemon thing
         while True:
-            cache.process(self.config)
+            check.process()
             time.sleep(15)
 
 
-class IngestCLI(object):
+class AgentCheckCLI(object):
     """Class that manages the agent CLI.
 
     Args:
@@ -180,7 +180,7 @@ class IngestCLI(object):
         args = parser.parse_args()
 
         # Run daemon
-        daemon = IngestDaemon(config)
+        daemon = AgentCheckDaemon(config)
         if args.start is True:
             daemon.start()
         elif args.stop is True:
@@ -205,7 +205,7 @@ def main():
 
     """
     # Get configuration
-    cli = IngestCLI()
+    cli = AgentCheckCLI()
     config_dir = cli.config_dir()
     config = jm_configuration.ConfigServer(config_dir)
 

@@ -362,10 +362,11 @@ class ConfigAgent(object):
 
         """
         # Update the configuration directory
-        agent_directory = ('%s/agents') % (root_directory)
+        top_agent_directory = ('%s/agents') % (root_directory)
         common_directory = ('%s/common') % (root_directory)
+        agent_directory = ('%s/agents/%s') % (root_directory, agent_name)
         directories = [
-            agent_directory, common_directory]
+            top_agent_directory, agent_directory, common_directory]
 
         # Return
         self.config_dict = jm_general.read_yaml_files(directories)
@@ -458,6 +459,37 @@ class ConfigAgent(object):
         result = self.config_dict['log_file']
         return result
 
+    def agent_enabled(self):
+        """Get agent_enabled.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        if 'agent_enabled' in self.config_dict:
+            result = self.config_dict['agent_enabled']
+        else:
+            result = False
+        return result
+
+    def agent_filename(self):
+        """Get agent_filename.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        result = self.config_dict['agent_filename']
+        return result
+
     def agent_cache_directory(self):
         """Determine the agent_cache_directory.
 
@@ -481,8 +513,8 @@ class ConfigAgent(object):
         # Return
         return value
 
-    def agent_snmp_hostnames(self):
-        """Get agent_snmp_hostnames.
+    def agent_hostnames(self):
+        """Get agent_hostnames.
 
         Args:
             None
@@ -492,8 +524,8 @@ class ConfigAgent(object):
 
         """
         # Get result
-        if 'agent_snmp_hostnames' in self.config_dict:
-            result = self.config_dict['agent_snmp_hostnames']
+        if 'agent_hostnames' in self.config_dict:
+            result = self.config_dict['agent_hostnames']
         else:
             result = []
 

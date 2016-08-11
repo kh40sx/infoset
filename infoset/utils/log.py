@@ -143,7 +143,7 @@ def _logit(error_num, error_string, error=False, verbose=False):
     config = jm_configuration.ConfigServer(config_directory)
     log_file = config.log_file()
 
-    # create logger with 'slurpy'
+    # create logger
     logger_file = logging.getLogger(('%s_file') % (app_name))
     logger_stdout = logging.getLogger(('%s_console') % (app_name))
 
