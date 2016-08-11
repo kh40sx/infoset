@@ -418,11 +418,12 @@ def _update_agent_last_update(uid, last_timestamp):
     database.commit(session, 1055)
 
 
-def process(config):
+def process(config, agent_name):
     """Method initializing the class.
 
     Args:
         config: Configuration object
+        agent_name: agent name
 
     Returns:
         None
@@ -485,7 +486,7 @@ def process(config):
     if bool(uid_metadata.keys()) is True:
         # Process lock file
         f_obj = hidden.File()
-        lockfile = f_obj.lock('ingest')
+        lockfile = f_obj.lock(agent_name)
         if os.path.exists(lockfile) is True:
             # Return if lock file is present
             log_message = (
