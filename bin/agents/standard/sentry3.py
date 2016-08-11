@@ -89,7 +89,7 @@ class PollingAgent(object):
 
         """
         # Check each hostname
-        hostnames = self.config.agent_snmp_hostnames()
+        hostnames = self.config.agent_hostnames()
         for hostname in hostnames:
             # Get valid SNMP credentials
             validate = snmp_manager.Validate(

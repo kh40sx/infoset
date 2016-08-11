@@ -305,6 +305,20 @@ class ConfigServer(object):
         result = self.config_dict['db_hostname']
         return result
 
+    def agent_threads(self):
+        """Get agent_threads.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        result = self.config_dict['agent_threads']
+        return result
+
     def ingest_threads(self):
         """Get ingest_threads.
 
