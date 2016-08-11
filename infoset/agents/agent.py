@@ -143,8 +143,8 @@ class Agent(object):
             value_sources = data
 
         # Get a description to use for label value
-        lang = language.Agent(agent_name)
-        description = lang.label_description(label)
+        lang = language.Agent(agent_name.encode())
+        description = lang.label_description(label.encode())
 
         #####################################################################
         # This section fills self.data with lists of tuples keyed by "label"
@@ -233,6 +233,19 @@ class Agent(object):
             # Update agent
             self.populate_dict(prefix, multikey, base_type=base_type)
 
+    def polled_data(self):
+        """Return that that should be posted.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Return
+        return self.data
+
     def post(self, save=True, data=None):
         """Post data to central server.
 
@@ -308,7 +321,15 @@ class Agent(object):
         for filename in filenames:
             filepath = os.path.join(self.cache_dir, filename)
             with open(filepath, 'r') as f_handle:
-                data = json.load(f_handle)
+                try:
+                    data = json.load(f_handle)
+                except:
+                    # Log removal
+                    log_message = (
+                        'Error reading previously cached agent data file %s '
+                        'for agent %s. May be corrupted.'
+                        '') % (filepath, self.name())
+                    log.log2die(1077, log_message)
 
             # Post file
             success = self.post(save=False, data=data)

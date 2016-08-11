@@ -15,6 +15,8 @@ import os
 import logging
 from collections import defaultdict
 
+from pprint import pprint
+
 # infoset libraries
 try:
     from infoset.agents import agent as Agent
