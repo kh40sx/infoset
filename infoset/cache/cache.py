@@ -21,6 +21,7 @@ from infoset.db import db
 from infoset.db.db_orm import Data, Datapoint, Agent
 from infoset.db import db_agent as agent
 from infoset.db import db_datapoint as dpoint
+from infoset.utils import jm_configuration
 from infoset.utils import log
 from infoset.cache import drain
 from infoset.utils import hidden
@@ -418,11 +419,10 @@ def _update_agent_last_update(uid, last_timestamp):
     database.commit(session, 1055)
 
 
-def process(config, agent_name):
+def process(agent_name):
     """Method initializing the class.
 
     Args:
-        config: Configuration object
         agent_name: agent name
 
     Returns:
@@ -430,8 +430,12 @@ def process(config, agent_name):
 
     """
     # Initialize key variables
-    threads_in_pool = config.ingest_threads()
     uid_metadata = defaultdict(lambda: defaultdict(dict))
+
+    # Configuration setup
+    config_dir = os.environ['INFOSET_CONFIGDIR']
+    config = jm_configuration.ConfigServer(config_dir)
+    threads_in_pool = config.ingest_threads()
     cache_dir = config.ingest_cache_directory()
 
     # Make sure we have database connectivity

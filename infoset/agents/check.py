@@ -59,18 +59,18 @@ def process():
         pid = hidden.File()
         pidfile = pid.pid(agent)
 
-        # Ignore agents that cannot be found
-        if os.path.isfile(filename) is False:
-            log_message = (
-                'Agent executable file %s listed in the '
-                'configuration file '
-                'of agent "%s" does not exist. Please fix.'
-                '') % (config.agent_filename(), agent)
-            log.log2quiet(1075, log_message)
-            continue
-
         # Check for agent existence
         if config.agent_enabled() is True:
+            # Ignore agents that cannot be found
+            if os.path.isfile(filename) is False:
+                log_message = (
+                    'Agent executable file %s listed in the '
+                    'configuration file '
+                    'of agent "%s" does not exist. Please fix.'
+                    '') % (config.agent_filename(), agent)
+                log.log2quiet(1075, log_message)
+                continue
+
             # Check for pid file
             if os.path.isfile(pidfile) is True:
                 with open(pidfile, 'r') as f_handle:
