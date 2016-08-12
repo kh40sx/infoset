@@ -13,6 +13,7 @@ Description:
 import sys
 import logging
 from collections import defaultdict
+from time import sleep
 
 # infoset libraries
 try:
@@ -79,6 +80,23 @@ class PollingAgent(object):
         return value
 
     def query(self):
+        """Query all remote hosts for data.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Post data to the remote server
+        while True:
+            self._poll()
+
+            # Sleep
+            sleep(300)
+
+    def _poll(self):
         """Query all remote hosts for data.
 
         Args:

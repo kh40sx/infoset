@@ -280,7 +280,7 @@ class Agent(object):
 
                 # Save data
                 with open(filename, 'w') as f_handle:
-                    json.dump(self.data, f_handle)
+                    json.dump(data, f_handle)
 
         # Define success
         if response is True:
@@ -388,11 +388,9 @@ class AgentDaemon(Daemon):
             None
 
         """
-        # Start polling
+        # Start polling. (Poller decides frequency)
         while True:
-            time.sleep(1)
             self.poller.query()
-            time.sleep(299)
 
 
 class AgentCLI(object):

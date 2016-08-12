@@ -65,7 +65,7 @@ class IngestDaemon(Daemon):
         # Do the daemon thing
         while True:
             cache.process(self.config, self.agent_name)
-            time.sleep(15)
+            time.sleep(300)
 
 
 class IngestCLI(object):

@@ -54,6 +54,20 @@ class ConfigCommon(object):
         result = self.config_dict['log_file']
         return result
 
+    def web_log_file(self):
+        """Get web_log_file.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        result = self.config_dict['web_log_file']
+        return result
+
     def language(self):
         """Get language.
 

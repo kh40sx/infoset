@@ -13,6 +13,7 @@ Description:
 import sys
 import os
 import logging
+from time import sleep
 from collections import defaultdict
 
 from pprint import pprint
@@ -81,6 +82,23 @@ class PollingAgent(object):
         return value
 
     def query(self):
+        """Query all remote hosts for data.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Post data to the remote server
+        while True:
+            self._poll()
+
+            # Sleep
+            sleep(300)
+
+    def _poll(self):
         """Query all remote hosts for data.
 
         Args:

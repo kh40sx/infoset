@@ -47,6 +47,7 @@ def process():
         # Get agent names
         agents.append(os.path.basename(sub_directory))
 
+    print(agents)
     for agent in agents:
         # Get agent status variables
         config = jm_configuration.ConfigAgent(config_directory, agent)
@@ -54,23 +55,24 @@ def process():
         pid = hidden.File()
         pidfile = pid.pid(agent)
 
+        print(agent, config.agent_enabled())
+        # Ignore agents that cannot be found
+        if os.path.isfile(filename) is False:
+            log_message = (
+                'Agent executable file %s listed in the '
+                'configuration file '
+                'of agent "%s" does not exist. Please fix.'
+                '') % (config.agent_filename(), agent)
+            log.log2quiet(1075, log_message)
+            continue
+
         # Check for agent existence
         if config.agent_enabled() is True:
-            # Ignore agents that cannot be found
-            if os.path.isfile(filename) is False:
-                log_message = (
-                    'Agent executable file %s listed in the '
-                    'configuration file '
-                    'of agent "%s" does not exist. Please fix.'
-                    '') % (config.agent_filename(), agent)
-                log.log2quiet(1075, log_message)
-                continue
-
             # Check for pid file
             if os.path.isfile(pidfile) is True:
                 with open(pidfile, 'r') as f_handle:
-                    pid = int(f_handle.readline().strip())
-                if psutil.pid_exists(pid) is False:
+                    pidvalue = int(f_handle.readline().strip())
+                if psutil.pid_exists(pidvalue) is False:
                     log_message = (
                         'Agent "%s" is dead. Attempting to restart.'
                         '') % (agent)
@@ -78,21 +80,58 @@ def process():
 
                     # Remove PID file and restart
                     os.remove(pidfile)
-                    _restart(filename)
+                    _restart(filename, agent)
             else:
-                _restart(filename)
+                _restart(filename, agent)
+        else:
+            # Shutdown agent if running
+            if os.path.isfile(pidfile) is True:
+                with open(pidfile, 'r') as f_handle:
+                    pidvalue = int(f_handle.readline().strip())
+                if psutil.pid_exists(pidvalue) is True:
+                    log_message = (
+                        'Agent "%s" is alive, but should be disabled. '
+                        'Attempting to stop.'
+                        '') % (agent)
+                    log.log2quiet(1077, log_message)
+                    _stop(filename, agent)
 
 
-def _restart(filename):
-    """Restart agent.
+def _stop(filename, agent):
+    """Stop agent.
 
     Args:
         filename: Filepath of agent to be restarted.
+        agent: Agent name
 
     Returns:
         None
 
     """
     # Restart
+    log_message = (
+        'Stopping agent "%s" as it is disabled, but running.'
+        '') % (agent)
+    log.log2quiet(1077, log_message)
+    command2run = ('%s --stop') % (filename)
+    jm_general.run_script(command2run, die=False)
+
+
+def _restart(filename, agent):
+    """Restart agent.
+
+    Args:
+        filename: Filepath of agent to be restarted.
+        agent: Agent name
+
+    Returns:
+        None
+
+    """
+    # Restart
+    log_message = (
+        'Starting agent "%s" as it is enabled, but stopped.'
+        '') % (agent)
+    log.log2quiet(1077, log_message)
     command2run = ('%s --start') % (filename)
     jm_general.run_script(command2run, die=False)

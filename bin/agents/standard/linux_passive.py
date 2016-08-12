@@ -12,16 +12,8 @@ Description:
 
 """
 # Standard libraries
-import os
 import sys
-import re
-import platform
 import logging
-from collections import defaultdict
-from time import sleep
-
-# pip3 libraries
-import psutil
 
 # infoset libraries
 try:
@@ -30,7 +22,7 @@ except:
     print('You need to set your PYTHONPATH to include the infoset library')
     sys.exit(2)
 from infoset.utils import jm_configuration
-from infoset.agents import data_linux
+from infoset.agents.flask.linux_passive import APP
 
 logging.getLogger('requests').setLevel(logging.WARNING)
 logging.basicConfig(level=logging.DEBUG)
@@ -62,11 +54,10 @@ class PollingAgent(object):
 
         """
         # Initialize key variables
-        self.agent_name = '_infoset'
+        self.agent_name = 'linux_passive'
 
         # Get configuration
-        self.config = jm_configuration.ConfigAgent(
-            config_dir, self.agent_name)
+        self.config = jm_configuration.ConfigCommon(config_dir)
 
     def name(self):
         """Return agent name.
@@ -92,41 +83,8 @@ class PollingAgent(object):
             None
 
         """
-        # Post data to the remote server
-        while True:
-            self.upload()
-
-            # Sleep
-            sleep(300)
-
-    def upload(self):
-        """Post system data to the central server.
-
-        Args:
-            None
-
-        Returns:
-            None
-
-        """
-        # Get hostname
-        hostname = '_infoset'
-
-        # Get the UID for the agent
-        uid = Agent.get_uid(hostname)
-
-        # Initialize key variables
-        agent = Agent.Agent(uid, self.config, hostname)
-
-        # Update agent with linux data
-        data_linux.getall(agent)
-
-        # Post data
-        success = agent.post()
-
-        # Purge cache if success is True
-        if success is True:
-            agent.purge()
+        # Do stuff
+        APP.run(host='0.0.0.0', port=5001)
 
 
 def main():
