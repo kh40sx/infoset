@@ -365,7 +365,7 @@ class Drain(object):
         else:
             log_message = (
                 'Failed to delete ingest cache file %s') % (self.filename)
-            log.log2warn(1050, log_message)
+            log.log2warn(1052, log_message)
 
         # Return
         return success

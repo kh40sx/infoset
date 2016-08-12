@@ -8,6 +8,9 @@ This could be a modified to be a daemon
 
 # Standard libraries
 import os
+import subprocess
+
+# Pip3 libraries
 import psutil
 
 # Infoset libraries
@@ -44,10 +47,11 @@ def process():
         if sub_directory == agent_directory:
             continue
 
-        # Get agent names
-        agents.append(os.path.basename(sub_directory))
+        # Get agent names. Ignore '_agentsd' as we don't want to shut
+        # ourselves down.
+        if sub_directory != '_agentsd':
+            agents.append(os.path.basename(sub_directory))
 
-    print(agents)
     for agent in agents:
         # Get agent status variables
         config = jm_configuration.ConfigAgent(config_directory, agent)
@@ -55,7 +59,6 @@ def process():
         pid = hidden.File()
         pidfile = pid.pid(agent)
 
-        print(agent, config.agent_enabled())
         # Ignore agents that cannot be found
         if os.path.isfile(filename) is False:
             log_message = (
@@ -93,7 +96,7 @@ def process():
                         'Agent "%s" is alive, but should be disabled. '
                         'Attempting to stop.'
                         '') % (agent)
-                    log.log2quiet(1077, log_message)
+                    log.log2quiet(1032, log_message)
                     _stop(filename, agent)
 
 
@@ -112,9 +115,9 @@ def _stop(filename, agent):
     log_message = (
         'Stopping agent "%s" as it is disabled, but running.'
         '') % (agent)
-    log.log2quiet(1077, log_message)
+    log.log2quiet(1033, log_message)
     command2run = ('%s --stop') % (filename)
-    jm_general.run_script(command2run, die=False)
+    _execute(command2run)
 
 
 def _restart(filename, agent):
@@ -134,4 +137,19 @@ def _restart(filename, agent):
         '') % (agent)
     log.log2quiet(1077, log_message)
     command2run = ('%s --start') % (filename)
-    jm_general.run_script(command2run, die=False)
+    _execute(command2run)
+
+
+def _execute(command):
+    """Run command on CLI.
+
+    Args:
+        command: Command to run
+        agent: Agent name
+
+    Returns:
+        None
+
+    """
+    # Run command
+    subprocess.run(command.split())

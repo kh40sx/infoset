@@ -329,7 +329,7 @@ class Agent(object):
                         'Error reading previously cached agent data file %s '
                         'for agent %s. May be corrupted.'
                         '') % (filepath, self.name())
-                    log.log2die(1077, log_message)
+                    log.log2die(1064, log_message)
 
             # Post file
             success = self.post(save=False, data=data)
@@ -611,7 +611,7 @@ def threads(agent_name, pollers):
                 'should be deleted. Exiting agent process. '
                 'Will try again later.'
                 '') % (lockfile)
-            log.log2warn(1077, log_message)
+            log.log2warn(1044, log_message)
             return
         else:
             # Create lockfile

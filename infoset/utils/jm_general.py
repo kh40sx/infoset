@@ -252,7 +252,7 @@ def read_yaml_files(directories):
     return config_dict
 
 
-def run_script(cli_string, die=True):
+def run_script(cli_string, shell=False, die=True):
     """Run the cli_string UNIX CLI command and record output.
 
     Args:
@@ -272,12 +272,19 @@ def run_script(cli_string, die=True):
     log_message = ''
 
     # Create the subprocess object
-    do_command_list = list(cli_string.split(' '))
-    process = subprocess.Popen(
-        do_command_list,
-        shell=False,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
+    if shell is False:
+        do_command_list = list(cli_string.split(' '))
+        process = subprocess.Popen(
+            do_command_list,
+            shell=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+    else:
+        process = subprocess.Popen(
+            cli_string,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
     stdoutdata, stderrdata = process.communicate()
     returncode = process.returncode
 

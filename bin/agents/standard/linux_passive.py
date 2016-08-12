@@ -13,6 +13,7 @@ Description:
 """
 # Standard libraries
 import sys
+import os
 import logging
 
 # infoset libraries
@@ -43,11 +44,11 @@ class PollingAgent(object):
         post:
     """
 
-    def __init__(self, config_dir):
+    def __init__(self):
         """Method initializing the class.
 
         Args:
-            config_dir: Configuration directory
+            None
 
         Returns:
             None
@@ -57,6 +58,7 @@ class PollingAgent(object):
         self.agent_name = 'linux_passive'
 
         # Get configuration
+        config_dir = os.environ['INFOSET_CONFIGDIR']
         self.config = jm_configuration.ConfigCommon(config_dir)
 
     def name(self):
@@ -99,8 +101,7 @@ def main():
     """
     # Get configuration
     cli = Agent.AgentCLI()
-    config_dir = cli.config_dir()
-    poller = PollingAgent(config_dir)
+    poller = PollingAgent()
 
     # Do control
     cli.control(poller)
