@@ -11,7 +11,9 @@ Description:
 """
 # Standard libraries
 import sys
+import os
 import logging
+from time import sleep
 from collections import defaultdict
 
 # infoset libraries
@@ -45,7 +47,7 @@ class PollingAgent(object):
         post:
     """
 
-    def __init__(self, config_dir):
+    def __init__(self):
         """Method initializing the class.
 
         Args:
@@ -59,11 +61,9 @@ class PollingAgent(object):
         self.agent_name = 'interfaces'
 
         # Get configuration
+        config_dir = os.environ['INFOSET_CONFIGDIR']
         self.config = jm_configuration.ConfigAgent(
             config_dir, self.agent_name)
-
-        # Get snmp configuration information from infoset
-        self.snmp_config = jm_configuration.ConfigSNMP(config_dir)
 
     def name(self):
         """Return agent name.
@@ -89,45 +89,121 @@ class PollingAgent(object):
             None
 
         """
-        # Check each hostname
-        hostnames = self.config.agent_snmp_hostnames()
+        # Post data to the remote server
+        while True:
+            self._poll()
+
+            # Sleep
+            sleep(300)
+
+    def _poll(self):
+        """Query all remote hosts for data.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        pollers = []
+
+        # Create a list of polling objects
+        hostnames = self.config.agent_hostnames()
         for hostname in hostnames:
-            # Get valid SNMP credentials
-            validate = snmp_manager.Validate(
-                hostname, self.snmp_config.snmp_auth())
-            snmp_params = validate.credentials()
+            poller = Poller(hostname, self.agent_name)
+            pollers.append(poller)
 
-            # Log message
-            if snmp_params is None:
-                log_message = (
-                    'No valid SNMP configuration found '
-                    'for host "%s" ') % (hostname)
-                log.log2warn(1022, log_message)
-                continue
+        # Start threaded polling
+        if bool(pollers) is True:
+            Agent.threads(self.agent_name, pollers)
 
-            # Create Query make sure MIB is supported
-            snmp_object = snmp_manager.Interact(snmp_params)
-            query = mib_if.init_query(snmp_object)
-            query64 = mib_if_64.init_query(snmp_object)
-            if query.supported() is False:
-                log_message = (
-                    'The IF-MIB is not supported by host  "%s"'
-                    '') % (hostname)
-                log.log2warn(1024, log_message)
-                continue
 
-            # Get the UID for the agent after all preliminary checks are OK
-            uid_env = Agent.get_uid(hostname)
+class Poller(object):
+    """Infoset agent that gathers data.
 
-            # Post data to the remote server
-            self.upload(uid_env, hostname, query, query64)
+    Args:
+        None
 
-    def upload(self, uid, hostname, query, query64):
+    Returns:
+        None
+
+    Functions:
+        __init__:
+        populate:
+        post:
+    """
+
+    def __init__(self, hostname, agent_name):
+        """Method initializing the class.
+
+        Args:
+            hostname: Hostname to poll
+            agent_name: Name of agent
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        self.agent_name = agent_name
+        self.hostname = hostname
+
+        # Get configuration
+        config_dir = os.environ['INFOSET_CONFIGDIR']
+        self.config = jm_configuration.ConfigAgent(
+            config_dir, self.agent_name)
+
+        # Get snmp configuration information from infoset
+        self.snmp_config = jm_configuration.ConfigSNMP(config_dir)
+
+    def query(self):
+        """Query all remote hosts for data.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Get valid SNMP credentials
+        validate = snmp_manager.Validate(
+            self.hostname, self.snmp_config.snmp_auth())
+        snmp_params = validate.credentials()
+
+        # Log message
+        if snmp_params is None:
+            log_message = (
+                'No valid SNMP configuration found '
+                'for host "%s". Agent "%s"'
+                '') % (self.hostname, self.agent_name)
+            log.log2warn(1022, log_message)
+            return
+
+        # Create Query make sure MIB is supported
+        snmp_object = snmp_manager.Interact(snmp_params)
+        query = mib_if.init_query(snmp_object)
+        query64 = mib_if_64.init_query(snmp_object)
+        if query.supported() is False:
+            log_message = (
+                'The IF-MIB is not supported by host "%s"'
+                '') % (self.hostname)
+            log.log2warn(1024, log_message)
+            return
+
+        # Get the UID for the agent after all preliminary checks are OK
+        uid_env = Agent.get_uid(self.hostname)
+
+        # Post data to the remote server
+        self.upload(uid_env, query, query64)
+
+    def upload(self, uid, query, query64):
         """Post system data to the central server.
 
         Args:
             uid: Unique ID for Agent
-            hostname: Hostname
             query: SNMP credentials object (IF-MIB 32 bit)
             query64: SNMP credentials object (IF-MIB 64 bit)
 
@@ -137,7 +213,7 @@ class PollingAgent(object):
         """
         # Initialize key variables
         ignore = []
-        agent = Agent.Agent(uid, self.config, hostname)
+        agent = Agent.Agent(uid, self.config, self.hostname)
 
         # Get a list of interfaces to ignore because they are down
         status = query.ifoperstatus()
@@ -265,8 +341,7 @@ def main():
     """
     # Get configuration
     cli = Agent.AgentCLI()
-    config_dir = cli.config_dir()
-    poller = PollingAgent(config_dir)
+    poller = PollingAgent()
 
     # Do control
     cli.control(poller)

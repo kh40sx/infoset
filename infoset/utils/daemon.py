@@ -99,7 +99,8 @@ class Daemon(object):
 
         """
         # Delete file
-        os.remove(self.pidfile)
+        if os.path.exists(self.pidfile) is True:
+            os.remove(self.pidfile)
 
     def start(self):
         """Start the daemon.
@@ -162,12 +163,11 @@ class Daemon(object):
         try:
             while 1:
                 os.kill(pid, signal.SIGTERM)
-                time.sleep(0.1)
+                time.sleep(0.3)
         except OSError as err:
             error = str(err.args)
             if error.find("No such process") > 0:
-                if os.path.exists(self.pidfile):
-                    os.remove(self.pidfile)
+                self.delpid()
             else:
                 log_message = (str(err.args))
                 log_message = (
@@ -180,6 +180,7 @@ class Daemon(object):
             log.log2die(1066, log_message)
 
         # Log success
+        self.delpid()
         log_message = ('Daemon Stopped - PID file: %s') % (self.pidfile)
         log.log2quiet(1071, log_message)
 

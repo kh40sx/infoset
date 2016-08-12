@@ -252,11 +252,12 @@ def read_yaml_files(directories):
     return config_dict
 
 
-def run_script(cli_string):
+def run_script(cli_string, shell=False, die=True):
     """Run the cli_string UNIX CLI command and record output.
 
     Args:
-        None
+        cli_string: Command to run on the CLI
+        die: Die if command runs with an error
 
     Returns:
         None
@@ -271,39 +272,47 @@ def run_script(cli_string):
     log_message = ''
 
     # Create the subprocess object
-    do_command_list = list(cli_string.split(' '))
-    process = subprocess.Popen(
-        do_command_list,
-        shell=False,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
+    if shell is False:
+        do_command_list = list(cli_string.split(' '))
+        process = subprocess.Popen(
+            do_command_list,
+            shell=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+    else:
+        process = subprocess.Popen(
+            cli_string,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
     stdoutdata, stderrdata = process.communicate()
     returncode = process.returncode
 
     # Crash if the return code is not 0
-    if returncode != 0:
-        # Print the Return Code header, Return Code, STDOUT header
-        string2print = ('%s %s %s %s') % (
-            header_bad_cmd, cli_string,
-            header_returncode, returncode)
-        log_message = ('%s%s') % (log_message, string2print)
+    if die is True:
+        if returncode != 0:
+            # Print the Return Code header, Return Code, STDOUT header
+            string2print = ('%s %s %s %s') % (
+                header_bad_cmd, cli_string,
+                header_returncode, returncode)
+            log_message = ('%s%s') % (log_message, string2print)
 
-        # Print the STDERR
-        string2print = ('%s') % (header_stderr)
-        log_message = ('%s %s') % (log_message, string2print)
-        for line in stderrdata.decode(encoding).split('\n'):
-            string2print = ('%s') % (line)
+            # Print the STDERR
+            string2print = ('%s') % (header_stderr)
             log_message = ('%s %s') % (log_message, string2print)
+            for line in stderrdata.decode(encoding).split('\n'):
+                string2print = ('%s') % (line)
+                log_message = ('%s %s') % (log_message, string2print)
 
-        # Print the STDOUT
-        string2print = ('%s') % (header_stdout)
-        log_message = ('%s %s') % (log_message, string2print)
-        for line in stdoutdata.decode(encoding).split('\n'):
-            string2print = ('%s') % (line)
+            # Print the STDOUT
+            string2print = ('%s') % (header_stdout)
             log_message = ('%s %s') % (log_message, string2print)
+            for line in stdoutdata.decode(encoding).split('\n'):
+                string2print = ('%s') % (line)
+                log_message = ('%s %s') % (log_message, string2print)
 
-        # All done
-        log.log2die(1074, log_message)
+            # All done
+            log.log2die(1074, log_message)
 
     # Return
     return stdoutdata

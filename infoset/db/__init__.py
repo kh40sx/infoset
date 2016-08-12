@@ -12,7 +12,6 @@ from sqlalchemy.orm import sessionmaker
 
 # Infoset libraries
 from infoset.utils import jm_configuration
-from infoset.utils import log
 from infoset.db import db_orm
 
 #############################################################################

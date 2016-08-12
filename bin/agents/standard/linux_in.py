@@ -12,9 +12,10 @@ Description:
 
 """
 # Standard libraries
-import os
 import sys
+import os
 import logging
+import socket
 from time import sleep
 
 # infoset libraries
@@ -56,7 +57,7 @@ class PollingAgent(object):
 
         """
         # Initialize key variables
-        self.agent_name = '_infoset'
+        self.agent_name = 'linux_in'
 
         # Get configuration
         config_dir = os.environ['INFOSET_CONFIGDIR']
@@ -105,7 +106,7 @@ class PollingAgent(object):
 
         """
         # Get hostname
-        hostname = '_infoset'
+        hostname = socket.getfqdn()
 
         # Get the UID for the agent
         uid = Agent.get_uid(hostname)

@@ -11,8 +11,10 @@ Description:
 """
 # Standard libraries
 import sys
+import os
 import logging
 from collections import defaultdict
+from time import sleep
 
 # infoset libraries
 try:
@@ -44,11 +46,11 @@ class PollingAgent(object):
         post:
     """
 
-    def __init__(self, config_dir):
+    def __init__(self):
         """Method initializing the class.
 
         Args:
-            config_dir: Configuration directory
+            None
 
         Returns:
             None
@@ -58,6 +60,7 @@ class PollingAgent(object):
         self.agent_name = 'sentry3'
 
         # Get configuration
+        config_dir = os.environ['INFOSET_CONFIGDIR']
         self.config = jm_configuration.ConfigAgent(
             config_dir, self.agent_name)
 
@@ -88,8 +91,25 @@ class PollingAgent(object):
             None
 
         """
+        # Post data to the remote server
+        while True:
+            self._poll()
+
+            # Sleep
+            sleep(300)
+
+    def _poll(self):
+        """Query all remote hosts for data.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
         # Check each hostname
-        hostnames = self.config.agent_snmp_hostnames()
+        hostnames = self.config.agent_hostnames()
         for hostname in hostnames:
             # Get valid SNMP credentials
             validate = snmp_manager.Validate(
@@ -212,8 +232,7 @@ def main():
     """
     # Get configuration
     cli = agent.AgentCLI()
-    config_dir = cli.config_dir()
-    poller = PollingAgent(config_dir)
+    poller = PollingAgent()
 
     # Do control
     cli.control(poller)

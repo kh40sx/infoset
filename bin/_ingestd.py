@@ -45,9 +45,9 @@ class IngestDaemon(Daemon):
         self.config = config
 
         # Get PID filename
-        agent_name = 'ingestd'
+        self.agent_name = '_ingestd'
         f_obj = hidden.File()
-        self.pidfile = f_obj.pid(agent_name)
+        self.pidfile = f_obj.pid(self.agent_name)
 
         # Call up the base daemon
         Daemon.__init__(self, self.pidfile)
@@ -64,8 +64,8 @@ class IngestDaemon(Daemon):
         """
         # Do the daemon thing
         while True:
-            cache.process(self.config)
-            time.sleep(15)
+            cache.process(self.config, self.agent_name)
+            time.sleep(300)
 
 
 class IngestCLI(object):

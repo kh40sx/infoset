@@ -12,6 +12,7 @@ import sys
 # Infoset libraries
 from infoset.utils import log
 
+INFOSET = None
 
 def main():
     """Process data.

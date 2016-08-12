@@ -18,6 +18,8 @@ import time
 from collections import defaultdict
 from random import random
 import argparse
+import queue as Queue
+import threading
 
 # pip3 libraries
 import requests
@@ -27,8 +29,11 @@ from infoset.utils import hidden
 from infoset.utils import Daemon
 from infoset.utils import log
 from infoset.utils import jm_general
+from infoset.utils import jm_configuration
 from infoset.language import language
 
+# Define a key global variable
+THREAD_QUEUE = Queue.Queue()
 
 logging.getLogger('requests').setLevel(logging.WARNING)
 logging.basicConfig(level=logging.DEBUG)
@@ -138,8 +143,8 @@ class Agent(object):
             value_sources = data
 
         # Get a description to use for label value
-        lang = language.Agent(agent_name)
-        description = lang.label_description(label)
+        lang = language.Agent(agent_name.encode())
+        description = lang.label_description(label.encode())
 
         #####################################################################
         # This section fills self.data with lists of tuples keyed by "label"
@@ -228,6 +233,19 @@ class Agent(object):
             # Update agent
             self.populate_dict(prefix, multikey, base_type=base_type)
 
+    def polled_data(self):
+        """Return that that should be posted.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Return
+        return self.data
+
     def post(self, save=True, data=None):
         """Post data to central server.
 
@@ -262,7 +280,7 @@ class Agent(object):
 
                 # Save data
                 with open(filename, 'w') as f_handle:
-                    json.dump(self.data, f_handle)
+                    json.dump(data, f_handle)
 
         # Define success
         if response is True:
@@ -303,7 +321,15 @@ class Agent(object):
         for filename in filenames:
             filepath = os.path.join(self.cache_dir, filename)
             with open(filepath, 'r') as f_handle:
-                data = json.load(f_handle)
+                try:
+                    data = json.load(f_handle)
+                except:
+                    # Log removal
+                    log_message = (
+                        'Error reading previously cached agent data file %s '
+                        'for agent %s. May be corrupted.'
+                        '') % (filepath, self.name())
+                    log.log2die(1064, log_message)
 
             # Post file
             success = self.post(save=False, data=data)
@@ -362,11 +388,9 @@ class AgentDaemon(Daemon):
             None
 
         """
-        # Start polling
+        # Start polling. (Poller decides frequency)
         while True:
-            time.sleep(1)
             self.poller.query()
-            time.sleep(299)
 
 
 class AgentCLI(object):
@@ -496,6 +520,29 @@ class AgentCLI(object):
             sys.exit(2)
 
 
+class AgentThread(threading.Thread):
+    """Threaded ingestion of agent files.
+
+    Graciously modified from:
+    http://www.ibm.com/developerworks/aix/library/au-threadingpython/
+
+    """
+
+    def __init__(self, queue):
+        """Initialize the threads."""
+        threading.Thread.__init__(self)
+        self.queue = queue
+
+    def run(self):
+        """Update the database using threads."""
+        while True:
+            poller = self.queue.get()
+            poller.query()
+
+            # All done!
+            self.queue.task_done()
+
+
 def get_uid(hostname):
     """Create a permanent UID for the agent.
 
@@ -532,3 +579,94 @@ def get_uid(hostname):
 
     # Return
     return uid
+
+
+def threads(agent_name, pollers):
+    """Function where agents poll devices using multithreading.
+
+    Args:
+        agent_name: Agent name
+        pollers: List of polling objects
+
+    Returns:
+        None
+
+    """
+    # Get configuration
+    config_dir = os.environ['INFOSET_CONFIGDIR']
+    config = jm_configuration.ConfigServer(config_dir)
+    threads_in_pool = config.agent_threads()
+
+    # Spawn processes only if we have files to process
+    if bool(pollers) is True:
+        # Process lock file
+        f_obj = hidden.File()
+        lockfile = f_obj.lock(agent_name)
+        if os.path.exists(lockfile) is True:
+            # Return if lock file is present
+            log_message = (
+                'Agent lock file %s exists. Multiple agent daemons '
+                'running or the daemon may have died '
+                'catastrophically in the past, in which case the lockfile '
+                'should be deleted. Exiting agent process. '
+                'Will try again later.'
+                '') % (lockfile)
+            log.log2warn(1044, log_message)
+            return
+        else:
+            # Create lockfile
+            open(lockfile, 'a').close()
+
+        # Spawn a pool of threads, and pass them queue instance
+        for _ in range(threads_in_pool):
+            update_thread = AgentThread(THREAD_QUEUE)
+            update_thread.daemon = True
+
+            # Sometimes we exhaust the thread abilities of the OS
+            # even with the "threads_in_pool" limit. This is because
+            # there could be a backlog of files to cache files process
+            # and we have overlapping ingests due to a deleted lockfile.
+            # This code ensures we don't exceed the limits.
+            try:
+                update_thread.start()
+            except RuntimeError:
+                log_message = (
+                    'Too many threads created for agent "%s". '
+                    'Verify that agent lock file is present.') % (agent_name)
+
+                # Remove the lockfile so we can restart later then die
+                os.remove(lockfile)
+                log.log2die(1078, log_message)
+            except:
+                log_message = (
+                    'Unknown error occurred when trying to '
+                    'create threads for agent "%s"') % (agent_name)
+
+                # Remove the lockfile so we can restart later then die
+                os.remove(lockfile)
+                log.log2die(1079, log_message)
+
+        # Start polling
+        for poller in pollers:
+            ##############################################################
+            #
+            # Define variables that will be required for the threading
+            # We have to initialize the dict during every loop to prevent
+            # data corruption
+            #
+            ##############################################################
+            THREAD_QUEUE.put(poller)
+
+        # Wait on the queue until everything has been processed
+        THREAD_QUEUE.join()
+
+        # PYTHON BUG. Join can occur while threads are still shutting down.
+        # This can create spurious "Exception in thread (most likely raised
+        # during interpreter shutdown)" errors.
+        # The "time.sleep(1)" adds a delay to make sure things really terminate
+        # properly. This seems to be an issue on virtual machines in Dev only
+        time.sleep(1)
+
+        # Return if lock file is present
+        if os.path.exists(lockfile) is True:
+            os.remove(lockfile)
