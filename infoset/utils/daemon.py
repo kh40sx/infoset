@@ -19,11 +19,12 @@ class Daemon(object):
 
     """
 
-    def __init__(self, pidfile):
+    def __init__(self, pidfile, lockfile=None):
         """Method for intializing the class.
 
         Args:
             pidfile: Name of PID file
+            lockfile: Name of lock file
 
         Returns:
             None
@@ -31,6 +32,7 @@ class Daemon(object):
         """
         # Initialize key variables
         self.pidfile = pidfile
+        self.lockfile = lockfile
 
     def daemonize(self):
         """Deamonize class. UNIX double fork mechanism.
@@ -102,6 +104,21 @@ class Daemon(object):
         if os.path.exists(self.pidfile) is True:
             os.remove(self.pidfile)
 
+    def dellock(self):
+        """Delete the lock file.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Delete file
+        if self.lockfile is not None:
+            if os.path.exists(self.lockfile) is True:
+                os.remove(self.lockfile)
+
     def start(self):
         """Start the daemon.
 
@@ -162,12 +179,20 @@ class Daemon(object):
         # Try killing the daemon process
         try:
             while 1:
-                os.kill(pid, signal.SIGTERM)
+                if self.lockfile is None:
+                    os.kill(pid, signal.SIGTERM)
+                else:
+                    time.sleep(0.3)
+                    if os.path.exists(self.lockfile) is True:
+                        continue
+                    else:
+                        os.kill(pid, signal.SIGTERM)
                 time.sleep(0.3)
         except OSError as err:
             error = str(err.args)
             if error.find("No such process") > 0:
                 self.delpid()
+                self.dellock()
             else:
                 log_message = (str(err.args))
                 log_message = (
@@ -181,6 +206,7 @@ class Daemon(object):
 
         # Log success
         self.delpid()
+        self.dellock()
         log_message = ('Daemon Stopped - PID file: %s') % (self.pidfile)
         log.log2quiet(1071, log_message)
 
