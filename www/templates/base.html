@@ -62,7 +62,7 @@
                     </a>
                 </li>
                 <li>
-                    <a id="search-button">
+                    <a href="/search" id="search-button">
                         <i class="fa fa-search" aria-hidden="true"></i>
                     </a>
                 </li>
@@ -106,56 +106,5 @@
     <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
     <![endif]-->
 
-
-
-
-
-<footer id="search-wrapper" class="navbar-default navbar-fixed-bottom">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg">
-                
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="box" id="search-box">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th data-field="devices-total" width="10%">Agent Name</th>
-                            <th data-field="devices-total" width="10%">Host Name</th>
-                            <th data-field="devices-up" width="10%">Enabled</th>
-                            <th data-field="devices-down" width="10%">Last Active</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for agent in agent_list %}
-                          <tr>
-                            <td>
-                              <p>{{ agent["name"] }}</p> 
-                            </td>
-                            <td>
-                              <p>{{ agent["hostname"] }}</p> 
-                            </td>
-                            <td>
-                              {% if agent["enabled"] == 1 %}
-                                <p>True</p>
-                              {% else %}
-                                <p>False</p>
-                              {% endif %}
-                            </td>
-                            <td>
-                              <p>{{ agent["last_timestamp"]|strftime }}</p> 
-                            </td>
-                          </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>    
-</footer>
 </body>
 </html>

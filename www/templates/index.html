@@ -12,87 +12,124 @@
         .wrap('<a href="/graphs/'+ agent + '/' + datapoint + '"></a>');
     });
   }
-  {% for datapoint_name, value in data.items() %}
-    {% if "memory_active".encode() in datapoint_name %}
-      loadImage("{{uid}}", "{{value[0]}}", 900, 258, "#memory-graph-area");
-    {% endif %}
-    {% if "cpu_idle".encode() in datapoint_name %}
-      loadImage("{{uid}}", "{{value[0]}}", 900, 258, "#cpu-graph-area");
-    {% endif %}
-    {% if "disk_usage_total".encode() in datapoint_name %}
-      loadImage("{{uid}}", "{{value[0]}}", 900, 258, "#disk-graph-area");
-    {% endif %}
-    {% if "network_bytes_sent".encode() in datapoint_name %}
-      loadImage("{{uid}}", "{{value[0]}}", 900, 258, "#network-graph-area");
-    {% endif %}
-  {% endfor %}
+
 </script>
-
-<div class="container">
-  <!-- Page Layout here -->
-  <div class="box" id="home-box">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-lg-12">
-          <p>System: {{data['system'][1]}}</p>
-          <p>OS: {{data['distribution'][1]}}</p>
-          <p>Release: {{data['release'][1]}}</p>
+<div class="col-lg-3">
+     <div class="data-box" id="home-box">
+      <div class="container-fluid">
+        <div class="table">
+          <tbody>
+            <tr>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <p>System: {{data['system']}}</p>
+            <p>OS: {{data['distribution']}}</p>
+            <p>Release: {{data['release']}}</p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+    <div class="data-box" id="home-box">
+      <div class="container-fluid">
+        <table class="table">
+        <tbody>
+          <tr>
+            <td>Hardware</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Operating system</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>System name</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Contact</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Location</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Uptime</td>
+            <td></td>
+          </tr>
+
+        </tbody>
+        </table>
+      </div>
+    </div>
 </div>
-<div class="container">
-  <!-- Page Layout here -->
-  <div class="data-box" id="memory-box">
-    <div class="container-fluid">
-      <div class="row box-title">
-        <div class="col-lg-12">
-          <h4>Memory</h4>
-        </div>
-      </div>
+<div class="col-lg-9">
+  <div class="row">  
+    <div class="col-lg-6">
+      <div class="data-box" id="memory-box">
+        <div class="container-fluid">
+          <div class="row box-title">
+            <div class="col-lg-12">
+              <h4>Memory</h4>
+            </div>
+          </div>
 
-      <div class="row" id="memory-graph-area">
+          <div class="row" id="memory-graph-area">
 
-      </div>
-    </div>
-  </div>
-  <div class="data-box" id="memory-box">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-lg-12">
-          <h4>CPU</h4>
+          </div>
+          <div class="row">
+            
+          </div>
         </div>
       </div>
-      <div class="row">
-        <div class="col-lg-12 center-block" id="cpu-graph-area">
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="data-box" id="memory-box">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-lg-12">
-          <h4>Disk IO</h4>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-12" id="disk-graph-area">
+      <div class="data-box" id="memory-box">
+        <div class="container-fluid">
+          <div class="row box-title">
+            <div class="col-lg-12">
+              <h4>Network</h4>
+            </div>
+          </div>
 
+          <div class="row" id="memory-graph-area">
+
+          </div>
+          <div class="row">
+            
+          </div>
         </div>
-      </div>
+      </div>      
     </div>
-  </div>
-  <div class="data-box" id="memory-box">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-lg-12">
-          <h4>Network</h4>
+    <div class="col-lg-6">
+      <div class="data-box" id="memory-box">
+        <div class="container-fluid">
+          <div class="row box-title">
+            <div class="col-lg-12">
+              <h4>CPU</h4>
+            </div>
+          </div>
+
+          <div class="row" id="memory-graph-area">
+
+          </div>
         </div>
       </div>
-      <div class="row" id="network-graph-area">
-      </div>
+      <div class="data-box" id="memory-box">
+        <div class="container-fluid">
+          <div class="row box-title">
+            <div class="col-lg-12">
+              <h4>Processors</h4>
+            </div>
+          </div>
+
+          <div class="row" id="memory-graph-area">
+
+          </div>
+        </div>
       </div>
     </div>
   </div>
