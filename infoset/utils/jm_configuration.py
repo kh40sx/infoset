@@ -560,6 +560,44 @@ class ConfigAgent(object):
         # Return
         return result
 
+    def agent_port(self):
+        """Get agent_port.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        if 'agent_port' in self.config_dict:
+            result = self.config_dict['agent_port']
+        else:
+            result = []
+
+        # Return
+        return result
+
+    def agent_metadata(self):
+        """Get agent_metadata.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get result
+        if 'agent_metadata' in self.config_dict:
+            result = self.config_dict['agent_metadata']
+        else:
+            result = []
+
+        # Return
+        return result
+
 
 class ConfigSNMP(object):
     """Class gathers all configuration information.

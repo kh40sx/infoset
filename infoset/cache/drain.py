@@ -96,7 +96,8 @@ class Drain(object):
                         index = datapoint[0]
                         value = datapoint[1]
                         source = _encode(datapoint[2])
-                        did = _did(uid, label, index)
+                        did = _did(
+                            uid, label, index, self.agent_meta['agent'])
 
                         # Update data
                         if base_type != 0:
@@ -371,20 +372,21 @@ class Drain(object):
         return success
 
 
-def _did(uid, label, index):
+def _did(uid, label, index, agent_name):
     """Create a unique DID from ingested data.
 
     Args:
         uid: UID of device that created the cache data file
         label: Label of the data
         index: Index of the data
+        agent_name: Name of agent
 
     Returns:
         did: Datapoint ID
 
     """
     # Initialize key variables
-    prehash = ('%s%s%s') % (uid, label, index)
+    prehash = ('%s%s%s%s') % (uid, label, index, agent_name)
     result = jm_general.hashstring(prehash)
     did = _encode(result)
 

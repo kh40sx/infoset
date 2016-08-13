@@ -59,7 +59,8 @@ class PollingAgent(object):
 
         # Get configuration
         config_dir = os.environ['INFOSET_CONFIGDIR']
-        self.config = jm_configuration.ConfigCommon(config_dir)
+        self.config = jm_configuration.ConfigAgent(
+            config_dir, self.agent_name)
 
     def name(self):
         """Return agent name.
@@ -85,8 +86,15 @@ class PollingAgent(object):
             None
 
         """
+        # Initialize key variables
+        if 'port' in self.config.agent_port():
+            data = self.config.agent_port()
+            port = int(data)
+        else:
+            port = 5001
+
         # Do stuff
-        APP.run(host='0.0.0.0', port=5001)
+        APP.run(host='0.0.0.0', port=port)
 
 
 def main():

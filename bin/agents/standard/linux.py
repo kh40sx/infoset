@@ -12,6 +12,7 @@ Description:
 # Standard libraries
 import sys
 import os
+import json
 import logging
 from time import sleep
 
@@ -169,7 +170,11 @@ class Poller(object):
         uid = Agent.get_uid(self.hostname)
 
         # Create url
-        url = ('http://%s:5001') % (self.hostname)
+        if bool(self.config.agent_port()) is True:
+            port = int(self.config.agent_port())
+        else:
+            port = 5001
+        url = ('http://%s:%s') % (self.hostname, port)
 
         # Post data save to cache if this fails
         try:
@@ -187,8 +192,9 @@ class Poller(object):
             # Initialize key variables
             agent = Agent.Agent(uid, self.config, self.hostname)
 
-            # Post data
-            post_success = agent.post(data=result.text)
+            # Post data after converting it to json from string
+            data = json.loads(result.text)
+            post_success = agent.post(data=data)
 
             # Purge cache if success is True
             if post_success is True:
