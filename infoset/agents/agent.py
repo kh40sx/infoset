@@ -373,10 +373,11 @@ class AgentDaemon(Daemon):
         # Get PID filename
         agent_name = self.poller.name()
         f_obj = hidden.File()
-        self.pidfile = f_obj.pid(agent_name)
+        pidfile = f_obj.pid(agent_name)
+        lockfile = f_obj.lock(agent_name)
 
         # Call up the base daemon
-        Daemon.__init__(self, self.pidfile)
+        Daemon.__init__(self, pidfile, lockfile=lockfile)
 
     def run(self):
         """Start polling.
