@@ -18,7 +18,7 @@ from time import sleep
 
 # infoset libraries
 try:
-    from infoset.agents import agent
+    from infoset.agents import agent as Agent
 except:
     print('You need to set your PYTHONPATH to include the infoset library')
     sys.exit(2)
@@ -108,37 +108,99 @@ class PollingAgent(object):
             None
 
         """
+        # Initialize key variables
+        pollers = []
+
         # Check each hostname
         hostnames = self.config.agent_hostnames()
         for hostname in hostnames:
-            # Get valid SNMP credentials
-            validate = snmp_manager.Validate(
-                hostname, self.snmp_config.snmp_auth())
-            snmp_params = validate.credentials()
+            poller = Poller(hostname, self.agent_name)
+            pollers.append(poller)
 
-            # Log message
-            if snmp_params is None:
-                log_message = (
-                    'No valid SNMP configuration found '
-                    'for host "%s" ') % (hostname)
-                log.log2warn(1006, log_message)
-                continue
+        # Start threaded polling
+        if bool(pollers) is True:
+            Agent.threads(self.agent_name, pollers)
 
-            # Create Query make sure MIB is supported
-            snmp_object = snmp_manager.Interact(snmp_params)
-            snmp_query = mib_sentry3.init_query(snmp_object)
-            if snmp_query.supported() is False:
-                log_message = (
-                    'The Sentry3 MIB is not supported by host  "%s"'
-                    '') % (hostname)
-                log.log2warn(1001, log_message)
-                continue
 
-            # Get the UID for the agent after all preliminary checks are OK
-            uid_env = agent.get_uid(hostname)
+class Poller(object):
+    """Infoset agent that gathers data.
 
-            # Post data to the remote server
-            self.upload(uid_env, hostname, snmp_query)
+    Args:
+        None
+
+    Returns:
+        None
+
+    Functions:
+        __init__:
+        populate:
+        post:
+    """
+
+    def __init__(self, hostname, agent_name):
+        """Method initializing the class.
+
+        Args:
+            hostname: Hostname to poll
+            agent_name: Name of agent
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        self.agent_name = agent_name
+        self.hostname = hostname
+
+        # Get configuration
+        config_dir = os.environ['INFOSET_CONFIGDIR']
+        self.config = jm_configuration.ConfigAgent(
+            config_dir, self.agent_name)
+
+        # Get snmp configuration information from infoset
+        self.snmp_config = jm_configuration.ConfigSNMP(config_dir)
+
+    def query(self):
+        """Query all remote hosts for data.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        hostname = self.hostname
+
+        # Get valid SNMP credentials
+        validate = snmp_manager.Validate(
+            hostname, self.snmp_config.snmp_auth())
+        snmp_params = validate.credentials()
+
+        # Log message
+        if snmp_params is None:
+            log_message = (
+                'No valid SNMP configuration found '
+                'for host "%s" ') % (hostname)
+            log.log2warn(1006, log_message)
+            return
+
+        # Create Query make sure MIB is supported
+        snmp_object = snmp_manager.Interact(snmp_params)
+        snmp_query = mib_sentry3.init_query(snmp_object)
+        if snmp_query.supported() is False:
+            log_message = (
+                'The Sentry3 MIB is not supported by host  "%s"'
+                '') % (hostname)
+            log.log2warn(1001, log_message)
+            return
+
+        # Get the UID for the agent after all preliminary checks are OK
+        uid_env = Agent.get_uid(hostname)
+
+        # Post data to the remote server
+        self.upload(uid_env, hostname, snmp_query)
 
     def upload(self, uid, hostname, query):
         """Post system data to the central server.
@@ -153,7 +215,7 @@ class PollingAgent(object):
 
         """
         # Initialize key variables
-        agent_obj = agent.Agent(uid, self.config, hostname)
+        agent_obj = Agent.Agent(uid, self.config, hostname)
         state = {}
         data = defaultdict(lambda: defaultdict(dict))
         labels = ['infeedPower', 'infeedLoadValue']
@@ -231,7 +293,7 @@ def main():
 
     """
     # Get configuration
-    cli = agent.AgentCLI()
+    cli = Agent.AgentCLI()
     poller = PollingAgent()
 
     # Do control
