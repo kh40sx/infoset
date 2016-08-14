@@ -97,7 +97,9 @@ class Drain(object):
                         value = datapoint[1]
                         source = _encode(datapoint[2])
                         did = _did(
-                            uid, label, index, self.agent_meta['agent'])
+                            uid, label, index,
+                            self.agent_meta['agent'],
+                            self.agent_meta['hostname'])
 
                         # Update data
                         if base_type != 0:
@@ -372,7 +374,7 @@ class Drain(object):
         return success
 
 
-def _did(uid, label, index, agent_name):
+def _did(uid, label, index, agent_name, hostname):
     """Create a unique DID from ingested data.
 
     Args:
@@ -380,13 +382,14 @@ def _did(uid, label, index, agent_name):
         label: Label of the data
         index: Index of the data
         agent_name: Name of agent
+        hostname: Hostname
 
     Returns:
         did: Datapoint ID
 
     """
     # Initialize key variables
-    prehash = ('%s%s%s%s') % (uid, label, index, agent_name)
+    prehash = ('%s%s%s%s%s') % (uid, label, index, agent_name, hostname)
     result = jm_general.hashstring(prehash)
     did = _encode(result)
 
