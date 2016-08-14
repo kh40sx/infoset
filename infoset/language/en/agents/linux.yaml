@@ -61,7 +61,7 @@ agent_source_descriptions:
         description: CPU% Used by Niced VM Guests
     disk_io_busy_time:
         units: None
-        description: Partion I/O Time
+        description: Partition I/O Time
     disk_io_read_bytes:
         units: None
         description: Bytes Read
@@ -73,7 +73,7 @@ agent_source_descriptions:
         description: Merged Reads
     disk_io_read_time:
         units: None
-        description: Partion Read Time
+        description: Partition Read Time
     disk_io_write_bytes:
         units: None
         description: Bytes Written
@@ -88,13 +88,13 @@ agent_source_descriptions:
         description: Partition Write Time
     disk_usage_free:
         units: None
-        description: Partion Bytes Available
+        description: Partition Bytes Available
     disk_usage_percent:
         units: None
         description: Partition Utilization (%)
     disk_usage_total:
         units: None
-        description: Partion Size
+        description: Partition Size
     disk_usage_used:
         units: None
         description: Partition Bytes Used
