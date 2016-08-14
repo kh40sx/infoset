@@ -242,7 +242,7 @@ def all_hosts():
 
 
 def hostname_exists(hostname):
-    """Determine whether the DID exists.
+    """Determine whether the hostname exists.
 
     Args:
         hostname: Hostname

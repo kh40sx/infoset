@@ -73,7 +73,7 @@ def host_indices(idx_agent):
 
 
 def agent_indices(idx_host):
-    """Get list of all host indexes for a specific agent_idx.
+    """Get list of all agent indexes for a specific host_idx.
 
     Args:
         None
