@@ -29,7 +29,8 @@ def host_agent_exists(idx_host, idx_agent):
     database = db.Database()
     session = database.session()
     result = session.query(HostAgent.idx).filter(and_(
-        idx_host=idx_host, idx_agent=idx_agent))
+        HostAgent.idx_host == idx_host,
+        HostAgent.idx_agent == idx_agent))
 
     # Massage data
     if result.count() == 1:
