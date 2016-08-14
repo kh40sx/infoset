@@ -196,18 +196,13 @@ class Poller(object):
             log.log2warn(1001, log_message)
             return
 
-        # Get the UID for the agent after all preliminary checks are OK
-        uid_env = Agent.get_uid(hostname)
-
         # Post data to the remote server
-        self.upload(uid_env, hostname, snmp_query)
+        self.upload(snmp_query)
 
-    def upload(self, uid, hostname, query):
+    def upload(self, query):
         """Post system data to the central server.
 
         Args:
-            uid: Unique ID for Agent
-            hostname: Hostname
             query: SNMP credentials object
 
         Returns:
@@ -215,7 +210,8 @@ class Poller(object):
 
         """
         # Initialize key variables
-        agent_obj = Agent.Agent(uid, self.config, hostname)
+        hostname = self.hostname
+        agent_obj = Agent.Agent(self.config, hostname)
         state = {}
         data = defaultdict(lambda: defaultdict(dict))
         labels = ['infeedPower', 'infeedLoadValue']

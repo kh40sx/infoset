@@ -108,11 +108,8 @@ class PollingAgent(object):
         # Get hostname
         hostname = socket.getfqdn()
 
-        # Get the UID for the agent
-        uid = Agent.get_uid(hostname)
-
         # Initialize key variables
-        agent = Agent.Agent(uid, self.config, hostname)
+        agent = Agent.Agent(self.config, hostname)
 
         # Update agent with linux data
         data_linux.getall(agent)

@@ -17,6 +17,7 @@ except:
     print('You need to set your PYTHONPATH to include the infoset library')
     sys.exit(2)
 from infoset.cache import cache
+from infoset.utils import log
 
 
 class PollingAgent(object):
@@ -74,7 +75,7 @@ class PollingAgent(object):
         # Do the daemon thing
         while True:
             cache.process(self.agent_name)
-            time.sleep(300)
+            time.sleep(5)
 
 
 def main():

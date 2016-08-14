@@ -16,6 +16,64 @@ from sqlalchemy import ForeignKey
 BASE = declarative_base()
 
 
+class Host(BASE):
+    """Class defining the iset_host table of the database."""
+
+    __tablename__ = 'iset_host'
+    __table_args__ = {
+        'mysql_engine': 'InnoDB'
+    }
+
+    idx = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    hostname = Column(VARBINARY(512), nullable=True, default=None)
+
+    description = Column(VARBINARY(512), nullable=True, default=None)
+
+    enabled = Column(INTEGER(unsigned=True), server_default='1')
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+
+class HostAgent(BASE):
+    """Class defining the iset_hostagent table of the database."""
+
+    __tablename__ = 'iset_hostagent'
+    __table_args__ = (
+        UniqueConstraint(
+            'idx_host', 'idx_agent'),
+        {
+            'mysql_engine': 'InnoDB'
+        }
+        )
+
+    idx = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    idx_host = Column(
+        BIGINT(unsigned=True), ForeignKey('iset_host.idx'),
+        nullable=False, server_default='1')
+
+    idx_agent = Column(
+        BIGINT(unsigned=True), ForeignKey('iset_agent.idx'),
+        nullable=False, server_default='1')
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+
 class Data(BASE):
     """Class defining the iset_data table of the database."""
 

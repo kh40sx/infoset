@@ -18,9 +18,11 @@ from sqlalchemy import and_
 
 # Infoset libraries
 from infoset.db import db
-from infoset.db.db_orm import Data, Datapoint, Agent
+from infoset.db.db_orm import Data, Datapoint, Agent, Host, HostAgent
 from infoset.db import db_agent as agent
 from infoset.db import db_datapoint as dpoint
+from infoset.db import db_host as dhost
+from infoset.db import db_hostagent as hagent
 from infoset.utils import jm_configuration
 from infoset.utils import log
 from infoset.cache import drain
@@ -54,7 +56,7 @@ class ProcessUID(threading.Thread):
 
             # Update agent database table if not there
             if agent.uid_exists(uid) is True:
-                agent_object = agent.Get(uid)
+                agent_object = agent.GetUID(uid)
                 last_timestamp = agent_object.last_timestamp()
             else:
                 last_timestamp = 0
@@ -142,12 +144,13 @@ class UpdateDB(object):
         # Initialize key variables
         uid = self.ingest.uid()
 
-        # Update agent database table if not there
-        if agent.uid_exists(uid) is False:
-            self._insert_agent()
+        # Update Agent, Host and HostAgent database tables if
+        # Host and agent are not already there
+        self._insert_agent()
+        self._insert_host()
 
         # Update datapoints if agent is enabled
-        agent_object = agent.Get(uid)
+        agent_object = agent.GetUID(uid)
         if agent_object.enabled() is True:
             # Update datapoint metadata if not there
             for item in self.ingest.sources():
@@ -178,6 +181,10 @@ class UpdateDB(object):
         agent_name = self.ingest.agent()
         hostname = self.ingest.hostname()
 
+        # Return if agent already exists in the table
+        if agent.uid_exists(uid) is True:
+            return
+
         # Update record one of the agent table
         if agent_name == '_infoset'.encode():
             # Update the database
@@ -191,7 +198,43 @@ class UpdateDB(object):
             # Prepare SQL query to read a record from the database.
             record = Agent(id=uid, name=agent_name, hostname=hostname)
             database = db.Database()
-            database.add(record, 1033)
+            database.add(record, 1081)
+
+    def _insert_host(self):
+        """Insert new agent into database.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        uid = self.ingest.uid()
+        hostname = self.ingest.hostname()
+
+        # Update Host table
+        if dhost.hostname_exists(hostname) is False:
+            # Add to Host table
+            record = Host(hostname=hostname)
+            database = db.Database()
+            database.add(record, 1080)
+
+        # Get idx of host
+        host_info = dhost.GetHost(hostname)
+        idx_host = host_info.idx()
+
+        # Get idx of agent
+        uid_info = agent.GetUID(uid)
+        idx_agent = uid_info.idx()
+
+        # Update HostAgent table
+        if hagent.host_agent_exists(idx_host, idx_agent) is False:
+            # Add to HostAgent table
+            record = HostAgent(idx_host=idx_host, idx_agent=idx_agent)
+            database = db.Database()
+            database.add(record, 1038)
 
     def _update_chartable(self, mapping):
         """Insert data into the database "iset_data" table.
@@ -315,7 +358,7 @@ class UpdateDB(object):
                 record = session.query(Datapoint).filter(
                     Datapoint.idx == idx_datapoint).one()
                 record.last_timestamp = last_timestamp
-                database.commit(session, 1044)
+                database.commit(session, 1083)
 
             # Report success
             log_message = (
@@ -346,7 +389,7 @@ def _insert_datapoint(metadata):
     (uid, did, agent_label, agent_source, _, base_type) = metadata
 
     # Get agent index value
-    agent_object = agent.Get(uid)
+    agent_object = agent.GetUID(uid)
     idx_agent = agent_object.idx()
 
     # Insert record
@@ -357,7 +400,7 @@ def _insert_datapoint(metadata):
         agent_source=agent_source,
         base_type=base_type)
     database = db.Database()
-    database.add(record, 1032)
+    database.add(record, 1082)
 
 
 def _datapoints_by_did(idx_agent):
@@ -419,7 +462,7 @@ def _update_agent_last_update(uid, last_timestamp):
     database.commit(session, 1055)
 
 
-def process(agent_name):
+def validate_cache_files():
     """Method initializing the class.
 
     Args:
@@ -435,17 +478,7 @@ def process(agent_name):
     # Configuration setup
     config_dir = os.environ['INFOSET_CONFIGDIR']
     config = jm_configuration.ConfigServer(config_dir)
-    threads_in_pool = config.ingest_threads()
     cache_dir = config.ingest_cache_directory()
-
-    # Make sure we have database connectivity
-    if db.connectivity() is False:
-        log_message = (
-            'No connectivity to database. Check if running. '
-            'Check database authentication parameters.'
-            '')
-        log.log2warn(1053, log_message)
-        return
 
     # Filenames must start with a numeric timestamp and #
     # end with a hex string. This will be tested later
@@ -486,6 +519,40 @@ def process(agent_name):
             else:
                 uid_metadata[hosthash][uid] = [(timestamp, filepath)]
 
+    # Return
+    return uid_metadata
+
+
+def process(agent_name):
+    """Method initializing the class.
+
+    Args:
+        agent_name: agent name
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    uid_metadata = defaultdict(lambda: defaultdict(dict))
+
+    # Configuration setup
+    config_dir = os.environ['INFOSET_CONFIGDIR']
+    config = jm_configuration.ConfigServer(config_dir)
+    threads_in_pool = config.ingest_threads()
+
+    # Make sure we have database connectivity
+    if db.connectivity() is False:
+        log_message = (
+            'No connectivity to database. Check if running. '
+            'Check database authentication parameters.'
+            '')
+        log.log2warn(1053, log_message)
+        return
+
+    # Get meta data on files
+    uid_metadata = validate_cache_files()
+
     # Spawn processes only if we have files to process
     if bool(uid_metadata.keys()) is True:
         # Process lock file
@@ -507,7 +574,10 @@ def process(agent_name):
             open(lockfile, 'a').close()
 
         # Spawn a pool of threads, and pass them queue instance
-        for _ in range(threads_in_pool):
+        # Only create the required number of threads up to the
+        # threads_in_pool maximum
+        for _ in range(
+                min(threads_in_pool, len(uid_metadata))):
             update_thread = ProcessUID(THREAD_QUEUE)
             update_thread.daemon = True
 

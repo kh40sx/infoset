@@ -14,7 +14,7 @@ from os import listdir, walk, path, makedirs, remove
 from flask import render_template, jsonify, send_file, request, make_response
 
 # Infoset imports
-from infoset.db.db_agent import Get
+from infoset.db.db_agent import GetUID
 from infoset.db.db_data import GetIDX
 from infoset.db.db_agent import GetDataPoint
 from infoset.db.db_orm import Agent
@@ -64,7 +64,7 @@ def index():
     session.close()
 
     # Get agent information
-    agent = Get(uid)
+    agent = GetUID(uid)
     host = agent.hostname()
     agent_list = [agent.everything()]
     datapoints = GetDataPoint(agent.idx())
@@ -215,7 +215,7 @@ def fetch_agent_dp(uid):
 
     """
     # Fetches agent from mysql by uid
-    agent = Get(uid)
+    agent = GetUID(uid)
     idx = agent.idx()
 
     # Gets all datapoints associated with agent
@@ -304,7 +304,7 @@ def fetch_graph(uid, datapoint):
     # For some reason we are posting urls that appear to be bytes
     # but are in fact strings. This strips the extraneous characters
     uid_fixed= uid[2:-1].encode()
-    agent_name = Get(uid_fixed).name()
+    agent_name = GetUID(uid_fixed).name()
     lang = language.Agent(agent_name)
     chart_label = lang.label_description(agent_label)
 

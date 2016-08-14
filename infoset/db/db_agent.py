@@ -12,7 +12,7 @@ from infoset.db import db
 from infoset.db.db_orm import Agent, Datapoint
 
 
-class Get(object):
+class GetUID(object):
     """Class to return agent data.
 
     Args:

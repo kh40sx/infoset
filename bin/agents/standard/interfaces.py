@@ -193,17 +193,13 @@ class Poller(object):
             log.log2warn(1024, log_message)
             return
 
-        # Get the UID for the agent after all preliminary checks are OK
-        uid_env = Agent.get_uid(self.hostname)
-
         # Post data to the remote server
-        self.upload(uid_env, query, query64)
+        self.upload(query, query64)
 
-    def upload(self, uid, query, query64):
+    def upload(self, query, query64):
         """Post system data to the central server.
 
         Args:
-            uid: Unique ID for Agent
             query: SNMP credentials object (IF-MIB 32 bit)
             query64: SNMP credentials object (IF-MIB 64 bit)
 
@@ -213,7 +209,7 @@ class Poller(object):
         """
         # Initialize key variables
         ignore = []
-        agent = Agent.Agent(uid, self.config, self.hostname)
+        agent = Agent.Agent(self.config, self.hostname)
 
         # Get a list of interfaces to ignore because they are down
         status = query.ifoperstatus()

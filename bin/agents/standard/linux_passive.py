@@ -23,6 +23,7 @@ except:
     print('You need to set your PYTHONPATH to include the infoset library')
     sys.exit(2)
 from infoset.utils import jm_configuration
+from infoset.utils import log
 from infoset.agents.flask.linux_passive import APP
 
 logging.getLogger('requests').setLevel(logging.WARNING)
@@ -87,13 +88,17 @@ class PollingAgent(object):
 
         """
         # Initialize key variables
-        if 'port' in self.config.agent_port():
+        if self.config.agent_port():
             data = self.config.agent_port()
             port = int(data)
         else:
             port = 5001
 
         # Do stuff
+        log_message = (
+            'Starting agent %s on localhost port %s.'
+            '') % (self.agent_name, port)
+        log.log2quiet(1088, log_message)
         APP.run(host='0.0.0.0', port=port)
 
 

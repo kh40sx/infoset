@@ -54,11 +54,10 @@ class Agent(object):
         post:
     """
 
-    def __init__(self, uid, config, hostname):
+    def __init__(self, config, hostname):
         """Method initializing the class.
 
         Args:
-            uid: Unique ID for Agent
             config: ConfigAgent configuration object
             agent_name: Name of agent
             hostname: Hostname that the agent applies to
@@ -71,11 +70,13 @@ class Agent(object):
         self.data = defaultdict(lambda: defaultdict(dict))
         self.config = config
         self.timestamp = jm_general.normalized_timestamp()
+        agent_name = config.agent_name()
+        uid = _get_uid(agent_name)
 
         # Add timestamp
         self.data['timestamp'] = self.timestamp
         self.data['uid'] = uid
-        self.data['agent'] = config.agent_name()
+        self.data['agent'] = agent_name
         self.data['hostname'] = hostname
 
         # Construct URL for server
@@ -544,11 +545,11 @@ class AgentThread(threading.Thread):
             self.queue.task_done()
 
 
-def get_uid(hostname):
+def _get_uid(agent_name):
     """Create a permanent UID for the agent.
 
     Args:
-        hostname: Host to create UID for
+        agent_name: Agent to create UID for
 
     Returns:
         uid: UID for agent
@@ -558,7 +559,7 @@ def get_uid(hostname):
     filez = hidden.File()
     dirz = hidden.Directory()
     uid_dir = dirz.uid()
-    filename = filez.uid(hostname)
+    filename = filez.uid(agent_name)
 
     # Create UID directory if not yet created
     if os.path.exists(uid_dir) is False:
@@ -619,7 +620,8 @@ def threads(agent_name, pollers):
             open(lockfile, 'a').close()
 
         # Spawn a pool of threads, and pass them queue instance
-        for _ in range(threads_in_pool):
+        for _ in range(
+                min(threads_in_pool, len(pollers))):
             update_thread = AgentThread(THREAD_QUEUE)
             update_thread.daemon = True
 

@@ -66,7 +66,7 @@ class GetIDX(object):
         # Make sure datapoint exists
         if db_datapoint.idx_exists(idx) is False:
             log_message = ('idx %s not found.') % (idx)
-            log.log2die(1302, log_message)
+            log.log2die(1049, log_message)
 
         # Establish a database session
         database = db.Database()

@@ -4,8 +4,7 @@
 import os
 import socket
 import json
-from flask import Flask, request
-from pprint import pprint
+from flask import Flask
 import logging
 
 from infoset.agents import agent as Agent
@@ -38,11 +37,8 @@ def home():
     # Get hostname
     hostname = socket.getfqdn()
 
-    # Get the UID for the agent
-    uid = Agent.get_uid(hostname)
-
     # Initialize key variables
-    agent = Agent.Agent(uid, config, hostname)
+    agent = Agent.Agent(config, hostname)
 
     # Update agent with linux data
     data_linux.getall(agent)
@@ -51,6 +47,7 @@ def home():
     data_dict = agent.polled_data()
     data = json.dumps(data_dict)
     return data
+
 
 def infoset_logging():
     """Format logging for the application.

@@ -167,7 +167,6 @@ class Poller(object):
         # Define key variables
         get_success = False
         response = False
-        uid = Agent.get_uid(self.hostname)
 
         # Create url
         if bool(self.config.agent_port()) is True:
@@ -190,7 +189,7 @@ class Poller(object):
 
         if get_success is True:
             # Initialize key variables
-            agent = Agent.Agent(uid, self.config, self.hostname)
+            agent = Agent.Agent(self.config, self.hostname)
 
             # Post data after converting it to json from string
             data = json.loads(result.text)
