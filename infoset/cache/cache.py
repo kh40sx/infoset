@@ -85,20 +85,6 @@ class ProcessUID(threading.Thread):
                     os.remove(filepath)
                     continue
 
-                # Make sure timestamp is OK, cannot be older than
-                # the last time the agent's datapoint was updated
-                if timestamp <= last_timestamp:
-                    log_message = (
-                        'Cache ingest file %s previously processed. '
-                        'Outdated agent files may have been copied to the '
-                        'ingest directory. Moving.'
-                        '') % (filepath)
-                    log.log2warn(1040, log_message)
-                    shutil.copy(
-                        filepath, config.ingest_failures_directory())
-                    os.remove(filepath)
-                    continue
-
                 # Update database
                 dbase = UpdateDB(ingest)
                 dbase.update()
@@ -261,7 +247,7 @@ class UpdateDB(object):
             value = float(string_value)
 
             # Only update with data collected after
-            # the most recent update. Don't do anything more
+            # the most recent DID update. Don't do anything more
             if timestamp > last_timestamp:
                 data_list.append(
                     Data(
