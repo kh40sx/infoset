@@ -17,10 +17,17 @@ class TimeStamp(object):
 
         """
         # Initialize key variables
-        self.presets = [1800, 3600, 10800, 18000, 28800, 43200]
+        seconds_per_day = 86400
+        self.presets = [
+            7 * seconds_per_day,
+            30 * seconds_per_day,
+            365 * seconds_per_day
+        ]
         self.descriptions = [
-            'Five Minute', 'Thirty Minute', 'One Hour',
-            'Three Hours', 'Eight Hours', 'Twelve Hours']
+            'Weekly',
+            'Monthly',
+            'Annual'
+        ]
         self._process()
 
     def _process(self):
