@@ -58,6 +58,13 @@ def main():
                 # Insert into iset_hostoid table if necessary
                 if snmp_object.oid_exists(item['oid_values']) is True:
                     print('hooray', item['oid_values'])
+                    if db_host.hostname_exists(hostname) is False:
+                        # Insert host (snmp_enabled = True)
+                        pass
+
+                    # Get idx for host
+                    # Determine whether idx_host idx_oid combo exists
+                    # Insert combo
 
 
 if __name__ == "__main__":
