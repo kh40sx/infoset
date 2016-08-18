@@ -57,6 +57,7 @@ def index():
 
     """
     # Get UID of _infoset agent
+    """
     database = Database()
     session = database.session()
     record = session.query(Agent.id).filter(Agent.idx == 1).one()
@@ -69,14 +70,23 @@ def index():
     agent_list = [agent.everything()]
     datapoints = GetDataPoint(agent.idx())
     data_point_dict = datapoints.everything()
-
+    """
+    data_point_dict= {}
+    data_point_dict["system"] = "Linux"
+    data_point_dict["distribution"] = "Ubuntu"
+    data_point_dict["release"] = "Xenial"
+    agent_list= []
+    host = "localhost"
+    uid = "2efb3de57b2f056267169b4cfd04b4b5b18781c9f8181c5411c7e6d0f44ca129"
     # Render the home page
     return render_template('index.html',
                            data=data_point_dict,
                            agent_list=agent_list,
                            uid=uid,
                            hostname=host)
-
+@infoset.route('/search')
+def search():
+    return render_template('search.html')
 
 @infoset.route('/hosts/<host>')
 def host(host):

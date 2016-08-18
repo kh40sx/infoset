@@ -8,10 +8,4 @@ $(document).ready(function () {
     console.log("Clicked");
   });
 
-  $search_button.on("click", function(e){
-    e.preventDefault();
-    console.log("search");
-    $search_box.toggleClass("toggled");
-  });
-
 });
