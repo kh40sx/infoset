@@ -42,15 +42,15 @@ class ColorWheel(object):
 
         """
         # Set color values depending on the agent_label
-        if 'memory'.encode() in self.agent_label:
+        if 'memory' in self.agent_label:
             return self.color_palette['memory']
-        elif 'disk'.encode() in self.agent_label:
+        elif 'disk' in self.agent_label:
             return self.color_palette['disk']
-        elif 'network'.encode() in self.agent_label:
+        elif 'network' in self.agent_label:
             return self.color_palette['network']
-        elif 'load'.encode() in self.agent_label:
+        elif 'load' in self.agent_label:
             return self.color_palette['load']
-        elif 'cpu'.encode() in self.agent_label:
+        elif 'cpu' in self.agent_label:
             return self.color_palette['cpu']
 
     def get_palette(self):
@@ -64,5 +64,5 @@ class ColorWheel(object):
 
         """
         # Return
-        if 'memory'.encode() in self.agent_label:
+        if 'memory' in self.agent_label:
             return self.memory_stacked

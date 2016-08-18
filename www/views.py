@@ -60,7 +60,7 @@ def index():
     database = Database()
     session = database.session()
     record = session.query(Agent.id).filter(Agent.idx == 1).one()
-    uid = record.id
+    uid = record.id.decode('utf-8')
     session.close()
 
     # Get agent information
@@ -303,13 +303,11 @@ def fetch_graph(uid, datapoint):
     # Start with the agent name
     # For some reason we are posting urls that appear to be bytes
     # but are in fact strings. This strips the extraneous characters
-    uid_fixed= uid[2:-1].encode()
-    agent_name = GetUID(uid_fixed).name()
+    agent_name = GetUID(uid).name()
     lang = language.Agent(agent_name)
     chart_label = lang.label_description(agent_label)
 
     # Print the chart
-    # chart_label = agent_label.decode()
     png_output = chart.api_single_line(
         chart_label, 'Data',
         color_palette.get_scheme(), filepath,

@@ -75,6 +75,12 @@ def main():
         except:
             pass
 
+        # Try some additional statements
+        statements = replacements()
+        for statement in statements:
+            print(statement)
+            engine.execute(statement)
+
     # Install required PIP packages
     print('Installing required pip3 packages')
     pip3 = infoset.utils.jm_general.search_file('pip3')
@@ -89,6 +95,33 @@ def main():
         'pip3 install --user --requirement %s') % (requirements_file)
     infoset.utils.jm_general.run_script(script_name)
 
+
+def replacements():
+    """Update the database with certain key data.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    data = []
+    oid_data = [
+        'REPLACE INTO iset_oid '
+        '(oid_values, oid_labels, agent_label, base_type) values ('
+        '".1.3.6.1.2.1.31.1.1.1.10", ".1.3.6.1.2.1.31.1.1.1.1", '
+        '"ifHCOutOctets", 64)',
+        'REPLACE INTO iset_oid '
+        '(oid_values, oid_labels, agent_label, base_type) values ('
+        '".1.3.6.1.2.1.31.1.1.1.6", ".1.3.6.1.2.1.31.1.1.1.1", '
+        '"ifHCInOctets", 64)'
+    ]
+    data.extend(oid_data)
+
+    # Return
+    return data
 
 if __name__ == '__main__':
     main()

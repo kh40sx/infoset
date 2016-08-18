@@ -32,19 +32,19 @@ class Agent(object):
         post:
     """
 
-    def __init__(self, encoded_agent_name):
+    def __init__(self, agent_name):
         """Method initializing the class.
 
         Args:
-            encoded_agent_name: Name of agent.
+            agent_name
 
         Returns:
             None
 
         """
         # Initialize key variables
-        self.agent_name = encoded_agent_name.decode()
-        self.agent_yaml = None
+        self.agent_name = agent_name
+        self.agent_yaml = {}
 
         # Get the language used
         config_directory = os.environ['INFOSET_CONFIGDIR']
@@ -65,21 +65,21 @@ class Agent(object):
         else:
             log_message = ('Agent language file %s does not exist.') % (
                 yaml_file)
-            log.log2die(1034, log_message)
+            log.log2warn(1034, log_message)
 
-    def label_description(self, encoded_agent_label):
+    def label_description(self, agent_label):
         """Return the name of the agent.
 
         Args:
-            encoded_agent_label: Agent label
+            agent_label: Agent label
 
         Returns:
             value: Label description
 
         """
         # Initialize key variables
-        agent_label = encoded_agent_label.decode()
         value = None
+        data = {}
         top_key = 'agent_source_descriptions'
 
         if top_key in self.agent_yaml:
@@ -92,19 +92,20 @@ class Agent(object):
         # Return
         return value
 
-    def label_units(self, encoded_agent_label):
+    def label_units(self, agent_label):
         """Return the name of the agent.
 
         Args:
-            encoded_agent_label: Agent label
+            agent_label: Agent label
 
         Returns:
             value: Label units of measure
 
         """
         # Initialize key variables
-        agent_label = encoded_agent_label.decode()
+        agent_label = agent_label.decode()
         value = None
+        data = {}
         top_key = 'agent_source_descriptions'
 
         if top_key in self.agent_yaml:

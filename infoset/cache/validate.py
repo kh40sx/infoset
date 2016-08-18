@@ -210,5 +210,6 @@ class ValidateCache(object):
                             float(value)
                         except:
                             valid = False
+
         # Return
         return valid

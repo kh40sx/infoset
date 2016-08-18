@@ -16,6 +16,50 @@ import yaml
 from infoset.utils import log
 
 
+def encode(value):
+    """Encode string value to utf-8.
+
+    Args:
+        value: String to encode
+
+    Returns:
+        result: encoded value
+
+    """
+    # Initialize key variables
+    result = value
+
+    # Start decode
+    if value is not None:
+        if isinstance(value, str) is True:
+            result = value.encode()
+
+    # Return
+    return result
+
+
+def decode(value):
+    """Decode utf-8 value to string.
+
+    Args:
+        value: String to decode
+
+    Returns:
+        result: decoded value
+
+    """
+    # Initialize key variables
+    result = value
+
+    # Start decode
+    if value is not None:
+        if isinstance(value, bytes) is True:
+            result = value.decode('utf-8')
+
+    # Return
+    return result
+
+
 def hashstring(string, sha=256, utf8=False):
     """Create a UTF encoded SHA hash string.
 

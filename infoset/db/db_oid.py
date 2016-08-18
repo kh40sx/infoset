@@ -11,11 +11,11 @@ from collections import defaultdict
 from infoset.utils import log
 from infoset.utils import jm_general
 from infoset.db import db
-from infoset.db.db_orm import Host
+from infoset.db.db_orm import OID
 
 
-class GetHost(object):
-    """Class to return host data by hostname.
+class GetOID(object):
+    """Class to return host data by oid_values.
 
     Args:
         None
@@ -27,11 +27,11 @@ class GetHost(object):
 
     """
 
-    def __init__(self, hostname):
+    def __init__(self, oid_values):
         """Function for intializing the class.
 
         Args:
-            hostname: Hostname
+            oid_values: OID
 
         Returns:
             None
@@ -39,28 +39,26 @@ class GetHost(object):
         """
         # Initialize important variables
         self.data_dict = defaultdict(dict)
-        value = hostname.encode()
 
         # Establish a database session
         database = db.Database()
         session = database.session()
-        result = session.query(Host).filter(Host.hostname == value)
+        result = session.query(OID).filter(OID.oid_values == oid_values)
 
         # Massage data
         if result.count() == 1:
             for instance in result:
                 self.data_dict['idx'] = instance.idx
                 self.data_dict[
-                    'hostname'] = jm_general.decode(instance.hostname)
+                    'oid_values'] = jm_general.decode(instance.oid_values)
                 self.data_dict[
-                    'description'] = jm_general.decode(instance.description)
-                self.data_dict['enabled'] = instance.enabled
-                self.data_dict['snmp_enabled'] = instance.snmp_enabled
+                    'oid_labels'] = jm_general.decode(instance.oid_labels)
                 self.data_dict[
-                    'ip_address'] = jm_general.decode(instance.ip_address)
+                    'agent_label'] = jm_general.decode(instance.agent_label)
+                self.data_dict['base_type'] = instance.base_type
                 break
         else:
-            log_message = ('Hostname %s not found.') % (hostname)
+            log_message = ('OID %s not found.') % (oid_values)
             log.log2die(1048, log_message)
 
         # Return the session to the database pool after processing
@@ -80,8 +78,8 @@ class GetHost(object):
         value = self.data_dict['idx']
         return value
 
-    def hostname(self):
-        """Get hostname value.
+    def oid_values(self):
+        """Get oid_values value.
 
         Args:
             None
@@ -91,11 +89,11 @@ class GetHost(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['hostname']
+        value = self.data_dict['oid_values']
         return value
 
-    def description(self):
-        """Get description value.
+    def oid_labels(self):
+        """Get oid_labels value.
 
         Args:
             None
@@ -105,11 +103,11 @@ class GetHost(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['description']
+        value = self.data_dict['oid_labels']
         return value
 
-    def enabled(self):
-        """Get enabled value.
+    def agent_label(self):
+        """Get agent_label value.
 
         Args:
             None
@@ -119,11 +117,11 @@ class GetHost(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['enabled']
+        value = self.data_dict['agent_label']
         return value
 
-    def ip_address(self):
-        """Get ip_address value.
+    def base_type(self):
+        """Get base_type value.
 
         Args:
             None
@@ -133,21 +131,7 @@ class GetHost(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['ip_address']
-        return value
-
-    def snmp_enabled(self):
-        """Get snmp_enabled value.
-
-        Args:
-            None
-
-        Returns:
-            value: Value to return
-
-        """
-        # Initialize key variables
-        value = self.data_dict['snmp_enabled']
+        value = self.data_dict['base_type']
         return value
 
 
@@ -168,7 +152,7 @@ class GetIDX(object):
         """Function for intializing the class.
 
         Args:
-            idx: Host Index
+            idx: OID Index
 
         Returns:
             None
@@ -180,30 +164,29 @@ class GetIDX(object):
         # Establish a database session
         database = db.Database()
         session = database.session()
-        result = session.query(Host).filter(Host.idx == idx)
+        result = session.query(OID).filter(OID.idx == idx)
 
         # Massage data
         if result.count() == 1:
             for instance in result:
                 self.data_dict['idx'] = instance.idx
                 self.data_dict[
-                    'hostname'] = jm_general.decode(instance.hostname)
+                    'oid_values'] = jm_general.decode(instance.oid_values)
                 self.data_dict[
-                    'description'] = jm_general.decode(instance.description)
-                self.data_dict['enabled'] = instance.enabled
-                self.data_dict['snmp_enabled'] = instance.snmp_enabled
+                    'oid_labels'] = jm_general.decode(instance.oid_labels)
                 self.data_dict[
-                    'ip_address'] = jm_general.decode(instance.ip_address)
+                    'agent_label'] = jm_general.decode(instance.agent_label)
+                self.data_dict['base_type'] = instance.base_type
                 break
         else:
-            log_message = ('Host idx %s not found.') % (idx)
+            log_message = ('OID idx %s not found.') % (idx)
             log.log2die(1086, log_message)
 
         # Return the session to the database pool after processing
         session.close()
 
-    def hostname(self):
-        """Get hostname value.
+    def idx(self):
+        """Get idx value.
 
         Args:
             None
@@ -213,11 +196,11 @@ class GetIDX(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['hostname']
+        value = self.data_dict['idx']
         return value
 
-    def description(self):
-        """Get description value.
+    def oid_values(self):
+        """Get oid_values value.
 
         Args:
             None
@@ -227,11 +210,11 @@ class GetIDX(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['description']
+        value = self.data_dict['oid_values']
         return value
 
-    def enabled(self):
-        """Get enabled value.
+    def oid_labels(self):
+        """Get oid_labels value.
 
         Args:
             None
@@ -241,11 +224,11 @@ class GetIDX(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['enabled']
+        value = self.data_dict['oid_labels']
         return value
 
-    def ip_address(self):
-        """Get ip_address value.
+    def agent_label(self):
+        """Get agent_label value.
 
         Args:
             None
@@ -255,11 +238,11 @@ class GetIDX(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['ip_address']
+        value = self.data_dict['agent_label']
         return value
 
-    def snmp_enabled(self):
-        """Get snmp_enabled value.
+    def base_type(self):
+        """Get base_type value.
 
         Args:
             None
@@ -269,18 +252,18 @@ class GetIDX(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['snmp_enabled']
+        value = self.data_dict['base_type']
         return value
 
 
-def all_hosts():
-    """Get list of all hosts.
+def all_oids():
+    """Get list of all oids.
 
     Args:
         None
 
     Returns:
-        hostlist: List of dicts of host data
+        hostlist: List of dicts of oids data
 
     """
     hostlist = []
@@ -289,7 +272,7 @@ def all_hosts():
     # Establish a database session
     database = db.Database()
     session = database.session()
-    result = session.query(Host.idx)
+    result = session.query(OID.idx)
     session.close()
 
     # Add to the list of host idx values
@@ -301,22 +284,22 @@ def all_hosts():
         for idx in idx_list:
             data_dict = {}
             host = GetIDX(idx)
-            data_dict['hostname'] = host.hostname()
-            data_dict['description'] = host.description()
-            data_dict['enabled'] = host.enabled()
-            data_dict['snmp_enabled'] = host.enabled()
-            data_dict['ip_address'] = host.ip_address()
+            data_dict['idx'] = host.idx()
+            data_dict['oid_values'] = host.oid_values()
+            data_dict['oid_labels'] = host.oid_labels()
+            data_dict['agent_label'] = host.agent_label()
+            data_dict['base_type'] = host.base_type()
             hostlist.append(data_dict)
 
     # Return
     return hostlist
 
 
-def hostname_exists(hostname):
-    """Determine whether the hostname exists.
+def oid_values_exists(values):
+    """Determine whether the oid_values exists.
 
     Args:
-        hostname: Hostname
+        values: OID
 
     Returns:
         found: True if found
@@ -324,17 +307,18 @@ def hostname_exists(hostname):
     """
     # Initialize key variables
     found = False
-    value = hostname.encode()
+    oid_values = values.encode()
 
     # Establish a database session
     database = db.Database()
     session = database.session()
-    result = session.query(Host.hostname).filter(Host.hostname == value)
+    result = session.query(
+        OID.oid_values).filter(OID.oid_values == oid_values)
 
     # Massage data
     if result.count() == 1:
         for instance in result:
-            _ = instance.hostname
+            _ = instance.oid_values
             break
         found = True
 
@@ -361,7 +345,7 @@ def idx_exists(idx):
     # Establish a database session
     database = db.Database()
     session = database.session()
-    result = session.query(Host.idx).filter(Host.idx == idx)
+    result = session.query(OID.idx).filter(OID.idx == idx)
 
     # Massage data
     if result.count() == 1:

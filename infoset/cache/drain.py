@@ -69,7 +69,7 @@ class Drain(object):
                 if key == 'timestamp':
                     self.agent_meta[key] = int(information[key])
                 else:
-                    self.agent_meta[key] = information[key].encode()
+                    self.agent_meta[key] = information[key]
             timestamp = self.agent_meta['timestamp']
             uid = self.agent_meta['uid']
 
@@ -80,12 +80,11 @@ class Drain(object):
                     continue
 
                 # Process the data type
-                for string_label, group in sorted(
+                for label, group in sorted(
                         information[data_type].items()):
                     # Get universal parameters for group
                     base_type = _base_type(group['base_type'])
-                    description = _encode(group['description'])
-                    label = _encode(string_label)
+                    description = group['description']
 
                     # Initialize base type
                     if base_type not in self.data[data_type]:
@@ -95,7 +94,7 @@ class Drain(object):
                     for datapoint in group['data']:
                         index = datapoint[0]
                         value = datapoint[1]
-                        source = _encode(datapoint[2])
+                        source = datapoint[2]
                         did = _did(
                             uid, label, index,
                             self.agent_meta['agent'],
@@ -108,7 +107,7 @@ class Drain(object):
                             )
                         else:
                             self.data[data_type][base_type].append(
-                                (uid, did, _encode(value), timestamp)
+                                (uid, did, value, timestamp)
                             )
 
                         # Update sources after fixing encoding
@@ -391,7 +390,7 @@ def _did(uid, label, index, agent_name, hostname):
     # Initialize key variables
     prehash = ('%s%s%s%s%s') % (uid, label, index, agent_name, hostname)
     result = jm_general.hashstring(prehash)
-    did = _encode(result)
+    did = result
 
     # Return
     return did
@@ -425,23 +424,3 @@ def _base_type(data):
 
     # Return
     return base_type
-
-
-def _encode(data):
-    """UTF8 encode data.
-
-    Args:
-        data: Data to encode
-
-    Returns:
-        result: Result of encoding
-
-    """
-    # Initialize key variables
-    if data is None:
-        result = data
-    else:
-        result = (('%s') % (data)).encode()
-
-    # Return
-    return result

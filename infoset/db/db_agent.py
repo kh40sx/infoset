@@ -8,6 +8,7 @@ from collections import defaultdict
 
 # Infoset libraries
 from infoset.utils import log
+from infoset.utils import jm_general
 from infoset.db import db
 from infoset.db.db_orm import Agent, Datapoint
 
@@ -37,25 +38,28 @@ class GetUID(object):
         """
         # Initialize important variables
         self.data_dict = defaultdict(dict)
-        self.uid = uid
+        value = uid.encode()
+        self.uid = value
 
         # Establish a database session
         database = db.Database()
         session = database.session()
-        result = session.query(Agent).filter(Agent.id == uid)
+        result = session.query(Agent).filter(Agent.id == value)
 
         # Massage data
         if result.count() == 1:
             for instance in result:
                 self.data_dict['idx'] = instance.idx
-                self.data_dict['name'] = instance.name
-                self.data_dict['description'] = instance.description
-                self.data_dict['hostname'] = instance.hostname
+                self.data_dict['name'] = jm_general.decode(instance.name)
+                self.data_dict[
+                    'description'] = jm_general.decode(instance.description)
+                self.data_dict[
+                    'hostname'] = jm_general.decode(instance.hostname)
                 self.data_dict['enabled'] = instance.enabled
                 self.data_dict['last_timestamp'] = instance.last_timestamp
                 break
         else:
-            log_message = ('uid %s not found.') % (uid)
+            log_message = ('uid %s not found.') % (value)
             log.log2die(1035, log_message)
 
         # Return the session to the database pool after processing
@@ -197,9 +201,9 @@ class GetDataPoint(object):
         # Massage data
         if result.count() > 0:
             for instance in result:
-                agent_label = instance.agent_label
+                agent_label = jm_general.decode(instance.agent_label)
                 idx = instance.idx
-                uncharted_value = instance.uncharted_value
+                uncharted_value = jm_general.decode(instance.uncharted_value)
                 self.data_point_dict[agent_label] = (idx, uncharted_value)
         else:
             log_message = ('Agent idx %s not found.') % (idx_agent)
@@ -235,11 +239,12 @@ def uid_exists(uid):
     """
     # Initialize key variables
     found = False
+    value = uid.encode()
 
     # Establish a database session
     database = db.Database()
     session = database.session()
-    result = session.query(Agent.id).filter(Agent.id == uid)
+    result = session.query(Agent.id).filter(Agent.id == value)
 
     # Massage data
     if result.count() == 1:

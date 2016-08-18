@@ -9,6 +9,7 @@ from collections import defaultdict
 
 # Infoset libraries
 from infoset.utils import log
+from infoset.utils import jm_general
 from infoset.db import db
 from infoset.db.db_orm import Datapoint
 
@@ -51,8 +52,10 @@ class GetSingleDataPoint(object):
                 self.data_dict['idx'] = instance.idx
                 self.data_dict['id'] = instance.id
                 self.data_dict['idx_agent'] = instance.idx_agent
-                self.data_dict['agent_label'] = instance.agent_label
-                self.data_dict['agent_source'] = instance.agent_source
+                self.data_dict[
+                    'agent_label'] = jm_general.decode(instance.agent_label)
+                self.data_dict[
+                    'agent_source'] = jm_general.decode(instance.agent_source)
                 self.data_dict['enabled'] = instance.enabled
                 self.data_dict['base_type'] = instance.base_type
                 self.data_dict['multiplier'] = instance.multiplier
@@ -203,11 +206,12 @@ class GetDID(object):
         """
         # Initialize important variables
         self.data_dict = defaultdict(dict)
+        value = did.encode()
 
         # Establish a database session
         database = db.Database()
         session = database.session()
-        result = session.query(Datapoint).filter(Datapoint.id == did)
+        result = session.query(Datapoint).filter(Datapoint.id == value)
 
         # Massage data
         if result.count() == 1:
@@ -215,10 +219,13 @@ class GetDID(object):
                 self.data_dict['idx'] = instance.idx
                 self.data_dict['id'] = instance.id
                 self.data_dict['idx_agent'] = instance.idx_agent
-                self.data_dict['agent_label'] = instance.agent_label
-                self.data_dict['agent_source'] = instance.agent_source
+                self.data_dict[
+                    'agent_label'] = jm_general.decode(instance.agent_label)
+                self.data_dict[
+                    'agent_source'] = jm_general.decode(instance.agent_source)
                 self.data_dict['enabled'] = instance.enabled
-                self.data_dict['base_type'] = instance.base_type
+                self.data_dict[
+                    'base_type'] = jm_general.decode(instance.base_type)
                 self.data_dict['multiplier'] = instance.multiplier
                 self.data_dict['last_timestamp'] = instance.last_timestamp
                 break
@@ -377,10 +384,12 @@ class GetIDX(object):
         if result.count() == 1:
             for instance in result:
                 self.data_dict['idx'] = instance.idx
-                self.data_dict['id'] = instance.id
+                self.data_dict['id'] = jm_general.decode(instance.id)
                 self.data_dict['idx_agent'] = instance.idx_agent
-                self.data_dict['agent_label'] = instance.agent_label
-                self.data_dict['agent_source'] = instance.agent_source
+                self.data_dict[
+                    'agent_label'] = jm_general.decode(instance.agent_label)
+                self.data_dict[
+                    'agent_source'] = jm_general.decode(instance.agent_source)
                 self.data_dict['enabled'] = instance.enabled
                 self.data_dict['base_type'] = instance.base_type
                 self.data_dict['multiplier'] = instance.multiplier
@@ -518,11 +527,12 @@ def did_exists(did):
     """
     # Initialize key variables
     found = False
+    value = did.encode()
 
     # Establish a database session
     database = db.Database()
     session = database.session()
-    result = session.query(Datapoint.id).filter(Datapoint.id == did)
+    result = session.query(Datapoint.id).filter(Datapoint.id == value)
 
     # Massage data
     if result.count() == 1:

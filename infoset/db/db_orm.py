@@ -16,13 +16,84 @@ from sqlalchemy import ForeignKey
 BASE = declarative_base()
 
 
+class OID(BASE):
+    """Class defining the iset_oid table of the database."""
+
+    __tablename__ = 'iset_oid'
+    __table_args__ = (
+        UniqueConstraint(
+            'oid_values'),
+        UniqueConstraint(
+            'agent_label'),
+        {
+            'mysql_engine': 'InnoDB'
+        }
+        )
+
+    idx = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    oid_values = Column(VARBINARY(512), nullable=True, default=None)
+
+    oid_labels = Column(VARBINARY(512), nullable=True, default=None)
+
+    agent_label = Column(VARBINARY(512), nullable=True, default=None)
+
+    base_type = Column(INTEGER(unsigned=True), server_default='1')
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+
+class HostOID(BASE):
+    """Class defining the iset_hostoid table of the database."""
+
+    __tablename__ = 'iset_hostoid'
+    __table_args__ = (
+        UniqueConstraint(
+            'idx_host', 'idx_oid'),
+        {
+            'mysql_engine': 'InnoDB'
+        }
+        )
+
+    idx = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    idx_host = Column(
+        BIGINT(unsigned=True), ForeignKey('iset_host.idx'),
+        nullable=False, server_default='1')
+
+    idx_oid = Column(
+        BIGINT(unsigned=True), ForeignKey('iset_oid.idx'),
+        nullable=False, server_default='1')
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+
 class Host(BASE):
     """Class defining the iset_host table of the database."""
 
     __tablename__ = 'iset_host'
-    __table_args__ = {
-        'mysql_engine': 'InnoDB'
-    }
+    __table_args__ = (
+
+        UniqueConstraint(
+            'hostname'),
+        {
+            'mysql_engine': 'InnoDB'
+        }
+        )
 
     idx = Column(
         BIGINT(unsigned=True), primary_key=True,
@@ -33,6 +104,10 @@ class Host(BASE):
     description = Column(VARBINARY(512), nullable=True, default=None)
 
     enabled = Column(INTEGER(unsigned=True), server_default='1')
+
+    snmp_enabled = Column(INTEGER(unsigned=True), server_default='0')
+
+    ip_address = Column(VARBINARY(512), nullable=True, default=None)
 
     ts_modified = Column(
         DATETIME, server_default=text(

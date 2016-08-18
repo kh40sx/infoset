@@ -24,6 +24,7 @@ from infoset.db import db_datapoint as dpoint
 from infoset.db import db_host as dhost
 from infoset.db import db_hostagent as hagent
 from infoset.utils import jm_configuration
+from infoset.utils import jm_general
 from infoset.utils import log
 from infoset.cache import drain
 from infoset.utils import hidden
@@ -53,13 +54,6 @@ class ProcessUID(threading.Thread):
             uid = data_dict['uid']
             metadata = data_dict['metadata']
             config = data_dict['config']
-
-            # Update agent database table if not there
-            if agent.uid_exists(uid) is True:
-                agent_object = agent.GetUID(uid)
-                last_timestamp = agent_object.last_timestamp()
-            else:
-                last_timestamp = 0
 
             # Initialize other values
             max_timestamp = 0
@@ -177,12 +171,14 @@ class UpdateDB(object):
             database = db.Database()
             session = database.session()
             record = session.query(Agent).filter(Agent.idx == 1).one()
-            record.id = uid
-            record.hostname = hostname
+            record.id = jm_general.encode(uid)
+            record.hostname = jm_general.encode(hostname)
             database.commit(session, 1073)
         else:
             # Prepare SQL query to read a record from the database.
-            record = Agent(id=uid, name=agent_name, hostname=hostname)
+            record = Agent(
+                id=uid, name=jm_general.encode(agent_name),
+                hostname=jm_general.encode(hostname))
             database = db.Database()
             database.add(record, 1081)
 
@@ -203,7 +199,7 @@ class UpdateDB(object):
         # Update Host table
         if dhost.hostname_exists(hostname) is False:
             # Add to Host table
-            record = Host(hostname=hostname)
+            record = Host(hostname=jm_general.encode(hostname))
             database = db.Database()
             database.add(record, 1080)
 
@@ -333,7 +329,7 @@ class UpdateDB(object):
                 session = database.session()
                 record = session.query(Datapoint).filter(
                     Datapoint.idx == idx_datapoint).one()
-                record.uncharted_value = value
+                record.uncharted_value = jm_general.encode(value)
                 database.commit(session, 1037)
 
             # Change the last updated timestamp
@@ -380,10 +376,10 @@ def _insert_datapoint(metadata):
 
     # Insert record
     record = Datapoint(
-        id=did,
+        id=jm_general.encode(did),
         idx_agent=idx_agent,
-        agent_label=agent_label,
-        agent_source=agent_source,
+        agent_label=jm_general.encode(agent_label),
+        agent_source=jm_general.encode(agent_source),
         base_type=base_type)
     database = db.Database()
     database.add(record, 1082)
@@ -415,7 +411,7 @@ def _datapoints_by_did(idx_agent):
 
     # Massage data
     for instance in result:
-        did = instance.id
+        did = instance.id.decode('utf-8')
         idx = instance.idx
         idx_agent = instance.idx_agent
         last_timestamp = instance.last_timestamp
@@ -440,10 +436,13 @@ def _update_agent_last_update(uid, last_timestamp):
         None
 
     """
+    # Initialize key variables
+    value = jm_general.encode(uid)
+
     # Update the database
     database = db.Database()
     session = database.session()
-    record = session.query(Agent).filter(Agent.id == uid).one()
+    record = session.query(Agent).filter(Agent.id == value).one()
     record.last_timestamp = last_timestamp
     database.commit(session, 1055)
 
@@ -494,9 +493,8 @@ def validate_cache_files():
 
             # Create a dict of UIDs, timestamps and filepaths
             (name, _) = filename.split('.')
-            (tstamp, uid_string, hosthash) = name.split('_')
+            (tstamp, uid, hosthash) = name.split('_')
             timestamp = int(tstamp)
-            uid = uid_string.encode()
 
             # Keep track of hosts and the UIDs that track them
             # Create a list of timestamp, host filepath tuples for each UID
