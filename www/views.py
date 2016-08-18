@@ -27,6 +27,7 @@ from infoset.utils import ColorWheel
 from infoset.utils import jm_general
 from infoset.language import language
 from www import infoset
+from infoset.web import ws_device
 # Matplotlib imports, Do not edit order
 """
 import numpy as np
@@ -384,3 +385,23 @@ def fetch_graph_stacked(uid, datapoint):
     response = make_response(png_output.getvalue())
     response.headers['Content-Type'] = 'image/png'
     return response
+
+
+@infoset.route('/fetch/agent/<ip>/table', methods=["GET"])
+def fetch_table(ip):
+    config = infoset.config['GLOBAL_CONFIG']
+    ws_device.make(config, True)
+
+    try:
+
+        with open(path.join(config.web_directory(), ip + ".html")) as file:
+            html = file.read()
+            return html
+
+    except IOError as e:
+        print("Error occurred while retrieving table for " + ip + ": {0}".format(e))
+        return "Error occurred while retrieving table for " + ip + ": {0}".format(e)
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
+        return "Unexpected error occurred."
+
