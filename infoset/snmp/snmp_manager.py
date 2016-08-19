@@ -747,7 +747,8 @@ def _instance_found(results):
         if (isinstance(value, rfc1905.NoSuchInstance) is True) or (
                 (isinstance(value, rfc1905.NoSuchObject) is True)):
             found = False
-            break
+        elif isinstance(value, int) is True:
+            found = True
         elif bool(value) is True:
             found = True
         break

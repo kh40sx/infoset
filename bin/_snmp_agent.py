@@ -29,8 +29,9 @@ def main():
         None
 
     """
-    # Process Cache
+    # Initialize key variables
     agent_name = 'snmp'
+    oid_list = []
 
     # Get configuration
     config_dir = os.environ['INFOSET_CONFIGDIR']
@@ -40,14 +41,24 @@ def main():
     # Get hosts
     hostnames = config.agent_hostnames()
 
-    # Get OIDs
-    oids = db_oid.all_oids()
-
-    pprint(hostnames)
-    pprint(oids)
-
     # Process each hostname
     for hostname in hostnames:
+        # Get all oid IDX values tied to the hostname
+        idx_host = db_host.GetHost(hostname).idx()
+        oid_indices = db_hostoid.oid_indices(idx_host)
+        print(oid_indices)
+
+        for idx_oid in oid_indices:
+            oid_object = db_oid.GetIDX(idx_oid)
+            oid_list.append(
+                (oid_object.oid_values(), oid_object.oid_labels())
+            )
+
+        print(hostname)
+        pprint(oid_list)
+        print('\n')
+
+        """
         # Get SNMP information
         snmp_config = jm_configuration.ConfigSNMP(config_dir)
         validate = snmp_manager.Validate(hostname, snmp_config.snmp_auth())
@@ -82,6 +93,7 @@ def main():
                         database.add(record, 1081)
 
                         print('Inserted!', hostname, idx_host, idx_oid)
+        """
 
 
 if __name__ == "__main__":
