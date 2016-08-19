@@ -13,11 +13,9 @@ from pprint import pprint
 # Infoset libraries
 from infoset.utils import jm_configuration
 from infoset.utils import jm_general
-from infoset.db import db
 from infoset.db import db_oid
 from infoset.db import db_host
 from infoset.db import db_hostoid
-from infoset.db.db_orm import HostOID, Host
 from infoset.snmp import snmp_manager
 
 
@@ -33,8 +31,6 @@ def main():
     """
     # Initialize key variables
     agent_name = 'snmp'
-    master = defaultdict(lambda: defaultdict(dict))
-    datapoints = defaultdict(lambda: defaultdict(dict))
 
     # Get configuration
     config_dir = os.environ['INFOSET_CONFIGDIR']
@@ -47,24 +43,7 @@ def main():
     # Process each hostname
     for hostname in hostnames:
         # Get all oid IDX values tied to the hostname
-        idx_host = db_host.GetHost(hostname).idx()
-        oid_indices = db_hostoid.oid_indices(idx_host)
-
-        # Get OID metadata
-        for idx_oid in oid_indices:
-            oid_object = db_oid.GetIDX(idx_oid)
-
-            # Assign OIDs for values to the OID that
-            # will be used to label the results
-            labels_oid = oid_object.oid_labels()
-            values_oid = oid_object.oid_values()
-            agent_label = oid_object.agent_label()
-            base_type = oid_object.agent_label()
-
-            # Stuff to do
-            if labels_oid not in master:
-                master[labels_oid][agent_label]['values_oid'] = values_oid
-                master[labels_oid][agent_label]['base_type'] = base_type
+        master = _master(hostname)
 
         # Get SNMP information
         snmp_config = jm_configuration.ConfigSNMP(config_dir)
@@ -73,78 +52,99 @@ def main():
 
         # Check SNMP supported
         if bool(snmp_params) is True:
-            # Get sources
-            snmp_object = snmp_manager.Interact(snmp_params)
-            for labels_oid in master.keys():
-                sources = {}
-                oid_results = snmp_object.swalk(labels_oid)
-                for key, value in oid_results.items():
-                    sources[_index(labels_oid, key)] = value
+            # Get datapoints
+            _datapoints(snmp_params, master)
 
-            # Get values
-            for labels_oid in master.keys():
-                for agent_label in master[labels_oid].keys():
-                    # Information about the OID
-                    values_oid = master[labels_oid][agent_label]['values_oid']
-                    base_type = master[labels_oid][agent_label]['base_type']
 
-                    # Get OID values
-                    values = {}
-                    oid_results = snmp_object.swalk(values_oid)
-                    for key, value in oid_results.items():
-                        values[_index(labels_oid, key)] = value
+def _datapoints(snmp_params, master):
+    """Create the master dictionary for the host.
 
-                    # Create list of data for json
-                    data = []
-                    for index, value in values.items():
-                        data.append([index, value, sources[index]])
+    Args:
+        labels_oid: OID used for labels
+        oid: OID value
 
-                    # Finish up dict for json
-                    datapoints[agent_label]['data'] = data
-                    datapoints[agent_label]['description'] = None
-                    datapoints[agent_label]['base_type'] = base_type
+    Returns:
+        value: Index value
 
-        print(hostname)
+    """
+    # Get sources
+    snmp_object = snmp_manager.Interact(snmp_params)
+    for labels_oid in master.keys():
+        sources = {}
+        oid_results = snmp_object.swalk(labels_oid)
+        for key, value in oid_results.items():
+            sources[_index(labels_oid, key)] = jm_general.decode(value)
+
+    # Get values
+    for labels_oid in master.keys():
+        # Initialize datapoints
+        datapoints = defaultdict(lambda: defaultdict(dict))
+
+        for agent_label in master[labels_oid].keys():
+            # Information about the OID
+            values_oid = master[labels_oid][agent_label]['values_oid']
+            base_type = master[labels_oid][agent_label]['base_type']
+            chartable = master[labels_oid][agent_label]['chartable']
+
+            # Get OID values
+            values = {}
+            oid_results = snmp_object.swalk(values_oid)
+            for key, value in oid_results.items():
+                values[_index(labels_oid, key)] = value
+
+            # Create list of data for json
+            data = []
+            for index, value in values.items():
+                data.append([index, value, sources[index]])
+
+            # Finish up dict for json
+            datapoints[agent_label]['data'] = data
+            datapoints[agent_label]['description'] = None
+            datapoints[agent_label]['base_type'] = base_type
+
         pprint(master)
         print('\n')
         pprint(datapoints)
 
-        """
-        # Get SNMP information
-        snmp_config = jm_configuration.ConfigSNMP(config_dir)
-        validate = snmp_manager.Validate(hostname, snmp_config.snmp_auth())
-        snmp_params = validate.credentials()
 
-        # Check SNMP supported
-        if bool(snmp_params) is True:
-            snmp_object = snmp_manager.Interact(snmp_params)
+def _master(hostname):
+    """Create the master dictionary for the host.
 
-            # Check support for each OID
-            for item in oids:
-                # Get oid
-                oid = item['oid_values']
+    Args:
+        labels_oid: OID used for labels
+        oid: OID value
 
-                # Actions must be taken if a valid OID is found
-                if snmp_object.oid_exists(oid) is True:
-                    # Insert into iset_hostoid table if necessary
-                    if db_host.hostname_exists(hostname) is False:
-                        record = Host(hostname=hostname, snmp_enabled=1)
-                        database = db.Database()
-                        database.add(record, 1081)
+    Returns:
+        value: Index value
 
-                    # Get idx for host and oid
-                    idx_host = db_host.GetHost(hostname).idx()
-                    idx_oid = item['idx']
+    """
+    # Initialize key variables
+    master = defaultdict(lambda: defaultdict(dict))
 
-                    # Insert an entry in the HostOID table if required
-                    if db_hostoid.host_oid_exists(idx_host, idx_oid) is False:
-                        # Prepare SQL query to read a record from the database.
-                        record = HostOID(idx_host=idx_host, idx_oid=idx_oid)
-                        database = db.Database()
-                        database.add(record, 1081)
+    # Get all oid IDX values tied to the hostname
+    idx_host = db_host.GetHost(hostname).idx()
+    oid_indices = db_hostoid.oid_indices(idx_host)
 
-                        print('Inserted!', hostname, idx_host, idx_oid)
-        """
+    # Get OID metadata
+    for idx_oid in oid_indices:
+        oid_object = db_oid.GetIDX(idx_oid)
+
+        # Assign OIDs for values to the OID that
+        # will be used to label the results
+        labels_oid = oid_object.oid_labels()
+        values_oid = oid_object.oid_values()
+        agent_label = oid_object.agent_label()
+        base_type = oid_object.base_type()
+        chartable = oid_object.chartable()
+
+        # Stuff to do
+        if labels_oid not in master:
+            master[labels_oid][agent_label]['values_oid'] = values_oid
+            master[labels_oid][agent_label]['base_type'] = base_type
+            master[labels_oid][agent_label]['chartable'] = chartable
+
+    # Return
+    return master
 
 
 def _index(labels_oid, oid):

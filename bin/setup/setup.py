@@ -79,7 +79,10 @@ def main():
         statements = replacements()
         for statement in statements:
             print(statement)
-            engine.execute(statement)
+            try:
+                engine.execute(statement)
+            except:
+                pass
 
     # Install required PIP packages
     print('Installing required pip3 packages')
@@ -110,13 +113,13 @@ def replacements():
     data = []
     oid_data = [
         'REPLACE INTO iset_oid '
-        '(oid_values, oid_labels, agent_label, base_type) values ('
-        '".1.3.6.1.2.1.31.1.1.1.10", ".1.3.6.1.2.1.31.1.1.1.1", '
-        '"ifHCOutOctets", 64)',
+        '(oid_values, oid_labels, agent_label, base_type, chartable) '
+        'values (".1.3.6.1.2.1.31.1.1.1.10", ".1.3.6.1.2.1.31.1.1.1.1", '
+        '"ifHCOutOctets", 64, 1)',
         'REPLACE INTO iset_oid '
-        '(oid_values, oid_labels, agent_label, base_type) values ('
-        '".1.3.6.1.2.1.31.1.1.1.6", ".1.3.6.1.2.1.31.1.1.1.1", '
-        '"ifHCInOctets", 64)'
+        '(oid_values, oid_labels, agent_label, base_type, chartable) '
+        'values (".1.3.6.1.2.1.31.1.1.1.6", ".1.3.6.1.2.1.31.1.1.1.1", '
+        '"ifHCInOctets", 64, 1)'
     ]
     data.extend(oid_data)
 

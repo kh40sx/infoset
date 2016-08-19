@@ -134,6 +134,20 @@ class GetOID(object):
         value = self.data_dict['base_type']
         return value
 
+    def chartable(self):
+        """Get chartable value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['chartable']
+        return value
+
 
 class GetIDX(object):
     """Class to return host data by idx.
@@ -255,6 +269,20 @@ class GetIDX(object):
         value = self.data_dict['base_type']
         return value
 
+    def chartable(self):
+        """Get chartable value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['chartable']
+        return value
+
 
 def all_oids():
     """Get list of all oids.
@@ -289,6 +317,7 @@ def all_oids():
             data_dict['oid_labels'] = host.oid_labels()
             data_dict['agent_label'] = host.agent_label()
             data_dict['base_type'] = host.base_type()
+            data_dict['chartable'] = host.chartable()
             hostlist.append(data_dict)
 
     # Return
