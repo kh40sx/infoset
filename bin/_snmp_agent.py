@@ -34,7 +34,7 @@ def main():
     # Initialize key variables
     agent_name = 'snmp'
     master = defaultdict(lambda: defaultdict(dict))
-    data = defaultdict(lambda: defaultdict(dict))
+    datapoints = defaultdict(lambda: defaultdict(dict))
 
     # Get configuration
     config_dir = os.environ['INFOSET_CONFIGDIR']
@@ -49,8 +49,8 @@ def main():
         # Get all oid IDX values tied to the hostname
         idx_host = db_host.GetHost(hostname).idx()
         oid_indices = db_hostoid.oid_indices(idx_host)
-        print(oid_indices)
 
+        # Get OID metadata
         for idx_oid in oid_indices:
             oid_object = db_oid.GetIDX(idx_oid)
 
@@ -59,12 +59,12 @@ def main():
             labels_oid = oid_object.oid_labels()
             values_oid = oid_object.oid_values()
             agent_label = oid_object.agent_label()
-            if labels_oid in master:
-                master[labels_oid]['values'].append(values_oid)
-                master[labels_oid]['agent_label'].append(agent_label)
-            else:
-                master[labels_oid]['values'] = [values_oid]
-                master[labels_oid]['agent_label'] = [agent_label]
+            base_type = oid_object.agent_label()
+
+            # Stuff to do
+            if labels_oid not in master:
+                master[labels_oid][agent_label]['values_oid'] = values_oid
+                master[labels_oid][agent_label]['base_type'] = base_type
 
         # Get SNMP information
         snmp_config = jm_configuration.ConfigSNMP(config_dir)
@@ -73,30 +73,41 @@ def main():
 
         # Check SNMP supported
         if bool(snmp_params) is True:
-            # Get labels
+            # Get sources
             snmp_object = snmp_manager.Interact(snmp_params)
             for labels_oid in master.keys():
-                data_dict = {}
+                sources = {}
                 oid_results = snmp_object.swalk(labels_oid)
                 for key, value in oid_results.items():
-                    data_dict[_index(labels_oid, key)] = value
-                master[labels_oid]['labels'] = data_dict
+                    sources[_index(labels_oid, key)] = value
 
             # Get values
-            for key in master.keys():
-                for oid_value in master[key]['values']:
-                    data_dict = {}
-                    oid_results = snmp_object.swalk(oid_value)
+            for labels_oid in master.keys():
+                for agent_label in master[labels_oid].keys():
+                    # Information about the OID
+                    values_oid = master[labels_oid][agent_label]['values_oid']
+                    base_type = master[labels_oid][agent_label]['base_type']
+
+                    # Get OID values
+                    values = {}
+                    oid_results = snmp_object.swalk(values_oid)
                     for key, value in oid_results.items():
-                        data_dict[_index(labels_oid, key)] = value
-                    master[labels_oid]['labels'] = data_dict
+                        values[_index(labels_oid, key)] = value
 
+                    # Create list of data for json
+                    data = []
+                    for index, value in values.items():
+                        data.append([index, value, sources[index]])
 
-                    print(peter)
+                    # Finish up dict for json
+                    datapoints[agent_label]['data'] = data
+                    datapoints[agent_label]['description'] = None
+                    datapoints[agent_label]['base_type'] = base_type
 
         print(hostname)
         pprint(master)
         print('\n')
+        pprint(datapoints)
 
         """
         # Get SNMP information
