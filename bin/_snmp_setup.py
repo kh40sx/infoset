@@ -11,6 +11,7 @@ from pprint import pprint
 
 # Infoset libraries
 from infoset.utils import jm_configuration
+from infoset.utils import jm_general
 from infoset.db import db
 from infoset.db import db_oid
 from infoset.db import db_host
@@ -66,7 +67,9 @@ def main():
                 if snmp_object.oid_exists(oid) is True:
                     # Insert into iset_hostoid table if necessary
                     if db_host.hostname_exists(hostname) is False:
-                        record = Host(hostname=hostname, snmp_enabled=1)
+                        record = Host(
+                            hostname=jm_general.encode(hostname),
+                            snmp_enabled=1)
                         database = db.Database()
                         database.add(record, 1081)
 
