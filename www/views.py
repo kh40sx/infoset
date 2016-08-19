@@ -340,7 +340,7 @@ def fetch_graph_stacked(uid, datapoint):
         datpoint: Datapoint idx
 
     Returns:
-        None
+        Image of Stacked Chart
 
     """
     # Initialize key variables
@@ -389,19 +389,19 @@ def fetch_graph_stacked(uid, datapoint):
 
 @infoset.route('/fetch/agent/<ip>/table', methods=["GET"])
 def fetch_table(ip):
+    """Return Network Layout tables.
+
+    Args:
+        ip: Host IP
+
+    Returns:
+        HTML string of host table
+
+    """    
+    # Config Object
     config = infoset.config['GLOBAL_CONFIG']
-    ws_device.make(config, True)
+    
+    html = ws_device.api_make(config, ip, True)
 
-    try:
-
-        with open(path.join(config.web_directory(), ip + ".html")) as file:
-            html = file.read()
-            return html
-
-    except IOError as e:
-        print("Error occurred while retrieving table for " + ip + ": {0}".format(e))
-        return "Error occurred while retrieving table for " + ip + ": {0}".format(e)
-    except:
-        print("Unexpected error:", sys.exc_info()[0])
-        return "Unexpected error occurred."
+    return html
 
