@@ -192,7 +192,7 @@ class ConfigServer(object):
 
         """
         # Get parameter
-        value = ('%s/%s.yaml') % (self.snmp_directory(), host)
+        value = ('%s/%s.yaml') % (self.data_directory(), host)
 
         # Return
         return value

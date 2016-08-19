@@ -27,6 +27,7 @@ from infoset.utils import ColorWheel
 from infoset.utils import jm_general
 from infoset.language import language
 from www import infoset
+from infoset.web import ws_device
 # Matplotlib imports, Do not edit order
 """
 import numpy as np
@@ -337,7 +338,7 @@ def fetch_graph_stacked(uid, datapoint):
         datpoint: Datapoint idx
 
     Returns:
-        None
+        Image of Stacked Chart
 
     """
     # Initialize key variables
@@ -382,3 +383,23 @@ def fetch_graph_stacked(uid, datapoint):
     response = make_response(png_output.getvalue())
     response.headers['Content-Type'] = 'image/png'
     return response
+
+
+@infoset.route('/fetch/agent/<ip>/table', methods=["GET"])
+def fetch_table(ip):
+    """Return Network Layout tables.
+
+    Args:
+        ip: Host IP
+
+    Returns:
+        HTML string of host table
+
+    """    
+    # Config Object
+    config = infoset.config['GLOBAL_CONFIG']
+    
+    html = ws_device.api_make(config, ip, True)
+
+    return html
+
