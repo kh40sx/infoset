@@ -1,4 +1,0 @@
-server_name: 192.168.0.2
-server_port: 5000
-server_https: False
-agent_cache_directory: /tmp/infoset_agent_cache

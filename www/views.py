@@ -19,7 +19,6 @@ from infoset.db.db_data import GetIDX
 from infoset.db.db_agent import GetDataPoint
 from infoset.db.db_orm import Agent
 from infoset.db.db_datapoint import GetSingleDataPoint
-from infoset.db.db_chart import StackedChart
 from infoset.db.db_chart import Chart
 from infoset.db.db import Database
 from infoset.utils import TimeStamp
@@ -58,7 +57,7 @@ def index():
 
     """
     # Get UID of _infoset agent
-    """
+
     database = Database()
     session = database.session()
     record = session.query(Agent.id).filter(Agent.idx == 1).one()
@@ -71,20 +70,44 @@ def index():
     agent_list = [agent.everything()]
     datapoints = GetDataPoint(agent.idx())
     data_point_dict = datapoints.everything()
-    """
-    data_point_dict= {}
-    data_point_dict["system"] = "Linux"
-    data_point_dict["distribution"] = "Ubuntu"
-    data_point_dict["release"] = "Xenial"
-    agent_list= []
-    host = "localhost"
-    uid = "2efb3de57b2f056267169b4cfd04b4b5b18781c9f8181c5411c7e6d0f44ca129"
     # Render the home page
     return render_template('index.html',
                            data=data_point_dict,
                            agent_list=agent_list,
                            uid=uid,
                            hostname=host)
+@infoset.route('/<uid>')
+def overview(uid):
+    # Get agent information
+    uid_fixed= uid[2:-1].encode()
+    agent = Get(uid_fixed)
+    host = agent.hostname()
+    agent_list = [agent.everything()]
+    datapoints = GetDataPoint(agent.idx())
+    data_point_dict = datapoints.everything()
+    # Render the home page
+    return render_template('index.html',
+                           data=data_point_dict,
+                           agent_list=agent_list,
+                           uid=uid,
+                           hostname=host)    
+
+@infoset.route('/<uid>/datapoints')
+def datapoints(uid):
+    # Get agent information
+    uid_fixed= uid[2:-1].encode()
+    agent = Get(uid_fixed)
+    host = agent.hostname()
+    agent_list = [agent.everything()]
+    datapoints = GetDataPoint(agent.idx())
+    data_point_dict = datapoints.everything()
+    
+    return render_template('datapoints.html',
+                           data=data_point_dict,
+                           agent_list=agent_list,
+                           uid=uid,
+                           hostname=host)
+
 @infoset.route('/search')
 def search():
     return render_template('search.html')
@@ -281,18 +304,23 @@ def fetch_graph(uid, datapoint):
     # Getting start and stop parameters from url
     start = request.args.get('start')
     stop = request.args.get('stop')
+        # Get data as dict
+
+    datapointer = GetIDX(datapoint, start=start, stop=stop)
+    data = datapointer.everything()
 
     # Config object
     config = infoset.config['GLOBAL_CONFIG']
+
     if start and stop:
-        chart = Chart(datapoint,
+        chart = Chart(data,
                       image_width=12,
                       image_height=4,
                       text_color='#272727',
                       start=int(start),
                       stop=int(stop))
     else:
-        chart = Chart(datapoint,
+        chart = Chart(data,
                       image_width=12,
                       image_height=4,
                       text_color='#272727')
@@ -329,8 +357,8 @@ def fetch_graph(uid, datapoint):
 
 
 @infoset.route(
-    '/fetch/agent/graph/stacked/<uid>/<datapoint>', methods=["GET", "POST"])
-def fetch_graph_stacked(uid, datapoint):
+    '/fetch/agent/graph/stacked/<uid>/<stack_type>', methods=["GET", "POST"])
+def fetch_graph_stacked(uid, stack_type):
     """Process stacked charts.
 
     Args:
@@ -342,7 +370,7 @@ def fetch_graph_stacked(uid, datapoint):
 
     """
     # Initialize key variables
-    filename = str(uid) + '_' + str(datapoint)
+    filename = str(uid) + '_' + str(stack_type)
     filepath = './www/static/img/' + filename
 
     # Getting start and stop parameters from url
@@ -351,35 +379,56 @@ def fetch_graph_stacked(uid, datapoint):
 
     # Config object
     config = infoset.config['GLOBAL_CONFIG']
+    # Determine what kind of stacked chart to make
+    # Memory, Load, Bytes In/Out, CPU
+    if "memory" in stack_type:
+        #Do memory
+        datapoint_list = [128, 129, 131, 133, 135]
+        colors = ['#71D5C3', '#009DB2', '#71D5C3', '#98e1d4', '#f0e0a0']
+    elif "cpu" in stack_type:
+        #Do cpu
+        pass
+    elif "load" in stack_type:
+        #Do load
+        colors = ['#F37372','#FA9469','#FDBB5D']
+        datapoint_list = [124,125,126]
+        pass
+    elif "network" in stack_type:
+        #Do network
+        colors = ['#F37372','#FA9469', '#FDBB5D']
+        datapoint_list = [124,125,126]        
+        pass
+    elif "disk" in stack_type:
+        #Do disk
+        pass 
 
-    datapoint_list = [86, 82]
+
     values = []
     for datapoint in datapoint_list:
         get_idx = GetIDX(datapoint)
         data = get_idx.everything()
         values.append(data)
-    new_chart = StackedChart(values)
-    """
+    
     if start and stop:
-        chart = Chart(datapoint, config,
+        chart = Chart(values,
                       image_width=12,
                       image_height=4,
                       text_color='#272727',
                       start=int(start),
                       stop=int(stop))
     else:
-        chart = Chart(datapoint, config,
+        chart = Chart(values,
                       image_width=12,
                       image_height=4,
-                      text_color='#272727')
-    """
+                      text_color='#272727')    
+
     # create specific chart
     single_datapoint = GetSingleDataPoint(datapoint)
     agent_label = single_datapoint.agent_label()
     color_palette = ColorWheel(agent_label)
 
-    png_output = new_chart.create_stacked(
-        'Stacked', 'test', '#000000', filepath)
+    png_output = chart.create_stacked(
+        'Stacked', 'test', colors, [], filepath)
     response = make_response(png_output.getvalue())
     response.headers['Content-Type'] = 'image/png'
     return response

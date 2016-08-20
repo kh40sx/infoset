@@ -103,7 +103,7 @@ class Chart(object):
 
     """
 
-    def __init__(self, idx, start=None, stop=None, **kwargs):
+    def __init__(self, data, start=None, stop=None, **kwargs):
         """Function for intializing the class.
 
         Args:
@@ -116,9 +116,7 @@ class Chart(object):
             None
 
         """
-        # Get data as dict
-        datapointer = db_data.GetIDX(idx, start=start, stop=stop)
-        self.data = datapointer.everything()
+        self.data = data
 
         # Get parameters
         self.paramx = ChartParameters(**kwargs)
@@ -232,7 +230,6 @@ class Chart(object):
         fig, axes = plt.subplots()
         # Convert data dict to two lists for matplotlib
         (x_values, y_values) = _timestamps2dates(self.data)
-
         #####################################################################
         # Apply generic chart settings that don't require custom variables
         #####################################################################
@@ -296,7 +293,7 @@ class Chart(object):
         canvas.print_png(png_output)
         return png_output
 
-    def create_stacked(self, name, title, color, filepath):
+    def create_stacked(self, name, title, colors, labels, filepath):
         """Create stacked chart from data.
 
         Args:
@@ -309,23 +306,32 @@ class Chart(object):
 
         """
         # Random colors for each plot
-        fig = plt.figure()
-        ax1 = fig.add_subplot()
-        next_y_list = []
-        y_list = []
-        colors = []
+        fig, axes = plt.subplots()
+
+
         prop_iter = iter(plt.rcParams['axes.prop_cycle'])
-        count = 0
+
+        y_list = []
+
         for datapoint in self.data:
             (x_values, y_values) = _timestamps2dates(datapoint)
             y_list.append(y_values)
-            colors.append(next(prop_iter)['color'])
-        plt.stackplot(x_values, y_list, colors=colors)
+            ymax = max(tmpval for tmpval in y_values if tmpval is not 0)            
+        
+
+        #####################################################################
+        # Apply generic chart settings that don't require custom variables
+        #####################################################################
+        # Create chart
+        self._generic_settings(fig, axes, ymax=ymax * 2.4)
+        
+        plt.stackplot(x_values, y_list, edgecolor="white" ,colors=colors)
 
         # Create image file
         fig.patch.set_facecolor('white')
         fig.savefig(filepath, bbox_inches='tight')
         canvas = FigureCanvas(fig)
+        plt.close(fig)
         png_output = io.BytesIO()
         canvas.print_png(png_output)
         return png_output
@@ -490,32 +496,3 @@ def _timestamps2dates(data):
 
     # Return
     return (x_values, y_values)
-
-class StackedChart(object):
-
-    def __init__(self, data):
-        self.data = data
-
-    def create_stacked(self, name, title, color, filepath):
-        # Random colors for each plot
-        fig = plt.figure()
-        ax1 = fig.add_subplot()
-        next_y_list = []
-        y_list = []
-        colors = []
-        prop_iter = iter(plt.rcParams['axes.prop_cycle'])
-        count = 0
-        for datapoint in self.data:
-            (x_values, y_values) = _timestamps2dates(datapoint)
-            y_list.append(y_values)
-            colors.append(next(prop_iter)['color'])
-        pprint.pprint(y_list)
-        plt.stackplot(x_values, y_list, colors=colors)
-
-        # Create image file
-        fig.patch.set_facecolor('white')
-        fig.savefig(filepath, bbox_inches='tight')
-        canvas = FigureCanvas(fig)
-        png_output = io.BytesIO()
-        canvas.print_png(png_output)
-        return png_output

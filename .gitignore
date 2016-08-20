@@ -19,7 +19,7 @@ tags
 *.un~
 *~
 .#*
-
+*.yaml
 __pycache__
 __pycache__/
 *.py[cod]
