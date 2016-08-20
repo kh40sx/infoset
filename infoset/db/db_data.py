@@ -115,10 +115,10 @@ class GetIDX(object):
         # with the agent at some point along the time series.
         if self.base_type == 1:
             values = dict.fromkeys(
-                range(self.ts_start, self.ts_stop + 300, 300), None)
+                range(self.ts_start, self.ts_stop + 300, 300), 0)
         else:
             values = dict.fromkeys(
-                range(self.ts_start + 300, self.ts_stop + 300, 300), None)
+                range(self.ts_start + 300, self.ts_stop + 300, 300), 0)
 
         # Start conversion
         for timestamp, value in sorted(self.data.items()):
