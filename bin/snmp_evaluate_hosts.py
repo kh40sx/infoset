@@ -20,6 +20,37 @@ from infoset.db.db_orm import HostOID, Host
 from infoset.snmp import snmp_manager
 
 
+def cli():
+    """Return all the CLI options.
+
+    Args:
+        None
+
+    Returns:
+        args: Namespace() containing all of our CLI arguments as objects
+            - filename: Path to the configuration file
+
+    """
+    # Header for the help menu of the application
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter)
+
+    # CLI argument for output filename
+    parser.add_argument(
+        '--hostname',
+        required=True,
+        type=str,
+        help=(
+            'Individual hostname to evaluate. If not defined, '
+            'the script will evaluate all hosts in the database, '
+            'which could take some time.')
+    )
+
+    # Get the parser value
+    args = parser.parse_args()
+    return args
+
+
 def main():
     """Process agent data.
 

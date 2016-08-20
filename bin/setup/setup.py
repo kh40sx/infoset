@@ -14,6 +14,7 @@ from sqlalchemy import create_engine
 from infoset.utils import log
 from infoset.utils import jm_configuration
 from infoset.utils import jm_general
+from infoset.utils import metadata
 import infoset.utils
 from infoset.db.db_orm import BASE, OID
 from infoset.db import DBURL
@@ -79,7 +80,7 @@ def main():
             pass
 
         # Try some additional statements
-        insert_oids()
+        metadata.insert_oids()
 
     # Install required PIP packages
     print('Installing required pip3 packages')
@@ -94,47 +95,6 @@ def main():
     script_name = (
         'pip3 install --user --requirement %s') % (requirements_file)
     infoset.utils.jm_general.run_script(script_name)
-
-
-def insert_oids():
-    """Update the database with certain key data.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    """
-    # Create a list of existing agent labels, that are unique by definition
-    agent_labels = []
-    all_oids = db_oid.all_oids()
-    for item in all_oids:
-        agent_labels.append(item['agent_label'])
-
-    # Define a list of OIDs we need to add
-    oid_data = [
-        ('.1.3.6.1.4.1.1718.3.2.2.1.12', '.1.3.6.1.4.1.1718.3.2.2.1.3', 'Sentry3_infeedPower', 1, 1),
-        ('.1.3.6.1.4.1.1718.3.2.2.1.7', '.1.3.6.1.4.1.1718.3.2.2.1.3', 'Sentry3_infeedLoadValue', 1, 0.01),
-        ('.1.3.6.1.2.1.31.1.1.1.10', '.1.3.6.1.2.1.31.1.1.1.1', 'ifHCOutOctets', 64, 8),
-        ('.1.3.6.1.2.1.31.1.1.1.6', '.1.3.6.1.2.1.31.1.1.1.1', 'ifHCInOctets', 64, 8)
-    ]
-
-    # Insert data if it doesn't already exist
-    for line in oid_data:
-        (oid_values, oid_labels, agent_label, base_type, multiplier) = line
-
-        if db_oid.oid_values_exists(oid_values) is False:
-            if agent_label not in agent_labels:
-                # Prepare SQL query to read a record from the database.
-                record = OID(
-                    oid_values=jm_general.encode(oid_values),
-                    oid_labels=jm_general.encode(oid_labels),
-                    agent_label=jm_general.encode(agent_label),
-                    base_type=base_type,
-                    multiplier=multiplier)
-                database = db.Database()
-                database.add(record, 1091)
 
 
 if __name__ == '__main__':

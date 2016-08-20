@@ -18,7 +18,6 @@ from infoset.utils import jm_configuration
 from infoset.utils import log
 from infoset.utils import hidden
 from infoset.utils import jm_general
-from infoset import infoset
 
 
 def process():
@@ -33,9 +32,7 @@ def process():
     """
     # Initialize key variables
     agents = []
-    infoset_dir = infoset.__path__[0]
-    components = infoset_dir.split(os.sep)
-    root_dir = os.sep.join(components[0:-2])
+    root_dir = jm_general.root_directory()
 
     # Get configuration
     config_directory = os.environ['INFOSET_CONFIGDIR']

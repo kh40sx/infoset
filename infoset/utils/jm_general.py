@@ -14,6 +14,28 @@ import yaml
 
 # Infoset libraries
 from infoset.utils import log
+from infoset import infoset
+
+
+def root_directory():
+    """Getermine the root directory in which infoset is installed.
+
+    Args:
+        None
+
+    Returns:
+        root_dir: Root directory
+
+    """
+    # Get the directory of the infoset library
+    infoset_dir = infoset.__path__[0]
+    components = infoset_dir.split(os.sep)
+
+    # Determint the directory two levels above
+    root_dir = os.sep.join(components[0:-2])
+
+    # Return
+    return root_dir
 
 
 def encode(value):
