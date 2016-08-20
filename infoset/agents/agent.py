@@ -130,7 +130,7 @@ class Agent(object):
         # Get a description to use for label value
         for label in data.keys():
             description = self.lang.label_description(label)
-            data['description'] = description
+            data[label]['description'] = description
             break
 
         # Add data to appropriate self.data key

@@ -177,7 +177,8 @@ class UpdateDB(object):
         else:
             # Prepare SQL query to read a record from the database.
             record = Agent(
-                id=uid, name=jm_general.encode(agent_name),
+                id=jm_general.encode(uid),
+                name=jm_general.encode(agent_name),
                 hostname=jm_general.encode(hostname))
             database = db.Database()
             database.add(record, 1081)

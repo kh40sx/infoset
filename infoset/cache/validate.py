@@ -192,24 +192,27 @@ class ValidateCache(object):
                 continue
 
             # Process the data type
-            for category, group in sorted(
+            for agent_label, group in sorted(
                     self.information[data_type].items()):
                 # Process keys
                 for key in ['base_type', 'description', 'data']:
                     if key not in group:
                         valid = False
 
-                # Process data
-                log.log2warn(101010101010101010101, ('%s %s') % (group, valid))
-                testtest = json.dumps(self.information)
-                log.log2warn(101010101010101010101, ('\n%s\n') % testtest)
+                # Make sure the base types are numeric
+                if 'base_type' in group and data_type == 'chartable':
+                    try:
+                        float(group['base_type'])
+                    except:
+                        valid = False
 
+                # Process data
                 for datapoint in group['data']:
                     if len(datapoint) != 3:
                         valid = False
 
                     # Check to make sure value is numeric
-                    if category == 'chartable':
+                    if data_type == 'chartable':
                         value = datapoint[1]
                         try:
                             float(value)
