@@ -182,7 +182,7 @@ def make(config, verbose=False):
                 'No YAML device file for host %s found in %s. '
                 'Run toolbox.py with the "poll" option first.'
                 '') % (host, config.snmp_directory())
-            log.log2quiet(1018, log_message)
+            log.log2quiet(1006, log_message)
             continue
         else:
             device_file_found = True
@@ -280,8 +280,8 @@ def api_make(config, host, verbose=False):
     # Create HTML output
     html = ('%s<h1>%s<h1>\n%s\n<br>\n%s\n<br>\n%s') % (
         _html_header(host), host, table.device(),
-        table.ethernet(), _html_footer)    
-    
+        table.ethernet(), _html_footer)
+
 
     # Do the rest if device_file_found
     if device_file_found is True:

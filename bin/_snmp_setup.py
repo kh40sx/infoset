@@ -71,7 +71,7 @@ def main():
                             hostname=jm_general.encode(hostname),
                             snmp_enabled=1)
                         database = db.Database()
-                        database.add(record, 1081)
+                        database.add(record, 1089)
 
                     # Get idx for host and oid
                     idx_host = db_host.GetHost(hostname).idx()
@@ -82,7 +82,7 @@ def main():
                         # Prepare SQL query to read a record from the database.
                         record = HostOID(idx_host=idx_host, idx_oid=idx_oid)
                         database = db.Database()
-                        database.add(record, 1081)
+                        database.add(record, 1090)
 
                         print('Inserted!', hostname, idx_host, idx_oid)
 

@@ -120,6 +120,8 @@ class ValidateCache(object):
                 log.log2warn(1059, log_message)
         else:
             all_ok = True
+
+        # Return
         return all_ok
 
     def check_meta(self):
@@ -166,7 +168,6 @@ class ValidateCache(object):
                     valid = False
                 if jm_general.validate_timestamp(timestamp) is False:
                     valid = False
-
         # Return
         return valid
 
@@ -199,6 +200,10 @@ class ValidateCache(object):
                         valid = False
 
                 # Process data
+                log.log2warn(101010101010101010101, ('%s %s') % (group, valid))
+                testtest = json.dumps(self.information)
+                log.log2warn(101010101010101010101, ('\n%s\n') % testtest)
+
                 for datapoint in group['data']:
                     if len(datapoint) != 3:
                         valid = False

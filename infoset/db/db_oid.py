@@ -56,10 +56,11 @@ class GetOID(object):
                 self.data_dict[
                     'agent_label'] = jm_general.decode(instance.agent_label)
                 self.data_dict['base_type'] = instance.base_type
+                self.data_dict['multiplier'] = instance.multiplier
                 break
         else:
             log_message = ('OID %s not found.') % (oid_values)
-            log.log2die(1048, log_message)
+            log.log2die(1040, log_message)
 
         # Return the session to the database pool after processing
         session.close()
@@ -134,8 +135,8 @@ class GetOID(object):
         value = self.data_dict['base_type']
         return value
 
-    def chartable(self):
-        """Get chartable value.
+    def multiplier(self):
+        """Get multiplier value.
 
         Args:
             None
@@ -145,7 +146,7 @@ class GetOID(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['chartable']
+        value = self.data_dict['multiplier']
         return value
 
 
@@ -191,10 +192,11 @@ class GetIDX(object):
                 self.data_dict[
                     'agent_label'] = jm_general.decode(instance.agent_label)
                 self.data_dict['base_type'] = instance.base_type
+                self.data_dict['multiplier'] = instance.multiplier
                 break
         else:
             log_message = ('OID idx %s not found.') % (idx)
-            log.log2die(1086, log_message)
+            log.log2die(1092, log_message)
 
         # Return the session to the database pool after processing
         session.close()
@@ -269,8 +271,8 @@ class GetIDX(object):
         value = self.data_dict['base_type']
         return value
 
-    def chartable(self):
-        """Get chartable value.
+    def multiplier(self):
+        """Get multiplier value.
 
         Args:
             None
@@ -280,7 +282,7 @@ class GetIDX(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['chartable']
+        value = self.data_dict['multiplier']
         return value
 
 
@@ -317,7 +319,7 @@ def all_oids():
             data_dict['oid_labels'] = host.oid_labels()
             data_dict['agent_label'] = host.agent_label()
             data_dict['base_type'] = host.base_type()
-            data_dict['chartable'] = host.chartable()
+            data_dict['multiplier'] = host.multiplier()
             hostlist.append(data_dict)
 
     # Return

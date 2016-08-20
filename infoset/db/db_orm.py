@@ -42,7 +42,7 @@ class OID(BASE):
 
     base_type = Column(INTEGER(unsigned=True), server_default='1')
 
-    chartable = Column(INTEGER(unsigned=True), server_default='0')
+    multiplier = Column(FLOAT(unsigned=True), server_default='1')
 
     ts_modified = Column(
         DATETIME, server_default=text(

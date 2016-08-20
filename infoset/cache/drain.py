@@ -413,11 +413,11 @@ def _base_type(data):
         value = data
 
     # Assign base type code
-    if value.lower() == 'floating':
+    if value.lower() == '1':
         base_type = 1
-    elif value.lower() == 'counter32':
+    elif value.lower() == '32':
         base_type = 32
-    elif value.lower() == 'counter64':
+    elif value.lower() == '64':
         base_type = 64
     else:
         base_type = 0

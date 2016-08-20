@@ -20,6 +20,7 @@ from random import random
 import argparse
 import queue as Queue
 import threading
+from copy import deepcopy
 
 # pip3 libraries
 import requests
@@ -68,13 +69,12 @@ class Agent(object):
         """
         # Initialize key variables
         self.data = defaultdict(lambda: defaultdict(dict))
-        self.config = config
-        self.timestamp = jm_general.normalized_timestamp()
         agent_name = config.agent_name()
         uid = _get_uid(agent_name)
+        self.lang = language.Agent(agent_name)
 
         # Add timestamp
-        self.data['timestamp'] = self.timestamp
+        self.data['timestamp'] = jm_general.normalized_timestamp()
         self.data['uid'] = uid
         self.data['agent'] = agent_name
         self.data['hostname'] = hostname
@@ -86,11 +86,11 @@ class Agent(object):
             prefix = 'http://'
         self.url = (
             '%s%s:%s/receive/%s') % (
-                prefix, self.config.server_name(),
-                self.config.server_port(), uid)
+                prefix, config.server_name(),
+                config.server_port(), uid)
 
         # Create the cache directory
-        self.cache_dir = self.config.agent_cache_directory()
+        self.cache_dir = config.agent_cache_directory()
         if os.path.exists(self.cache_dir) is False:
             os.mkdir(self.cache_dir)
 
@@ -108,111 +108,63 @@ class Agent(object):
         value = self.data['agent']
         return value
 
-    def populate(self, label, data, base_type='floating', chartable=False):
+    def populate(self, data_in):
         """Populate data for agent to eventually send to server.
 
         Args:
-            label: label to use for data
-            data: List of data tuples [(value, source)]
-                where source is the subsystem name generating the data. This
-                data will be converted to a tuple list if it is a single value.
-            base_type: SNMP style base type (integer, counter32, counter64)
+            data_in: dict of datapoint values from agent
             chartable: Chartable data if True
 
         Returns:
             None
 
         """
-        # Initialize key variables
-        agent_name = self.name()
-        output = {}
-        value_tuples = []
-        index = 0
-        base_types = [None, 'counter32', 'counter64', 'floating']
+        # Initialize data
+        data = deepcopy(data_in)
 
         # Validate base_type
-        if base_type not in base_types:
-            log_message = (
-                'base_type %s is unsupported for label "%s"'
-                '') % (base_type, label)
+        if len(data) != 1 or isinstance(data, defaultdict) is False:
+            log_message = ('Agent data "%s" is invalid') % (data)
             log.log2die(1025, log_message)
 
-        # Convert data to list of tuples if required
-        if isinstance(data, list) is False:
-            value_sources = [(data, None)]
-        else:
-            value_sources = data
-
         # Get a description to use for label value
-        lang = language.Agent(agent_name.encode())
-        description = lang.label_description(label.encode())
+        for label in data.keys():
+            description = self.lang.label_description(label)
+            data['description'] = description
+            break
 
-        #####################################################################
-        # This section fills self.data with lists of tuples keyed by "label"
-        #
-        # Each tuple list has the following structure:
-        #
-        # 0) Index value
-        # 1) Value of data
-        # 2) Source of data (eg. Interface name)
-        #
-        #####################################################################
-
-        # Populate tuple list
-        for value_source in value_sources:
-            value = value_source[0]
-            source = value_source[1]
-            value_tuples.append(
-                (index, value, source)
-            )
-            index += 1
-
-        # Add base_type and a description to the data to be returned
-        output['description'] = description
-        output['base_type'] = base_type
-        output['data'] = value_tuples
-
-        # Add a key if chartable
-        if chartable is True:
-            self.data['chartable'][label] = output
+        # Add data to appropriate self.data key
+        if data[label]['base_type'] is not None:
+            self.data['chartable'].update(data)
         else:
-            self.data['other'][label] = output
+            self.data['other'].update(data)
 
-    def populate_dict(self, prefix, data, base_type='floating'):
-        """Populate agent with data that's a dict keyed by [label][source].
+    def populate_single(self, label, value, base_type=None, source=None):
+        """Populate a single value in the agent.
 
         Args:
-            prefix: Prefix to append to data keys when populating the agent
-            data: Dict of data to post keyed, by [label][source]
-            base_type: SNMP style base_type (integer, counter32, etc.)
+            label: Agent label for data
+            value: Value of data
+            source: Source of the data
+            base_type: Base type of data
 
         Returns:
             None
 
         """
-        # Iterate over labels
-        for label in data.keys():
-            # Initialize tuple list to use by agent.populate
-            value_sources = []
+        # Initialize key variables
+        data = defaultdict(lambda: defaultdict(dict))
+        data[label]['base_type'] = base_type
+        data[label]['data'] = [[0, value, source]]
 
-            # Append to tuple list
-            # (Sorting is important to keep consistent ordering)
-            for source, value in sorted(data[label].items()):
-                value_sources.append(
-                    (value, source)
-                )
+        # Update
+        self.populate(data)
 
-            # Update agent
-            new_label = ('%s_%s') % (prefix, label)
-            self.populate(
-                new_label, value_sources, chartable=True, base_type=base_type)
-
-    def populate_named_tuple(self, prefix, data, base_type='floating'):
+    def populate_named_tuple(self, named_tuple, prefix='', base_type=1):
         """Post system data to the central server.
 
         Args:
-            agent: agent object
-            data: Named tuple with data values
+            named_tuple: Named tuple with data values
             prefix: Prefix to append to data keys when populating the agent
             base_type: SNMP style base_type (integer, counter32, etc.)
 
@@ -220,19 +172,58 @@ class Agent(object):
             None
 
         """
-        # Initialize key variables
-        source = None
-
         # Get data
-        system_dict = data._asdict()
+        system_dict = named_tuple._asdict()
         for label, value in system_dict.items():
             # Convert the dict to two dimensional dict keyed by [label][source]
             # for use by self.populate_dict
-            multikey = defaultdict(lambda: defaultdict(dict))
-            multikey[label][source] = value
+            new_label = ('%s_%s') % (prefix, label)
 
-            # Update agent
-            self.populate_dict(prefix, multikey, base_type=base_type)
+            # Initialize data
+            data = defaultdict(lambda: defaultdict(dict))
+
+            # Add data
+            data[new_label]['data'] = [[0, value, None]]
+            data[new_label]['base_type'] = base_type
+
+            # Update
+            self.populate(data)
+
+    def populate_dict(self, data_in, prefix='', base_type=1):
+        """Populate agent with data that's a dict keyed by [label][source].
+
+        Args:
+            data_in: Dict of data to post "X[label][source] = value"
+            prefix: Prefix to append to data keys when populating the agent
+            base_type: SNMP style base_type (integer, counter32, etc.)
+
+        Returns:
+            None
+
+        """
+        # Initialize data
+        data_input = deepcopy(data_in)
+
+        # Iterate over labels
+        for label in data_input.keys():
+            # Initialize tuple list to use by agent.populate
+            value_sources = []
+            new_label = ('%s_%s') % (prefix, label)
+
+            # Initialize data
+            data = defaultdict(lambda: defaultdict(dict))
+            data[new_label]['base_type'] = base_type
+
+            # Append to tuple list
+            # (Sorting is important to keep consistent ordering)
+            for source, value in sorted(data_input[label].items()):
+                value_sources.append(
+                    [source, value, source]
+                )
+            data[new_label]['data'] = value_sources
+
+            # Update
+            self.populate(data)
 
     def polled_data(self):
         """Return that that should be posted.
