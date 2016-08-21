@@ -3,7 +3,7 @@
 	<div class="col-lg-3">
 		<div class="data-box" id="home-box">
 			<div class="container-fluid">
-				{{ hostname.decode("UTF-8") }}
+				{{ hostname }}
 			</div>
 		</div>
 		<div class="data-box" id="home-box">
@@ -12,11 +12,11 @@
 					<tbody cla>
 						<tr>
 							<td>Version</td>
-							<td>{{ data['release'.encode()][1].decode("UTF-8") }}</td>
+							<td>{{ data['release'][1] }}</td>
 						</tr>
 						<tr>
 							<td>Operating system</td>
-							<td>{{ data['distribution'.encode()][1].decode("UTF-8") }}</td>
+							<td>{{ data['distribution'][1] }}</td>
 						</tr>
 						<tr>
 							<td>System name</td>
@@ -80,7 +80,7 @@
 					<div class="col-md-2">
 						<p><a href="/{{uid}}/graphs">Graphs</a></p>
 					</div>
-				</div>	
+				</div>
 			</div>
 		</div>
 		<div class="row">
@@ -94,52 +94,52 @@
 								<td>Datapoint Description</td>
 							</thead>
 							{% for datapoint_name, value in data.items() %}
-								{% if "memory".encode() in datapoint_name %}
+								{% if "memory" in datapoint_name %}
 									<tr>
 										<td>
 											<p>{{ value[0] }}</p>
 										</td>
 										<td>
-											<a href="/graphs/{{ uid }}/{{ value[0] }}"><p>{{ datapoint_name.decode('UTF-8') }}</p></a>
+											<a href="/graphs/{{ uid }}/{{ value[0] }}"><p>{{ datapoint_name }}</p></a>
 										</td>
 										<td>
 											<p>To be filled</p>
 										</td>
 									</tr>
 								{% endif %}
-								{% if "cpu".encode() in datapoint_name %}
+								{% if "cpu" in datapoint_name %}
 									<tr>
 										<td>
 											<p>{{ value[0] }}</p>
 										</td>
 										<td>
-											<a href="/graphs/{{ uid }}/{{ value[0] }}"><p>{{ datapoint_name.decode('UTF-8') }}</p></a>
+											<a href="/graphs/{{ uid }}/{{ value[0] }}"><p>{{ datapoint_name }}</p></a>
 										</td>
 										<td>
 											<p>To be filled</p>
 										</td>
 									</tr>
 								{% endif %}
-								{% if "disk_usage_total".encode() in datapoint_name %}
+								{% if "disk_usage_total" in datapoint_name %}
 									<tr>
 										<td>
 											<p>{{ value[0] }}</p>
 										</td>
 										<td>
-											<a href="/graphs/{{ uid }}/{{ value[0] }}"><p>{{ datapoint_name.decode('UTF-8') }}</p></a>
+											<a href="/graphs/{{ uid }}/{{ value[0] }}"><p>{{ datapoint_name }}</p></a>
 										</td>
 										<td>
 											<p>To be filled</p>
 										</td>
 									</tr>
 								{% endif %}
-								{% if "network".encode() in datapoint_name %}
+								{% if "network" in datapoint_name %}
 									<tr>
 										<td>
 											<p>{{ value[0] }}</p>
 										</td>
 										<td>
-											<a href="/graphs/{{ uid }}/{{ value[0] }}"><p>{{ datapoint_name.decode('UTF-8') }}</p></a>
+											<a href="/graphs/{{ uid }}/{{ value[0] }}"><p>{{ datapoint_name }}</p></a>
 										</td>
 										<td>
 											<p>To be filled</p>
