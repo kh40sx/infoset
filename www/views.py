@@ -20,6 +20,8 @@ from infoset.db.db_agent import GetDataPoint
 from infoset.db.db_orm import Agent
 from infoset.db.db_datapoint import GetSingleDataPoint
 from infoset.db.db_chart import Chart
+from infoset.db import db_hostagent
+from infoset.db.db_host import GetIDX as GetHostIDX
 from infoset.db.db import Database
 from infoset.utils import TimeStamp
 from infoset.utils import ColorWheel
@@ -66,9 +68,11 @@ def index():
 
     # Get agent information
     agent = GetUID(uid)
-    host = agent.hostname()
+    idx_agent = agent.idx()
+    host = _infoset_hostname()
+
     agent_list = [agent.everything()]
-    datapoints = GetDataPoint(agent.idx())
+    datapoints = GetDataPoint(idx_agent)
     data_point_dict = datapoints.everything()
     # Render the home page
     return render_template('index.html',
@@ -80,7 +84,7 @@ def index():
 def overview(uid):
     # Get agent information
     agent = Get(uid_fixed)
-    host = agent.hostname()
+    host = _infoset_hostname()
     agent_list = [agent.everything()]
     datapoints = GetDataPoint(agent.idx())
     data_point_dict = datapoints.everything()
@@ -89,18 +93,17 @@ def overview(uid):
                            data=data_point_dict,
                            agent_list=agent_list,
                            uid=uid,
-                           hostname=host)    
+                           hostname=host)
 
 @infoset.route('/<uid>/datapoints')
 def datapoints(uid):
     # Get agent information
-    uid_fixed= uid[2:-1].encode()
-    agent = Get(uid_fixed)
-    host = agent.hostname()
+    agent = Get(uid)
+    host = _infoset_hostname()
     agent_list = [agent.everything()]
     datapoints = GetDataPoint(agent.idx())
     data_point_dict = datapoints.everything()
-    
+
     return render_template('datapoints.html',
                            data=data_point_dict,
                            agent_list=agent_list,
@@ -402,11 +405,11 @@ def fetch_graph_stacked(uid, stack_type):
     elif "network" in stack_type:
         #Do network
         colors = ['#F37372','#FA9469', '#FDBB5D']
-        datapoint_list = [124,125,126]        
+        datapoint_list = [124,125,126]
         pass
     elif "disk" in stack_type:
         #Do disk
-        pass 
+        pass
 
 
     values = []
@@ -414,7 +417,7 @@ def fetch_graph_stacked(uid, stack_type):
         get_idx = GetIDX(datapoint)
         data = get_idx.everything()
         values.append(data)
-    
+
     if start and stop:
         chart = Chart(values,
                       image_width=12,
@@ -426,7 +429,7 @@ def fetch_graph_stacked(uid, stack_type):
         chart = Chart(values,
                       image_width=12,
                       image_height=4,
-                      text_color='#272727')    
+                      text_color='#272727')
 
     # create specific chart
     single_datapoint = GetSingleDataPoint(datapoint)
@@ -455,11 +458,27 @@ def fetch_table(ip):
     Returns:
         HTML string of host table
 
-    """    
+    """
     # Config Object
     config = infoset.config['GLOBAL_CONFIG']
-    
+
     html = ws_device.api_make(config, ip, True)
 
     return html
 
+
+def _infoset_hostname():
+    """Get hostname for _infoset agent.
+
+    Args:
+        None
+
+    Returns:
+        host: Hostname
+
+    """
+    host_indices = db_hostagent.host_indices(1)
+    host_idx = host_indices[0]
+    host_object = GetHostIDX(host_idx)
+    host = host_object.hostname()
+    return host

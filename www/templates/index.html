@@ -20,21 +20,21 @@
     .wrap('<a href="/graphs/'+ agent + '/' + stack_type + '"></a>');
     });
   }
-  
+
   loadStackedImage("{{uid}}", "memory" ,630, 240, "#memory-graph-area");
   loadStackedImage("{{uid}}", "load" ,630, 240, "#load-graph-area");
-  
+
   {% for datapoint_name, value in data.items() %}
-    {% if "memory_available".encode() in datapoint_name %}
+    {% if "memory_available" in datapoint_name %}
       loadImage("{{uid}}", "{{value[0]}}", 480, 160, "#memory-thumbnail-area");
     {% endif %}
-    {% if "cpu_idle".encode() in datapoint_name %}
+    {% if "cpu_idle" in datapoint_name %}
       loadImage("{{uid}}", "{{value[0]}}", 480, 160, "#cpu-thumbnail-area");
     {% endif %}
-    {% if "disk_usage_total".encode() in datapoint_name %}
+    {% if "disk_usage_total" in datapoint_name %}
       loadImage("{{uid}}", "{{value[0]}}", 480, 160, "#disk-thumbnail-area");
     {% endif %}
-    {% if "network_packets_sent".encode() in datapoint_name %}
+    {% if "network_packets_sent" in datapoint_name %}
       loadImage("{{uid}}", "{{value[0]}}", 480, 160, "#network-thumbnail-area");
     {% endif %}
   {% endfor %}
@@ -42,7 +42,7 @@
   <div class="col-lg-3">
     <div class="data-box" id="home-box">
       <div class="container-fluid">
-        {{ hostname.decode("UTF-8") }}
+        {{ hostname }}
       </div>
     </div>
     <div class="data-box" id="home-box">
@@ -51,11 +51,11 @@
           <tbody cla>
             <tr>
               <td>Version</td>
-              <td>{{ data['release'.encode()][1].decode("UTF-8") }}</td>
+              <td>{{ data['release'][1] }}</td>
             </tr>
             <tr>
               <td>Operating system</td>
-              <td>{{ data['distribution'.encode()][1].decode("UTF-8") }}</td>
+              <td>{{ data['distribution'][1] }}</td>
             </tr>
             <tr>
               <td>System name</td>
