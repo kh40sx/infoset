@@ -12,9 +12,10 @@ import os
 import yaml
 
 # infoset libraries
-from infoset import language
+from infoset.metadata import language
 from infoset.utils import log
 from infoset.utils import jm_configuration
+from infoset.utils import jm_general
 
 
 class Agent(object):
@@ -52,9 +53,9 @@ class Agent(object):
         lang = config.language()
 
         # Determine the agent's language yaml file
-        root_directory = language.__path__[0]
+        root_directory = jm_general.root_directory()
         yaml_file = (
-            '%s/%s/agents/%s.yaml') % (
+            '%s/infoset/metadata/%s/agents/%s.yaml') % (
                 root_directory, lang, self.agent_name)
 
         # Read the agent's language yaml file
