@@ -11,13 +11,13 @@ Example:
 from flask import Flask, url_for
 from datetime import timedelta
 import os
-from infoset.utils import ConfigServer
+from infoset.utils import Config
 
 # Initializes the Flask Object
 infoset = Flask(__name__)
 config_dir = os.environ['INFOSET_CONFIGDIR']
 # Initializes configurations for server
-global_config = ConfigServer(config_dir)
+global_config = Config(config_dir)
 
 # Adds objects to global dict
 infoset.config.update(

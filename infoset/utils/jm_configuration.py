@@ -8,7 +8,7 @@ from infoset.utils import jm_general
 from infoset.utils import log
 
 
-class ConfigCommon(object):
+class Config(object):
     """Class gathers all configuration information.
 
     Args:
@@ -39,8 +39,8 @@ class ConfigCommon(object):
         # Return
         self.config_dict = jm_general.read_yaml_files(directories)
 
-    def log_file(self):
-        """Get log_file.
+    def server(self):
+        """Get server.
 
         Args:
             None
@@ -50,33 +50,12 @@ class ConfigCommon(object):
 
         """
         # Get result
-        sub_key = 'log_file'
-        result = None
+        sub_key = 'server'
         key = 'common'
 
         # Get new result
-        result = _key_sub_key(key, sub_key, self.config_dict)
-
-        # Return
-        return result
-
-    def web_log_file(self):
-        """Get web_log_file.
-
-        Args:
-            None
-
-        Returns:
-            result: result
-
-        """
-        # Get result
-        sub_key = 'web_log_file'
-        result = None
-        key = 'common'
-
-        # Get new result
-        result = _key_sub_key(key, sub_key, self.config_dict)
+        value = _key_sub_key(key, sub_key, self.config_dict, die=False)
+        result = bool(value)
 
         # Return
         return result
@@ -101,38 +80,6 @@ class ConfigCommon(object):
 
         # Return
         return result
-
-
-class ConfigServer(object):
-    """Class gathers all configuration information.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    Functions:
-        __init__:
-        hosts:
-        snmp_auth:
-    """
-
-    def __init__(self, root_directory):
-        """Function for intializing the class.
-
-        Args:
-            root_directory: Root configuration directory
-
-        Returns:
-            None
-
-        """
-        # Update the configuration directory
-        directories = [root_directory]
-
-        # Return
-        self.config_dict = jm_general.read_yaml_files(directories)
 
     def hosts(self):
         """Get all hosts in the configuration file.

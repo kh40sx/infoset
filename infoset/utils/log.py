@@ -140,7 +140,7 @@ def _logit(error_num, error_string, error=False, verbose=False):
 
     # Get the logging directory
     config_directory = check_environment()
-    config = jm_configuration.ConfigServer(config_directory)
+    config = jm_configuration.Config(config_directory)
     log_file = config.log_file()
 
     # create logger

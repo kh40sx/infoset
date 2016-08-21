@@ -13,7 +13,7 @@ import yaml
 from infoset.utils import jm_configuration as test_class
 
 
-class TestConfigServer(unittest.TestCase):
+class TestConfig(unittest.TestCase):
     """Checks all functions and methods."""
 
     # ---------------------------------------------------------------------- #
@@ -67,7 +67,7 @@ class TestConfigServer(unittest.TestCase):
                 f_handle.write(configuration)
 
         # Instantiate object to test
-        cls.testobj = test_class.ConfigServer(cls.tmpdir)
+        cls.testobj = test_class.Config(cls.tmpdir)
 
     @classmethod
     def tearDownClass(cls):

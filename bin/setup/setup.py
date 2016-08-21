@@ -16,14 +16,12 @@ from infoset.utils import jm_configuration
 from infoset.utils import jm_general
 from infoset.metadata import metadata
 import infoset.utils
-from infoset.db.db_orm import BASE, OID
+from infoset.db.db_orm import BASE
 from infoset.db import DBURL
-from infoset.db import db_oid
-from infoset.db import db
 
 
-def main():
-    """Process agent data.
+def server_setup():
+    """Setup server.
 
     Args:
         None
@@ -39,7 +37,7 @@ def main():
 
     # Get configuration
     config_directory = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.ConfigServer(config_directory)
+    config = jm_configuration.Config(config_directory)
 
     # Create DB connection pool
     if use_mysql is True:
@@ -81,6 +79,25 @@ def main():
 
         # Try some additional statements
         metadata.insert_oids()
+
+
+def main():
+    """Process agent data.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Get configuration
+    config_directory = os.environ['INFOSET_CONFIGDIR']
+    config = jm_configuration.Config(config_directory)
+
+    # Run server setup if required
+    if config.server() is True:
+        server_setup()
 
     # Install required PIP packages
     print('Installing required pip3 packages')

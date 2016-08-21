@@ -587,7 +587,7 @@ def threads(agent_name, pollers):
     """
     # Get configuration
     config_dir = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.ConfigServer(config_dir)
+    config = jm_configuration.Config(config_dir)
     threads_in_pool = config.agent_threads()
 
     # Spawn processes only if we have files to process

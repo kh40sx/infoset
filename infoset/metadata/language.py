@@ -49,7 +49,7 @@ class Agent(object):
 
         # Get the language used
         config_directory = os.environ['INFOSET_CONFIGDIR']
-        config = jm_configuration.ConfigCommon(config_directory)
+        config = jm_configuration.Config(config_directory)
         lang = config.language()
 
         # Determine the agent's language yaml file
