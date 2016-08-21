@@ -79,7 +79,6 @@ def index():
 @infoset.route('/<uid>')
 def overview(uid):
     # Get agent information
-    uid_fixed= uid[2:-1].encode()
     agent = Get(uid_fixed)
     host = agent.hostname()
     agent_list = [agent.everything()]
@@ -393,7 +392,7 @@ def fetch_graph_stacked(uid, stack_type):
     if "memory" in stack_type:
         #Do memory
         datapoint_list = [128, 129, 131, 133, 135]
-        colors = ['#71D5C3', '#009DB2', '#71D5C3', '#98e1d4', '#f0e0a0']
+        colors = ['#71D5C3', '#009DB2', '#21D5C3', '#98e1d4', '#f0e0a0']
     elif "cpu" in stack_type:
         #Do cpu
         pass
@@ -436,10 +435,15 @@ def fetch_graph_stacked(uid, stack_type):
     agent_label = single_datapoint.agent_label()
     color_palette = ColorWheel(agent_label)
 
-    png_output = chart.create_stacked(
+    plt, fig, png_output = chart.create_stacked(
         'Stacked', 'test', colors, [], filepath)
     response = make_response(png_output.getvalue())
     response.headers['Content-Type'] = 'image/png'
+
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    plt.clf()
     return response
 
 

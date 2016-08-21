@@ -53,7 +53,7 @@
 					</thead>
 					{% for agent in agent_list %}
 						<tr>
-							<td>{{ agent.name.decode("UTF-8") }}</td>
+							<td><a href="/{{ agent.id.decode("UTF-8") }}">{{ agent.name.decode("UTF-8") }}</a></td>
 							<td>{{ agent.hostname.decode("UTF-8") }}</td>
 							<td>{{ agent.description }}</td>
 							<td>{{ agent.last_timestamp }}</td>

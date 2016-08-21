@@ -10,6 +10,7 @@
     .wrap('<a href="/graphs/'+ agent + '/' + datapoint + '"></a>');
     });
   }
+
   function loadStackedImage(agent, stack_type ,width, height, target) {
   $('<img class="center-block" src="/fetch/agent/graph/stacked/'+ agent +'/'+ stack_type +'">').load(function() {
     $(this)
@@ -19,8 +20,10 @@
     .wrap('<a href="/graphs/'+ agent + '/' + stack_type + '"></a>');
     });
   }
+  
   loadStackedImage("{{uid}}", "memory" ,630, 240, "#memory-graph-area");
   loadStackedImage("{{uid}}", "load" ,630, 240, "#load-graph-area");
+  
   {% for datapoint_name, value in data.items() %}
     {% if "memory_available".encode() in datapoint_name %}
       loadImage("{{uid}}", "{{value[0]}}", 480, 160, "#memory-thumbnail-area");
