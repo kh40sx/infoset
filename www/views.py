@@ -24,7 +24,7 @@ from infoset.db.db import Database
 from infoset.utils import TimeStamp
 from infoset.utils import ColorWheel
 from infoset.utils import jm_general
-from infoset.language import language
+from infoset.metadata import language
 from www import infoset
 from infoset.web import ws_device
 # Matplotlib imports, Do not edit order

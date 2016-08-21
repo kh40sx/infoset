@@ -31,7 +31,7 @@ from infoset.utils import Daemon
 from infoset.utils import log
 from infoset.utils import jm_general
 from infoset.utils import jm_configuration
-from infoset.language import language
+from infoset.metadata import language
 
 # Define a key global variable
 THREAD_QUEUE = Queue.Queue()

@@ -9,7 +9,7 @@ Extracts agent data from cache directory files.
 import argparse
 
 # Infoset libraries
-from infoset.utils import metadata
+from infoset.metadata import metadata
 
 
 def cli():

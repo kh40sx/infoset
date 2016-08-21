@@ -105,6 +105,8 @@ class PollingAgent(object):
 
         # Create a list of polling objects
         hostnames = self.config.agent_hostnames()
+        log.log2warn('10101010101010101', hostnames)
+
         for hostname in hostnames:
             poller = Poller(hostname, self.agent_name)
             pollers.append(poller)

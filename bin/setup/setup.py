@@ -14,7 +14,7 @@ from sqlalchemy import create_engine
 from infoset.utils import log
 from infoset.utils import jm_configuration
 from infoset.utils import jm_general
-from infoset.utils import metadata
+from infoset.metadata import metadata
 import infoset.utils
 from infoset.db.db_orm import BASE, OID
 from infoset.db import DBURL
