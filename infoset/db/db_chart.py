@@ -288,7 +288,6 @@ class Chart(object):
         # fig.savefig(filepath, bbox_inches='tight')
         fig.savefig(filepath)
         canvas = FigureCanvas(fig)
-        plt.close(fig)
         png_output = io.BytesIO()
         canvas.print_png(png_output)
         return png_output
@@ -305,9 +304,8 @@ class Chart(object):
             None
 
         """
-        # Random colors for each plot
-        fig, axes = plt.subplots()
 
+        fig, axes = plt.subplots()
 
         prop_iter = iter(plt.rcParams['axes.prop_cycle'])
 
@@ -331,10 +329,9 @@ class Chart(object):
         fig.patch.set_facecolor('white')
         fig.savefig(filepath, bbox_inches='tight')
         canvas = FigureCanvas(fig)
-        plt.close(fig)
         png_output = io.BytesIO()
         canvas.print_png(png_output)
-        return png_output
+        return (plt, fig, png_output)
 
     def _generic_settings(self, fig, axes, ymin=0, ymax=None):
         """Do basic chart setup.
