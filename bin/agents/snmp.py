@@ -107,6 +107,17 @@ class PollingAgent(object):
         hostnames = self.config.agent_hostnames()
 
         for hostname in hostnames:
+            # Only poll hosts that exist in the database
+            if db_host.hostname_exists(hostname) is False:
+                log_message = (
+                    'Agent "%s": Hostname %s in the configuration file '
+                    'does not exist in the database. '
+                    'Run the snmp_evaluate_hosts.py script.'
+                    '') % (self.agent_name, hostname)
+                log.log2warn(1095, log_message)
+                continue
+
+            # Add poller
             poller = Poller(hostname, self.agent_name)
             pollers.append(poller)
 

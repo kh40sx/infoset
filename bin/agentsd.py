@@ -46,7 +46,7 @@ class PollingAgent(object):
 
         """
         # Initialize key variables
-        self.agent_name = '_agentsd'
+        self.agent_name = 'agentsd'
 
     def name(self):
         """Return agent name.

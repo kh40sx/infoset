@@ -194,10 +194,6 @@ class Agent(BASE):
 
     name = Column(VARBINARY(512), nullable=True, default=None)
 
-    description = Column(VARBINARY(512), nullable=True, default=None)
-
-    hostname = Column(VARBINARY(512), nullable=True, default=None)
-
     enabled = Column(INTEGER(unsigned=True), server_default='1')
 
     last_timestamp = Column(
@@ -216,7 +212,6 @@ class Datapoint(BASE):
 
     __tablename__ = 'iset_datapoint'
     __table_args__ = (
-        UniqueConstraint('idx', 'idx_agent'),
         {
             'mysql_engine': 'InnoDB'
         }
@@ -230,6 +225,10 @@ class Datapoint(BASE):
         BIGINT(unsigned=True), ForeignKey('iset_agent.idx'),
         nullable=False, server_default='1')
 
+    idx_host = Column(
+        BIGINT(unsigned=True), ForeignKey('iset_host.idx'),
+        nullable=False, server_default='1')
+
     id = Column(VARBINARY(512), unique=True, nullable=True, default=None)
 
     agent_label = Column(VARBINARY(512), nullable=True, default=None)
@@ -241,8 +240,6 @@ class Datapoint(BASE):
     uncharted_value = Column(VARBINARY(512), nullable=True, default=None)
 
     base_type = Column(INTEGER(unsigned=True), server_default='1')
-
-    multiplier = Column(FLOAT(unsigned=True), server_default='1')
 
     last_timestamp = Column(
         BIGINT(unsigned=True), nullable=False, server_default='0')

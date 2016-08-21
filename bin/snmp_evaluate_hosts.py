@@ -7,7 +7,7 @@ Extracts agent data from cache directory files.
 
 # Standard libraries
 import os
-from pprint import pprint
+import argparse
 
 # Infoset libraries
 from infoset.utils import jm_configuration
@@ -75,9 +75,6 @@ def main():
     # Get OIDs
     oids = db_oid.all_oids()
 
-    pprint(hostnames)
-    pprint(oids)
-
     # Process each hostname
     for hostname in hostnames:
         # Get SNMP information
@@ -114,8 +111,6 @@ def main():
                         record = HostOID(idx_host=idx_host, idx_oid=idx_oid)
                         database = db.Database()
                         database.add(record, 1090)
-
-                        print('Inserted!', hostname, idx_host, idx_oid)
 
 
 if __name__ == "__main__":

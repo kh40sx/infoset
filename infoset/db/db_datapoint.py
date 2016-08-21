@@ -52,13 +52,14 @@ class GetSingleDataPoint(object):
                 self.data_dict['idx'] = instance.idx
                 self.data_dict['id'] = instance.id
                 self.data_dict['idx_agent'] = instance.idx_agent
+                self.data_dict['idx_host'] = instance.idx_host
                 self.data_dict[
                     'agent_label'] = jm_general.decode(instance.agent_label)
                 self.data_dict[
                     'agent_source'] = jm_general.decode(instance.agent_source)
                 self.data_dict['enabled'] = instance.enabled
+                self.data_dict['uncharted_value'] = instance.uncharted_value
                 self.data_dict['base_type'] = instance.base_type
-                self.data_dict['multiplier'] = instance.multiplier
                 self.data_dict['last_timestamp'] = instance.last_timestamp
                 break
         else:
@@ -82,8 +83,8 @@ class GetSingleDataPoint(object):
         value = self.data_dict['last_timestamp']
         return value
 
-    def multiplier(self):
-        """Get multiplier value.
+    def uncharted_value(self):
+        """Get uncharted_value value.
 
         Args:
             None
@@ -93,7 +94,7 @@ class GetSingleDataPoint(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['multiplier']
+        value = self.data_dict['uncharted_value']
         return value
 
     def base_type(self):
@@ -166,6 +167,20 @@ class GetSingleDataPoint(object):
         value = self.data_dict['idx_agent']
         return value
 
+    def idx_host(self):
+        """Get idx_host value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx_host']
+        return value
+
     def agent_label(self):
         """Get agent_label value.
 
@@ -226,7 +241,7 @@ class GetDID(object):
                 self.data_dict['enabled'] = instance.enabled
                 self.data_dict[
                     'base_type'] = jm_general.decode(instance.base_type)
-                self.data_dict['multiplier'] = instance.multiplier
+                self.data_dict['uncharted_value'] = instance.uncharted_value
                 self.data_dict['last_timestamp'] = instance.last_timestamp
                 break
         else:
@@ -250,8 +265,8 @@ class GetDID(object):
         value = self.data_dict['last_timestamp']
         return value
 
-    def multiplier(self):
-        """Get multiplier value.
+    def uncharted_value(self):
+        """Get uncharted_value value.
 
         Args:
             None
@@ -261,7 +276,7 @@ class GetDID(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['multiplier']
+        value = self.data_dict['uncharted_value']
         return value
 
     def base_type(self):
@@ -332,6 +347,20 @@ class GetDID(object):
         """
         # Initialize key variables
         value = self.data_dict['idx_agent']
+        return value
+
+    def idx_host(self):
+        """Get idx_host value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx_host']
         return value
 
     def agent_label(self):
@@ -386,13 +415,14 @@ class GetIDX(object):
                 self.data_dict['idx'] = instance.idx
                 self.data_dict['id'] = jm_general.decode(instance.id)
                 self.data_dict['idx_agent'] = instance.idx_agent
+                self.data_dict['idx_host'] = instance.idx_host
                 self.data_dict[
                     'agent_label'] = jm_general.decode(instance.agent_label)
                 self.data_dict[
                     'agent_source'] = jm_general.decode(instance.agent_source)
                 self.data_dict['enabled'] = instance.enabled
                 self.data_dict['base_type'] = instance.base_type
-                self.data_dict['multiplier'] = instance.multiplier
+                self.data_dict['uncharted_value'] = instance.uncharted_value
                 self.data_dict['last_timestamp'] = instance.last_timestamp
                 break
         else:
@@ -416,8 +446,8 @@ class GetIDX(object):
         value = self.data_dict['last_timestamp']
         return value
 
-    def multiplier(self):
-        """Get multiplier value.
+    def uncharted_value(self):
+        """Get uncharted_value value.
 
         Args:
             None
@@ -427,7 +457,7 @@ class GetIDX(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['multiplier']
+        value = self.data_dict['uncharted_value']
         return value
 
     def base_type(self):
@@ -498,6 +528,20 @@ class GetIDX(object):
         """
         # Initialize key variables
         value = self.data_dict['idx_agent']
+        return value
+
+    def idx_host(self):
+        """Get idx_host value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx_host']
         return value
 
     def agent_label(self):

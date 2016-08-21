@@ -52,10 +52,6 @@ class GetUID(object):
             for instance in result:
                 self.data_dict['idx'] = instance.idx
                 self.data_dict['name'] = jm_general.decode(instance.name)
-                self.data_dict[
-                    'description'] = jm_general.decode(instance.description)
-                self.data_dict[
-                    'hostname'] = jm_general.decode(instance.hostname)
                 self.data_dict['enabled'] = instance.enabled
                 self.data_dict['last_timestamp'] = instance.last_timestamp
                 break
@@ -92,34 +88,6 @@ class GetUID(object):
         """
         # Initialize key variables
         value = self.data_dict['name']
-        return value
-
-    def description(self):
-        """Get agent description.
-
-        Args:
-            None
-
-        Returns:
-            value: Value to return
-
-        """
-        # Initialize key variables
-        value = self.data_dict['description']
-        return value
-
-    def hostname(self):
-        """Get agent hostname.
-
-        Args:
-            None
-
-        Returns:
-            value: Value to return
-
-        """
-        # Initialize key variables
-        value = self.data_dict['hostname']
         return value
 
     def enabled(self):

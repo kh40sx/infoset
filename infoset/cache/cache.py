@@ -123,6 +123,7 @@ class UpdateDB(object):
         """
         # Initialize key variables
         uid = self.ingest.uid()
+        hostname = self.ingest.hostname()
 
         # Update Agent, Host and HostAgent database tables if
         # Host and agent are not already there
@@ -132,14 +133,23 @@ class UpdateDB(object):
         # Update datapoints if agent is enabled
         agent_object = agent.GetUID(uid)
         if agent_object.enabled() is True:
+            # Get Agent and Host indexes
+            idx_agent = agent_object.idx()
+
+            # Get idx of host
+            host_info = dhost.GetHost(hostname)
+            idx_host = host_info.idx()
+
             # Update datapoint metadata if not there
             for item in self.ingest.sources():
                 did = item[1]
+
+                # We need the host that the data was generated for
+                # and the agent that got the data
                 if dpoint.did_exists(did) is False:
-                    _insert_datapoint(item)
+                    _insert_datapoint(item, idx_agent, idx_host)
 
             # Create map of DIDs to database row index values
-            idx_agent = agent_object.idx()
             mapping = _datapoints_by_did(idx_agent)
 
             # Update chartable data
@@ -159,7 +169,6 @@ class UpdateDB(object):
         # Initialize key variables
         uid = self.ingest.uid()
         agent_name = self.ingest.agent()
-        hostname = self.ingest.hostname()
 
         # Return if agent already exists in the table
         if agent.uid_exists(uid) is True:
@@ -172,14 +181,12 @@ class UpdateDB(object):
             session = database.session()
             record = session.query(Agent).filter(Agent.idx == 1).one()
             record.id = jm_general.encode(uid)
-            record.hostname = jm_general.encode(hostname)
             database.commit(session, 1073)
         else:
             # Prepare SQL query to read a record from the database.
             record = Agent(
                 id=jm_general.encode(uid),
-                name=jm_general.encode(agent_name),
-                hostname=jm_general.encode(hostname))
+                name=jm_general.encode(agent_name))
             database = db.Database()
             database.add(record, 1081)
 
@@ -351,7 +358,7 @@ class UpdateDB(object):
             log.log2quiet(1045, log_message)
 
 
-def _insert_datapoint(metadata):
+def _insert_datapoint(metadata, idx_agent, idx_host):
     """Insert new datapoint into database.
 
     Args:
@@ -363,22 +370,21 @@ def _insert_datapoint(metadata):
             source: Source of the data (subsystem being tracked)
             description: Description provided by agent config file (unused)
             base_type = SNMP base type (Counter32, Counter64, Gauge etc.)
+        idx_agent: Index of agent in the Agent db table
+        idx_host: Index of host in the Host db table
 
     Returns:
         None
 
     """
     # Initialize key variables
-    (uid, did, agent_label, agent_source, _, base_type) = metadata
-
-    # Get agent index value
-    agent_object = agent.GetUID(uid)
-    idx_agent = agent_object.idx()
+    (_, did, agent_label, agent_source, _, base_type) = metadata
 
     # Insert record
     record = Datapoint(
         id=jm_general.encode(did),
         idx_agent=idx_agent,
+        idx_host=idx_host,
         agent_label=jm_general.encode(agent_label),
         agent_source=jm_general.encode(agent_source),
         base_type=base_type)

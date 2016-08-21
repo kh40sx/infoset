@@ -191,7 +191,7 @@ class Config(object):
             log_message = (
                 'web_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
-            log.log2die(1016, log_message)
+            log.log2die(1093, log_message)
 
         # Return
         return value
