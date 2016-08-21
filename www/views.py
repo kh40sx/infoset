@@ -110,7 +110,14 @@ def datapoints(uid):
 
 @infoset.route('/search')
 def search():
-    return render_template('search.html')
+    database = Database()
+    session = database.session()
+    agent_list = []
+    for agent in session.query(Agent):
+        print(agent)
+        agent_list.append(agent)
+    return render_template('search.html',
+                            agent_list=agent_list)
 
 @infoset.route('/hosts/<host>')
 def host(host):
