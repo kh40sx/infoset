@@ -1,125 +1,23 @@
 -   oid_values: .1.3.6.1.4.1.1718.3.2.2.1.12
-    oid_labels: .1.3.6.1.4.1.1718.3.2.2.1.2
+    oid_labels: .1.3.6.1.4.1.1718.3.2.2.1.3
     agent_label: Sentry3_infeedPower
     base_type: 1
     multiplier: 1
-    description: Servertech CDU Infeed Power
 
 -   oid_values: .1.3.6.1.4.1.1718.3.2.2.1.7
-    oid_labels: .1.3.6.1.4.1.1718.3.2.2.1.2
+    oid_labels: .1.3.6.1.4.1.1718.3.2.2.1.3
     agent_label: Sentry3_infeedLoadValue
     base_type:  1
     multiplier: 0.01
-    description: Servertech CDU Infeed current
 
 -   oid_values: .1.3.6.1.2.1.31.1.1.1.10
     oid_labels: .1.3.6.1.2.1.31.1.1.1.1
     agent_label: ifHCOutOctets
     base_type:  64
     multiplier: 8
-    description: Interface bps in
 
 -   oid_values: .1.3.6.1.2.1.31.1.1.1.6
     oid_labels: .1.3.6.1.2.1.31.1.1.1.1
     agent_label: ifHCInOctets
     base_type:  64
     multiplier: 8
-    description: Interface bps out
-
--   oid_values: .1.3.6.1.4.1.1718.3.2.3.1.7
-    oid_labels: .1.3.6.1.4.1.1718.3.2.3.1.2
-    agent_label: sentry3_outletLoadValue
-    base_type: 1
-    multiplier: 0.01
-    description: Sentry3-MIB::outletLoadValue (Servertech Amps/100)
-
--   oid_values: .1.3.6.1.4.1.1718.3.2.3.1.14
-    oid_labels: .1.3.6.1.4.1.1718.3.2.3.1.2
-    agent_label: sentry3_outletPower
-    base_type: 1
-    multiplier: 1
-    description: Sentry3-MIB::outletPower (Servertech watts)
-
--   oid_values: .1.3.6.1.4.1.476.1.42.3.8.50.20.1.60
-    oid_labels: .1.3.6.1.4.1.476.1.42.3.8.50.20.1.5
-    agent_label: emerson_mpx_lgpPduRcpEntryEc
-    base_type: 1
-    multiplier: 0.1
-    description: LIEBERT-GP-MIB::lgpPduRcpEntryEc (MPX CDU - outlet current Amps/10)
-
--   oid_values: .1.3.6.1.4.1.476.1.42.3.8.50.20.1.65
-    oid_labels: .1.3.6.1.4.1.476.1.42.3.8.50.20.1.5
-    agent_label: emerson_mpx_lgpPduRcpEntryPwrOut
-    base_type: 1
-    multiplier: 1
-    description: LIEBERT-GP-MIB::lgpPduRcpEntryPwrOut (MPX CDU - outlet watts)
-
--   oid_values: .1.3.6.1.4.1.476.1.42.3.9.30.1.20.1.2.1.5219
-    oid_labels:
-    agent_label: emerson_fpc_branch_current_a
-    base_type: 1
-    multiplier: 1
-    description: LIEBERT-GP-MIB (FPC PDU - A phase branch circuit current)
-
--   oid_values: .1.3.6.1.4.1.476.1.42.3.9.30.1.20.1.2.1.5220
-    oid_labels:
-    agent_label: emerson_fpc_branch_current_b
-    base_type: 1
-    multiplier: 1
-    description: LIEBERT-GP-MIB (FPC PDU - B phase branch circuit current)
-
--   oid_values: .1.3.6.1.4.1.476.1.42.3.9.30.1.20.1.2.1.5221
-    oid_labels:
-    agent_label: emerson_fpc_branch_current_c
-    base_type: 1
-    multiplier: 1
-    description: LIEBERT-GP-MIB (FPC PDU - C phase branch circuit current)
-
--   oid_values: .1.3.6.1.4.1.476.1.42.3.9.30.1.20.1.2.1.5222
-    oid_labels:
-    agent_label: emerson_fpc_branch_power
-    base_type: 1
-    multiplier: 1
-    description: LIEBERT-GP-MIB (FPC PDU - branch circuit watts)
-
--   oid_values: .1.3.6.1.4.1.476.1.42.3.9.30.1.10.1.2.1.5202
-    oid_labels: .1.3.6.1.4.1.476.1.42.3.9.20.1.20.1.2.1.5186
-    agent_label: emerson_fpc_panel_percent_load
-    base_type: 1
-    multiplier: 1
-    description: LIEBERT-GP-FLEXIBLE-MIB (FPC PDU - panel breaker percentage load)
-
--   oid_values: .1.3.6.1.4.1.476.1.42.3.9.30.1.20.1.2.1.5198
-    oid_labels: .1.3.6.1.4.1.476.1.42.3.9.20.1.20.1.2.1.5186
-    agent_label: emerson_fpc_panel_kva
-    base_type: 1
-    multiplier: 1
-    description: LIEBERT-GP-FLEXIBLE-MIB (FPC PDU - panel breaker kVA)
-
--   oid_values: .1.3.6.1.4.1.476.1.42.3.9.30.1.20.1.2.1.5199
-    oid_labels: .1.3.6.1.4.1.476.1.42.3.9.20.1.20.1.2.1.5186
-    agent_label: emerson_fpc_panel_kw
-    base_type: 1
-    multiplier: 1
-    description: LIEBERT-GP-FLEXIBLE-MIB (FPC PDU - panel breaker kW)
-
--   oid_values: .1.3.6.1.4.1.476.1.42.3.9.30.1.20.1.2.1.5193
-    oid_labels: .1.3.6.1.4.1.476.1.42.3.9.20.1.20.1.2.1.5186
-    agent_label: emerson_fpc_panel_amps_a
-    base_type: 1
-    multiplier: 1
-    description: LIEBERT-GP-FLEXIBLE-MIB (FPC PDU - A phase panel breaker current)
-
--   oid_values: .1.3.6.1.4.1.476.1.42.3.9.30.1.20.1.2.1.5194
-    oid_labels: .1.3.6.1.4.1.476.1.42.3.9.20.1.20.1.2.1.5186
-    agent_label: emerson_fpc_panel_amps_b
-    base_type: 1
-    multiplier: 1
-    description: LIEBERT-GP-FLEXIBLE-MIB (FPC PDU - B phase panel breaker current)
-
--   oid_values: .1.3.6.1.4.1.476.1.42.3.9.30.1.20.1.2.1.5195
-    oid_labels: .1.3.6.1.4.1.476.1.42.3.9.20.1.20.1.2.1.5186
-    agent_label: emerson_fpc_panel_amps_c
-    base_type: 1
-    multiplier: 1
-    description: LIEBERT-GP-FLEXIBLE-MIB (FPC PDU - C phase panel breaker current)

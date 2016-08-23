@@ -47,7 +47,6 @@ def insert_oids(directory=None):
         agent_label = item['agent_label']
         base_type = item['base_type']
         multiplier = item['multiplier']
-        description = item['description']
 
         if db_oid.oid_values_exists(oid_values) is False:
             if agent_label not in agent_labels:
@@ -56,7 +55,6 @@ def insert_oids(directory=None):
                     oid_values=jm_general.encode(oid_values),
                     oid_labels=jm_general.encode(oid_labels),
                     agent_label=jm_general.encode(agent_label),
-                    description=jm_general.encode(description),
                     base_type=base_type,
                     multiplier=multiplier)
                 database = db.Database()
