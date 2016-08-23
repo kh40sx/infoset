@@ -7,6 +7,7 @@ Manages connection pooling among other things.
 
 # Main python libraries
 import os
+import socket
 from pathlib import Path
 from sqlalchemy import create_engine
 
@@ -17,14 +18,16 @@ from infoset.utils import jm_general
 from infoset.metadata import metadata
 import infoset.utils
 from infoset.db.db_orm import BASE, Agent, Department, Host, BillType
-from infoset.db.db_orm import Configuration
+from infoset.db.db_orm import Configuration, HostAgent
 from infoset.db import DBURL
 from infoset.db import db_agent
 from infoset.db import db_configuration
 from infoset.db import db_billtype
 from infoset.db import db_department
 from infoset.db import db_host
+from infoset.db import db_hostagent
 from infoset.db import db
+from infoset.agents import agent
 
 
 def insert_department():
@@ -43,7 +46,7 @@ def insert_department():
             code=jm_general.encode('_SYSTEM_RESERVED_'),
             name=jm_general.encode('_SYSTEM_RESERVED_'))
         database = db.Database()
-        database.add(record, 1081)
+        database.add(record, 1102)
 
 
 def insert_billtype():
@@ -62,11 +65,11 @@ def insert_billtype():
             code=jm_general.encode('_SYSTEM_RESERVED_'),
             name=jm_general.encode('_SYSTEM_RESERVED_'))
         database = db.Database()
-        database.add(record, 1081)
+        database.add(record, 1104)
 
 
-def insert_agent():
-    """Insert first agent in the database.
+def insert_agent_host():
+    """Insert first agent and host in the database.
 
     Args:
         None
@@ -76,32 +79,39 @@ def insert_agent():
 
     """
     # Initialize key variables
-    if db_agent.idx_exists(1) is False:
+    idx_agent = 1
+    idx_host = 1
+    agent_name = '_infoset'
+
+    # Add agent
+    if db_agent.idx_exists(idx_agent) is False:
         record = Agent(
             id=jm_general.encode('_SYSTEM_RESERVED_'),
-            name=jm_general.encode('_SYSTEM_RESERVED_'))
+            name=jm_general.encode(agent_name))
         database = db.Database()
-        database.add(record, 1081)
+        database.add(record, 1109)
 
+        # Generate a UID
+        uid = agent.get_uid(agent_name)
+        database = db.Database()
+        session = database.session()
+        record = session.query(Agent).filter(Agent.idx == idx_agent).one()
+        record.id = jm_general.encode(uid)
+        database.commit(session, 1073)
 
-def insert_host():
-    """Insert first host in the database.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    """
-    # Initialize key variables
-    if db_host.idx_exists(1) is False:
+    # Add host
+    if db_host.idx_exists(idx_host) is False:
         record = Host(
-            enabled=0,
-            description=jm_general.encode('_SYSTEM_RESERVED_'),
-            hostname=jm_general.encode('_SYSTEM_RESERVED_'))
+            description=jm_general.encode('Infoset Server'),
+            hostname=jm_general.encode(socket.getfqdn()))
         database = db.Database()
-        database.add(record, 1081)
+        database.add(record, 1106)
+
+    # Add to Agent / Host table
+    if db_hostagent.host_agent_exists(idx_host, idx_agent) is False:
+        record = HostAgent(idx_host=idx_host, idx_agent=idx_agent)
+        database = db.Database()
+        database.add(record, 1107)
 
 
 def insert_config():
@@ -121,7 +131,7 @@ def insert_config():
             config_key=jm_general.encode('version'),
             config_value=jm_general.encode(version))
         database = db.Database()
-        database.add(record, 1081)
+        database.add(record, 1108)
 
 
 def server_setup():
@@ -173,10 +183,9 @@ def server_setup():
         BASE.metadata.create_all(engine)
 
         # Insert database entries
-        insert_agent()
+        insert_agent_host()
         insert_billtype()
         insert_department()
-        insert_host()
         insert_config()
 
         # Try some additional statements

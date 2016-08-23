@@ -130,6 +130,16 @@ class GetIDX(object):
                     count += 1
                     continue
 
+                #############################################################
+                # Treat zero values with caution
+                #############################################################
+                # These are usually due to outages and can cause spikes
+                # in the data. This ignores the first value after a zero.
+                #############################################################
+                if bool(self.data[old_timestamp]) is False:
+                    old_timestamp = timestamp
+                    continue
+
                 # Get new value
                 new_value = value - self.data[old_timestamp]
 

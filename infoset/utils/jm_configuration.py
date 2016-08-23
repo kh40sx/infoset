@@ -401,7 +401,7 @@ class Config(object):
         # Verify data
         if key not in self.config_dict:
             log_message = ('No agents configured')
-            log.log2die(2000, log_message)
+            log.log2die(1100, log_message)
 
         # Process agents
         result = self.config_dict[key]

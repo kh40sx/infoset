@@ -477,8 +477,8 @@ def _infoset_hostname():
         host: Hostname
 
     """
-    host_indices = db_hostagent.host_indices(1)
-    host_idx = host_indices[0]
-    host_object = GetHostIDX(host_idx)
+    # host_indices = db_hostagent.host_indices(1)
+    # host_idx = host_indices[0]
+    host_object = GetHostIDX(1)
     host = host_object.hostname()
     return host

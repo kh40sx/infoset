@@ -70,7 +70,7 @@ class Agent(object):
         # Initialize key variables
         self.data = defaultdict(lambda: defaultdict(dict))
         agent_name = config.agent_name()
-        uid = _get_uid(agent_name)
+        uid = get_uid(agent_name)
         self.lang = language.Agent(agent_name)
 
         # Add timestamp
@@ -536,11 +536,12 @@ class AgentThread(threading.Thread):
             self.queue.task_done()
 
 
-def _get_uid(agent_name):
+def get_uid(agent_name):
     """Create a permanent UID for the agent.
 
     Args:
         agent_name: Agent to create UID for
+        hostname: hostname
 
     Returns:
         uid: UID for agent

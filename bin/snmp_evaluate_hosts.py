@@ -8,10 +8,12 @@ Extracts agent data from cache directory files.
 # Standard libraries
 import os
 import argparse
+import textwrap
 
 # Infoset libraries
 from infoset.utils import jm_configuration
 from infoset.utils import jm_general
+from infoset.utils import log
 from infoset.db import db
 from infoset.db import db_oid
 from infoset.db import db_host
@@ -40,14 +42,17 @@ def cli():
         '--hostname',
         required=True,
         type=str,
-        help=(
+        help=textwrap.fill(
             'Individual hostname to evaluate. If not defined, '
             'the script will evaluate all hosts in the database, '
-            'which could take some time.')
+            'which could take some time. Use a hostname of "ALL" '
+            'to evaluate all SNMP hosts in the system', width=80)
     )
 
     # Get the parser value
     args = parser.parse_args()
+
+    # Return
     return args
 
 
@@ -64,13 +69,29 @@ def main():
     # Process Cache
     agent_name = 'snmp'
 
+    # Process CLI
+    cli_args = cli()
+
     # Get configuration
     config_dir = os.environ['INFOSET_CONFIGDIR']
     config = jm_configuration.ConfigAgent(
         config_dir, agent_name)
 
     # Get hosts
-    hostnames = config.agent_hostnames()
+    if cli_args.hostname.lower() == 'all':
+        hostnames = config.agent_hostnames()
+    else:
+        # Check to make sure hostname exists in the configuration
+        all_hosts = config.agent_hostnames()
+        cli_hostname = cli_args.hostname
+        if cli_hostname not in all_hosts:
+            log_message = (
+                'Agent "%s": Hostname %s is not present '
+                'in the the configuration file.'
+                '') % (agent_name, cli_hostname)
+            log.log2die(1103, log_message)
+        else:
+            hostnames = [cli_hostname]
 
     # Get OIDs
     oids = db_oid.all_oids()

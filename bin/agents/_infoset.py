@@ -14,6 +14,7 @@ Description:
 # Standard libraries
 import os
 import sys
+import socket
 import logging
 from time import sleep
 
@@ -106,7 +107,7 @@ class PollingAgent(object):
 
         """
         # Get hostname
-        hostname = '_infoset'
+        hostname = socket.getfqdn()
 
         # Initialize key variables
         agent = Agent.Agent(self.config, hostname)

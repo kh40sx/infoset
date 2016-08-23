@@ -47,7 +47,6 @@ class GetUID(object):
         result = session.query(Agent).filter(Agent.id == value)
 
         # Massage data
-        #TODO decode binary returns
         if result.count() == 1:
             for instance in result:
                 self.data_dict['idx'] = instance.idx
@@ -227,6 +226,7 @@ def uid_exists(uid):
 
     # Return
     return found
+
 
 def idx_exists(idx):
     """Determine whether the idx exists.

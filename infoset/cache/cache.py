@@ -12,7 +12,6 @@ import time
 import shutil
 from collections import defaultdict
 import queue as Queue
-import threading
 import re
 from sqlalchemy import and_
 
@@ -26,6 +25,7 @@ from infoset.db import db_hostagent as hagent
 from infoset.utils import jm_configuration
 from infoset.utils import jm_general
 from infoset.utils import log
+from infoset.utils.log import LogThread
 from infoset.cache import drain
 from infoset.utils import hidden
 
@@ -33,7 +33,7 @@ from infoset.utils import hidden
 THREAD_QUEUE = Queue.Queue()
 
 
-class ProcessUID(threading.Thread):
+class ProcessUID(LogThread):
     """Threaded ingestion of agent files.
 
     Graciously modified from:
@@ -43,7 +43,7 @@ class ProcessUID(threading.Thread):
 
     def __init__(self, queue):
         """Initialize the threads."""
-        threading.Thread.__init__(self)
+        LogThread.__init__(self)
         self.queue = queue
 
     def run(self):
@@ -174,21 +174,12 @@ class UpdateDB(object):
         if agent.uid_exists(uid) is True:
             return
 
-        # Update record one of the agent table
-        if agent_name == '_infoset'.encode():
-            # Update the database
-            database = db.Database()
-            session = database.session()
-            record = session.query(Agent).filter(Agent.idx == 1).one()
-            record.id = jm_general.encode(uid)
-            database.commit(session, 1073)
-        else:
-            # Prepare SQL query to read a record from the database.
-            record = Agent(
-                id=jm_general.encode(uid),
-                name=jm_general.encode(agent_name))
-            database = db.Database()
-            database.add(record, 1081)
+        # Prepare SQL query to read a record from the database.
+        record = Agent(
+            id=jm_general.encode(uid),
+            name=jm_general.encode(agent_name))
+        database = db.Database()
+        database.add(record, 1081)
 
     def _insert_host(self):
         """Insert new agent into database.
@@ -246,7 +237,6 @@ class UpdateDB(object):
             # Process each datapoint item found
             (_, did, string_value, timestamp) = item
             idx_datapoint = int(mapping[did][0])
-            idx_agent = int(mapping[did][1])
             last_timestamp = int(mapping[did][2])
             value = float(string_value)
 

@@ -43,9 +43,13 @@ agents:
       agent_hostnames:
         - 192.168.3.100
 
-    - agent_name: linux_passive
+    - agent_name: linux_in
       agent_enabled: True
       agent_filename: bin/agents/linux_in.py
+
+    - agent_name: linux_passive
+      agent_enabled: True
+      agent_filename: bin/agents/linux_passive.py
 
     - agent_name: snmp
       agent_enabled: True
