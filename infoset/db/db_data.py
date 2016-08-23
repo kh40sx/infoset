@@ -131,12 +131,10 @@ class GetIDX(object):
                     continue
 
                 #############################################################
-                # Treat zero values with caution
+                # Skip calculation if the difference in timestamps is > step.
+                # This helps to prevent spikes in the data due to outages
                 #############################################################
-                # These are usually due to outages and can cause spikes
-                # in the data. This ignores the first value after a zero.
-                #############################################################
-                if bool(self.data[old_timestamp]) is False:
+                if timestamp - old_timestamp > step:
                     old_timestamp = timestamp
                     continue
 
