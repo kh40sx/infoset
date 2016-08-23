@@ -384,6 +384,31 @@ class Config(object):
         # Return
         return result
 
+    def agents(self):
+        """Get agents.
+
+        Args:
+            None
+
+        Returns:
+            result: list of agents
+
+        """
+        # Initialize key variables
+        key = 'agents'
+        result = None
+
+        # Verify data
+        if key not in self.config_dict:
+            log_message = ('No agents configured')
+            log.log2die(2000, log_message)
+
+        # Process agents
+        result = self.config_dict[key]
+
+        # Return
+        return result
+
 
 class ConfigAgent(object):
     """Class gathers all configuration information.

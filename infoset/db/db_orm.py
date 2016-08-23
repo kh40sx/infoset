@@ -167,15 +167,9 @@ class Data(BASE):
         BIGINT(unsigned=True), ForeignKey('iset_datapoint.idx'),
         nullable=False, server_default='1')
 
-    idx_agent = Column(
-        BIGINT(unsigned=True), ForeignKey('iset_agent.idx'),
-        nullable=False, server_default='1')
-
     timestamp = Column(BIGINT(unsigned=True), nullable=False, default='1')
 
     value = Column(FLOAT, default=None)
-
-    enabled = Column(INTEGER(unsigned=True), server_default='1')
 
 
 class Agent(BASE):
@@ -229,6 +223,14 @@ class Datapoint(BASE):
         BIGINT(unsigned=True), ForeignKey('iset_host.idx'),
         nullable=False, server_default='1')
 
+    idx_department = Column(
+        BIGINT(unsigned=True), ForeignKey('iset_department.idx'),
+        nullable=False, server_default='1')
+
+    idx_billtype = Column(
+        BIGINT(unsigned=True), ForeignKey('iset_billtype.idx'),
+        nullable=False, server_default='1')
+
     id = Column(VARBINARY(512), unique=True, nullable=True, default=None)
 
     agent_label = Column(VARBINARY(512), nullable=True, default=None)
@@ -237,12 +239,132 @@ class Datapoint(BASE):
 
     enabled = Column(INTEGER(unsigned=True), server_default='1')
 
+    billable = Column(INTEGER(unsigned=True), server_default='0')
+
     uncharted_value = Column(VARBINARY(512), nullable=True, default=None)
 
     base_type = Column(INTEGER(unsigned=True), server_default='1')
 
     last_timestamp = Column(
         BIGINT(unsigned=True), nullable=False, server_default='0')
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+
+class Department(BASE):
+    """Class defining the iset_department table of the database."""
+
+    __tablename__ = 'iset_department'
+    __table_args__ = (
+        UniqueConstraint(
+            'code'),
+        {
+            'mysql_engine': 'InnoDB'
+        }
+        )
+
+    idx = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    code = Column(VARBINARY(512), nullable=True, default=None)
+
+    name = Column(VARBINARY(512), nullable=True, default=None)
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+
+class BillType(BASE):
+    """Class defining the iset_billtype table of the database."""
+
+    __tablename__ = 'iset_billtype'
+    __table_args__ = (
+        UniqueConstraint(
+            'code'),
+        {
+            'mysql_engine': 'InnoDB'
+        }
+        )
+
+    idx = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    code = Column(VARBINARY(512), nullable=True, default=None)
+
+    name = Column(VARBINARY(512), nullable=True, default=None)
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+
+class Configuration(BASE):
+    """Class defining the iset_configuration table of the database."""
+
+    __tablename__ = 'iset_configuration'
+    __table_args__ = (
+        UniqueConstraint(
+            'config_key'),
+        {
+            'mysql_engine': 'InnoDB'
+        }
+        )
+
+    idx = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    config_key = Column(VARBINARY(512), nullable=True, default=None)
+
+    config_value = Column(VARBINARY(512), nullable=True, default=None)
+
+    ts_modified = Column(
+        DATETIME, server_default=text(
+            'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)
+
+    ts_created = Column(
+        DATETIME, server_default=text('CURRENT_TIMESTAMP'))
+
+
+class DataSource(BASE):
+    """Class defining the iset_datasource table of the database."""
+
+    __tablename__ = 'iset_datasource'
+    __table_args__ = (
+        UniqueConstraint(
+            'idx_host', 'idx_datapoint', 'source'),
+        {
+            'mysql_engine': 'InnoDB'
+        }
+        )
+
+    idx = Column(
+        BIGINT(unsigned=True), primary_key=True,
+        autoincrement=True, nullable=False)
+
+    idx_host = Column(
+        BIGINT(unsigned=True), ForeignKey('iset_host.idx'),
+        nullable=False, server_default='1')
+
+    idx_datapoint = Column(
+        BIGINT(unsigned=True), ForeignKey('iset_datapoint.idx'),
+        nullable=False, server_default='1')
+
+    source = Column(VARBINARY(512), nullable=True, default=None)
 
     ts_modified = Column(
         DATETIME, server_default=text(

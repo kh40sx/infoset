@@ -4,6 +4,7 @@ import os
 
 # Infoset imports
 from infoset.utils import log
+from infoset.utils import jm_general
 
 
 class Directory:
@@ -20,7 +21,7 @@ class Directory:
 
         """
         # Initialize key variables
-        self.root = ('%s/.infoset') % (os.environ['HOME'])
+        self.root = ('%s/.infoset') % (jm_general.root_directory())
 
     def uid(self):
         """Method for defining the hidden uid directory.

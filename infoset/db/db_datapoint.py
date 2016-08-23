@@ -234,11 +234,15 @@ class GetDID(object):
                 self.data_dict['idx'] = instance.idx
                 self.data_dict['id'] = instance.id
                 self.data_dict['idx_agent'] = instance.idx_agent
+                self.data_dict['idx_host'] = instance.idx_host
+                self.data_dict['idx_department'] = instance.idx_department
+                self.data_dict['idx_billtype'] = instance.idx_billtype
                 self.data_dict[
                     'agent_label'] = jm_general.decode(instance.agent_label)
                 self.data_dict[
                     'agent_source'] = jm_general.decode(instance.agent_source)
                 self.data_dict['enabled'] = instance.enabled
+                self.data_dict['billable'] = instance.billable
                 self.data_dict[
                     'base_type'] = jm_general.decode(instance.base_type)
                 self.data_dict['uncharted_value'] = instance.uncharted_value
@@ -307,6 +311,20 @@ class GetDID(object):
         value = self.data_dict['enabled']
         return value
 
+    def billable(self):
+        """Get billable value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['billable']
+        return value
+
     def agent_source(self):
         """Get agent_source value.
 
@@ -363,6 +381,34 @@ class GetDID(object):
         value = self.data_dict['idx_host']
         return value
 
+    def idx_department(self):
+        """Get idx_department value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx_department']
+        return value
+
+    def idx_billtype(self):
+        """Get idx_billtype value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx_billtype']
+        return value
+
     def agent_label(self):
         """Get agent_label value.
 
@@ -416,11 +462,14 @@ class GetIDX(object):
                 self.data_dict['id'] = jm_general.decode(instance.id)
                 self.data_dict['idx_agent'] = instance.idx_agent
                 self.data_dict['idx_host'] = instance.idx_host
+                self.data_dict['idx_department'] = instance.idx_department
+                self.data_dict['idx_billtype'] = instance.idx_billtype
                 self.data_dict[
                     'agent_label'] = jm_general.decode(instance.agent_label)
                 self.data_dict[
                     'agent_source'] = jm_general.decode(instance.agent_source)
                 self.data_dict['enabled'] = instance.enabled
+                self.data_dict['billable'] = instance.billable
                 self.data_dict['base_type'] = instance.base_type
                 self.data_dict['uncharted_value'] = instance.uncharted_value
                 self.data_dict['last_timestamp'] = instance.last_timestamp
@@ -472,6 +521,20 @@ class GetIDX(object):
         """
         # Initialize key variables
         value = self.data_dict['base_type']
+        return value
+
+    def billable(self):
+        """Get billable value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['billable']
         return value
 
     def enabled(self):
@@ -542,6 +605,34 @@ class GetIDX(object):
         """
         # Initialize key variables
         value = self.data_dict['idx_host']
+        return value
+
+    def idx_department(self):
+        """Get idx_department value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx_department']
+        return value
+
+    def idx_billtype(self):
+        """Get idx_billtype value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx_billtype']
         return value
 
     def agent_label(self):

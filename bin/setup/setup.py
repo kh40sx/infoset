@@ -16,8 +16,112 @@ from infoset.utils import jm_configuration
 from infoset.utils import jm_general
 from infoset.metadata import metadata
 import infoset.utils
-from infoset.db.db_orm import BASE
+from infoset.db.db_orm import BASE, Agent, Department, Host, BillType
+from infoset.db.db_orm import Configuration
 from infoset.db import DBURL
+from infoset.db import db_agent
+from infoset.db import db_configuration
+from infoset.db import db_billtype
+from infoset.db import db_department
+from infoset.db import db_host
+from infoset.db import db
+
+
+def insert_department():
+    """Insert first department in the database.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    if db_department.idx_exists(1) is False:
+        record = Department(
+            code=jm_general.encode('_SYSTEM_RESERVED_'),
+            name=jm_general.encode('_SYSTEM_RESERVED_'))
+        database = db.Database()
+        database.add(record, 1081)
+
+
+def insert_billtype():
+    """Insert first billtype in the database.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    if db_billtype.idx_exists(1) is False:
+        record = BillType(
+            code=jm_general.encode('_SYSTEM_RESERVED_'),
+            name=jm_general.encode('_SYSTEM_RESERVED_'))
+        database = db.Database()
+        database.add(record, 1081)
+
+
+def insert_agent():
+    """Insert first agent in the database.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    if db_agent.idx_exists(1) is False:
+        record = Agent(
+            id=jm_general.encode('_SYSTEM_RESERVED_'),
+            name=jm_general.encode('_SYSTEM_RESERVED_'))
+        database = db.Database()
+        database.add(record, 1081)
+
+
+def insert_host():
+    """Insert first host in the database.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    if db_host.idx_exists(1) is False:
+        record = Host(
+            enabled=0,
+            description=jm_general.encode('_SYSTEM_RESERVED_'),
+            hostname=jm_general.encode('_SYSTEM_RESERVED_'))
+        database = db.Database()
+        database.add(record, 1081)
+
+
+def insert_config():
+    """Insert first config in the database.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    version = '0.0.0.0'
+    if db_configuration.config_key_exists(version) is False:
+        record = Configuration(
+            config_key=jm_general.encode('version'),
+            config_value=jm_general.encode(version))
+        database = db.Database()
+        database.add(record, 1081)
 
 
 def server_setup():
@@ -68,14 +172,12 @@ def server_setup():
         print('Applying Schemas')
         BASE.metadata.create_all(engine)
 
-        # Insert an entry for the infoset agent
-        try:
-            sql_string = (
-                'INSERT INTO iset_agent (id, name, hostname) VALUES '
-                '("_infoset", "_infoset", "_infoset")')
-            engine.execute(sql_string)
-        except:
-            pass
+        # Insert database entries
+        insert_agent()
+        insert_billtype()
+        insert_department()
+        insert_host()
+        insert_config()
 
         # Try some additional statements
         metadata.insert_oids()

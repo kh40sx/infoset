@@ -61,7 +61,7 @@ class GetHost(object):
                 break
         else:
             log_message = ('Hostname %s not found.') % (hostname)
-            log.log2die(1048, log_message)
+            log.log2die(1000, log_message)
 
         # Return the session to the database pool after processing
         session.close()
@@ -197,7 +197,7 @@ class GetIDX(object):
                 break
         else:
             log_message = ('Host idx %s not found.') % (idx)
-            log.log2die(1086, log_message)
+            log.log2die(1098, log_message)
 
         # Return the session to the database pool after processing
         session.close()

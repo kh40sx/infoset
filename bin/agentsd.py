@@ -18,6 +18,7 @@ except:
     print('You need to set your PYTHONPATH to include the infoset library')
     sys.exit(2)
 from infoset.agents import check
+from infoset.utils import log
 
 
 class PollingAgent(object):

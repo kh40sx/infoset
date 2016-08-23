@@ -3,6 +3,7 @@
 Classes for agent data
 
 """
+
 # Python standard libraries
 from collections import defaultdict
 
@@ -10,11 +11,11 @@ from collections import defaultdict
 from infoset.utils import log
 from infoset.utils import jm_general
 from infoset.db import db
-from infoset.db.db_orm import Agent, Datapoint
+from infoset.db.db_orm import BillType
 
 
-class GetUID(object):
-    """Class to return agent data.
+class GetCode(object):
+    """Class to return BillType data by code.
 
     Args:
         None
@@ -26,11 +27,11 @@ class GetUID(object):
 
     """
 
-    def __init__(self, uid):
+    def __init__(self, code):
         """Function for intializing the class.
 
         Args:
-            uid: UID of agent
+            code: BillType code
 
         Returns:
             None
@@ -38,26 +39,25 @@ class GetUID(object):
         """
         # Initialize important variables
         self.data_dict = defaultdict(dict)
-        value = uid.encode()
-        self.uid = value
+        value = code.encode()
 
         # Establish a database session
         database = db.Database()
         session = database.session()
-        result = session.query(Agent).filter(Agent.id == value)
+        result = session.query(BillType).filter(BillType.code == value)
 
         # Massage data
-        #TODO decode binary returns
         if result.count() == 1:
             for instance in result:
                 self.data_dict['idx'] = instance.idx
-                self.data_dict['name'] = jm_general.decode(instance.name)
-                self.data_dict['enabled'] = instance.enabled
-                self.data_dict['last_timestamp'] = instance.last_timestamp
+                self.data_dict[
+                    'code'] = jm_general.decode(instance.code)
+                self.data_dict[
+                    'name'] = jm_general.decode(instance.name)
                 break
         else:
-            log_message = ('uid %s not found.') % (value)
-            log.log2die(1035, log_message)
+            log_message = ('BillType %s not found.') % (code)
+            log.log2die(1001, log_message)
 
         # Return the session to the database pool after processing
         session.close()
@@ -76,8 +76,22 @@ class GetUID(object):
         value = self.data_dict['idx']
         return value
 
+    def code(self):
+        """Get code value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['code']
+        return value
+
     def name(self):
-        """Get agent name.
+        """Get name value.
 
         Args:
             None
@@ -90,53 +104,9 @@ class GetUID(object):
         value = self.data_dict['name']
         return value
 
-    def enabled(self):
-        """Get agent enabled.
 
-        Args:
-            None
-
-        Returns:
-            value: Value to return
-
-        """
-        # Initialize key variables
-        value = bool(self.data_dict['enabled'])
-
-        # Return
-        return value
-
-    def last_timestamp(self):
-        """Get agent last_timestamp.
-
-        Args:
-            None
-
-        Returns:
-            value: Value to return
-
-        """
-        # Initialize key variables
-        value = self.data_dict['last_timestamp']
-        return value
-
-    def everything(self):
-        """Get all agent data.
-
-        Args:
-            None
-
-        Returns:
-            value: Data as a dict
-
-        """
-        # Initialize key variables
-        value = self.data_dict
-        return value
-
-
-class GetDataPoint(object):
-    """Class to return agent data.
+class GetIDX(object):
+    """Class to return host data by idx.
 
     Args:
         None
@@ -148,59 +118,74 @@ class GetDataPoint(object):
 
     """
 
-    def __init__(self, idx_agent):
+    def __init__(self, idx):
         """Function for intializing the class.
 
         Args:
-            idx: idx of agent
+            idx: BillType Index
 
         Returns:
             None
 
         """
         # Initialize important variables
-        self.data_point_dict = defaultdict(dict)
+        self.data_dict = defaultdict(dict)
 
-        # Get the result
+        # Establish a database session
         database = db.Database()
         session = database.session()
-        result = session.query(Datapoint).filter(
-            Datapoint.idx_agent == idx_agent)
+        result = session.query(BillType).filter(BillType.idx == idx)
 
         # Massage data
-        if result.count() > 0:
+        if result.count() == 1:
             for instance in result:
-                agent_label = jm_general.decode(instance.agent_label)
-                idx = instance.idx
-                uncharted_value = jm_general.decode(instance.uncharted_value)
-                self.data_point_dict[agent_label] = (idx, uncharted_value)
+                self.data_dict['idx'] = instance.idx
+                self.data_dict[
+                    'code'] = jm_general.decode(instance.code)
+                self.data_dict[
+                    'name'] = jm_general.decode(instance.name)
+                break
         else:
-            log_message = ('Agent idx %s not found.') % (idx_agent)
-            log.log2die(1050, log_message)
+            log_message = ('BillType idx %s not found.') % (idx)
+            log.log2die(1099, log_message)
 
         # Return the session to the database pool after processing
         session.close()
 
-    def everything(self):
-        """Get all datapoints.
+    def code(self):
+        """Get code value.
 
         Args:
             None
 
         Returns:
-            value: Dictionary of data_points
+            value: Value to return
 
         """
-        # Return
-        value = self.data_point_dict
+        # Initialize key variables
+        value = self.data_dict['code']
+        return value
+
+    def name(self):
+        """Get name value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['name']
         return value
 
 
-def uid_exists(uid):
-    """Determine whether the UID exists.
+def code_exists(code):
+    """Determine whether the code exists.
 
     Args:
-        uid: UID value for agent
+        code: BillType code
 
     Returns:
         found: True if found
@@ -208,17 +193,17 @@ def uid_exists(uid):
     """
     # Initialize key variables
     found = False
-    value = uid.encode()
+    value = code.encode()
 
     # Establish a database session
     database = db.Database()
     session = database.session()
-    result = session.query(Agent.id).filter(Agent.id == value)
+    result = session.query(BillType.code).filter(BillType.code == value)
 
     # Massage data
     if result.count() == 1:
         for instance in result:
-            _ = instance.id
+            _ = instance.code
             break
         found = True
 
@@ -227,6 +212,7 @@ def uid_exists(uid):
 
     # Return
     return found
+
 
 def idx_exists(idx):
     """Determine whether the idx exists.
@@ -244,7 +230,7 @@ def idx_exists(idx):
     # Establish a database session
     database = db.Database()
     session = database.session()
-    result = session.query(Agent.idx).filter(Agent.idx == idx)
+    result = session.query(BillType.idx).filter(BillType.idx == idx)
 
     # Massage data
     if result.count() == 1:
