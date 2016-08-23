@@ -256,7 +256,6 @@ class UpdateDB(object):
                 data_list.append(
                     Data(
                         idx_datapoint=idx_datapoint,
-                        idx_agent=idx_agent,
                         value=value,
                         timestamp=timestamp
                     )
