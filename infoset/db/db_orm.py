@@ -40,6 +40,8 @@ class OID(BASE):
 
     agent_label = Column(VARBINARY(512), nullable=True, default=None)
 
+    description = Column(VARBINARY(512), nullable=True, default=None)
+
     base_type = Column(INTEGER(unsigned=True), server_default='1')
 
     multiplier = Column(FLOAT(unsigned=True), server_default='1')
