@@ -21,6 +21,8 @@ class TimeStamp(object):
         self.descriptions = [
             'Five Minute', 'Thirty Minute', 'One Hour',
             'Three Hours', 'Eight Hours', 'Twelve Hours']
+        self.id_labels = ['five-minute', 'thirty-minute', 'one-hour',
+            'three-hours', 'eight-hours', 'twelve-hours']
         self._process()
 
     def _process(self):
@@ -43,7 +45,7 @@ class TimeStamp(object):
             start = now - timestamp
             self.start_times.append(start)
             self.stop_times.append(now)
-        self.times = zip(self.start_times, self.stop_times, self.descriptions)
+        self.times = zip(self.start_times, self.stop_times, self.descriptions, self.id_labels)
 
     def get_times(self):
         """Return chart duration data.

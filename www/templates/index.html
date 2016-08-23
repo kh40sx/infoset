@@ -1,44 +1,5 @@
 {% extends 'base.html' %}
 {% block body %}
-  <script type="text/javascript" charset="utf-8">
-  function loadImage(agent, datapoint ,width, height, target) {
-  $('<img class="center-block" src="/fetch/agent/graph/'+ agent +'/'+ datapoint +'">').load(function() {
-    $(this)
-    .width(width)
-    .height(height)
-    .appendTo(target)
-    .wrap('<a href="/graphs/'+ agent + '/' + datapoint + '"></a>');
-    });
-  }
-
-  function loadStackedImage(agent, stack_type ,width, height, target) {
-  $('<img class="center-block" src="/fetch/agent/graph/stacked/'+ agent +'/'+ stack_type +'">').load(function() {
-    $(this)
-    .width(width)
-    .height(height)
-    .appendTo(target)
-    .wrap('<a href="/graphs/'+ agent + '/' + stack_type + '"></a>');
-    });
-  }
-  
-  loadStackedImage("{{uid}}", "memory" ,630, 240, "#memory-graph-area");
-  loadStackedImage("{{uid}}", "load" ,630, 240, "#load-graph-area");
-  
-  {% for datapoint_name, value in data.items() %}
-    {% if "memory_available".encode() in datapoint_name %}
-      loadImage("{{uid}}", "{{value[0]}}", 480, 160, "#memory-thumbnail-area");
-    {% endif %}
-    {% if "cpu_idle".encode() in datapoint_name %}
-      loadImage("{{uid}}", "{{value[0]}}", 480, 160, "#cpu-thumbnail-area");
-    {% endif %}
-    {% if "disk_usage_total".encode() in datapoint_name %}
-      loadImage("{{uid}}", "{{value[0]}}", 480, 160, "#disk-thumbnail-area");
-    {% endif %}
-    {% if "network_packets_sent".encode() in datapoint_name %}
-      loadImage("{{uid}}", "{{value[0]}}", 480, 160, "#network-thumbnail-area");
-    {% endif %}
-  {% endfor %}
-  </script>
   <div class="col-lg-3">
     <div class="data-box" id="home-box">
       <div class="container-fluid">
@@ -79,30 +40,43 @@
     </div>
     <div class="data-box" id="home-box">
       <div class="container-fluid">
+        <div class="row box-title">
+          <div class="col-lg-12">
+            <h5>More Graphs</h5>
+          </div>
+        </div>      
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md-12">
             <p><a href="/{{uid}}/processors">Processors</a></p>
           </div>
-          <div class="col-md-6">
+        </div>
+        <div class="thumbnail-graph" id="cpu-thumbnail-area">
+          
+        </div>        
+        <div class="row">
+          <div class="col-md-12">
             <p><a href="/{{uid}}/memory">Detailed Memory</a></p>
           </div>
         </div>
-        <div class="row">
-          <div class="col-md-6" id="cpu-thumbnail-area" class="thumbnail"></div>
-          <div class="col-md-6" id="memory-thumbnail-area" class="thumbnail"></div>
+        <div class="thumbnail-graph" id="memory-thumbnail-area">
+          
         </div>
         <div class="row">
-          <div class="col-md-6">
-            <p><a href="/{{uid}}/Disk">Disk</a></p>
-          </div>
-          <div class="col-md-6">
-            <p><a href="/{{uid}}/Network">Network</a></p>
+          <div class="col-md-12">
+            <p><a href="/{{uid}}/disk">Disk</a></p>
           </div>
         </div>
+        <div class="thumbnail-graph" id="disk-thumbnail-area">
+          
+        </div>        
         <div class="row">
-          <div class="col-md-6" id="disk-thumbnail-area" class="thumbnail"></div>
-          <div class="col-md-6" id="network-thumbnail-area" class="thumbnail"></div>
+          <div class="col-md-12">
+            <p><a href="/{{uid}}/disk">Network</a></p>
+          </div>
         </div>
+        <div class="thumbnail-graph" id="network-thumbnail-area">
+          
+        </div>                                  
       </div>
     </div>
   </div>
@@ -266,4 +240,22 @@
     </div>
   </div>
 </div>
+<script type="text/javascript">
+    {% for datapoint_name, value in data.items() %}
+      {% if "memory_available".encode() in datapoint_name %}
+        AreaChart("{{uid.decode("UTF-8")}}", "{{value[0]}}", "#memory-thumbnail-area", 390, 160, "#00c8a4");
+      {% endif %}
+      {% if "cpu_idle".encode() in datapoint_name %}
+        AreaChart("{{uid.decode("UTF-8")}}", "139", "#cpu-thumbnail-area", 390, 160, "#009DB2");
+      {% endif %}
+      {% if "disk_usage_total".encode() in datapoint_name %}
+        AreaChart("{{uid.decode("UTF-8")}}", "{{value[0]}}", "#disk-thumbnail-area", 390, 160, "#009DB2");
+      {% endif %}
+      {% if "network_packets_sent".encode() in datapoint_name %}
+      {% endif %}
+    {% endfor %}
+    
+    StackedArea("{{uid.decode("UTF-8")}}","memory", "#memory-graph-area", 630, 240, "#00c8a4");
+    StackedArea("{{uid.decode("UTF-8")}}","load", "#load-graph-area", 630, 240, "#00c8a4");
+</script>
 {% endblock %}
