@@ -10,6 +10,7 @@ Description:
 
 """
 # Standard libraries
+import textwrap
 import os
 import sys
 import json
@@ -444,15 +445,6 @@ class AgentCLI(object):
             description=additional_help,
             formatter_class=argparse.RawTextHelpFormatter)
 
-        # CLI argument for stopping
-        parser.add_argument(
-            '--stop',
-            required=False,
-            default=False,
-            action='store_true',
-            help='Stop the agent daemon.'
-        )
-
         # CLI argument for starting
         parser.add_argument(
             '--start',
@@ -462,7 +454,16 @@ class AgentCLI(object):
             help='Start the agent daemon.'
         )
 
-        # CLI argument for starting
+        # CLI argument for stopping
+        parser.add_argument(
+            '--stop',
+            required=False,
+            default=False,
+            action='store_true',
+            help='Stop the agent daemon.'
+        )
+
+        # CLI argument for getting the status of the daemon
         parser.add_argument(
             '--status',
             required=False,
@@ -478,6 +479,17 @@ class AgentCLI(object):
             default=False,
             action='store_true',
             help='Restart the agent daemon.'
+        )
+
+        # CLI argument for stopping
+        parser.add_argument(
+            '--force',
+            required=False,
+            default=False,
+            action='store_true',
+            help=textwrap.fill(
+                'Stops or restarts the agent daemon ungracefully when '
+                'used with --stop or --restart.', width=80)
         )
 
         # Get the parser value
@@ -503,9 +515,16 @@ class AgentCLI(object):
         if args.start is True:
             daemon.start()
         elif args.stop is True:
-            daemon.stop()
+            if args.force is True:
+                daemon.force()
+            else:
+                daemon.stop()
         elif args.restart is True:
-            daemon.restart()
+            if args.force is True:
+                daemon.force()
+                daemon.start()
+            else:
+                daemon.restart()
         elif args.status is True:
             daemon.status()
         else:

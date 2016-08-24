@@ -6,7 +6,7 @@ var minifyCSS = require('gulp-minify-css');
 var browserify = require('gulp-browserify');
 
 gulp.task('scripts', function() {
-    gulp.src(['www/static/js/index.js'])
+    gulp.src(['www/static/js/*.js'])
         .pipe(browserify())
         .pipe(uglify())
         .pipe(concat('app.min.js'))
@@ -22,7 +22,7 @@ gulp.task('styles', function() {
 })
 
 gulp.task('default',['scripts', 'styles'], function() {
-    gulp.watch('www/static/js/**', function(event) {
+    gulp.watch('www/static/js/**/*', function(event) {
         gulp.run('scripts');
     })
 

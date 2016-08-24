@@ -13,6 +13,8 @@ from infoset.utils import jm_general
 from infoset.db import db_datapoint
 from infoset.db import db
 from infoset.db.db_orm import Data
+from infoset.db.db_datapoint import GetSingleDataPoint
+
 
 
 class GetIDX(object):
@@ -46,7 +48,8 @@ class GetIDX(object):
         # Get the datapoint's base_type
         datapointer = db_datapoint.GetIDX(idx)
         self.base_type = datapointer.base_type()
-
+        singledatapoint = GetSingleDataPoint(idx)
+        self.agent_label = singledatapoint.agent_label() 
         # Redefine start times
         if start is None:
             self.ts_start = jm_general.normalized_timestamp() - (3600 * 24)
@@ -96,6 +99,21 @@ class GetIDX(object):
         # Return data
         value = self._counter()
         return value
+    
+    def chart_everything(self):
+        """Get all datapoints.
+
+        Args:
+            None
+
+        Returns:
+            value: Dictionary of data_points
+
+        """
+        # Return data
+        values = self._counter()
+        chart_values = self._d3_converter(values)
+        return chart_values        
 
     def _counter(self):
         """Convert counter data to gauge.
@@ -109,7 +127,7 @@ class GetIDX(object):
         """
         # Initialize key variables
         count = 0
-
+        step = 300
         # Populate values dictionary with zeros. This ensures that
         # all timestamp values are covered if we have lost contact
         # with the agent at some point along the time series.
@@ -162,3 +180,18 @@ class GetIDX(object):
 
         # Return
         return values
+
+    def _d3_converter(self, values):
+        
+        """Convert counter data to gauge.
+        Args:
+            None
+        Returns:
+            values: Converted dict of data keyed by timestamp
+        """
+        chart_values = []
+
+        for timestamp, value in sorted(values.items()):
+            chart_values.append({"x": timestamp, "y":value, "group": self.agent_label})
+        return chart_values        
+        

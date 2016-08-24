@@ -75,6 +75,7 @@ def index():
     datapoints = GetDataPoint(idx_agent)
     data_point_dict = datapoints.everything()
     # Render the home page
+    print(data_point_dict)
     return render_template('index.html',
                            data=data_point_dict,
                            agent_list=agent_list,
@@ -83,7 +84,7 @@ def index():
 @infoset.route('/<uid>')
 def overview(uid):
     # Get agent information
-    agent = Get(uid_fixed)
+    agent = GetUID(uid)
     host = _infoset_hostname()
     agent_list = [agent.everything()]
     datapoints = GetDataPoint(agent.idx())
@@ -98,7 +99,7 @@ def overview(uid):
 @infoset.route('/<uid>/datapoints')
 def datapoints(uid):
     # Get agent information
-    agent = Get(uid)
+    agent = GetUID(uid)
     host = _infoset_hostname()
     agent_list = [agent.everything()]
     datapoints = GetDataPoint(agent.idx())
@@ -116,7 +117,6 @@ def search():
     session = database.session()
     agent_list = []
     for agent in session.query(Agent):
-        print(agent)
         agent_list.append(agent)
     return render_template('search.html',
                             agent_list=agent_list)
@@ -206,12 +206,20 @@ def graphs(uid, datapoint):
         None
 
     """
+    uid_fixed= uid[2:-1]
+
+    single_datapoint = GetSingleDataPoint(datapoint)
+    agent_label = single_datapoint.agent_label()
+
+    colorwheel = ColorWheel(agent_label)
+    fill = colorwheel.get_scheme()
     preset = TimeStamp()
     timestamps = preset.get_times()
     return render_template('graphs.html',
                            timestamps=timestamps,
-                           uid=uid,
-                           datapoint=datapoint)
+                           uid=uid_fixed,
+                           datapoint=datapoint,
+                           fill=fill)
 
 
 @infoset.route('/receive/<uid>', methods=["POST"])
@@ -309,60 +317,18 @@ def fetch_graph(uid, datapoint):
     """
     filename = str(uid) + '_' + str(datapoint)
     filepath = './www/static/img/' + filename
-
+    print(datapoint)
     # Getting start and stop parameters from url
     start = request.args.get('start')
     stop = request.args.get('stop')
         # Get data as dict
 
     datapointer = GetIDX(datapoint, start=start, stop=stop)
-    data = datapointer.everything()
+    data = datapointer.chart_everything()
 
     # Config object
     config = infoset.config['GLOBAL_CONFIG']
-
-    if start and stop:
-        chart = Chart(data,
-                      image_width=12,
-                      image_height=4,
-                      text_color='#272727',
-                      start=int(start),
-                      stop=int(stop))
-    else:
-        chart = Chart(data,
-                      image_width=12,
-                      image_height=4,
-                      text_color='#272727')
-
-    # create specific chart
-    single_datapoint = GetSingleDataPoint(datapoint)
-    agent_label = single_datapoint.agent_label()
-    color_palette = ColorWheel(agent_label)
-
-    #########################################################################
-    #########################################################################
-    #########################################################################
-    # URL issue needs to be fixed. It is affecting png filenames too
-    #########################################################################
-    #########################################################################
-    #########################################################################
-
-    # Get the label for the chart from the language class
-    # Start with the agent name
-    # For some reason we are posting urls that appear to be bytes
-    # but are in fact strings. This strips the extraneous characters
-    agent_name = GetUID(uid).name()
-    lang = language.Agent(agent_name)
-    chart_label = lang.label_description(agent_label)
-
-    # Print the chart
-    png_output = chart.api_single_line(
-        chart_label, 'Data',
-        color_palette.get_scheme(), filepath,
-    )
-    response = make_response(png_output.getvalue())
-    response.headers['Content-Type'] = 'image/png'
-    return response
+    return jsonify(data)
 
 
 @infoset.route(
@@ -411,41 +377,13 @@ def fetch_graph_stacked(uid, stack_type):
         #Do disk
         pass
 
-
     values = []
     for datapoint in datapoint_list:
         get_idx = GetIDX(datapoint)
-        data = get_idx.everything()
-        values.append(data)
+        data = get_idx.chart_everything()
+        values.extend(data)
 
-    if start and stop:
-        chart = Chart(values,
-                      image_width=12,
-                      image_height=4,
-                      text_color='#272727',
-                      start=int(start),
-                      stop=int(stop))
-    else:
-        chart = Chart(values,
-                      image_width=12,
-                      image_height=4,
-                      text_color='#272727')
-
-    # create specific chart
-    single_datapoint = GetSingleDataPoint(datapoint)
-    agent_label = single_datapoint.agent_label()
-    color_palette = ColorWheel(agent_label)
-
-    plt, fig, png_output = chart.create_stacked(
-        'Stacked', 'test', colors, [], filepath)
-    response = make_response(png_output.getvalue())
-    response.headers['Content-Type'] = 'image/png'
-
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    response.headers["Pragma"] = "no-cache"
-    response.headers["Expires"] = "0"
-    plt.clf()
-    return response
+    return jsonify(values)
 
 
 @infoset.route('/fetch/agent/<ip>/table', methods=["GET"])
