@@ -49,7 +49,7 @@ class GetIDX(object):
         datapointer = db_datapoint.GetIDX(idx)
         self.base_type = datapointer.base_type()
         singledatapoint = GetSingleDataPoint(idx)
-        self.agent_label = singledatapoint.agent_label().decode("UTF-8")
+        self.agent_label = singledatapoint.agent_label() 
         # Redefine start times
         if start is None:
             self.ts_start = jm_general.normalized_timestamp() - (3600 * 24)
@@ -127,7 +127,7 @@ class GetIDX(object):
         """
         # Initialize key variables
         count = 0
-
+        step = 300
         # Populate values dictionary with zeros. This ensures that
         # all timestamp values are covered if we have lost contact
         # with the agent at some point along the time series.

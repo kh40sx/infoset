@@ -242,20 +242,20 @@
 </div>
 <script type="text/javascript">
     {% for datapoint_name, value in data.items() %}
-      {% if "memory_available".encode() in datapoint_name %}
-        AreaChart("{{uid.decode("UTF-8")}}", "{{value[0]}}", "#memory-thumbnail-area", 390, 160, "#00c8a4");
+      {% if "memory_available" in datapoint_name %}
+        AreaChart("{{uid}}", "{{value[0]}}", "#memory-thumbnail-area", 390, 160, "#00c8a4");
       {% endif %}
-      {% if "cpu_idle".encode() in datapoint_name %}
-        AreaChart("{{uid.decode("UTF-8")}}", "139", "#cpu-thumbnail-area", 390, 160, "#009DB2");
+      {% if "cpu_idle" in datapoint_name %}
+        AreaChart("{{uid}}", "139", "#cpu-thumbnail-area", 390, 160, "#009DB2");
       {% endif %}
-      {% if "disk_usage_total".encode() in datapoint_name %}
-        AreaChart("{{uid.decode("UTF-8")}}", "{{value[0]}}", "#disk-thumbnail-area", 390, 160, "#009DB2");
+      {% if "disk_usage_total" in datapoint_name %}
+        AreaChart("{{uid}}", "{{value[0]}}", "#disk-thumbnail-area", 390, 160, "#009DB2");
       {% endif %}
-      {% if "network_packets_sent".encode() in datapoint_name %}
+      {% if "network_packets_sent" in datapoint_name %}
       {% endif %}
     {% endfor %}
     
-    StackedArea("{{uid.decode("UTF-8")}}","memory", "#memory-graph-area", 630, 240, "#00c8a4");
-    StackedArea("{{uid.decode("UTF-8")}}","load", "#load-graph-area", 630, 240, "#00c8a4");
+    StackedArea("{{uid}}","memory", "#memory-graph-area", 630, 240, "#00c8a4");
+    StackedArea("{{uid}}","load", "#load-graph-area", 630, 240, "#00c8a4");
 </script>
 {% endblock %}
