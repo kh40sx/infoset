@@ -7,10 +7,49 @@ import datetime
 import time
 import getpass
 import logging
+import threading
 
 
 # Infoset libraries
 from infoset.utils import jm_configuration
+
+
+class LogThread(threading.Thread):
+    """LogThread should always be used in preference to threading.Thread.
+
+    The interface provided by LogThread is identical to that of threading.
+    Thread, however, if an exception occurs in the thread the error will be
+    logged (using logging.exception) rather than printed to stderr.
+
+    This is important in daemon style applications where stderr is redirected
+    to /dev/null.
+
+    """
+
+    def __init__(self, **kwargs):
+        """Method initializing the class.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Run stuff
+        super().__init__(**kwargs)
+        self._real_run = self.run
+        self.run = self._wrap_run
+
+    def _wrap_run(self):
+        try:
+            self._real_run()
+        except:
+            # logging.exception('Exception during LogThread.run')
+            log2warn(1101, ('%s\n%s\n%s') % (
+                sys.exc_info()[0],
+                sys.exc_info()[1],
+                sys.exc_info()[2]))
 
 
 def check_environment():
@@ -140,7 +179,7 @@ def _logit(error_num, error_string, error=False, verbose=False):
 
     # Get the logging directory
     config_directory = check_environment()
-    config = jm_configuration.ConfigServer(config_directory)
+    config = jm_configuration.Config(config_directory)
     log_file = config.log_file()
 
     # create logger

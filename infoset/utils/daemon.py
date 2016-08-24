@@ -78,10 +78,12 @@ class Daemon(object):
         sys.stderr.flush()
         f_handle_si = open(os.devnull, 'r')
         # f_handle_so = open(os.devnull, 'a+')
+        f_handle_so = open(os.devnull, 'a+')
         f_handle_se = open(os.devnull, 'a+')
 
         os.dup2(f_handle_si.fileno(), sys.stdin.fileno())
         # os.dup2(f_handle_so.fileno(), sys.stdout.fileno())
+        os.dup2(f_handle_so.fileno(), sys.stdout.fileno())
         os.dup2(f_handle_se.fileno(), sys.stderr.fileno())
 
         # write pidfile
@@ -151,6 +153,19 @@ class Daemon(object):
 
         # Run code for daemon
         self.run()
+
+    def force(self):
+        """Stop the daemon by deleting the lock file first.
+
+        Args:
+            None
+
+        Returns:
+
+        """
+        # Delete lock file and stop
+        self.dellock()
+        self.stop()
 
     def stop(self):
         """Stop the daemon.

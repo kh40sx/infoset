@@ -148,6 +148,14 @@ class GetIDX(object):
                     count += 1
                     continue
 
+                #############################################################
+                # Skip calculation if the difference in timestamps is > step.
+                # This helps to prevent spikes in the data due to outages
+                #############################################################
+                if timestamp - old_timestamp > step:
+                    old_timestamp = timestamp
+                    continue
+
                 # Get new value
                 new_value = value - self.data[old_timestamp]
 

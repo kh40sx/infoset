@@ -8,7 +8,7 @@ from infoset.utils import jm_general
 from infoset.utils import log
 
 
-class ConfigCommon(object):
+class Config(object):
     """Class gathers all configuration information.
 
     Args:
@@ -34,14 +34,13 @@ class ConfigCommon(object):
 
         """
         # Update the configuration directory
-        common_directory = ('%s/common') % (root_directory)
-        directories = [common_directory]
+        directories = [root_directory]
 
         # Return
         self.config_dict = jm_general.read_yaml_files(directories)
 
-    def log_file(self):
-        """Get log_file.
+    def server(self):
+        """Get server.
 
         Args:
             None
@@ -51,21 +50,14 @@ class ConfigCommon(object):
 
         """
         # Get result
-        result = self.config_dict['log_file']
-        return result
+        sub_key = 'server'
+        key = 'common'
 
-    def web_log_file(self):
-        """Get web_log_file.
+        # Get new result
+        value = _key_sub_key(key, sub_key, self.config_dict, die=False)
+        result = bool(value)
 
-        Args:
-            None
-
-        Returns:
-            result: result
-
-        """
-        # Get result
-        result = self.config_dict['web_log_file']
+        # Return
         return result
 
     def language(self):
@@ -79,42 +71,15 @@ class ConfigCommon(object):
 
         """
         # Get result
-        result = self.config_dict['language']
-        return result
+        sub_key = 'language'
+        result = None
+        key = 'common'
 
-
-class ConfigServer(object):
-    """Class gathers all configuration information.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    Functions:
-        __init__:
-        hosts:
-        snmp_auth:
-    """
-
-    def __init__(self, root_directory):
-        """Function for intializing the class.
-
-        Args:
-            root_directory: Root configuration directory
-
-        Returns:
-            None
-
-        """
-        # Update the configuration directory
-        server_directory = ('%s/server') % (root_directory)
-        common_directory = ('%s/common') % (root_directory)
-        directories = [server_directory, common_directory]
+        # Get new result
+        result = _key_sub_key(key, sub_key, self.config_dict)
 
         # Return
-        self.config_dict = jm_general.read_yaml_files(directories)
+        return result
 
     def hosts(self):
         """Get all hosts in the configuration file.
@@ -128,11 +93,14 @@ class ConfigServer(object):
         """
         # Initialize key variables
         hostnames = None
+        key = 'server'
+        sub_key = 'hosts'
 
         # Process configuration
-        if 'hosts' in self.config_dict:
-            if isinstance(self.config_dict['hosts'], list) is True:
-                hostnames = sorted(self.config_dict['hosts'])
+        hosts = _key_sub_key(key, sub_key, self.config_dict)
+        if hosts is not None:
+            if isinstance(hosts, list) is True:
+                hostnames = sorted(hosts)
 
         # Return
         return hostnames
@@ -148,9 +116,13 @@ class ConfigServer(object):
 
         """
         # Get parameter
-        value = self.config_dict['data_directory']
+        key = 'server'
+        sub_key = 'data_directory'
 
-        # Check if value exists
+        # Get result
+        value = _key_sub_key(key, sub_key, self.config_dict)
+
+        # Determine whether path exists
         if os.path.isdir(value) is False:
             log_message = (
                 'data_directory: "%s" '
@@ -207,15 +179,19 @@ class ConfigServer(object):
             value: configured web_directory
 
         """
-        # Get parameter
-        value = self.config_dict['web_directory']
+        # Initialize key variables
+        key = 'server'
+        sub_key = 'web_directory'
+
+        # Process configuration
+        value = _key_sub_key(key, sub_key, self.config_dict)
 
         # Check if value exists
         if os.path.isdir(value) is False:
             log_message = (
                 'web_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
-            log.log2die(1016, log_message)
+            log.log2die(1093, log_message)
 
         # Return
         return value
@@ -230,8 +206,12 @@ class ConfigServer(object):
             value: configured ingest_cache_directory
 
         """
-        # Get parameter
-        value = self.config_dict['ingest_cache_directory']
+        # Initialize key variables
+        key = 'server'
+        sub_key = 'ingest_cache_directory'
+
+        # Process configuration
+        value = _key_sub_key(key, sub_key, self.config_dict)
 
         # Check if value exists
         if os.path.isdir(value) is False:
@@ -273,8 +253,14 @@ class ConfigServer(object):
             result: result
 
         """
+        # Initialize key variables
+        key = 'server'
+        sub_key = 'db_name'
+
+        # Process configuration
+        result = _key_sub_key(key, sub_key, self.config_dict)
+
         # Get result
-        result = self.config_dict['db_name']
         return result
 
     def db_username(self):
@@ -287,8 +273,14 @@ class ConfigServer(object):
             result: result
 
         """
+        # Initialize key variables
+        key = 'server'
+        sub_key = 'db_username'
+
+        # Process configuration
+        result = _key_sub_key(key, sub_key, self.config_dict)
+
         # Get result
-        result = self.config_dict['db_username']
         return result
 
     def db_password(self):
@@ -301,8 +293,14 @@ class ConfigServer(object):
             result: result
 
         """
+        # Initialize key variables
+        key = 'server'
+        sub_key = 'db_password'
+
+        # Process configuration
+        result = _key_sub_key(key, sub_key, self.config_dict)
+
         # Get result
-        result = self.config_dict['db_password']
         return result
 
     def db_hostname(self):
@@ -315,8 +313,14 @@ class ConfigServer(object):
             result: result
 
         """
+        # Initialize key variables
+        key = 'server'
+        sub_key = 'db_hostname'
+
+        # Process configuration
+        result = _key_sub_key(key, sub_key, self.config_dict)
+
         # Get result
-        result = self.config_dict['db_hostname']
         return result
 
     def agent_threads(self):
@@ -330,7 +334,13 @@ class ConfigServer(object):
 
         """
         # Get result
-        result = self.config_dict['agent_threads']
+        key = 'server'
+        sub_key = 'agent_threads'
+        result = _key_sub_key(key, sub_key, self.config_dict, die=False)
+
+        # Default to 20
+        if result is None:
+            result = 20
         return result
 
     def ingest_threads(self):
@@ -344,7 +354,13 @@ class ConfigServer(object):
 
         """
         # Get result
-        result = self.config_dict['ingest_threads']
+        key = 'server'
+        sub_key = 'ingest_threads'
+        result = _key_sub_key(key, sub_key, self.config_dict, die=False)
+
+        # Default to 20
+        if result is None:
+            result = 20
         return result
 
     def log_file(self):
@@ -358,7 +374,39 @@ class ConfigServer(object):
 
         """
         # Get result
-        result = self.config_dict['log_file']
+        sub_key = 'log_file'
+        result = None
+        key = 'common'
+
+        # Get new result
+        result = _key_sub_key(key, sub_key, self.config_dict)
+
+        # Return
+        return result
+
+    def agents(self):
+        """Get agents.
+
+        Args:
+            None
+
+        Returns:
+            result: list of agents
+
+        """
+        # Initialize key variables
+        key = 'agents'
+        result = None
+
+        # Verify data
+        if key not in self.config_dict:
+            log_message = ('No agents configured')
+            log.log2die(1100, log_message)
+
+        # Process agents
+        result = self.config_dict[key]
+
+        # Return
         return result
 
 
@@ -390,11 +438,7 @@ class ConfigAgent(object):
 
         """
         # Update the configuration directory
-        top_agent_directory = ('%s/agents') % (root_directory)
-        common_directory = ('%s/common') % (root_directory)
-        agent_directory = ('%s/agents/%s') % (root_directory, agent_name)
-        directories = [
-            top_agent_directory, agent_directory, common_directory]
+        directories = [root_directory]
 
         # Return
         self.config_dict = jm_general.read_yaml_files(directories)
@@ -424,11 +468,15 @@ class ConfigAgent(object):
             result: result
 
         """
+        # Initialize key variables
+        key = 'agents_common'
+        sub_key = 'server_name'
+
         # Get result
         if self.agent_name() == '_infoset':
             result = 'localhost'
         else:
-            result = self.config_dict['server_name']
+            result = _key_sub_key(key, sub_key, self.config_dict)
         return result
 
     def server_port(self):
@@ -441,8 +489,14 @@ class ConfigAgent(object):
             result: result
 
         """
+        # Initialize key variables
+        key = 'agents_common'
+        sub_key = 'server_port'
+
         # Get result
-        result = self.config_dict['server_port']
+        result = _key_sub_key(key, sub_key, self.config_dict, die=False)
+        if result is None:
+            result = 5000
         return result
 
     def server_https(self):
@@ -455,9 +509,42 @@ class ConfigAgent(object):
             result: result
 
         """
+        # Initialize key variables
+        key = 'agents_common'
+        sub_key = 'server_https'
+
         # Get result
-        result = self.config_dict['server_https']
+        result = _key_sub_key(key, sub_key, self.config_dict, die=False)
+        if result is None:
+            result = False
         return result
+
+    def agent_cache_directory(self):
+        """Determine the agent_cache_directory.
+
+        Args:
+            None
+
+        Returns:
+            value: configured agent_cache_directory
+
+        """
+        # Initialize key variables
+        key = 'agents_common'
+        sub_key = 'agent_cache_directory'
+
+        # Get result
+        value = _key_sub_key(key, sub_key, self.config_dict)
+
+        # Check if value exists
+        if os.path.isdir(value) is False:
+            log_message = (
+                'agent_cache_directory: "%s" '
+                'in configuration doesn\'t exist!') % (value)
+            log.log2die(1031, log_message)
+
+        # Return
+        return value
 
     def language(self):
         """Get language.
@@ -470,7 +557,14 @@ class ConfigAgent(object):
 
         """
         # Get result
-        result = self.config_dict['language']
+        sub_key = 'language'
+        result = None
+        key = 'common'
+
+        # Get new result
+        result = _key_sub_key(key, sub_key, self.config_dict)
+
+        # Return
         return result
 
     def log_file(self):
@@ -484,7 +578,14 @@ class ConfigAgent(object):
 
         """
         # Get result
-        result = self.config_dict['log_file']
+        sub_key = 'log_file'
+        result = None
+        key = 'common'
+
+        # Get new result
+        result = _key_sub_key(key, sub_key, self.config_dict)
+
+        # Return
         return result
 
     def agent_enabled(self):
@@ -497,9 +598,12 @@ class ConfigAgent(object):
             result: result
 
         """
+        # Get config
+        agent_config = _agent_config(self.agent_name(), self.config_dict)
+
         # Get result
-        if 'agent_enabled' in self.config_dict:
-            result = self.config_dict['agent_enabled']
+        if 'agent_enabled' in agent_config:
+            result = agent_config['agent_enabled']
         else:
             result = False
         return result
@@ -514,32 +618,12 @@ class ConfigAgent(object):
             result: result
 
         """
+        # Get config
+        agent_config = _agent_config(self.agent_name(), self.config_dict)
+
         # Get result
-        result = self.config_dict['agent_filename']
+        result = agent_config['agent_filename']
         return result
-
-    def agent_cache_directory(self):
-        """Determine the agent_cache_directory.
-
-        Args:
-            None
-
-        Returns:
-            value: configured agent_cache_directory
-
-        """
-        # Get parameter
-        value = self.config_dict['agent_cache_directory']
-
-        # Check if value exists
-        if os.path.isdir(value) is False:
-            log_message = (
-                'agent_cache_directory: "%s" '
-                'in configuration doesn\'t exist!') % (value)
-            log.log2die(1031, log_message)
-
-        # Return
-        return value
 
     def agent_hostnames(self):
         """Get agent_hostnames.
@@ -551,9 +635,56 @@ class ConfigAgent(object):
             result: result
 
         """
+        # Get config
+        agent_config = _agent_config(self.agent_name(), self.config_dict)
+
         # Get result
-        if 'agent_hostnames' in self.config_dict:
-            result = self.config_dict['agent_hostnames']
+        if 'agent_hostnames' in agent_config:
+            result = agent_config['agent_hostnames']
+        else:
+            result = []
+
+        # Return
+        return result
+
+    def agent_port(self):
+        """Get agent_port.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get config
+        agent_config = _agent_config(self.agent_name(), self.config_dict)
+
+        # Get result
+        if 'agent_port' in agent_config:
+            result = agent_config['agent_port']
+        else:
+            result = []
+
+        # Return
+        return result
+
+    def agent_metadata(self):
+        """Get agent_metadata.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get config
+        agent_config = _agent_config(self.agent_name(), self.config_dict)
+
+        # Get result
+        if 'agent_metadata' in agent_config:
+            result = agent_config['agent_metadata']
         else:
             result = []
 
@@ -590,8 +721,7 @@ class ConfigSNMP(object):
         self.none = None
 
         # Update the configuration directory
-        config_directory = ('%s/snmp') % (root_directory)
-        directories = [config_directory]
+        directories = [root_directory]
 
         # Return
         self.config_dict = jm_general.read_yaml_files(directories)
@@ -664,3 +794,70 @@ class ConfigSNMP(object):
         # Initialize key variables
         none = self.none
         return none
+
+
+def _key_sub_key(key, sub_key, config_dict, die=True):
+    """Get config parameter from YAML.
+
+    Args:
+        key: Primary key
+        sub_key: Secondary key
+        config_dict: Dictionary to explore
+        die: Die if true and the result encountered is None
+
+    Returns:
+        result: result
+
+    """
+    # Get result
+    result = None
+
+    # Get new result
+    if key in config_dict:
+        if sub_key in config_dict[key]:
+            result = config_dict[key][sub_key]
+
+    # Error if not configured
+    if result is None and die is True:
+        log_message = (
+            '%s:%s not defined in configuration') % (key, sub_key)
+        log.log2die(1016, log_message)
+
+    # Return
+    return result
+
+
+def _agent_config(agent_name, config_dict):
+    """Get agent config parameter from YAML.
+
+    Args:
+        agent_name: Agent Name
+        config_dict: Dictionary to explore
+        die: Die if true and the result encountered is None
+
+    Returns:
+        result: result
+
+    """
+    # Get result
+    key = 'agents'
+    result = None
+
+    # Get new result
+    if key in config_dict:
+        configurations = config_dict[key]
+        for configuration in configurations:
+            if 'agent_name' in configuration:
+                if configuration['agent_name'] == agent_name:
+                    result = configuration
+                    break
+
+    # Error if not configured
+    if result is None:
+        log_message = (
+            'Agent %s not defined in configuration in '
+            'agents:%s section') % (key, key)
+        log.log2die(1094, log_message)
+
+    # Return
+    return result

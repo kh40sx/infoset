@@ -14,6 +14,72 @@ import yaml
 
 # Infoset libraries
 from infoset.utils import log
+from infoset import infoset
+
+
+def root_directory():
+    """Getermine the root directory in which infoset is installed.
+
+    Args:
+        None
+
+    Returns:
+        root_dir: Root directory
+
+    """
+    # Get the directory of the infoset library
+    infoset_dir = infoset.__path__[0]
+    components = infoset_dir.split(os.sep)
+
+    # Determint the directory two levels above
+    root_dir = os.sep.join(components[0:-2])
+
+    # Return
+    return root_dir
+
+
+def encode(value):
+    """Encode string value to utf-8.
+
+    Args:
+        value: String to encode
+
+    Returns:
+        result: encoded value
+
+    """
+    # Initialize key variables
+    result = value
+
+    # Start decode
+    if value is not None:
+        if isinstance(value, str) is True:
+            result = value.encode()
+
+    # Return
+    return result
+
+
+def decode(value):
+    """Decode utf-8 value to string.
+
+    Args:
+        value: String to decode
+
+    Returns:
+        result: decoded value
+
+    """
+    # Initialize key variables
+    result = value
+
+    # Start decode
+    if value is not None:
+        if isinstance(value, bytes) is True:
+            result = value.decode('utf-8')
+
+    # Return
+    return result
 
 
 def hashstring(string, sha=256, utf8=False):

@@ -7,19 +7,135 @@ Manages connection pooling among other things.
 
 # Main python libraries
 import os
+import socket
 from pathlib import Path
 from sqlalchemy import create_engine
 
 # Infoset libraries
 from infoset.utils import log
 from infoset.utils import jm_configuration
+from infoset.utils import jm_general
+from infoset.metadata import metadata
 import infoset.utils
-from infoset.db.db_orm import BASE
+from infoset.db.db_orm import BASE, Agent, Department, Host, BillType
+from infoset.db.db_orm import Configuration, HostAgent
 from infoset.db import DBURL
+from infoset.db import db_agent
+from infoset.db import db_configuration
+from infoset.db import db_billtype
+from infoset.db import db_department
+from infoset.db import db_host
+from infoset.db import db_hostagent
+from infoset.db import db
+from infoset.agents import agent
 
 
-def main():
-    """Process agent data.
+def insert_department():
+    """Insert first department in the database.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    if db_department.idx_exists(1) is False:
+        record = Department(
+            code=jm_general.encode('_SYSTEM_RESERVED_'),
+            name=jm_general.encode('_SYSTEM_RESERVED_'))
+        database = db.Database()
+        database.add(record, 1102)
+
+
+def insert_billtype():
+    """Insert first billtype in the database.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    if db_billtype.idx_exists(1) is False:
+        record = BillType(
+            code=jm_general.encode('_SYSTEM_RESERVED_'),
+            name=jm_general.encode('_SYSTEM_RESERVED_'))
+        database = db.Database()
+        database.add(record, 1104)
+
+
+def insert_agent_host():
+    """Insert first agent and host in the database.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    idx_agent = 1
+    idx_host = 1
+    agent_name = '_infoset'
+
+    # Add agent
+    if db_agent.idx_exists(idx_agent) is False:
+        record = Agent(
+            id=jm_general.encode('_SYSTEM_RESERVED_'),
+            name=jm_general.encode(agent_name))
+        database = db.Database()
+        database.add(record, 1109)
+
+        # Generate a UID
+        uid = agent.get_uid(agent_name)
+        database = db.Database()
+        session = database.session()
+        record = session.query(Agent).filter(Agent.idx == idx_agent).one()
+        record.id = jm_general.encode(uid)
+        database.commit(session, 1073)
+
+    # Add host
+    if db_host.idx_exists(idx_host) is False:
+        record = Host(
+            description=jm_general.encode('Infoset Server'),
+            hostname=jm_general.encode(socket.getfqdn()))
+        database = db.Database()
+        database.add(record, 1106)
+
+    # Add to Agent / Host table
+    if db_hostagent.host_agent_exists(idx_host, idx_agent) is False:
+        record = HostAgent(idx_host=idx_host, idx_agent=idx_agent)
+        database = db.Database()
+        database.add(record, 1107)
+
+
+def insert_config():
+    """Insert first config in the database.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    version = '0.0.0.0'
+    if db_configuration.config_key_exists(version) is False:
+        record = Configuration(
+            config_key=jm_general.encode('version'),
+            config_value=jm_general.encode(version))
+        database = db.Database()
+        database.add(record, 1108)
+
+
+def server_setup():
+    """Setup server.
 
     Args:
         None
@@ -35,7 +151,7 @@ def main():
 
     # Get configuration
     config_directory = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.ConfigServer(config_directory)
+    config = jm_configuration.Config(config_directory)
 
     # Create DB connection pool
     if use_mysql is True:
@@ -66,14 +182,33 @@ def main():
         print('Applying Schemas')
         BASE.metadata.create_all(engine)
 
-        # Insert an entry for the infoset agent
-        try:
-            sql_string = (
-                'INSERT INTO iset_agent (id, name, hostname) VALUES '
-                '("_infoset", "_infoset", "_infoset")')
-            engine.execute(sql_string)
-        except:
-            pass
+        # Insert database entries
+        insert_agent_host()
+        insert_billtype()
+        insert_department()
+        insert_config()
+
+        # Try some additional statements
+        metadata.insert_oids()
+
+
+def main():
+    """Process agent data.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+    # Get configuration
+    config_directory = os.environ['INFOSET_CONFIGDIR']
+    config = jm_configuration.Config(config_directory)
+
+    # Run server setup if required
+    if config.server() is True:
+        server_setup()
 
     # Install required PIP packages
     print('Installing required pip3 packages')

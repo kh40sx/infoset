@@ -3,7 +3,7 @@
   <div class="col-lg-3">
     <div class="data-box" id="home-box">
       <div class="container-fluid">
-        {{ hostname.decode("UTF-8") }}
+        {{ hostname }}
       </div>
     </div>
     <div class="data-box" id="home-box">
@@ -12,11 +12,11 @@
           <tbody cla>
             <tr>
               <td>Version</td>
-              <td>{{ data['release'.encode()][1].decode("UTF-8") }}</td>
+              <td>{{ data['release'][1] }}</td>
             </tr>
             <tr>
               <td>Operating system</td>
-              <td>{{ data['distribution'.encode()][1].decode("UTF-8") }}</td>
+              <td>{{ data['distribution'][1] }}</td>
             </tr>
             <tr>
               <td>System name</td>

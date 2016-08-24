@@ -69,7 +69,7 @@ class Drain(object):
                 if key == 'timestamp':
                     self.agent_meta[key] = int(information[key])
                 else:
-                    self.agent_meta[key] = information[key].encode()
+                    self.agent_meta[key] = information[key]
             timestamp = self.agent_meta['timestamp']
             uid = self.agent_meta['uid']
 
@@ -80,12 +80,11 @@ class Drain(object):
                     continue
 
                 # Process the data type
-                for string_label, group in sorted(
+                for label, group in sorted(
                         information[data_type].items()):
                     # Get universal parameters for group
                     base_type = _base_type(group['base_type'])
-                    description = _encode(group['description'])
-                    label = _encode(string_label)
+                    description = group['description']
 
                     # Initialize base type
                     if base_type not in self.data[data_type]:
@@ -95,8 +94,11 @@ class Drain(object):
                     for datapoint in group['data']:
                         index = datapoint[0]
                         value = datapoint[1]
-                        source = _encode(datapoint[2])
-                        did = _did(uid, label, index)
+                        source = datapoint[2]
+                        did = _did(
+                            uid, label, index,
+                            self.agent_meta['agent'],
+                            self.agent_meta['hostname'])
 
                         # Update data
                         if base_type != 0:
@@ -105,7 +107,7 @@ class Drain(object):
                             )
                         else:
                             self.data[data_type][base_type].append(
-                                (uid, did, _encode(value), timestamp)
+                                (uid, did, value, timestamp)
                             )
 
                         # Update sources after fixing encoding
@@ -365,28 +367,30 @@ class Drain(object):
         else:
             log_message = (
                 'Failed to delete ingest cache file %s') % (self.filename)
-            log.log2warn(1052, log_message)
+            log.log2warn(1087, log_message)
 
         # Return
         return success
 
 
-def _did(uid, label, index):
+def _did(uid, label, index, agent_name, hostname):
     """Create a unique DID from ingested data.
 
     Args:
         uid: UID of device that created the cache data file
         label: Label of the data
         index: Index of the data
+        agent_name: Name of agent
+        hostname: Hostname
 
     Returns:
         did: Datapoint ID
 
     """
     # Initialize key variables
-    prehash = ('%s%s%s') % (uid, label, index)
+    prehash = ('%s%s%s%s%s') % (uid, label, index, agent_name, hostname)
     result = jm_general.hashstring(prehash)
-    did = _encode(result)
+    did = result
 
     # Return
     return did
@@ -409,34 +413,14 @@ def _base_type(data):
         value = data
 
     # Assign base type code
-    if value.lower() == 'floating':
+    if value == 1:
         base_type = 1
-    elif value.lower() == 'counter32':
+    elif value == 32:
         base_type = 32
-    elif value.lower() == 'counter64':
+    elif value == 64:
         base_type = 64
     else:
         base_type = 0
 
     # Return
     return base_type
-
-
-def _encode(data):
-    """UTF8 encode data.
-
-    Args:
-        data: Data to encode
-
-    Returns:
-        result: Result of encoding
-
-    """
-    # Initialize key variables
-    if data is None:
-        result = data
-    else:
-        result = (('%s') % (data)).encode()
-
-    # Return
-    return result

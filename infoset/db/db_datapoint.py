@@ -9,6 +9,7 @@ from collections import defaultdict
 
 # Infoset libraries
 from infoset.utils import log
+from infoset.utils import jm_general
 from infoset.db import db
 from infoset.db.db_orm import Datapoint
 
@@ -51,11 +52,14 @@ class GetSingleDataPoint(object):
                 self.data_dict['idx'] = instance.idx
                 self.data_dict['id'] = instance.id
                 self.data_dict['idx_agent'] = instance.idx_agent
-                self.data_dict['agent_label'] = instance.agent_label
-                self.data_dict['agent_source'] = instance.agent_source
+                self.data_dict['idx_host'] = instance.idx_host
+                self.data_dict[
+                    'agent_label'] = jm_general.decode(instance.agent_label)
+                self.data_dict[
+                    'agent_source'] = jm_general.decode(instance.agent_source)
                 self.data_dict['enabled'] = instance.enabled
+                self.data_dict['uncharted_value'] = instance.uncharted_value
                 self.data_dict['base_type'] = instance.base_type
-                self.data_dict['multiplier'] = instance.multiplier
                 self.data_dict['last_timestamp'] = instance.last_timestamp
                 break
         else:
@@ -79,8 +83,8 @@ class GetSingleDataPoint(object):
         value = self.data_dict['last_timestamp']
         return value
 
-    def multiplier(self):
-        """Get multiplier value.
+    def uncharted_value(self):
+        """Get uncharted_value value.
 
         Args:
             None
@@ -90,7 +94,7 @@ class GetSingleDataPoint(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['multiplier']
+        value = self.data_dict['uncharted_value']
         return value
 
     def base_type(self):
@@ -163,6 +167,248 @@ class GetSingleDataPoint(object):
         value = self.data_dict['idx_agent']
         return value
 
+    def idx_host(self):
+        """Get idx_host value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx_host']
+        return value
+
+    def agent_label(self):
+        """Get agent_label value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['agent_label']
+        return value
+
+
+class GetDID(object):
+    """Class to return datapoint data by datapoint idx.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Methods:
+
+    """
+
+    def __init__(self, did):
+        """Function for intializing the class.
+
+        Args:
+            did: Datapoint ID
+
+        Returns:
+            None
+
+        """
+        # Initialize important variables
+        self.data_dict = defaultdict(dict)
+        value = did.encode()
+
+        # Establish a database session
+        database = db.Database()
+        session = database.session()
+        result = session.query(Datapoint).filter(Datapoint.id == value)
+
+        # Massage data
+        if result.count() == 1:
+            for instance in result:
+                self.data_dict['idx'] = instance.idx
+                self.data_dict['id'] = instance.id
+                self.data_dict['idx_agent'] = instance.idx_agent
+                self.data_dict['idx_host'] = instance.idx_host
+                self.data_dict['idx_department'] = instance.idx_department
+                self.data_dict['idx_billtype'] = instance.idx_billtype
+                self.data_dict[
+                    'agent_label'] = jm_general.decode(instance.agent_label)
+                self.data_dict[
+                    'agent_source'] = jm_general.decode(instance.agent_source)
+                self.data_dict['enabled'] = instance.enabled
+                self.data_dict['billable'] = instance.billable
+                self.data_dict[
+                    'base_type'] = jm_general.decode(instance.base_type)
+                self.data_dict['uncharted_value'] = instance.uncharted_value
+                self.data_dict['last_timestamp'] = instance.last_timestamp
+                break
+        else:
+            log_message = ('did %s not found.') % (did)
+            log.log2die(1085, log_message)
+
+        # Return the session to the database pool after processing
+        session.close()
+
+    def last_timestamp(self):
+        """Get last_timestamp value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['last_timestamp']
+        return value
+
+    def uncharted_value(self):
+        """Get uncharted_value value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['uncharted_value']
+        return value
+
+    def base_type(self):
+        """Get base_type value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['base_type']
+        return value
+
+    def enabled(self):
+        """Get enabled value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['enabled']
+        return value
+
+    def billable(self):
+        """Get billable value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['billable']
+        return value
+
+    def agent_source(self):
+        """Get agent_source value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['agent_source']
+        return value
+
+    def datapoint_id(self):
+        """Get idx value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['id']
+        return value
+
+    def idx_agent(self):
+        """Get idx_agent value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx_agent']
+        return value
+
+    def idx_host(self):
+        """Get idx_host value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx_host']
+        return value
+
+    def idx_department(self):
+        """Get idx_department value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx_department']
+        return value
+
+    def idx_billtype(self):
+        """Get idx_billtype value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx_billtype']
+        return value
+
     def agent_label(self):
         """Get agent_label value.
 
@@ -213,18 +459,24 @@ class GetIDX(object):
         if result.count() == 1:
             for instance in result:
                 self.data_dict['idx'] = instance.idx
-                self.data_dict['id'] = instance.id
+                self.data_dict['id'] = jm_general.decode(instance.id)
                 self.data_dict['idx_agent'] = instance.idx_agent
-                self.data_dict['agent_label'] = instance.agent_label
-                self.data_dict['agent_source'] = instance.agent_source
+                self.data_dict['idx_host'] = instance.idx_host
+                self.data_dict['idx_department'] = instance.idx_department
+                self.data_dict['idx_billtype'] = instance.idx_billtype
+                self.data_dict[
+                    'agent_label'] = jm_general.decode(instance.agent_label)
+                self.data_dict[
+                    'agent_source'] = jm_general.decode(instance.agent_source)
                 self.data_dict['enabled'] = instance.enabled
+                self.data_dict['billable'] = instance.billable
                 self.data_dict['base_type'] = instance.base_type
-                self.data_dict['multiplier'] = instance.multiplier
+                self.data_dict['uncharted_value'] = instance.uncharted_value
                 self.data_dict['last_timestamp'] = instance.last_timestamp
                 break
         else:
             log_message = ('idx %s not found.') % (idx)
-            log.log2die(1048, log_message)
+            log.log2die(1084, log_message)
 
         # Return the session to the database pool after processing
         session.close()
@@ -243,8 +495,8 @@ class GetIDX(object):
         value = self.data_dict['last_timestamp']
         return value
 
-    def multiplier(self):
-        """Get multiplier value.
+    def uncharted_value(self):
+        """Get uncharted_value value.
 
         Args:
             None
@@ -254,7 +506,7 @@ class GetIDX(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['multiplier']
+        value = self.data_dict['uncharted_value']
         return value
 
     def base_type(self):
@@ -269,6 +521,20 @@ class GetIDX(object):
         """
         # Initialize key variables
         value = self.data_dict['base_type']
+        return value
+
+    def billable(self):
+        """Get billable value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['billable']
         return value
 
     def enabled(self):
@@ -327,6 +593,48 @@ class GetIDX(object):
         value = self.data_dict['idx_agent']
         return value
 
+    def idx_host(self):
+        """Get idx_host value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx_host']
+        return value
+
+    def idx_department(self):
+        """Get idx_department value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx_department']
+        return value
+
+    def idx_billtype(self):
+        """Get idx_billtype value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx_billtype']
+        return value
+
     def agent_label(self):
         """Get agent_label value.
 
@@ -354,11 +662,12 @@ def did_exists(did):
     """
     # Initialize key variables
     found = False
+    value = did.encode()
 
     # Establish a database session
     database = db.Database()
     session = database.session()
-    result = session.query(Datapoint.id).filter(Datapoint.id == did)
+    result = session.query(Datapoint.id).filter(Datapoint.id == value)
 
     # Massage data
     if result.count() == 1:

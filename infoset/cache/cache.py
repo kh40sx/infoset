@@ -12,17 +12,20 @@ import time
 import shutil
 from collections import defaultdict
 import queue as Queue
-import threading
 import re
 from sqlalchemy import and_
 
 # Infoset libraries
 from infoset.db import db
-from infoset.db.db_orm import Data, Datapoint, Agent
+from infoset.db.db_orm import Data, Datapoint, Agent, Host, HostAgent
 from infoset.db import db_agent as agent
 from infoset.db import db_datapoint as dpoint
+from infoset.db import db_host as dhost
+from infoset.db import db_hostagent as hagent
 from infoset.utils import jm_configuration
+from infoset.utils import jm_general
 from infoset.utils import log
+from infoset.utils.log import LogThread
 from infoset.cache import drain
 from infoset.utils import hidden
 
@@ -30,7 +33,7 @@ from infoset.utils import hidden
 THREAD_QUEUE = Queue.Queue()
 
 
-class ProcessUID(threading.Thread):
+class ProcessUID(LogThread):
     """Threaded ingestion of agent files.
 
     Graciously modified from:
@@ -40,7 +43,7 @@ class ProcessUID(threading.Thread):
 
     def __init__(self, queue):
         """Initialize the threads."""
-        threading.Thread.__init__(self)
+        LogThread.__init__(self)
         self.queue = queue
 
     def run(self):
@@ -51,13 +54,6 @@ class ProcessUID(threading.Thread):
             uid = data_dict['uid']
             metadata = data_dict['metadata']
             config = data_dict['config']
-
-            # Update agent database table if not there
-            if agent.uid_exists(uid) is True:
-                agent_object = agent.Get(uid)
-                last_timestamp = agent_object.last_timestamp()
-            else:
-                last_timestamp = 0
 
             # Initialize other values
             max_timestamp = 0
@@ -78,20 +74,6 @@ class ProcessUID(threading.Thread):
                         'Cache ingest file %s is invalid. Moving.'
                         '') % (filepath)
                     log.log2warn(1054, log_message)
-                    shutil.copy(
-                        filepath, config.ingest_failures_directory())
-                    os.remove(filepath)
-                    continue
-
-                # Make sure timestamp is OK, cannot be older than
-                # the last time the agent's datapoint was updated
-                if timestamp <= last_timestamp:
-                    log_message = (
-                        'Cache ingest file %s previously processed. '
-                        'Outdated agent files may have been copied to the '
-                        'ingest directory. Moving.'
-                        '') % (filepath)
-                    log.log2warn(1040, log_message)
                     shutil.copy(
                         filepath, config.ingest_failures_directory())
                     os.remove(filepath)
@@ -141,22 +123,33 @@ class UpdateDB(object):
         """
         # Initialize key variables
         uid = self.ingest.uid()
+        hostname = self.ingest.hostname()
 
-        # Update agent database table if not there
-        if agent.uid_exists(uid) is False:
-            self._insert_agent()
+        # Update Agent, Host and HostAgent database tables if
+        # Host and agent are not already there
+        self._insert_agent()
+        self._insert_host()
 
         # Update datapoints if agent is enabled
-        agent_object = agent.Get(uid)
+        agent_object = agent.GetUID(uid)
         if agent_object.enabled() is True:
+            # Get Agent and Host indexes
+            idx_agent = agent_object.idx()
+
+            # Get idx of host
+            host_info = dhost.GetHost(hostname)
+            idx_host = host_info.idx()
+
             # Update datapoint metadata if not there
             for item in self.ingest.sources():
                 did = item[1]
+
+                # We need the host that the data was generated for
+                # and the agent that got the data
                 if dpoint.did_exists(did) is False:
-                    _insert_datapoint(item)
+                    _insert_datapoint(item, idx_agent, idx_host)
 
             # Create map of DIDs to database row index values
-            idx_agent = agent_object.idx()
             mapping = _datapoints_by_did(idx_agent)
 
             # Update chartable data
@@ -176,22 +169,53 @@ class UpdateDB(object):
         # Initialize key variables
         uid = self.ingest.uid()
         agent_name = self.ingest.agent()
+
+        # Return if agent already exists in the table
+        if agent.uid_exists(uid) is True:
+            return
+
+        # Prepare SQL query to read a record from the database.
+        record = Agent(
+            id=jm_general.encode(uid),
+            name=jm_general.encode(agent_name))
+        database = db.Database()
+        database.add(record, 1081)
+
+    def _insert_host(self):
+        """Insert new agent into database.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        uid = self.ingest.uid()
         hostname = self.ingest.hostname()
 
-        # Update record one of the agent table
-        if agent_name == '_infoset'.encode():
-            # Update the database
+        # Update Host table
+        if dhost.hostname_exists(hostname) is False:
+            # Add to Host table
+            record = Host(hostname=jm_general.encode(hostname))
             database = db.Database()
-            session = database.session()
-            record = session.query(Agent).filter(Agent.idx == 1).one()
-            record.id = uid
-            record.hostname = hostname
-            database.commit(session, 1073)
-        else:
-            # Prepare SQL query to read a record from the database.
-            record = Agent(id=uid, name=agent_name, hostname=hostname)
+            database.add(record, 1080)
+
+        # Get idx of host
+        host_info = dhost.GetHost(hostname)
+        idx_host = host_info.idx()
+
+        # Get idx of agent
+        uid_info = agent.GetUID(uid)
+        idx_agent = uid_info.idx()
+
+        # Update HostAgent table
+        if hagent.host_agent_exists(idx_host, idx_agent) is False:
+            # Add to HostAgent table
+            record = HostAgent(idx_host=idx_host, idx_agent=idx_agent)
             database = db.Database()
-            database.add(record, 1033)
+            database.add(record, 1038)
 
     def _update_chartable(self, mapping):
         """Insert data into the database "iset_data" table.
@@ -213,17 +237,15 @@ class UpdateDB(object):
             # Process each datapoint item found
             (_, did, string_value, timestamp) = item
             idx_datapoint = int(mapping[did][0])
-            idx_agent = int(mapping[did][1])
             last_timestamp = int(mapping[did][2])
             value = float(string_value)
 
             # Only update with data collected after
-            # the most recent update. Don't do anything more
+            # the most recent DID update. Don't do anything more
             if timestamp > last_timestamp:
                 data_list.append(
                     Data(
                         idx_datapoint=idx_datapoint,
-                        idx_agent=idx_agent,
                         value=value,
                         timestamp=timestamp
                     )
@@ -304,7 +326,7 @@ class UpdateDB(object):
                 session = database.session()
                 record = session.query(Datapoint).filter(
                     Datapoint.idx == idx_datapoint).one()
-                record.uncharted_value = value
+                record.uncharted_value = jm_general.encode(value)
                 database.commit(session, 1037)
 
             # Change the last updated timestamp
@@ -315,7 +337,7 @@ class UpdateDB(object):
                 record = session.query(Datapoint).filter(
                     Datapoint.idx == idx_datapoint).one()
                 record.last_timestamp = last_timestamp
-                database.commit(session, 1044)
+                database.commit(session, 1083)
 
             # Report success
             log_message = (
@@ -325,7 +347,7 @@ class UpdateDB(object):
             log.log2quiet(1045, log_message)
 
 
-def _insert_datapoint(metadata):
+def _insert_datapoint(metadata, idx_agent, idx_host):
     """Insert new datapoint into database.
 
     Args:
@@ -337,27 +359,26 @@ def _insert_datapoint(metadata):
             source: Source of the data (subsystem being tracked)
             description: Description provided by agent config file (unused)
             base_type = SNMP base type (Counter32, Counter64, Gauge etc.)
+        idx_agent: Index of agent in the Agent db table
+        idx_host: Index of host in the Host db table
 
     Returns:
         None
 
     """
     # Initialize key variables
-    (uid, did, agent_label, agent_source, _, base_type) = metadata
-
-    # Get agent index value
-    agent_object = agent.Get(uid)
-    idx_agent = agent_object.idx()
+    (_, did, agent_label, agent_source, _, base_type) = metadata
 
     # Insert record
     record = Datapoint(
-        id=did,
+        id=jm_general.encode(did),
         idx_agent=idx_agent,
-        agent_label=agent_label,
-        agent_source=agent_source,
+        idx_host=idx_host,
+        agent_label=jm_general.encode(agent_label),
+        agent_source=jm_general.encode(agent_source),
         base_type=base_type)
     database = db.Database()
-    database.add(record, 1032)
+    database.add(record, 1082)
 
 
 def _datapoints_by_did(idx_agent):
@@ -386,7 +407,7 @@ def _datapoints_by_did(idx_agent):
 
     # Massage data
     for instance in result:
-        did = instance.id
+        did = instance.id.decode('utf-8')
         idx = instance.idx
         idx_agent = instance.idx_agent
         last_timestamp = instance.last_timestamp
@@ -411,15 +432,18 @@ def _update_agent_last_update(uid, last_timestamp):
         None
 
     """
+    # Initialize key variables
+    value = jm_general.encode(uid)
+
     # Update the database
     database = db.Database()
     session = database.session()
-    record = session.query(Agent).filter(Agent.id == uid).one()
+    record = session.query(Agent).filter(Agent.id == value).one()
     record.last_timestamp = last_timestamp
     database.commit(session, 1055)
 
 
-def process(agent_name):
+def validate_cache_files():
     """Method initializing the class.
 
     Args:
@@ -434,18 +458,8 @@ def process(agent_name):
 
     # Configuration setup
     config_dir = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.ConfigServer(config_dir)
-    threads_in_pool = config.ingest_threads()
+    config = jm_configuration.Config(config_dir)
     cache_dir = config.ingest_cache_directory()
-
-    # Make sure we have database connectivity
-    if db.connectivity() is False:
-        log_message = (
-            'No connectivity to database. Check if running. '
-            'Check database authentication parameters.'
-            '')
-        log.log2warn(1053, log_message)
-        return
 
     # Filenames must start with a numeric timestamp and #
     # end with a hex string. This will be tested later
@@ -475,9 +489,8 @@ def process(agent_name):
 
             # Create a dict of UIDs, timestamps and filepaths
             (name, _) = filename.split('.')
-            (tstamp, uid_string, hosthash) = name.split('_')
+            (tstamp, uid, hosthash) = name.split('_')
             timestamp = int(tstamp)
-            uid = uid_string.encode()
 
             # Keep track of hosts and the UIDs that track them
             # Create a list of timestamp, host filepath tuples for each UID
@@ -485,6 +498,40 @@ def process(agent_name):
                 uid_metadata[hosthash][uid].append((timestamp, filepath))
             else:
                 uid_metadata[hosthash][uid] = [(timestamp, filepath)]
+
+    # Return
+    return uid_metadata
+
+
+def process(agent_name):
+    """Method initializing the class.
+
+    Args:
+        agent_name: agent name
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    uid_metadata = defaultdict(lambda: defaultdict(dict))
+
+    # Configuration setup
+    config_dir = os.environ['INFOSET_CONFIGDIR']
+    config = jm_configuration.Config(config_dir)
+    threads_in_pool = config.ingest_threads()
+
+    # Make sure we have database connectivity
+    if db.connectivity() is False:
+        log_message = (
+            'No connectivity to database. Check if running. '
+            'Check database authentication parameters.'
+            '')
+        log.log2warn(1053, log_message)
+        return
+
+    # Get meta data on files
+    uid_metadata = validate_cache_files()
 
     # Spawn processes only if we have files to process
     if bool(uid_metadata.keys()) is True:
@@ -507,7 +554,10 @@ def process(agent_name):
             open(lockfile, 'a').close()
 
         # Spawn a pool of threads, and pass them queue instance
-        for _ in range(threads_in_pool):
+        # Only create the required number of threads up to the
+        # threads_in_pool maximum
+        for _ in range(
+                min(threads_in_pool, len(uid_metadata))):
             update_thread = ProcessUID(THREAD_QUEUE)
             update_thread.daemon = True
 
