@@ -154,6 +154,19 @@ class Daemon(object):
         # Run code for daemon
         self.run()
 
+    def force(self):
+        """Stop the daemon by deleting the lock file first.
+
+        Args:
+            None
+
+        Returns:
+
+        """
+        # Delete lock file and stop
+        self.dellock()
+        self.stop()
+
     def stop(self):
         """Stop the daemon.
 
