@@ -14,17 +14,19 @@ from os import listdir, walk, path, makedirs, remove
 from flask import render_template, jsonify, send_file, request, make_response
 
 # Infoset imports
-from infoset.db.db_agent import Get
+from infoset.db.db_agent import GetUID
 from infoset.db.db_data import GetIDX
 from infoset.db.db_agent import GetDataPoint
 from infoset.db.db_orm import Agent
 from infoset.db.db_datapoint import GetSingleDataPoint
 from infoset.db.db_chart import Chart
+from infoset.db import db_hostagent
+from infoset.db.db_host import GetIDX as GetHostIDX
 from infoset.db.db import Database
 from infoset.utils import TimeStamp
 from infoset.utils import ColorWheel
 from infoset.utils import jm_general
-from infoset.language import language
+from infoset.metadata import language
 from www import infoset
 from infoset.web import ws_device
 # Matplotlib imports, Do not edit order
@@ -61,14 +63,16 @@ def index():
     database = Database()
     session = database.session()
     record = session.query(Agent.id).filter(Agent.idx == 1).one()
-    uid = record.id
+    uid = record.id.decode('utf-8')
     session.close()
 
     # Get agent information
-    agent = Get(uid)
-    host = agent.hostname()
+    agent = GetUID(uid)
+    idx_agent = agent.idx()
+    host = _infoset_hostname()
+
     agent_list = [agent.everything()]
-    datapoints = GetDataPoint(agent.idx())
+    datapoints = GetDataPoint(idx_agent)
     data_point_dict = datapoints.everything()
     # Render the home page
     return render_template('index.html',
@@ -81,7 +85,7 @@ def overview(uid):
     # Get agent information
     uid_fixed= uid[2:-1].encode()
     agent = Get(uid_fixed)
-    host = agent.hostname()
+    host = _infoset_hostname()
     agent_list = [agent.everything()]
     datapoints = GetDataPoint(agent.idx())
     data_point_dict = datapoints.everything()
@@ -90,18 +94,17 @@ def overview(uid):
                            data=data_point_dict,
                            agent_list=agent_list,
                            uid=uid,
-                           hostname=host)    
+                           hostname=host)
 
 @infoset.route('/<uid>/datapoints')
 def datapoints(uid):
     # Get agent information
-    uid_fixed= uid[2:-1].encode()
-    agent = Get(uid_fixed)
-    host = agent.hostname()
+    agent = Get(uid)
+    host = _infoset_hostname()
     agent_list = [agent.everything()]
     datapoints = GetDataPoint(agent.idx())
     data_point_dict = datapoints.everything()
-    
+
     return render_template('datapoints.html',
                            data=data_point_dict,
                            agent_list=agent_list,
@@ -264,7 +267,7 @@ def fetch_agent_dp(uid):
 
     """
     # Fetches agent from mysql by uid
-    agent = Get(uid)
+    agent = GetUID(uid)
     idx = agent.idx()
 
     # Gets all datapoints associated with agent
@@ -327,7 +330,52 @@ def fetch_graph(uid, datapoint):
     # Config object
     config = infoset.config['GLOBAL_CONFIG']
 
+<<<<<<< HEAD
     return jsonify(data)
+=======
+    if start and stop:
+        chart = Chart(data,
+                      image_width=12,
+                      image_height=4,
+                      text_color='#272727',
+                      start=int(start),
+                      stop=int(stop))
+    else:
+        chart = Chart(data,
+                      image_width=12,
+                      image_height=4,
+                      text_color='#272727')
+
+    # create specific chart
+    single_datapoint = GetSingleDataPoint(datapoint)
+    agent_label = single_datapoint.agent_label()
+    color_palette = ColorWheel(agent_label)
+
+    #########################################################################
+    #########################################################################
+    #########################################################################
+    # URL issue needs to be fixed. It is affecting png filenames too
+    #########################################################################
+    #########################################################################
+    #########################################################################
+
+    # Get the label for the chart from the language class
+    # Start with the agent name
+    # For some reason we are posting urls that appear to be bytes
+    # but are in fact strings. This strips the extraneous characters
+    agent_name = GetUID(uid).name()
+    lang = language.Agent(agent_name)
+    chart_label = lang.label_description(agent_label)
+
+    # Print the chart
+    png_output = chart.api_single_line(
+        chart_label, 'Data',
+        color_palette.get_scheme(), filepath,
+    )
+    response = make_response(png_output.getvalue())
+    response.headers['Content-Type'] = 'image/png'
+    return response
+>>>>>>> 3005fc4d9e0e7c3a81c1bb81ce113efc99fb2329
 
 
 @infoset.route(
@@ -370,19 +418,53 @@ def fetch_graph_stacked(uid, stack_type):
     elif "network" in stack_type:
         #Do network
         colors = ['#F37372','#FA9469', '#FDBB5D']
-        datapoint_list = [124,125,126]        
+        datapoint_list = [124,125,126]
         pass
     elif "disk" in stack_type:
         #Do disk
-        pass 
+        pass
 
     values = []
     for datapoint in datapoint_list:
         get_idx = GetIDX(datapoint)
+<<<<<<< HEAD
         data = get_idx.chart_everything()
         values.extend(data)
 
     return jsonify(values)
+=======
+        data = get_idx.everything()
+        values.append(data)
+
+    if start and stop:
+        chart = Chart(values,
+                      image_width=12,
+                      image_height=4,
+                      text_color='#272727',
+                      start=int(start),
+                      stop=int(stop))
+    else:
+        chart = Chart(values,
+                      image_width=12,
+                      image_height=4,
+                      text_color='#272727')
+
+    # create specific chart
+    single_datapoint = GetSingleDataPoint(datapoint)
+    agent_label = single_datapoint.agent_label()
+    color_palette = ColorWheel(agent_label)
+
+    plt, fig, png_output = chart.create_stacked(
+        'Stacked', 'test', colors, [], filepath)
+    response = make_response(png_output.getvalue())
+    response.headers['Content-Type'] = 'image/png'
+
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    plt.clf()
+    return response
+>>>>>>> 3005fc4d9e0e7c3a81c1bb81ce113efc99fb2329
 
 
 @infoset.route('/fetch/agent/<ip>/table', methods=["GET"])
@@ -395,11 +477,27 @@ def fetch_table(ip):
     Returns:
         HTML string of host table
 
-    """    
+    """
     # Config Object
     config = infoset.config['GLOBAL_CONFIG']
-    
+
     html = ws_device.api_make(config, ip, True)
 
     return html
 
+
+def _infoset_hostname():
+    """Get hostname for _infoset agent.
+
+    Args:
+        None
+
+    Returns:
+        host: Hostname
+
+    """
+    # host_indices = db_hostagent.host_indices(1)
+    # host_idx = host_indices[0]
+    host_object = GetHostIDX(1)
+    host = host_object.hostname()
+    return host

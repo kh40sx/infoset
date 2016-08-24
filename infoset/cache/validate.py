@@ -120,6 +120,8 @@ class ValidateCache(object):
                 log.log2warn(1059, log_message)
         else:
             all_ok = True
+
+        # Return
         return all_ok
 
     def check_meta(self):
@@ -166,7 +168,6 @@ class ValidateCache(object):
                     valid = False
                 if jm_general.validate_timestamp(timestamp) is False:
                     valid = False
-
         # Return
         return valid
 
@@ -191,11 +192,18 @@ class ValidateCache(object):
                 continue
 
             # Process the data type
-            for category, group in sorted(
+            for agent_label, group in sorted(
                     self.information[data_type].items()):
                 # Process keys
                 for key in ['base_type', 'description', 'data']:
                     if key not in group:
+                        valid = False
+
+                # Make sure the base types are numeric
+                if 'base_type' in group and data_type == 'chartable':
+                    try:
+                        float(group['base_type'])
+                    except:
                         valid = False
 
                 # Process data
@@ -204,11 +212,12 @@ class ValidateCache(object):
                         valid = False
 
                     # Check to make sure value is numeric
-                    if category == 'chartable':
+                    if data_type == 'chartable':
                         value = datapoint[1]
                         try:
                             float(value)
                         except:
                             valid = False
+
         # Return
         return valid

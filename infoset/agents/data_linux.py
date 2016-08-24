@@ -56,41 +56,41 @@ def _update_agent_system(agent):
     # Set non chartable values
     #########################################################################
 
-    agent.populate('release', platform.release(), base_type=None)
-    agent.populate('system', platform.system(), base_type=None)
-    agent.populate('version', platform.version(), base_type=None)
+    agent.populate_single('release', platform.release(), base_type=None)
+    agent.populate_single('system', platform.system(), base_type=None)
+    agent.populate_single('version', platform.version(), base_type=None)
     dist = platform.linux_distribution()
-    agent.populate('distribution', ' '.join(dist), base_type=None)
-    agent.populate('cpu_count', psutil.cpu_count(), base_type='floating')
+    agent.populate_single('distribution', ' '.join(dist), base_type=None)
+    agent.populate_single('cpu_count', psutil.cpu_count(), base_type=1)
 
     #########################################################################
     # Set chartable values
     #########################################################################
-    agent.populate(
-        'process_count', len(psutil.pids()), chartable=True)
+    agent.populate_single(
+        'process_count', len(psutil.pids()), base_type=1)
 
-    agent.populate(
-        'cpu_percentage', psutil.cpu_percent(), chartable=True)
+    agent.populate_single(
+        'cpu_percentage', psutil.cpu_percent(), base_type=1)
 
     # Load averages
     (la_01, la_05, la_15) = os.getloadavg()
-    agent.populate(
-        'load_average_01min', la_01, chartable=True)
-    agent.populate(
-        'load_average_05min', la_05, chartable=True)
-    agent.populate(
-        'load_average_15min', la_15, chartable=True)
+    agent.populate_single(
+        'load_average_01min', la_01, base_type=1)
+    agent.populate_single(
+        'load_average_05min', la_05, base_type=1)
+    agent.populate_single(
+        'load_average_15min', la_15, base_type=1)
 
     # Get CPU times
     agent.populate_named_tuple(
-        'cpu', psutil.cpu_times(), base_type='counter64')
+        psutil.cpu_times(), prefix='cpu', base_type=64)
 
     # Get CPU stats
     agent.populate_named_tuple(
-        'cpu', psutil.cpu_stats(), base_type='counter64')
+        psutil.cpu_stats(), prefix='cpu', base_type=64)
 
     # Get memory utilization
-    agent.populate_named_tuple('memory', psutil.virtual_memory())
+    agent.populate_named_tuple(psutil.virtual_memory(), prefix='memory')
 
 
 def _update_agent_disk(agent):
@@ -118,8 +118,8 @@ def _update_agent_disk(agent):
             counterkey[label][None] = value
         else:
             multikey[label][None] = value
-    agent.populate_dict('swap', multikey)
-    agent.populate_dict('swap', counterkey, base_type='counter64')
+    agent.populate_dict(multikey, prefix='swap')
+    agent.populate_dict(counterkey, prefix='swap', base_type=64)
 
     # Get filesystem partition utilization
     disk_data = psutil.disk_partitions()
@@ -132,7 +132,7 @@ def _update_agent_disk(agent):
         system_dict = system_data._asdict()
         for label, value in system_dict.items():
             multikey[label][source] = value
-    agent.populate_dict('disk_usage', multikey)
+    agent.populate_dict(multikey, prefix='disk_usage')
 
     # Get disk I/O usage
     io_data = psutil.disk_io_counters(perdisk=True)
@@ -146,7 +146,7 @@ def _update_agent_disk(agent):
         system_dict = system_data._asdict()
         for label, value in system_dict.items():
             counterkey[label][source] = value
-    agent.populate_dict('disk_io', counterkey, base_type='counter64')
+    agent.populate_dict(counterkey, prefix='disk_io', base_type=64)
 
 
 def _update_agent_net(agent):
@@ -168,4 +168,4 @@ def _update_agent_net(agent):
         system_dict = system_data._asdict()
         for label, value in system_dict.items():
             counterkey[label][source] = value
-    agent.populate_dict('network', counterkey, base_type='counter64')
+    agent.populate_dict(counterkey, prefix='network', base_type=64)

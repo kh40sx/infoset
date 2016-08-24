@@ -18,7 +18,6 @@ from infoset.utils import jm_configuration
 from infoset.utils import log
 from infoset.utils import hidden
 from infoset.utils import jm_general
-from infoset import infoset
 
 
 def process():
@@ -32,42 +31,35 @@ def process():
 
     """
     # Initialize key variables
-    agents = []
-    infoset_dir = infoset.__path__[0]
-    components = infoset_dir.split(os.sep)
-    root_dir = os.sep.join(components[0:-2])
-
-    # Get configuration
+    root_dir = jm_general.root_directory()
     config_directory = os.environ['INFOSET_CONFIGDIR']
 
     # Get list of configured agents
-    agent_directory = ('%s/agents') % (config_directory)
-    sub_directories = [result[0] for result in os.walk(agent_directory)]
-    for sub_directory in sub_directories:
-        if sub_directory == agent_directory:
-            continue
+    config = jm_configuration.Config(config_directory)
+    agents = config.agents()
 
-        # Get agent names. Ignore '_agentsd' as we don't want to shut
-        # ourselves down.
-        if sub_directory != '_agentsd':
-            agents.append(os.path.basename(sub_directory))
+    # Process each agent
+    for agent_dict in agents:
+        # Get agent_name
+        agent_name = agent_dict['agent_name']
+        agentconfig = jm_configuration.ConfigAgent(
+            config_directory, agent_name)
+        agent_filename = agentconfig.agent_filename()
 
-    for agent in agents:
         # Get agent status variables
-        config = jm_configuration.ConfigAgent(config_directory, agent)
-        filename = ('%s/%s') % (root_dir, config.agent_filename())
+        agent_filepath = ('%s/%s') % (root_dir, agent_filename)
         pid = hidden.File()
-        pidfile = pid.pid(agent)
+        pidfile = pid.pid(agent_name)
 
         # Check for agent existence
-        if config.agent_enabled() is True:
+        if agentconfig.agent_enabled() is True:
             # Ignore agents that cannot be found
-            if os.path.isfile(filename) is False:
+            if os.path.isfile(agent_filepath) is False:
                 log_message = (
                     'Agent executable file %s listed in the '
                     'configuration file '
                     'of agent "%s" does not exist. Please fix.'
-                    '') % (config.agent_filename(), agent)
+                    '') % (agent_filepath, agent_name)
                 log.log2quiet(1075, log_message)
                 continue
 
@@ -78,14 +70,14 @@ def process():
                 if psutil.pid_exists(pidvalue) is False:
                     log_message = (
                         'Agent "%s" is dead. Attempting to restart.'
-                        '') % (agent)
+                        '') % (agent_name)
                     log.log2quiet(1076, log_message)
 
                     # Remove PID file and restart
                     os.remove(pidfile)
-                    _restart(filename, agent)
+                    _restart(agent_filepath, agent_name)
             else:
-                _restart(filename, agent)
+                _restart(agent_filepath, agent_name)
         else:
             # Shutdown agent if running
             if os.path.isfile(pidfile) is True:
@@ -95,17 +87,17 @@ def process():
                     log_message = (
                         'Agent "%s" is alive, but should be disabled. '
                         'Attempting to stop.'
-                        '') % (agent)
+                        '') % (agent_name)
                     log.log2quiet(1032, log_message)
-                    _stop(filename, agent)
+                    _stop(agent_filepath, agent_name)
 
 
-def _stop(filename, agent):
+def _stop(agent_filepath, agent_name):
     """Stop agent.
 
     Args:
-        filename: Filepath of agent to be restarted.
-        agent: Agent name
+        agent_filepath: Filepath of agent to be restarted.
+        agent_name: Agent name
 
     Returns:
         None
@@ -114,18 +106,18 @@ def _stop(filename, agent):
     # Restart
     log_message = (
         'Stopping agent "%s" as it is disabled, but running.'
-        '') % (agent)
+        '') % (agent_name)
     log.log2quiet(1033, log_message)
-    command2run = ('%s --stop') % (filename)
+    command2run = ('%s --stop') % (agent_filepath)
     _execute(command2run)
 
 
-def _restart(filename, agent):
+def _restart(agent_filepath, agent_name):
     """Restart agent.
 
     Args:
-        filename: Filepath of agent to be restarted.
-        agent: Agent name
+        agent_filepath: Filepath of agent to be restarted.
+        agent_name: Agent name
 
     Returns:
         None
@@ -134,9 +126,9 @@ def _restart(filename, agent):
     # Restart
     log_message = (
         'Starting agent "%s" as it is enabled, but stopped.'
-        '') % (agent)
+        '') % (agent_name)
     log.log2quiet(1077, log_message)
-    command2run = ('%s --start') % (filename)
+    command2run = ('%s --start') % (agent_filepath)
     _execute(command2run)
 
 
@@ -145,7 +137,6 @@ def _execute(command):
 
     Args:
         command: Command to run
-        agent: Agent name
 
     Returns:
         None
