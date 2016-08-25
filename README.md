@@ -104,16 +104,16 @@ $ bin/agentsd.py --start
 
 Infoset also includes a web interface. To start the server run `python3 server.py` then navigate to <http://localhost:5000>
 
-# The Toolbox.py Script
+## The Toolbox.py Script
 `infoset` comes with a handy `toolbox.py` script, this script provides all the same functionality as creating or installing the executable
 
-## Testing Host Connectivity
+### Testing Host Connectivity
 You can test connectivity to a host using this command where the configuration directory is `etc/` and the host is `host1`
 ```
 $ bin/toolbox.py test --directory etc/  --host host1
 ```
 
-## Polling All Devices
+### Polling All Devices
 This command will execute against all configured hosts and create appropriate YAML files in the configuration file's `$DATA_DIRECTORY/snmp` directory
 ```
 $ bin/toolbox.py poll --directory etc/
