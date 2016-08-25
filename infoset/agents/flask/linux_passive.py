@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """This is a test of flask."""
 
-import os
+# Standard packages
 import socket
 import json
-from flask import Flask
 import logging
+
+# Pip packages
+from flask import Flask
 
 from infoset.agents import agent as Agent
 from infoset.agents import data_linux
@@ -30,9 +32,7 @@ def home():
     agent_name = 'linux_passive'
 
     # Get configuration
-    config_dir = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.ConfigAgent(
-        config_dir, agent_name)
+    config = jm_configuration.ConfigAgent(agent_name)
 
     # Get hostname
     hostname = socket.getfqdn()

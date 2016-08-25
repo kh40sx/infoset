@@ -6,7 +6,6 @@ Manages connection pooling among other things.
 """
 
 # Main python libraries
-import os
 import socket
 from pathlib import Path
 from sqlalchemy import create_engine
@@ -150,8 +149,7 @@ def server_setup():
     max_overflow = 25
 
     # Get configuration
-    config_directory = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.Config(config_directory)
+    config = jm_configuration.Config()
 
     # Create DB connection pool
     if use_mysql is True:
@@ -203,8 +201,7 @@ def main():
 
     """
     # Get configuration
-    config_directory = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.Config(config_directory)
+    config = jm_configuration.Config()
 
     # Run server setup if required
     if config.server() is True:
