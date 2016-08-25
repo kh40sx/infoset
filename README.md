@@ -34,7 +34,7 @@ The project took inspiration from switchmap whose creator, Pete Siemsen, has bee
 And many others.
 
 ## Dependencies
-The only dependencies that must be manually installed for this project are pip,python3
+The only dependencies that must be manually installed for this project are `pip`, `python3`
 ### Ubuntu / Debian / Mint
 
 The commands are:
@@ -50,22 +50,47 @@ The commands are:
 # pip3 install --user sqlalchemy
 ```
 # Installation
-Installation is simple. Run the following commands:
-
+Installation is simple. First create the MySQL or MariaDB database.
 ```
-# git clone https://github.com/UWICompSociety/infoset
-# cd infoset
-# export PYTHONPATH=`pwd`
-# ./setup.py --install
-# source ~/.bashrc
-# sudo make
-# source venv/bin/activate
-# sudo make install
+mysql> create database infoset;
+mysql> grant all privileges on infoset.* to infoset@"localhost" identified by 'PASSWORD';
+mysql> flush privileges;
+mysql> exit;
+```
+Now clone the repository and copy the sample configuration file to its final location.
+```
+$ git clone https://github.com/UWICompSociety/infoset
+$ cd infoset
+$ export PYTHONPATH=`pwd`
+$ cp examples/etc/* etc/
+```
+Edit the database credential information in the server section of the `etc/config.yaml` file. Update the configured database password.
+```
+$ vim etc/config.yaml
+```
+Create the directories that `infoset` will use for its working files.
+```
+$ sudo mkdir -p /opt/infoset
+$ sudo chown -R $USER /opt/infoset
+$ mkdir -p /opt/infoset/log
+$ mkdir -p /opt/infoset/cache/topology
+$ mkdir -p /opt/infoset/cache/ingest
+$ mkdir -p /opt/infoset/cache/agents
+```
+Run the install scripts.
+```
+$ pip3 install --user sqlalchemy
+$ ./setup.py --install
+$ source ~/.bashrc
+$ sudo make
+$ source venv/bin/activate
+$ sudo make install
 ```
 ![uh oh](http://i.imgur.com/cJP2vks.gif?raw=true)
 
 # Configuration and Usage
 There are a number of required steps to configure `infoset`.
+
 1. Place a valid configuration file in the `etc/` directory
 2. Run the `bin/agentsd.py --start` script to start data collection
 3. Run the `server.py` script to view the web pages
