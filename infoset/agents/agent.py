@@ -411,24 +411,6 @@ class AgentCLI(object):
         # Initialize key variables
         self.parser = None
 
-        # Check environment
-        log.check_environment()
-        self.config_directory = os.environ['INFOSET_CONFIGDIR']
-
-    def config_dir(self):
-        """Return configuration directory.
-
-        Args:
-            None
-
-        Returns:
-            value: Configuration directory
-
-        """
-        # Return
-        value = self.config_directory
-        return value
-
     def process(self, additional_help=None):
         """Return all the CLI options.
 
@@ -606,8 +588,7 @@ def threads(agent_name, pollers):
 
     """
     # Get configuration
-    config_dir = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.Config(config_dir)
+    config = jm_configuration.Config()
     threads_in_pool = config.agent_threads()
 
     # Spawn processes only if we have files to process

@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 from www import infoset
+
 import os
 import argparse
 import sys

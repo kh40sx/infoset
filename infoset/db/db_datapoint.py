@@ -42,6 +42,7 @@ class GetSingleDataPoint(object):
         self.data_dict = defaultdict(dict)
 
         # Establish a database session
+       
         database = db.Database()
         session = database.session()
         result = session.query(Datapoint).filter(Datapoint.idx == idx)
@@ -713,3 +714,30 @@ def idx_exists(idx):
 
     # Return
     return found
+
+
+def datapoint_indices(idx_host):
+    """Get list of all datapoint indexes for a specific host_idx.
+
+    Args:
+        None
+
+    Returns:
+        listing: List of indexes
+
+    """
+    idx_list = []
+
+    # Establish a database session
+    database = db.Database()
+    session = database.session()
+    result = session.query(Datapoint.idx_host).filter(
+        Datapoint.idx_host == idx_host)
+    session.close()
+
+    # Add to the list of host idx values
+    for instance in result:
+        idx_list.append(instance.idx_agent)
+
+    # Return
+    return idx_list

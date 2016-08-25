@@ -12,7 +12,6 @@ Description:
 
 """
 # Standard libraries
-import os
 import sys
 import socket
 import logging
@@ -26,7 +25,6 @@ except:
     sys.exit(2)
 from infoset.utils import jm_configuration
 from infoset.agents import data_linux
-from infoset.utils import log
 
 logging.getLogger('requests').setLevel(logging.WARNING)
 logging.basicConfig(level=logging.DEBUG)
@@ -61,9 +59,7 @@ class PollingAgent(object):
         self.agent_name = '_infoset'
 
         # Get configuration
-        config_dir = os.environ['INFOSET_CONFIGDIR']
-        self.config = jm_configuration.ConfigAgent(
-            config_dir, self.agent_name)
+        self.config = jm_configuration.ConfigAgent(self.agent_name)
 
     def name(self):
         """Return agent name.

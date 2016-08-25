@@ -39,8 +39,7 @@ def main():
     global DBURL
 
     # Get configuration
-    config_directory = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.Config(config_directory)
+    config = jm_configuration.Config()
 
     # Create DB connection pool
     if use_mysql is True:

@@ -25,7 +25,7 @@ def main():
 
     """
     # Check the environment
-    log.check_environment()
+    pass
 
 
 if __name__ == 'infoset':

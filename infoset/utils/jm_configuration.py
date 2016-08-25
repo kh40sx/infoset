@@ -2,6 +2,7 @@
 """infoset classes that manage various configurations."""
 
 import os.path
+import os
 
 # Import project libraries
 from infoset.utils import jm_general
@@ -23,18 +24,23 @@ class Config(object):
         snmp_auth:
     """
 
-    def __init__(self, root_directory):
+    def __init__(self):
         """Function for intializing the class.
 
         Args:
-            root_directory: Root configuration directory
+            None
 
         Returns:
             None
 
         """
         # Update the configuration directory
-        directories = [root_directory]
+        # 'INFOSET_CONFIGDIR' is used for unittesting
+        if 'INFOSET_CONFIGDIR' in os.environ:
+            config_directory = os.environ['INFOSET_CONFIGDIR']
+        else:
+            config_directory = ('%s/etc') % (jm_general.root_directory())
+        directories = [config_directory]
 
         # Return
         self.config_dict = jm_general.read_yaml_files(directories)
@@ -425,11 +431,10 @@ class ConfigAgent(object):
         snmp_auth:
     """
 
-    def __init__(self, root_directory, agent_name):
+    def __init__(self, agent_name):
         """Function for intializing the class.
 
         Args:
-            root_directory: Root configuration directory
             agent_name: Name of agent used to get descriptions
                 from configuration subdirectory
 
@@ -438,7 +443,12 @@ class ConfigAgent(object):
 
         """
         # Update the configuration directory
-        directories = [root_directory]
+        # 'INFOSET_CONFIGDIR' is used for unittesting
+        if 'INFOSET_CONFIGDIR' in os.environ:
+            config_directory = os.environ['INFOSET_CONFIGDIR']
+        else:
+            config_directory = ('%s/etc') % (jm_general.root_directory())
+        directories = [config_directory]
 
         # Return
         self.config_dict = jm_general.read_yaml_files(directories)
@@ -707,11 +717,11 @@ class ConfigSNMP(object):
         snmp_auth:
     """
 
-    def __init__(self, root_directory):
+    def __init__(self):
         """Function for intializing the class.
 
         Args:
-            root_directory: Root configuration directory
+            None
 
         Returns:
             None
@@ -721,7 +731,12 @@ class ConfigSNMP(object):
         self.none = None
 
         # Update the configuration directory
-        directories = [root_directory]
+        # 'INFOSET_CONFIGDIR' is used for unittesting
+        if 'INFOSET_CONFIGDIR' in os.environ:
+            config_directory = os.environ['INFOSET_CONFIGDIR']
+        else:
+            config_directory = ('%s/etc') % (jm_general.root_directory())
+        directories = [config_directory]
 
         # Return
         self.config_dict = jm_general.read_yaml_files(directories)

@@ -6,7 +6,6 @@ Extracts agent data from cache directory files.
 """
 
 # Standard libraries
-import os
 import sys
 from collections import defaultdict
 from time import sleep
@@ -55,9 +54,7 @@ class PollingAgent(object):
         self.agent_name = 'snmp'
 
         # Get configuration
-        config_dir = os.environ['INFOSET_CONFIGDIR']
-        self.config = jm_configuration.ConfigAgent(
-            config_dir, self.agent_name)
+        self.config = jm_configuration.ConfigAgent(self.agent_name)
 
     def name(self):
         """Return agent name.
@@ -157,15 +154,13 @@ class Poller(object):
         self.hostname = hostname
 
         # Get configuration
-        config_dir = os.environ['INFOSET_CONFIGDIR']
-        config = jm_configuration.ConfigAgent(
-            config_dir, self.agent_name)
+        config = jm_configuration.ConfigAgent(self.agent_name)
 
         # Initialize key variables
         self.agent = Agent.Agent(config, hostname)
 
         # Get snmp configuration information from infoset
-        snmp_config = jm_configuration.ConfigSNMP(config_dir)
+        snmp_config = jm_configuration.ConfigSNMP()
         validate = snmp_manager.Validate(hostname, snmp_config.snmp_auth())
         self.snmp_params = validate.credentials()
 

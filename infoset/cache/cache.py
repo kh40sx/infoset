@@ -457,8 +457,7 @@ def validate_cache_files():
     uid_metadata = defaultdict(lambda: defaultdict(dict))
 
     # Configuration setup
-    config_dir = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.Config(config_dir)
+    config = jm_configuration.Config()
     cache_dir = config.ingest_cache_directory()
 
     # Filenames must start with a numeric timestamp and #
@@ -517,8 +516,7 @@ def process(agent_name):
     uid_metadata = defaultdict(lambda: defaultdict(dict))
 
     # Configuration setup
-    config_dir = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.Config(config_dir)
+    config = jm_configuration.Config()
     threads_in_pool = config.ingest_threads()
 
     # Make sure we have database connectivity

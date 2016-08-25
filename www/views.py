@@ -63,9 +63,8 @@ def index():
     database = Database()
     session = database.session()
     record = session.query(Agent.id).filter(Agent.idx == 1).one()
-    uid = record.id.decode('utf-8')
+    uid = record.id.decode("UTF-8")
     session.close()
-
     # Get agent information
     agent = GetUID(uid)
     idx_agent = agent.idx()
@@ -75,12 +74,12 @@ def index():
     datapoints = GetDataPoint(idx_agent)
     data_point_dict = datapoints.everything()
     # Render the home page
-    print(data_point_dict)
     return render_template('index.html',
                            data=data_point_dict,
                            agent_list=agent_list,
                            uid=uid,
                            hostname=host)
+
 @infoset.route('/<uid>')
 def overview(uid):
     # Get agent information
@@ -356,9 +355,11 @@ def fetch_graph_stacked(uid, stack_type):
     config = infoset.config['GLOBAL_CONFIG']
     # Determine what kind of stacked chart to make
     # Memory, Load, Bytes In/Out, CPU
+    
+    memory_datapoints, load_datapoints, network_datapoints = get_stacked(uid)
     if "memory" in stack_type:
         #Do memory
-        datapoint_list = [128, 129, 131, 133, 135]
+        datapoint_list = memory_datapoints
         colors = ['#71D5C3', '#009DB2', '#21D5C3', '#98e1d4', '#f0e0a0']
     elif "cpu" in stack_type:
         #Do cpu
@@ -366,12 +367,12 @@ def fetch_graph_stacked(uid, stack_type):
     elif "load" in stack_type:
         #Do load
         colors = ['#F37372','#FA9469','#FDBB5D']
-        datapoint_list = [124,125,126]
+        datapoint_list = load_datapoints
         pass
     elif "network" in stack_type:
         #Do network
         colors = ['#F37372','#FA9469', '#FDBB5D']
-        datapoint_list = [124,125,126]
+        datapoint_list = network_datapoints
         pass
     elif "disk" in stack_type:
         #Do disk
@@ -384,6 +385,30 @@ def fetch_graph_stacked(uid, stack_type):
         values.extend(data)
 
     return jsonify(values)
+
+def get_stacked(uid):
+    
+    memory = ['memory_used', 'memory_free', 'memory_active',
+     'memory_inactive', 'memory_buffers', 'memory_cached', 'memory_shared']
+    load = ['load_average_01min', 'load_average_05min', 'load_average_15min']
+    network = ['network_bytes_sent', 'network_bytes']
+    
+    memory_datapoints = []
+    load_datapoints = []
+    network_datapoints = []
+
+    agent = GetUID(uid)
+    datapoints = GetDataPoint(agent.idx())
+    data_point_dict = datapoints.everything()
+
+    for datapoint, value in data_point_dict.items():
+        if datapoint in memory:
+            memory_datapoints.append(value[0])
+        if datapoint in load:
+            load_datapoints.append(value[0])
+        if datapoint in network:
+            network_datapoints.append(value[0])
+    return (memory_datapoints, load_datapoints, network_datapoints)                        
 
 
 @infoset.route('/fetch/agent/<ip>/table', methods=["GET"])
