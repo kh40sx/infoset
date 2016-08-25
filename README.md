@@ -50,7 +50,8 @@ The commands are:
 # pip3 install --user sqlalchemy
 ```
 # Installation
-![uh oh](http://i.imgur.com/cJP2vks.gif)
+Installation is simple. Run the following commands:
+
 ```
 # git clone https://github.com/UWICompSociety/infoset
 # cd infoset
@@ -61,6 +62,7 @@ The commands are:
 # source venv/bin/activate
 # sudo make install
 ```
+![uh oh](http://i.imgur.com/cJP2vks.gif)
 
 # Configuration and Usage
 There are a number of required steps to configure `infoset`.
