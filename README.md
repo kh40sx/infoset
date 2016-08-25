@@ -89,6 +89,8 @@ The `examples/linux/apache` directory includes sample files to create a:
 2. URI of an existing site (`conf-available.example.conf`) running on port 80
 
 ## Starting Data Collection
+**NOTE!** You must have a valid configuration file placed in the `etc` directory before activating data collection.
+
 The `bin/agentsd.py` script starts all the configured data collection agents automatically. It will only attempt to start and monitor the agents that are `enabled` in the configuration file.
 
 The script can be started like this:
