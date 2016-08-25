@@ -207,6 +207,28 @@
             </div>
             <div class="row" id="network-graph-area">
             </div>
+            <div class="row">
+              <div class="col-lg-12">
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <td width="20px">
+                        <i class="fa fa-square" aria-hidden="true" style="color: #F37372;"></i>
+                      </td>
+                      <td>
+                        <p class="small">Bytes In</p>
+                      </td>
+                      <td width="20px">
+                        <i class="fa fa-square" aria-hidden="true" style="color: #FA9469;"></i>
+                      </td>
+                      <td>
+                        <p class="small">Bytes Out</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>            
           </div>
         </div>
         <div class="data-box" id="memory-box">
@@ -257,5 +279,6 @@
     
     StackedArea("{{uid}}","memory", "#memory-graph-area", 630, 240, "#00c8a4");
     StackedArea("{{uid}}","load", "#load-graph-area", 630, 240, "#00c8a4");
+    StackedArea("{{uid}}","network", "#network-graph-area", 630, 240, "#00c8a4");
 </script>
 {% endblock %}
