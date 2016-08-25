@@ -16,7 +16,6 @@ from infoset.db.db_orm import Data
 from infoset.db.db_datapoint import GetSingleDataPoint
 
 
-
 class GetIDX(object):
     """Class to return agent data.
 
@@ -181,16 +180,20 @@ class GetIDX(object):
         return values
 
     def _d3_converter(self, values):
-
         """Convert counter data to gauge.
+
         Args:
             None
+
         Returns:
             values: Converted dict of data keyed by timestamp
+
         """
+        # Initialize key variables
         chart_values = []
 
+        # Assign data values to d3 dict
         for timestamp, value in sorted(values.items()):
-            chart_values.append({"x": timestamp, "y":value, "group": self.agent_label})
+            chart_values.append(
+                {'x': timestamp, 'y': value, 'group': self.agent_label})
         return chart_values
-
