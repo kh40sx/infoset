@@ -4,7 +4,6 @@ common:
     server: True
 
 server:
-    agent_root_directory:
     web_directory: /home/infoset/public_html
     data_directory: /opt/infoset/cache/topology
     ingest_cache_directory: /opt/infoset/cache/ingest

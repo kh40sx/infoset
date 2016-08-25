@@ -1,6 +1,4 @@
 # infoset
-
-
 `infoset` is Python 3 inventory system that reports and tabulates the status of network connected devices. The information reported includes:
 
 1. Open Systems Interconnection model (OSI model) data such as:
@@ -8,6 +6,12 @@
   2. Layer 2 information (VLANs, 802.1q trunk links)
   3. Layer 3 information (ARP information)
 2. System status
+
+
+
+**Table of Conents**
+
+[TOC]
 
 ## Features
 `infoset` has the following features:
@@ -18,6 +22,11 @@
 4. Threaded polling of devices for data. Fast.
 5. Support for Cisco and Juniper gear. More expected to added with time.
 6. Support for SNMPv2 and/or SNMPv3 for all configured network devices.
+7. `infoset` has a number of fault tolerant features aimed at making it resilient in unstable computing environemnts.
+ 1. Agents collecting data can tolerate the loss of communication with the central server by caching data locally until the server returns online.
+ 2. The infoset server can tolerate the loss of communication with its database by caching the data locally until the database returns online.
+ 3. The `infoset` configuration is entirely stored in files. This allows it to collect data in the absense of a database, such as during maintenance or an outage.
+ 4. Backups are simple. Just dave the entire contents of the `infoset` directory tree including hidden files, and save a copy of the database for your performance data.
 
 We are always looking for more contributors!
 
@@ -104,6 +113,13 @@ The `examples/` directory includes a number of sample files. These will now be e
 The `examples/configuration` directory includes a sample file that can be edited. The `README.md` file there explains the parameters.
 
 You must place your configuration file in the `etc/` directory as your permanent configuration file location.
+
+### Logrotate Configuration
+The `examples/linux/logrotate/infoset` file is a working logrotate configuration to rotate the log files that infoset generates. These can be extensive and adding the file to your system is highly recommended.
+
+```
+sudo cp examples/linux/logrotate/infoset /etc/logrotate.d
+```
 
 ### Apache Configuration Samples (optional)
 The `examples/linux/apache` directory includes sample files to create a:
