@@ -62,7 +62,7 @@ Installation is simple. Run the following commands:
 # source venv/bin/activate
 # sudo make install
 ```
-![uh oh](http://i.imgur.com/cJP2vks.gif)
+![uh oh](http://i.imgur.com/cJP2vks.gif?raw=true)
 
 # Configuration and Usage
 There are a number of required steps to configure `infoset`.
