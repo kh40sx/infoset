@@ -35,7 +35,6 @@ class Config(object):
         """
         # Update the configuration directory
         directories = [root_directory]
-
         # Return
         self.config_dict = jm_general.read_yaml_files(directories)
 

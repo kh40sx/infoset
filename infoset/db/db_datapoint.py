@@ -42,6 +42,7 @@ class GetSingleDataPoint(object):
         self.data_dict = defaultdict(dict)
 
         # Establish a database session
+       
         database = db.Database()
         session = database.session()
         result = session.query(Datapoint).filter(Datapoint.idx == idx)
