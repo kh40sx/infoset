@@ -36,6 +36,7 @@ And many others.
 ## Dependencies
 The only dependencies that must be manually installed for this project are pip,python3
 ### Ubuntu / Debian / Mint
+
 The commands are:
 ```
 # sudo apt-get install python3 python3-pip python3-dev librrd-dev
@@ -49,7 +50,6 @@ The commands are:
 # pip3 install --user sqlalchemy
 ```
 # Installation
-
 ![uh oh](http://i.imgur.com/cJP2vks.gif)
 ```
 # git clone https://github.com/UWICompSociety/infoset
@@ -63,7 +63,6 @@ The commands are:
 ```
 
 # Configuration and Usage
-
 There are a number of required steps to configure `infoset`.
 1. Place a valid configuration file in the `etc/` directory
 2. Run the `bin/agentsd.py --start` script to start data collection
@@ -72,17 +71,14 @@ There are a number of required steps to configure `infoset`.
 These will be convered in detail next:
 
 ## Configuration Samples
-
 The `examples/` directory includes a number of sample files. These will now be explained.
 
 ### infoset Configuration Samples
-
 The `examples/configuration` directory includes a sample file that can be edited. The `README.md` file there explains the parameters.
 
 You must place your configuration file in the `etc/` directory as your permanent configuration file location.
 
 ### Apache Configuration Samples (optional)
-
 The `examples/linux/apache` directory includes sample files to create a:
 
 1. Dedicated `infoset` site (`sites-available.example.org.conf`) running on port 80
@@ -101,11 +97,13 @@ $ bin/agentsd.py --start
 **NOTE!** Make sure this script runs at boot by placing the `agentsd.py` command in your `/etc/rc.local` file.
 
 ## Viewing Data Web Pages
-
 Infoset also includes a web interface. To start the server run `python3 server.py` then navigate to <http://localhost:5000>
 
+# Other Useful Scripts
+`infoset` has a number of auxilliary scripts that could be useful.
+
 ## The Toolbox.py Script
-`infoset` comes with a handy `toolbox.py` script, this script provides all the same functionality as creating or installing the executable
+`infoset` comes with a handy `toolbox.py` script. It provides all the same functionality as creating or installing the executable.
 
 ### Testing Host Connectivity
 You can test connectivity to a host using this command where the configuration directory is `etc/` and the host is `host1`
