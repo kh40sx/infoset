@@ -48,14 +48,14 @@ The only dependencies that must be manually installed for this project are `pip`
 
 The commands are:
 ```
-# sudo apt-get install python3 python3-pip python3-dev librrd-dev
+# sudo apt-get install python3 python3-pip python3-dev
 # pip3 install --user sqlalchemy
 ```
 
 ### Fedora
 The commands are:
 ```
-# sudo dnf install python3 python3-pip python3-dev librrd-dev
+# sudo dnf install python3 python3-pip python3-dev
 # pip3 install --user sqlalchemy
 ```
 # Installation
