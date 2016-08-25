@@ -2,6 +2,7 @@
 """infoset classes that manage various configurations."""
 
 import os.path
+import os
 
 # Import project libraries
 from infoset.utils import jm_general
@@ -34,7 +35,11 @@ class Config(object):
 
         """
         # Update the configuration directory
-        config_directory = ('%s/etc') % (jm_general.root_directory())
+        # 'INFOSET_CONFIGDIR' is used for unittesting
+        if 'INFOSET_CONFIGDIR' in os.environ:
+            config_directory = os.environ['INFOSET_CONFIGDIR']
+        else:
+            config_directory = ('%s/etc') % (jm_general.root_directory())
         directories = [config_directory]
 
         # Return
@@ -438,7 +443,11 @@ class ConfigAgent(object):
 
         """
         # Update the configuration directory
-        config_directory = ('%s/etc') % (jm_general.root_directory())
+        # 'INFOSET_CONFIGDIR' is used for unittesting
+        if 'INFOSET_CONFIGDIR' in os.environ:
+            config_directory = os.environ['INFOSET_CONFIGDIR']
+        else:
+            config_directory = ('%s/etc') % (jm_general.root_directory())
         directories = [config_directory]
 
         # Return
@@ -722,7 +731,11 @@ class ConfigSNMP(object):
         self.none = None
 
         # Update the configuration directory
-        config_directory = ('%s/etc') % (jm_general.root_directory())
+        # 'INFOSET_CONFIGDIR' is used for unittesting
+        if 'INFOSET_CONFIGDIR' in os.environ:
+            config_directory = os.environ['INFOSET_CONFIGDIR']
+        else:
+            config_directory = ('%s/etc') % (jm_general.root_directory())
         directories = [config_directory]
 
         # Return

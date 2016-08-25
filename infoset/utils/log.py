@@ -7,6 +7,7 @@ import time
 import getpass
 import logging
 import threading
+import traceback
 
 
 # Infoset libraries
@@ -45,10 +46,11 @@ class LogThread(threading.Thread):
             self._real_run()
         except:
             # logging.exception('Exception during LogThread.run')
-            log2warn(1101, ('%s\n%s\n%s') % (
+            log2warn(1101, ('%s\n%s\n%s\n%s') % (
                 sys.exc_info()[0],
                 sys.exc_info()[1],
-                sys.exc_info()[2]))
+                sys.exc_info()[2],
+                traceback.print_exc()))
 
 
 def log2die_safe(code, message):

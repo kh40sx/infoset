@@ -104,7 +104,7 @@ def _stop(agent_filepath, agent_name):
         'Stopping agent "%s" as it is disabled, but running.'
         '') % (agent_name)
     log.log2quiet(1033, log_message)
-    command2run = ('%s --stop') % (agent_filepath)
+    command2run = ('%s --stop --force') % (agent_filepath)
     _execute(command2run)
 
 
