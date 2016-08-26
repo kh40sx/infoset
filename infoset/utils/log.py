@@ -11,7 +11,7 @@ import traceback
 
 
 # Infoset libraries
-import infoset.utils as utils
+from infoset.utils import jm_configuration
 
 
 class LogThread(threading.Thread):
@@ -147,7 +147,7 @@ def _logit(error_num, error_string, error=False, verbose=False):
     username = getpass.getuser()
 
     # Get the logging directory
-    config = utils.jm_configuration.Config()
+    config = jm_configuration.Config()
     log_file = config.log_file()
 
     # create logger

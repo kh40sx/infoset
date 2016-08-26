@@ -12,7 +12,7 @@ import hashlib
 import yaml
 
 # Infoset libraries
-import infoset.utils as utils
+from infoset.utils import log
 from infoset import infoset
 
 
@@ -195,13 +195,13 @@ def move_files(source_dir, target_dir):
     if os.path.exists(source_dir) is False:
         log_message = ('Directory %s does not exist.') % (
             source_dir)
-        utils.log.log2die(1011, log_message)
+        log.log2die(1011, log_message)
 
     # Make sure target directory exists
     if os.path.exists(target_dir) is False:
         log_message = ('Directory %s does not exist.') % (
             target_dir)
-        utils.log.log2die(1012, log_message)
+        log.log2die(1012, log_message)
 
     source_files = os.listdir(source_dir)
     for filename in source_files:
@@ -223,7 +223,7 @@ def delete_files(target_dir):
     if os.path.exists(target_dir) is False:
         log_message = ('Directory %s does not exist.') % (
             target_dir)
-        utils.log.log2die(1013, log_message)
+        log.log2die(1013, log_message)
 
     # Delete all files in the tmp folder
     for the_file in os.listdir(target_dir):
@@ -234,10 +234,10 @@ def delete_files(target_dir):
         except Exception as exception_error:
             log_message = ('Error: deleting files in %s. Error: %s') % (
                 target_dir, exception_error)
-            utils.log.log2die(1014, log_message)
+            log.log2die(1014, log_message)
         except:
             log_message = ('Unexpected error')
-            utils.log.log2die(1015, log_message)
+            log.log2die(1015, log_message)
 
 
 def cleanstring(data):
@@ -281,7 +281,7 @@ def read_yaml_files(directories):
             log_message = (
                 'Configuration directory "%s" '
                 'doesn\'t exist!' % config_directory)
-            utils.log.log2die(1009, log_message)
+            log.log2die(1009, log_message)
 
         # Cycle through list of files in directory
         for filename in os.listdir(config_directory):
@@ -300,7 +300,7 @@ def read_yaml_files(directories):
                         'Error reading file %s. Check permissions, '
                         'existence and file syntax.'
                         '') % (file_path)
-                    utils.log.log2die(1065, log_message)
+                    log.log2die(1065, log_message)
 
                 # Append yaml from file to all yaml previously read
                 all_yaml_read = ('%s\n%s') % (all_yaml_read, yaml_from_file)
@@ -310,7 +310,7 @@ def read_yaml_files(directories):
             log_message = (
                 'No files found in directory "%s" with ".yaml" '
                 'extension.') % (config_directory)
-            utils.log.log2die(1010, log_message)
+            log.log2die(1010, log_message)
 
     # Return
     config_dict = yaml.load(all_yaml_read)
@@ -377,7 +377,7 @@ def run_script(cli_string, shell=False, die=True):
                 log_message = ('%s %s') % (log_message, string2print)
 
             # All done
-            utils.log.log2die(1074, log_message)
+            log.log2die(1074, log_message)
 
     # Return
     return stdoutdata
