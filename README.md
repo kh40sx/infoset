@@ -43,24 +43,31 @@ The project took inspiration from switchmap whose creator, Pete Siemsen, has bee
 And many others.
 
 ## Dependencies
-The only dependencies that must be manually installed for this project are `pip`, `python3`
+The only dependencies that must be manually installed for this project are `pip`, `python3`. 
 ### Ubuntu / Debian / Mint
 
 The commands are:
 ```
-# sudo apt-get install python3 python3-pip python3-dev
+# sudo apt-get install python3 python3-pip python3-dev python3-yaml
 # pip3 install --user sqlalchemy
 ```
 
 ### Fedora
 The commands are:
 ```
-# sudo dnf install python3 python3-pip python3-dev
+# sudo dnf install python3 python3-pip python3-dev python3-yaml
 # pip3 install --user sqlalchemy
 ```
 # Installation
-Installation is simple. First create the MySQL or MariaDB database.
+Installation is simple. The first thing to do is verify that your system is running python 3.5 or higher. If not, you will need to upgrade. Use this command to check:
 ```
+$ python3 --version
+```
+
+Next create the MySQL or MariaDB database.
+```
+$ mysql -u root -p
+password: 
 mysql> create database infoset;
 mysql> grant all privileges on infoset.* to infoset@"localhost" identified by 'PASSWORD';
 mysql> flush privileges;
