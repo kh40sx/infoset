@@ -5,8 +5,7 @@ import os.path
 import os
 
 # Import project libraries
-from infoset.utils import jm_general
-from infoset.utils import log
+import infoset.utils as utils
 
 
 class Config(object):
@@ -39,11 +38,11 @@ class Config(object):
         if 'INFOSET_CONFIGDIR' in os.environ:
             config_directory = os.environ['INFOSET_CONFIGDIR']
         else:
-            config_directory = ('%s/etc') % (jm_general.root_directory())
+            config_directory = ('%s/etc') % (utils.jm_general.root_directory())
         directories = [config_directory]
 
         # Return
-        self.config_dict = jm_general.read_yaml_files(directories)
+        self.config_dict = utils.jm_general.read_yaml_files(directories)
 
     def server(self):
         """Get server.
@@ -133,7 +132,7 @@ class Config(object):
             log_message = (
                 'data_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
-            log.log2die(1007, log_message)
+            utils.log.log2die(1007, log_message)
 
         # Return
         return value
@@ -197,7 +196,7 @@ class Config(object):
             log_message = (
                 'web_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
-            log.log2die(1093, log_message)
+            utils.log.log2die(1093, log_message)
 
         # Return
         return value
@@ -224,7 +223,7 @@ class Config(object):
             log_message = (
                 'ingest_cache_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
-            log.log2die(1030, log_message)
+            utils.log.log2die(1030, log_message)
 
         # Return
         return value
@@ -407,7 +406,7 @@ class Config(object):
         # Verify data
         if key not in self.config_dict:
             log_message = ('No agents configured')
-            log.log2die(1100, log_message)
+            utils.log.log2die(1100, log_message)
 
         # Process agents
         result = self.config_dict[key]
@@ -447,11 +446,11 @@ class ConfigAgent(object):
         if 'INFOSET_CONFIGDIR' in os.environ:
             config_directory = os.environ['INFOSET_CONFIGDIR']
         else:
-            config_directory = ('%s/etc') % (jm_general.root_directory())
+            config_directory = ('%s/etc') % (utils.jm_general.root_directory())
         directories = [config_directory]
 
         # Return
-        self.config_dict = jm_general.read_yaml_files(directories)
+        self.config_dict = utils.jm_general.read_yaml_files(directories)
         self.name = agent_name
 
     def agent_name(self):
@@ -551,7 +550,7 @@ class ConfigAgent(object):
             log_message = (
                 'agent_cache_directory: "%s" '
                 'in configuration doesn\'t exist!') % (value)
-            log.log2die(1031, log_message)
+            utils.log.log2die(1031, log_message)
 
         # Return
         return value
@@ -735,11 +734,11 @@ class ConfigSNMP(object):
         if 'INFOSET_CONFIGDIR' in os.environ:
             config_directory = os.environ['INFOSET_CONFIGDIR']
         else:
-            config_directory = ('%s/etc') % (jm_general.root_directory())
+            config_directory = ('%s/etc') % (utils.jm_general.root_directory())
         directories = [config_directory]
 
         # Return
-        self.config_dict = jm_general.read_yaml_files(directories)
+        self.config_dict = utils.jm_general.read_yaml_files(directories)
 
     def snmp_auth(self):
         """Get list of dicts of SNMP information in configuration file.
@@ -836,7 +835,7 @@ def _key_sub_key(key, sub_key, config_dict, die=True):
     if result is None and die is True:
         log_message = (
             '%s:%s not defined in configuration') % (key, sub_key)
-        log.log2die(1016, log_message)
+        utils.log.log2die(1016, log_message)
 
     # Return
     return result
@@ -872,7 +871,7 @@ def _agent_config(agent_name, config_dict):
         log_message = (
             'Agent %s not defined in configuration in '
             'agents:%s section') % (key, key)
-        log.log2die(1094, log_message)
+        utils.log.log2die(1094, log_message)
 
     # Return
     return result
