@@ -278,9 +278,9 @@ def api_make(config, host, verbose=False):
     table = HTMLTable(config, host)
 
     # Create HTML output
-    html = ('%s<h1>%s<h1>\n%s\n<br>\n%s\n<br>\n%s') % (
+    html = ('%s%s\n%s\n\n%s\n') % (
         _html_header(host), host, table.device(),
-        table.ethernet(), _html_footer)
+        table.ethernet())
 
 
     # Do the rest if device_file_found

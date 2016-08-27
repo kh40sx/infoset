@@ -1,92 +1,67 @@
 {% extends 'base.html' %}
 {% block body %}
+  {% if "interface" in hostname %}
   <div class="col-lg-3">
-    <div class="data-box" id="home-box">
-      <div class="container-fluid">
-        {{ hostname }}
+      <div class="data-box" id="home-box">
+        <div class="container-fluid">
+          {{ hostname }}
+        </div>
       </div>
-    </div>
-    <div class="data-box" id="home-box">
-      <div class="container-fluid">
-        <table class="table table-striped">
-          <tbody cla>
-            <tr>
-              <td>Version</td>
-              <td>{{ data['release'][1] }}</td>
-            </tr>
-            <tr>
-              <td>Operating system</td>
-              <td>{{ data['distribution'][1] }}</td>
-            </tr>
-            <tr>
-              <td>System name</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>Contact</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>Location</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>Uptime</td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="data-box" id="home-box">
+        <div class="container-fluid">
+          <div class="row network-table-info">
+            
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="data-box" id="home-box">
-      <div class="container-fluid">
-        <div class="row box-title">
-          <div class="col-lg-12">
-            <h5>More Graphs</h5>
-          </div>
-        </div>      
-        <div class="row">
-          <div class="col-md-12">
-            <p><a href="/{{uid}}/processors">Processors</a></p>
-          </div>
-        </div>
-        <div class="thumbnail-graph" id="cpu-thumbnail-area">
-          
-        </div>        
-        <div class="row">
-          <div class="col-md-12">
-            <p><a href="/{{uid}}/memory">Detailed Memory</a></p>
-          </div>
-        </div>
-        <div class="thumbnail-graph" id="memory-thumbnail-area">
-          
-        </div>
-        <div class="row">
-          <div class="col-md-12">
-            <p><a href="/{{uid}}/disk">Disk</a></p>
-          </div>
-        </div>
-        <div class="thumbnail-graph" id="disk-thumbnail-area">
-          
-        </div>        
-        <div class="row">
-          <div class="col-md-12">
-            <p><a href="/{{uid}}/disk">Network</a></p>
-          </div>
-        </div>
-        <div class="thumbnail-graph" id="network-thumbnail-area">
-          
-        </div>                                  
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-9">
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="container-fluid data-box">
+      <div class="data-box" id="home-box">
+        <div class="container-fluid">
+          <div class="row box-title">
+            <div class="col-lg-12">
+              <h5>More Graphs</h5>
+            </div>
+          </div>      
           <div class="row">
+            <div class="col-md-12">
+              <p><a href="/{{uid}}/processors">Processors</a></p>
+            </div>
+          </div>
+          <div class="thumbnail-graph" id="cpu-thumbnail-area">
+            
+          </div>        
+          <div class="row">
+            <div class="col-md-12">
+              <p><a href="/{{uid}}/memory">Detailed Memory</a></p>
+            </div>
+          </div>
+          <div class="thumbnail-graph" id="memory-thumbnail-area">
+            
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <p><a href="/{{uid}}/disk">Disk</a></p>
+            </div>
+          </div>
+          <div class="thumbnail-graph" id="disk-thumbnail-area">
+            
+          </div>        
+          <div class="row">
+            <div class="col-md-12">
+              <p><a href="/{{uid}}/network">Network</a></p>
+            </div>
+          </div>
+          <div class="thumbnail-graph" id="network-thumbnail-area">
+            
+          </div>                                  
+        </div>
+      </div>
+    </div>  
+    <div class="col-lg-9">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="data-box">
             <div class="col-md-1">
-              <p><a href="/{{uid}}/home">Overview</a></p>
+              <p><a href="/{{uid}}">Overview</a></p>
             </div>
             <div class="col-md-1">
               <p><a href="/{{uid}}/datapoints">Datapoints</a></p>
@@ -97,170 +72,279 @@
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="data-box network-table" id="home-box">
+          </div>          
+        </div>
+      </div>        
     </div>
-    <div class="row">
-      <div class="col-lg-6">
-        <div class="data-box" id="memory-box">
-          <div class="container-fluid">
-            <div class="row box-title">
-              <div class="col-lg-12">
-                <h4>Memory</h4>
-              </div>
+    
+    <script type="text/javascript">
+      $.get("/fetch/agent/{{ ip }}/table", function (data) {
+        $(data.split('</table>')).each(function(index, value){
+          
+          if (index < 1) {
+            $('.network-table-info').append(value);
+          }
+          else {
+            $('.network-table').append(value);
+            $(".network-table > table tr:contains('Active')").addClass("row-active");
+            $(".network-table > table tr:contains('Inactive')").addClass("row-inactive");     
+          }
+        });
+      });
+    </script>
+  {% else %} 
+    <div class="col-lg-3">
+      <div class="data-box" id="home-box">
+        <div class="container-fluid">
+          {{ hostname }}
+        </div>
+      </div>
+      <div class="data-box" id="home-box">
+        <div class="container-fluid">
+          <table class="table table-striped">
+            <tbody cla>
+              <tr>
+                <td>Version</td>
+                <td>{{ data['release'][1] }}</td>
+              </tr>
+              <tr>
+                <td>Operating system</td>
+                <td>{{ data['distribution'][1] }}</td>
+              </tr>
+              <tr>
+                <td>System name</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Contact</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Location</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Uptime</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="data-box" id="home-box">
+        <div class="container-fluid">
+          <div class="row box-title">
+            <div class="col-lg-12">
+              <h5>More Graphs</h5>
             </div>
-            <div class="row" id="memory-graph-area">
-            </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <table class="table">
-                  <tbody>
-                    <tr>
-                      <td width="20px">
-                        <i class="fa fa-square" aria-hidden="true" style="color: #71D5C3;"></i>
-                      </td>
-                      <td>
-                        <p class="small">Used memory</p>
-                      </td>
-                      <td width="20px">
-                        <i class="fa fa-square" aria-hidden="true" style="color: #009DB2;"></i>
-                      </td>
-                      <td>
-                        <p class="small">Free memory</p>
-                      </td>
-                      <td width="20px">
-                        <i class="fa fa-square" aria-hidden="true" style="color: #f0e0a0;"></i>
-                      </td>
-                      <td>
-                        <p class="small">Total memory</p>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+          </div>      
+          <div class="row">
+            <div class="col-md-12">
+              <p><a href="/{{uid}}/processors">Processors</a></p>
             </div>
           </div>
+          <div class="thumbnail-graph" id="cpu-thumbnail-area">
+            
+          </div>        
+          <div class="row">
+            <div class="col-md-12">
+              <p><a href="/{{uid}}/memory">Detailed Memory</a></p>
+            </div>
+          </div>
+          <div class="thumbnail-graph" id="memory-thumbnail-area">
+            
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <p><a href="/{{uid}}/disk">Disk</a></p>
+            </div>
+          </div>
+          <div class="thumbnail-graph" id="disk-thumbnail-area">
+            
+          </div>        
+          <div class="row">
+            <div class="col-md-12">
+              <p><a href="/{{uid}}/network">Network</a></p>
+            </div>
+          </div>
+          <div class="thumbnail-graph" id="network-thumbnail-area">
+            
+          </div>                                  
         </div>
-        <div class="data-box" id="disk-box">
-          <div class="container-fluid">
-            <div class="row box-title">
-              <div class="col-lg-12">
-                <h4>Disk</h4>
-              </div>
-            </div>
+      </div>
+    </div>
+    <div class="col-lg-9">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="container-fluid data-box">
             <div class="row">
-              <div class="col-lg-12">
-                <table class="table">
-                  <tbody>
-                    <tr>
-                      <td width="20px"> <a href=""><b>/</b></a> </td>
-                      <td>
-                        <div class="progress">
-                          <div class="progress-bar progress-bar-used-disk" style="width: 65%">
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div class="col-md-1">
+                <p><a href="/{{uid}}">Overview</a></p>
               </div>
-            </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <h5>Partitions</h5>
+              <div class="col-md-1">
+                <p><a href="/{{uid}}/datapoints">Datapoints</a></p>
               </div>
-            </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <table class="table">
-                  <tbody>
-                    <tr>
-                      <td><a href=""><b>sda1</b></a> </td>
-                      <td>
-                        <div class="progress">
-                          <div class="progress-bar progress-bar-used-disk" style="width: 65%">
-                            <span>20G/80G</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td><a href=""><b>sda2</b></a> </td>
-                      <td>
-                        <div class="progress">
-                          <div class="progress-bar progress-bar-used-disk" style="width: 65%">
-                            <span>20G/80G</span>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div class="col-md-2">
+                <p><a href="/{{uid}}/graphs">Graphs</a></p>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="col-lg-6">
-        <div class="data-box" id="memory-box">
-          <div class="container-fluid">
-            <div class="row box-title">
-              <div class="col-lg-12">
-                <h4>Network</h4>
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="data-box" id="disk-box">
+            <div class="container-fluid">
+              <div class="row box-title">
+                <div class="col-lg-12">
+                  <h4>Processors</h4>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <div class="row" id="cpu-graph-area">
+                    
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="20px">
+                          <i class="fa fa-square" aria-hidden="true" style="color: #71D5C3;"></i>
+                        </td>
+                        <td>
+                          <p class="small">cpu idle</p>
+                        </td>
+                        <td width="20px">
+                          <i class="fa fa-square" aria-hidden="true" style="color: #009DB2;"></i>
+                        </td>
+                        <td>
+                          <p class="small">cpu interrupts</p>
+                        </td>
+                        <td width="20px">
+                          <i class="fa fa-square" aria-hidden="true" style="color: #f0e0a0;"></i>
+                        </td>
+                        <td>
+                          <p class="small">cpu nice</p>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
-            <div class="row" id="network-graph-area">
-            </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <table class="table">
-                  <tbody>
-                    <tr>
-                      <td width="20px">
-                        <i class="fa fa-square" aria-hidden="true" style="color: #F37372;"></i>
-                      </td>
-                      <td>
-                        <p class="small">Bytes In</p>
-                      </td>
-                      <td width="20px">
-                        <i class="fa fa-square" aria-hidden="true" style="color: #FA9469;"></i>
-                      </td>
-                      <td>
-                        <p class="small">Bytes Out</p>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+          </div>
+          <div class="data-box" id="memory-box">
+            <div class="container-fluid">
+              <div class="row box-title">
+                <div class="col-lg-12">
+                  <h4>Memory</h4>
+                </div>
               </div>
-            </div>            
+              <div class="row" id="memory-graph-area">
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="20px">
+                          <i class="fa fa-square" aria-hidden="true" style="color: #71D5C3;"></i>
+                        </td>
+                        <td>
+                          <p class="small">Used memory</p>
+                        </td>
+                        <td width="20px">
+                          <i class="fa fa-square" aria-hidden="true" style="color: #009DB2;"></i>
+                        </td>
+                        <td>
+                          <p class="small">Free memory</p>
+                        </td>
+                        <td width="20px">
+                          <i class="fa fa-square" aria-hidden="true" style="color: #f0e0a0;"></i>
+                        </td>
+                        <td>
+                          <p class="small">Total memory</p>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="data-box" id="memory-box">
-          <div class="container-fluid">
-            <div class="row box-title">
-              <div class="col-lg-12">
-                <h4>Load</h4>
+        <div class="col-lg-6">
+          <div class="data-box" id="memory-box">
+            <div class="container-fluid">
+              <div class="row box-title">
+                <div class="col-lg-12">
+                  <h4>Network</h4>
+                </div>
               </div>
+              <div class="row" id="network-graph-area">
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="20px">
+                          <i class="fa fa-square" aria-hidden="true" style="color: #BC71D5;"></i>
+                        </td>
+                        <td>
+                          <p class="small">Bytes In</p>
+                        </td>
+                        <td width="20px">
+                          <i class="fa fa-square" aria-hidden="true" style="color: #71D59E;"></i>
+                        </td>
+                        <td>
+                          <p class="small">Bytes Out</p>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>            
             </div>
-            <div class="row" id="load-graph-area">
-            </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <table class="table">
-                  <tbody>
-                    <tr>
-                      <td><i class="fa fa-square" aria-hidden="true" style="color: #FDBB5D;"></td>
-                      <td><p class="small">1 minute load avg</p></td>
-                      <td><i class="fa fa-square" aria-hidden="true" style="color: #FA9469;"></td>
-                      <td><p class="small">5 minute load avg</p></td>
-                      <td><i class="fa fa-square" aria-hidden="true" style="color: #F37372;"></td>
-                      <td><p class="small">15 minute load avg</p></td>
-                    </tr>
-                  </tbody>
-                </table>
+          </div>
+          <div class="data-box" id="memory-box">
+            <div class="container-fluid">
+              <div class="row box-title">
+                <div class="col-lg-12">
+                  <h4>Load</h4>
+                </div>
+              </div>
+              <div class="row" id="load-graph-area">
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td><i class="fa fa-square" aria-hidden="true" style="color: #FDBB5D;"></td>
+                        <td><p class="small">1 minute load avg</p></td>
+                        <td><i class="fa fa-square" aria-hidden="true" style="color: #FA9469;"></td>
+                        <td><p class="small">5 minute load avg</p></td>
+                        <td><i class="fa fa-square" aria-hidden="true" style="color: #F37372;"></td>
+                        <td><p class="small">15 minute load avg</p></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  {% endif %}
 </div>
 <script type="text/javascript">
     {% for datapoint_name, value in data.items() %}
@@ -280,5 +364,6 @@
     StackedArea("{{uid}}","memory", "#memory-graph-area", 630, 240, "#00c8a4");
     StackedArea("{{uid}}","load", "#load-graph-area", 630, 240, "#00c8a4");
     StackedArea("{{uid}}","network", "#network-graph-area", 630, 240, "#00c8a4");
+    StackedArea("{{uid}}","cpu", "#cpu-graph-area", 630, 240, "#00c8a4");
 </script>
 {% endblock %}

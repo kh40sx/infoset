@@ -18,6 +18,7 @@ from infoset.db.db_agent import GetUID
 from infoset.db.db_data import GetIDX
 from infoset.db.db_agent import GetDataPoint
 from infoset.db.db_orm import Agent
+from infoset.db.db_orm import Host
 from infoset.db.db_datapoint import GetSingleDataPoint
 from infoset.db.db_chart import Chart
 from infoset.db import db_hostagent
@@ -70,6 +71,11 @@ def index():
     idx_agent = agent.idx()
     host = _infoset_hostname()
 
+    #host = 'interface'
+    """
+    ip="192.168.1.1"
+    host="interface"
+    """
     agent_list = [agent.everything()]
     datapoints = GetDataPoint(idx_agent)
     data_point_dict = datapoints.everything()
@@ -114,11 +120,11 @@ def datapoints(uid):
 def search():
     database = Database()
     session = database.session()
-    agent_list = []
-    for agent in session.query(Agent):
-        agent_list.append(agent)
+    host_list = []
+    for host in session.query(Host):
+        host_list.append(host)
     return render_template('search.html',
-                            agent_list=agent_list)
+                            host_list=host_list)
 
 @infoset.route('/hosts/<host>')
 def host(host):
@@ -214,6 +220,7 @@ def graphs(uid, datapoint):
     fill = colorwheel.get_scheme()
     preset = TimeStamp()
     timestamps = preset.get_times()
+    print(timestamps)
     return render_template('graphs.html',
                            timestamps=timestamps,
                            uid=uid_fixed,
@@ -356,13 +363,15 @@ def fetch_graph_stacked(uid, stack_type):
     # Determine what kind of stacked chart to make
     # Memory, Load, Bytes In/Out, CPU
     
-    memory_datapoints, load_datapoints, network_datapoints = get_stacked(uid)
+    memory_datapoints, load_datapoints, network_datapoints, processor_datapoints = get_stacked(uid)
     if "memory" in stack_type:
         #Do memory
         datapoint_list = memory_datapoints
         colors = ['#71D5C3', '#009DB2', '#21D5C3', '#98e1d4', '#f0e0a0']
     elif "cpu" in stack_type:
         #Do cpu
+        datapoint_list = processor_datapoints
+        colors = ['#71D5C3', '#009DB2', '#21D5C3']        
         pass
     elif "load" in stack_type:
         #Do load
@@ -371,7 +380,7 @@ def fetch_graph_stacked(uid, stack_type):
         pass
     elif "network" in stack_type:
         #Do network
-        colors = ['#F37372','#FA9469', '#FDBB5D']
+        colors = ['#BC71D5','#71D59E']
         datapoint_list = network_datapoints
         pass
     elif "disk" in stack_type:
@@ -382,6 +391,7 @@ def fetch_graph_stacked(uid, stack_type):
     for datapoint in datapoint_list:
         get_idx = GetIDX(datapoint)
         data = get_idx.chart_everything()
+        pprint.pprint(data)
         values.extend(data)
 
     return jsonify(values)
@@ -392,10 +402,12 @@ def get_stacked(uid):
      'memory_inactive', 'memory_buffers', 'memory_cached', 'memory_shared']
     load = ['load_average_01min', 'load_average_05min', 'load_average_15min']
     network = ['network_bytes_sent', 'network_bytes']
+    processor = ['cpu_idle', 'cpu_steal', 'cpu_interrupts']
     
     memory_datapoints = []
     load_datapoints = []
     network_datapoints = []
+    processor_datapoints = []
 
     agent = GetUID(uid)
     datapoints = GetDataPoint(agent.idx())
@@ -408,7 +420,9 @@ def get_stacked(uid):
             load_datapoints.append(value[0])
         if datapoint in network:
             network_datapoints.append(value[0])
-    return (memory_datapoints, load_datapoints, network_datapoints)                        
+        if datapoint in processor:
+            processor_datapoints.append(value[0])            
+    return (memory_datapoints, load_datapoints, network_datapoints, processor_datapoints)                        
 
 
 @infoset.route('/fetch/agent/<ip>/table', methods=["GET"])

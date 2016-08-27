@@ -115,11 +115,14 @@ function StackedArea(uid, datapoint, target, width, height, colors){
 	var z = d3.scale.category20c();
 	
 	if (datapoint === "memory") {
-		colors = ['#71D5C3', '#009DB2', '#21D5C3', '#98e1d4', '#f0e0a0'];		
+		colors = ['#71D5C3', '#009DB2', '#21D5C3', '#98e1d4', '#f0e0a0', '#e0e0a0', '#d0e0a0'];		
 	} else if (datapoint === "load") {
         colors = ['#F37372','#FA9469','#FDBB5D']
+	} else if (datapoint === 'cpu') {
+		colors = ['#71D5C3', '#009DB2', '#21D5C3']        
+	} else if (datapoint === 'network' ) {
+		colors = ['#BC71D5','#71D59E','#61D59E']
 	}
-
 
 	var xAxis = d3.svg.axis()
 	    .scale(x)
