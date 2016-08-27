@@ -13,7 +13,6 @@ Description:
 """
 # Standard libraries
 import sys
-import os
 import logging
 import socket
 from time import sleep
@@ -60,9 +59,7 @@ class PollingAgent(object):
         self.agent_name = 'linux_in'
 
         # Get configuration
-        config_dir = os.environ['INFOSET_CONFIGDIR']
-        self.config = jm_configuration.ConfigAgent(
-            config_dir, self.agent_name)
+        self.config = jm_configuration.ConfigAgent(self.agent_name)
 
     def name(self):
         """Return agent name.

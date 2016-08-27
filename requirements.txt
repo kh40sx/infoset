@@ -20,6 +20,7 @@ ply>=3.8
 psutil>=4.3.0
 pyasn1>=0.1.9
 pycrypto>=2.6.1
+pyflakes
 pylint>=1.6.4
 PyMySQL>=0.7.6
 pysmi>=0.0.7
@@ -32,4 +33,3 @@ six>=1.10.0
 SQLAlchemy>=1.0.14
 Werkzeug>=0.11.10
 wrapt>=1.10.8
-matplotlib>=1.5.1
