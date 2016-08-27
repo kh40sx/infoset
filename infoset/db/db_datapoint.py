@@ -7,6 +7,9 @@ Classes for agent data
 # Python standard libraries
 from collections import defaultdict
 
+# PIP libraries
+from sqlalchemy import and_
+
 # Infoset libraries
 from infoset.utils import log
 from infoset.utils import jm_general
@@ -42,7 +45,7 @@ class GetSingleDataPoint(object):
         self.data_dict = defaultdict(dict)
 
         # Establish a database session
-       
+
         database = db.Database()
         session = database.session()
         result = session.query(Datapoint).filter(Datapoint.idx == idx)
@@ -716,28 +719,61 @@ def idx_exists(idx):
     return found
 
 
-def datapoint_indices(idx_host):
+def datapoint_host_idx(idx_host):
     """Get list of all datapoint indexes for a specific host_idx.
 
     Args:
-        None
+        idx_host: Host index
 
     Returns:
         listing: List of indexes
 
     """
+    # Initialize key variables
     idx_list = []
 
     # Establish a database session
     database = db.Database()
     session = database.session()
-    result = session.query(Datapoint.idx_host).filter(
+    result = session.query(Datapoint.idx).filter(
         Datapoint.idx_host == idx_host)
     session.close()
 
     # Add to the list of host idx values
     for instance in result:
-        idx_list.append(instance.idx_agent)
+        idx_list.append(instance.idx)
+
+    # Return
+    return idx_list
+
+
+def datapoint_host_agent_idx(idx_host, idx_agent):
+    """List datapoint indexes for a specific host_idx, idx_agent combination.
+
+    Args:
+        idx_host: Host index
+        idx_agent: Agent index
+
+    Returns:
+        listing: List of indexes
+
+    """
+    # Initialize key variables
+    idx_list = []
+
+    # Establish a database session
+    database = db.Database()
+    session = database.session()
+    result = session.query(Datapoint.idx).filter(
+        and_(
+            Datapoint.idx_host == idx_host,
+            Datapoint.idx_agent == idx_agent)
+        )
+    session.close()
+
+    # Add to the list of host idx values
+    for instance in result:
+        idx_list.append(instance.idx)
 
     # Return
     return idx_list
