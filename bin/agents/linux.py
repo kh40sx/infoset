@@ -11,7 +11,6 @@ Description:
 """
 # Standard libraries
 import sys
-import os
 import json
 import logging
 from time import sleep
@@ -26,7 +25,6 @@ except:
     print('You need to set your PYTHONPATH to include the infoset library')
     sys.exit(2)
 from infoset.utils import jm_configuration
-from infoset.utils import log
 
 logging.getLogger('requests').setLevel(logging.WARNING)
 logging.basicConfig(level=logging.DEBUG)
@@ -61,9 +59,7 @@ class PollingAgent(object):
         self.agent_name = 'linux'
 
         # Get configuration
-        config_dir = os.environ['INFOSET_CONFIGDIR']
-        self.config = jm_configuration.ConfigAgent(
-            config_dir, self.agent_name)
+        self.config = jm_configuration.ConfigAgent(self.agent_name)
 
     def name(self):
         """Return agent name.
@@ -151,9 +147,7 @@ class Poller(object):
         self.hostname = hostname
 
         # Get configuration
-        config_dir = os.environ['INFOSET_CONFIGDIR']
-        self.config = jm_configuration.ConfigAgent(
-            config_dir, self.agent_name)
+        self.config = jm_configuration.ConfigAgent(self.agent_name)
 
     def query(self):
         """Query all remote hosts for data.

@@ -2,12 +2,12 @@
 """Nagios check general library."""
 
 import sys
-import os
 import datetime
 import time
 import getpass
 import logging
 import threading
+import traceback
 
 
 # Infoset libraries
@@ -46,42 +46,11 @@ class LogThread(threading.Thread):
             self._real_run()
         except:
             # logging.exception('Exception during LogThread.run')
-            log2warn(1101, ('%s\n%s\n%s') % (
+            log2warn(1101, ('%s\n%s\n%s\n%s') % (
                 sys.exc_info()[0],
                 sys.exc_info()[1],
-                sys.exc_info()[2]))
-
-
-def check_environment():
-    """Check environmental variables. Die if incorrect.
-
-    Args:
-        None
-
-    Returns:
-        path: Path to config directory
-
-    """
-    # Get environment
-    if 'INFOSET_CONFIGDIR' not in os.environ:
-        log_message = (
-            'Environment variables $INFOSET_CONFIGDIR needs '
-            'to be set to the infoset configuration directory.')
-        log2die_safe(1041, log_message)
-
-    # Verify configuration directory
-    config_directory = os.environ['INFOSET_CONFIGDIR']
-    if (os.path.exists(config_directory) is False) or (
-            os.path.isdir(config_directory) is False):
-        log_message = (
-            'Environment variables $INFOSET_CONFIGDIR set to '
-            'directory %s that does not exist'
-            '') % (config_directory)
-        log2die_safe(1042, log_message)
-
-    # Return
-    path = os.environ['INFOSET_CONFIGDIR']
-    return path
+                sys.exc_info()[2],
+                traceback.print_exc()))
 
 
 def log2die_safe(code, message):
@@ -178,8 +147,7 @@ def _logit(error_num, error_string, error=False, verbose=False):
     username = getpass.getuser()
 
     # Get the logging directory
-    config_directory = check_environment()
-    config = jm_configuration.Config(config_directory)
+    config = jm_configuration.Config()
     log_file = config.log_file()
 
     # create logger

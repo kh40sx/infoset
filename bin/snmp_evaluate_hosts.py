@@ -6,7 +6,6 @@ Extracts agent data from cache directory files.
 """
 
 # Standard libraries
-import os
 import argparse
 import textwrap
 
@@ -73,9 +72,7 @@ def main():
     cli_args = cli()
 
     # Get configuration
-    config_dir = os.environ['INFOSET_CONFIGDIR']
-    config = jm_configuration.ConfigAgent(
-        config_dir, agent_name)
+    config = jm_configuration.ConfigAgent(agent_name)
 
     # Get hosts
     if cli_args.hostname.lower() == 'all':
@@ -99,7 +96,7 @@ def main():
     # Process each hostname
     for hostname in hostnames:
         # Get SNMP information
-        snmp_config = jm_configuration.ConfigSNMP(config_dir)
+        snmp_config = jm_configuration.ConfigSNMP()
         validate = snmp_manager.Validate(hostname, snmp_config.snmp_auth())
         snmp_params = validate.credentials()
 

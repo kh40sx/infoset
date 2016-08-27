@@ -30,20 +30,16 @@ def process():
         None
 
     """
-    # Initialize key variables
-    root_dir = jm_general.root_directory()
-    config_directory = os.environ['INFOSET_CONFIGDIR']
-
     # Get list of configured agents
-    config = jm_configuration.Config(config_directory)
+    config = jm_configuration.Config()
     agents = config.agents()
+    root_dir = jm_general.root_directory()
 
     # Process each agent
     for agent_dict in agents:
         # Get agent_name
         agent_name = agent_dict['agent_name']
-        agentconfig = jm_configuration.ConfigAgent(
-            config_directory, agent_name)
+        agentconfig = jm_configuration.ConfigAgent(agent_name)
         agent_filename = agentconfig.agent_filename()
 
         # Get agent status variables
@@ -108,7 +104,7 @@ def _stop(agent_filepath, agent_name):
         'Stopping agent "%s" as it is disabled, but running.'
         '') % (agent_name)
     log.log2quiet(1033, log_message)
-    command2run = ('%s --stop') % (agent_filepath)
+    command2run = ('%s --stop --force') % (agent_filepath)
     _execute(command2run)
 
 

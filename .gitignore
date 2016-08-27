@@ -33,12 +33,13 @@ __pycache__/
 
 # Ignore files in these directories and ALL subdirectories
 data/**
+etc/**
 www/static/img/**
 bin/agents/non-standard/**
 
 # Ignore files in these directories,  _BUT_
 # their subdirectories will be placed in the repository.
-etc/*
+foo/*
 
 # Distribution / packaging
 .Python
@@ -81,6 +82,8 @@ pip-selfcheck.json
 !data/aux/.gitignore
 !www/static/.gitignore
 !.gitignore
+!README
+!*.md
 
 #############################################################################
 # </Developer Section>
