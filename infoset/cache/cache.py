@@ -51,6 +51,9 @@ class ProcessUID(LogThread):
     def run(self):
         """Update the database using threads."""
         while True:
+            # Initialize key variables
+            hostname = None
+
             # Get the data_dict
             data_dict = self.queue.get()
             uid = data_dict['uid']
@@ -96,7 +99,10 @@ class ProcessUID(LogThread):
 
             # Update the last time the agent was contacted
             _update_agent_last_update(uid, max_timestamp)
-            _host_agent_last_update(hostname, uid, max_timestamp)
+
+            # Update the host / agent table timestamp if hostname was processed
+            if hostname is not None:
+                _host_agent_last_update(hostname, uid, max_timestamp)
 
             # All done!
             self.queue.task_done()
