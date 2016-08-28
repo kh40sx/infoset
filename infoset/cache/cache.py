@@ -442,11 +442,6 @@ def _host_agent_last_update(hostname, uid, last_timestamp):
     idx_agent = agent.GetUID(uid).idx()
     idx_host = dhost.GetHost(hostname).idx()
 
-    log_message = (
-        'idx_agent %s, idx_host %s, hostname %s, uid %s'
-        '') % (idx_agent, idx_host, hostname, uid)
-    log.log2warn(10101010101010101, log_message)
-
     # Update database
     database = db.Database()
     session = database.session()
@@ -455,7 +450,7 @@ def _host_agent_last_update(hostname, uid, last_timestamp):
             HostAgent.idx_host == idx_host,
             HostAgent.idx_agent == idx_agent)).one()
     record.last_timestamp = last_timestamp
-    database.commit(session, 1037)
+    database.commit(session, 1042)
 
 
 def _update_agent_last_update(uid, last_timestamp):

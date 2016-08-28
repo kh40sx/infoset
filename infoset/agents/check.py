@@ -104,6 +104,7 @@ def _check_when_enabled(agent_name):
     agent_filepath = ('%s/%s') % (root_dir, agent_filename)
     pid = hidden.File()
     pidfile = pid.pid(agent_name)
+    lockfile = pid.lock(agent_name)
 
     # Ignore agents that cannot be found
     if os.path.isfile(agent_filepath) is False:
@@ -125,7 +126,7 @@ def _check_when_enabled(agent_name):
             log_message = (
                 'Agent "%s" is dead. Attempting to restart.'
                 '') % (agent_name)
-            log.log2quiet(1076, log_message)
+            log.log2quiet(1041, log_message)
 
             # Remove PID file and restart
             os.remove(pidfile)
@@ -139,7 +140,16 @@ def _check_when_enabled(agent_name):
                 except OSError:
                     mtime = 0
                 if mtime < int(time.time()) - (60 * 10):
+                    log_message = (
+                        'Agent "%s" is hung. Attempting to restart.'
+                        '') % (agent_name)
+                    log.log2quiet(1076, log_message)
                     _restart(agent_filepath, agent_name)
+    else:
+        if os.path.isfile(lockfile) is True:
+            _restart(agent_filepath, agent_name)
+        else:
+            _start(agent_filepath, agent_name)
 
 
 def _stop(agent_filepath, agent_name):
@@ -155,10 +165,30 @@ def _stop(agent_filepath, agent_name):
     """
     # Restart
     log_message = (
-        'Stopping agent "%s" as it is disabled, but running.'
+        'Stopping agent "%s".'
         '') % (agent_name)
     log.log2quiet(1033, log_message)
     command2run = ('%s --stop --force') % (agent_filepath)
+    _execute(command2run)
+
+
+def _start(agent_filepath, agent_name):
+    """Start agent.
+
+    Args:
+        agent_filepath: Filepath of agent to be started.
+        agent_name: Agent name
+
+    Returns:
+        None
+
+    """
+    # Start
+    log_message = (
+        'Starting agent "%s".'
+        '') % (agent_name)
+    log.log2quiet(1077, log_message)
+    command2run = ('%s --start') % (agent_filepath)
     _execute(command2run)
 
 
@@ -174,12 +204,8 @@ def _restart(agent_filepath, agent_name):
 
     """
     # Restart
-    log_message = (
-        'Starting agent "%s" as it is enabled, but stopped.'
-        '') % (agent_name)
-    log.log2quiet(1077, log_message)
-    command2run = ('%s --start') % (agent_filepath)
-    _execute(command2run)
+    _stop(agent_filepath, agent_name)
+    _start(agent_filepath, agent_name)
 
 
 def _execute(command):

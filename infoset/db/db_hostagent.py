@@ -58,7 +58,7 @@ class GetIDX(object):
             log_message = (
                 'Host IDX %s Agent IDX %s not found in iset_hostagent table.'
                 '') % (idx_host, idx_agent)
-            log.log2die(1085, log_message)
+            log.log2die(1105, log_message)
 
         # Return the session to the database pool after processing
         session.close()
