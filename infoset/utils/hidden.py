@@ -1,6 +1,7 @@
 """Generic classes for creating hidden files and directories."""
 
 import os
+import time
 
 # Infoset imports
 from infoset.utils import log
@@ -155,6 +156,38 @@ class File:
         _mkdir(self.directory.lock())
         value = ('%s/%s.lock') % (self.directory.lock(), prefix)
         return value
+
+
+class Touch:
+    """A class for updating modifed times for hidden files."""
+
+    def __init__(self):
+        """Method for intializing the class.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Initialize key variables
+        self.filez = File()
+
+    def pid(self, prefix):
+        """Method for updating the hidden pid file.
+
+        Args:
+            prefix: Prefix of file
+
+        Returns:
+            value: uid directory
+
+        """
+        # Return
+        timestamp = int(time.time())
+        filename = self.filez.pid(prefix)
+        os.utime(filename, (timestamp, timestamp))
 
 
 def _mkdir(directory):

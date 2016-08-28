@@ -30,15 +30,18 @@ agents:
     - agent_name: _infoset
       agent_enabled: True
       agent_filename: bin/agents/_infoset.py
+      monitor_agent_pid: True
 
     - agent_name: ingestd
       agent_enabled: True
       agent_filename: bin/agents/ingestd.py
+      monitor_agent_pid: True
 
     - agent_name: linux
       agent_enabled: False
       agent_filename: bin/agents/linux.py
       agent_port: 5001
+      monitor_agent_pid: True
       agent_hostnames:
         - 192.168.3.100
 
@@ -53,6 +56,7 @@ agents:
     - agent_name: snmp
       agent_enabled: False
       agent_filename: bin/agents/snmp.py
+      monitor_agent_pid: True
       agent_hostnames:
         - 192.168.3.100
 

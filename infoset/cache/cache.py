@@ -13,6 +13,8 @@ import shutil
 from collections import defaultdict
 import queue as Queue
 import re
+
+# PIP libraries
 from sqlalchemy import and_
 
 # Infoset libraries
@@ -86,11 +88,15 @@ class ProcessUID(LogThread):
                 # Get the max timestamp
                 max_timestamp = max(timestamp, max_timestamp)
 
+                # Get hostname
+                hostname = ingest.hostname()
+
                 # Purge source file
                 ingest.purge()
 
             # Update the last time the agent was contacted
             _update_agent_last_update(uid, max_timestamp)
+            _host_agent_last_update(hostname, uid, max_timestamp)
 
             # All done!
             self.queue.task_done()
@@ -418,6 +424,38 @@ def _datapoints_by_did(idx_agent):
 
     # Return
     return data
+
+
+def _host_agent_last_update(hostname, uid, last_timestamp):
+    """Insert new datapoint into database.
+
+    Args:
+        uid: UID of agent
+        last_timestamp: The last time a DID for the agent was updated
+            in the database
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    idx_agent = agent.GetUID(uid).idx()
+    idx_host = dhost.GetHost(hostname).idx()
+
+    log_message = (
+        'idx_agent %s, idx_host %s, hostname %s, uid %s'
+        '') % (idx_agent, idx_host, hostname, uid)
+    log.log2warn(10101010101010101, log_message)
+
+    # Update database
+    database = db.Database()
+    session = database.session()
+    record = session.query(HostAgent).filter(
+        and_(
+            HostAgent.idx_host == idx_host,
+            HostAgent.idx_agent == idx_agent)).one()
+    record.last_timestamp = last_timestamp
+    database.commit(session, 1037)
 
 
 def _update_agent_last_update(uid, last_timestamp):

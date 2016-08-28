@@ -13,9 +13,7 @@ Description:
 """
 # Standard libraries
 import sys
-import socket
 import logging
-from time import sleep
 
 # infoset libraries
 try:
@@ -24,11 +22,8 @@ except:
     print('You need to set your PYTHONPATH to include the infoset library')
     sys.exit(2)
 from infoset.utils import jm_configuration
-from infoset.utils import hidden
-from infoset.agents import data_linux
-
-logging.getLogger('requests').setLevel(logging.WARNING)
-logging.basicConfig(level=logging.DEBUG)
+from infoset.utils import log
+from www import infoset
 
 
 class PollingAgent(object):
@@ -57,7 +52,7 @@ class PollingAgent(object):
 
         """
         # Initialize key variables
-        self.agent_name = '_infoset'
+        self.agent_name = 'serverd'
 
         # Get configuration
         self.config = jm_configuration.ConfigAgent(self.agent_name)
@@ -86,42 +81,18 @@ class PollingAgent(object):
             None
 
         """
-        # Post data to the remote server
-        while True:
-            self.upload()
-
-            # Update the PID file timestamp (important)
-            update = hidden.Touch()
-            update.pid(self.name())
-
-            # Sleep
-            sleep(300)
-
-    def upload(self):
-        """Post system data to the central server.
-
-        Args:
-            None
-
-        Returns:
-            None
-
-        """
-        # Get hostname
-        hostname = socket.getfqdn()
-
         # Initialize key variables
-        agent = Agent.Agent(self.config, hostname)
+        port = self.config.agent_port()
 
-        # Update agent with linux data
-        data_linux.getall(agent)
+        # Set logging
+        log_file = self.config.log_file()
+        logging.basicConfig(filename=log_file, level=logging.DEBUG)
 
-        # Post data
-        success = agent.post()
-
-        # Purge cache if success is True
-        if success is True:
-            agent.purge()
+        # Post data to the remote server
+        log.log2warn(101010101010101010101010101010101, 'boo')
+        infoset.run(
+            debug=True, host='0.0.0.0',
+            threaded=True, port=port)
 
 
 def main():
