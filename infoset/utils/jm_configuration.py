@@ -613,7 +613,27 @@ class ConfigAgent(object):
 
         # Get result
         if 'agent_enabled' in agent_config:
-            result = agent_config['agent_enabled']
+            result = bool(agent_config['agent_enabled'])
+        else:
+            result = False
+        return result
+
+    def monitor_agent_pid(self):
+        """Get monitor_agent_pid.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get config
+        agent_config = _agent_config(self.agent_name(), self.config_dict)
+
+        # Get result
+        if 'monitor_agent_pid' in agent_config:
+            result = bool(agent_config['monitor_agent_pid'])
         else:
             result = False
         return result

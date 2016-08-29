@@ -25,6 +25,7 @@ except:
     print('You need to set your PYTHONPATH to include the infoset library')
     sys.exit(2)
 from infoset.utils import jm_configuration
+from infoset.utils import hidden
 
 logging.getLogger('requests').setLevel(logging.WARNING)
 logging.basicConfig(level=logging.DEBUG)
@@ -91,6 +92,10 @@ class PollingAgent(object):
 
             # Sleep
             sleep(300)
+
+            # Update the PID file timestamp (important)
+            update = hidden.Touch()
+            update.pid(self.name())
 
     def _poll(self):
         """Query all remote hosts for data.
