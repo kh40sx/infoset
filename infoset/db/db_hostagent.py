@@ -15,7 +15,7 @@ from infoset.db.db_orm import HostAgent
 from infoset.utils import log
 
 
-class GetIDX(object):
+class GetHostAgent(object):
     """Class to return HostAgent data by host and agent idx.
 
     Args:

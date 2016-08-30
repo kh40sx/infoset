@@ -15,6 +15,8 @@ from flask import render_template, jsonify, send_file, request, make_response
 
 # Infoset imports
 from infoset.db.db_agent import GetUID
+from infoset.db.db_hostagent import GetHostAgent
+import infoset.db.db_hostagent
 from infoset.db.db_data import GetIDX
 from infoset.db.db_agent import GetDataPoint
 from infoset.db.db_orm import Agent
@@ -73,7 +75,7 @@ def index():
 
     #host = 'interface'
     """
-    ip="192.168.1.1"
+    ip="192.168.1.1"d
     host="interface"
     """
     agent_list = [agent.everything()]
@@ -107,11 +109,21 @@ def datapoints(uid):
     agent = GetUID(uid)
     host = _infoset_hostname()
     agent_list = [agent.everything()]
+
+    lang = language.Agent(agent.name())
+
     datapoints = GetDataPoint(agent.idx())
     data_point_dict = datapoints.everything()
 
+    agent_desc_dict = {}
+    for datapoint_name, value in data_point_dict.items():
+        label = lang.label_description(datapoint_name)
+        if label is None:
+            print(datapoint_name)
+        agent_desc_dict[value[0]] = lang.label_description(datapoint_name)
+
     return render_template('datapoints.html',
-                           data=data_point_dict,
+                           data=agent_desc_dict,
                            agent_list=agent_list,
                            uid=uid,
                            hostname=host)
@@ -120,11 +132,19 @@ def datapoints(uid):
 def search():
     database = Database()
     session = database.session()
+    host_idx = []
     host_list = []
+    agent_list = []
     for host in session.query(Host):
         host_list.append(host)
+        idx_list = db_hostagent.agent_indices(host.idx)
+        for idx in idx_list:
+            agent = session.query(Agent).filter(Agent.idx == idx).one()
+            agent_list.append(agent)
+        print(agent_list)
     return render_template('search.html',
-                            host_list=host_list)
+                            host_list=host_list,
+                            agent_list=agent_list)
 
 @infoset.route('/hosts/<host>')
 def host(host):
@@ -391,7 +411,6 @@ def fetch_graph_stacked(uid, stack_type):
     for datapoint in datapoint_list:
         get_idx = GetIDX(datapoint)
         data = get_idx.chart_everything()
-        pprint.pprint(data)
         values.extend(data)
 
     return jsonify(values)
@@ -402,7 +421,7 @@ def get_stacked(uid):
      'memory_inactive', 'memory_buffers', 'memory_cached', 'memory_shared']
     load = ['load_average_01min', 'load_average_05min', 'load_average_15min']
     network = ['network_bytes_sent', 'network_bytes']
-    processor = ['cpu_idle', 'cpu_steal', 'cpu_interrupts']
+    processor = ['cpu_times_percent_idle', 'cpu__times_percent_steal', 'cpu_times_percent_interrupts']
     
     memory_datapoints = []
     load_datapoints = []

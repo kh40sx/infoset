@@ -4,7 +4,14 @@
   <div class="col-lg-3">
       <div class="data-box" id="home-box">
         <div class="container-fluid">
-          {{ hostname }}
+          <div class="row">
+            <div class="col-lg-3">
+              <p><b>Host Name:</b></p>
+            </div>
+            <div class="col-lg-9">
+              {{ hostname }}              
+            </div>            
+          </div>
         </div>
       </div>
       <div class="data-box" id="home-box">
@@ -21,35 +28,15 @@
               <h5>More Graphs</h5>
             </div>
           </div>      
-          <div class="row">
-            <div class="col-md-12">
-              <p><a href="/{{uid}}/processors">Processors</a></p>
-            </div>
-          </div>
           <div class="thumbnail-graph" id="cpu-thumbnail-area">
             
           </div>        
-          <div class="row">
-            <div class="col-md-12">
-              <p><a href="/{{uid}}/memory">Detailed Memory</a></p>
-            </div>
-          </div>
           <div class="thumbnail-graph" id="memory-thumbnail-area">
             
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <p><a href="/{{uid}}/disk">Disk</a></p>
-            </div>
           </div>
           <div class="thumbnail-graph" id="disk-thumbnail-area">
             
           </div>        
-          <div class="row">
-            <div class="col-md-12">
-              <p><a href="/{{uid}}/network">Network</a></p>
-            </div>
-          </div>
           <div class="thumbnail-graph" id="network-thumbnail-area">
             
           </div>                                  
@@ -94,12 +81,34 @@
           }
         });
       });
+
+    {% for datapoint_name, value in data.items() %}
+      {% if "memory_available" in datapoint_name %}
+        AreaChart("{{uid}}", "{{value[0]}}", "#memory-thumbnail-area", 390, 160, "#00c8a4");
+      {% endif %}
+      {% if "load_average_01min" in datapoint_name %}
+        AreaChart("{{uid}}", "{{value[0]}}", "#cpu-thumbnail-area", 390, 160, "#F37372");
+      {% endif %}
+      {% if "disk_usage_total" in datapoint_name %}
+        AreaChart("{{uid}}", "{{value[0]}}", "#disk-thumbnail-area", 390, 160, "#009DB2");
+      {% endif %}
+      {% if "network_packets_sent" in datapoint_name %}
+        AreaChart("{{uid}}", "{{value[0]}}", "#network-thumbnail-area", 390, 160, "#009DB2");      
+      {% endif %}
+    {% endfor %}
     </script>
   {% else %} 
     <div class="col-lg-3">
       <div class="data-box" id="home-box">
         <div class="container-fluid">
-          {{ hostname }}
+          <div class="row">
+            <div class="col-lg-4">
+              <p><b>Host Name:</b></p>
+            </div>
+            <div class="col-lg-8">
+              {{ hostname }}              
+            </div>            
+          </div>
         </div>
       </div>
       <div class="data-box" id="home-box">
@@ -114,22 +123,6 @@
                 <td>Operating system</td>
                 <td>{{ data['distribution'][1] }}</td>
               </tr>
-              <tr>
-                <td>System name</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>Contact</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>Location</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>Uptime</td>
-                <td></td>
-              </tr>
             </tbody>
           </table>
         </div>
@@ -141,35 +134,15 @@
               <h5>More Graphs</h5>
             </div>
           </div>      
-          <div class="row">
-            <div class="col-md-12">
-              <p><a href="/{{uid}}/processors">Processors</a></p>
-            </div>
-          </div>
           <div class="thumbnail-graph" id="cpu-thumbnail-area">
             
           </div>        
-          <div class="row">
-            <div class="col-md-12">
-              <p><a href="/{{uid}}/memory">Detailed Memory</a></p>
-            </div>
-          </div>
           <div class="thumbnail-graph" id="memory-thumbnail-area">
             
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <p><a href="/{{uid}}/disk">Disk</a></p>
-            </div>
           </div>
           <div class="thumbnail-graph" id="disk-thumbnail-area">
             
           </div>        
-          <div class="row">
-            <div class="col-md-12">
-              <p><a href="/{{uid}}/network">Network</a></p>
-            </div>
-          </div>
           <div class="thumbnail-graph" id="network-thumbnail-area">
             
           </div>                                  
@@ -200,7 +173,7 @@
             <div class="container-fluid">
               <div class="row box-title">
                 <div class="col-lg-12">
-                  <h4>Processors</h4>
+                  <h4>CPU Utilization Percentage</h4>
                 </div>
               </div>
               <div class="row">
@@ -244,7 +217,7 @@
             <div class="container-fluid">
               <div class="row box-title">
                 <div class="col-lg-12">
-                  <h4>Memory</h4>
+                  <h4>Memory Utilization</h4>
                 </div>
               </div>
               <div class="row" id="memory-graph-area">
@@ -285,7 +258,7 @@
             <div class="container-fluid">
               <div class="row box-title">
                 <div class="col-lg-12">
-                  <h4>Network</h4>
+                  <h4>Network Bandwidth</h4>
                 </div>
               </div>
               <div class="row" id="network-graph-area">
@@ -318,7 +291,7 @@
             <div class="container-fluid">
               <div class="row box-title">
                 <div class="col-lg-12">
-                  <h4>Load</h4>
+                  <h4>CPU Load Average</h4>
                 </div>
               </div>
               <div class="row" id="load-graph-area">
@@ -347,17 +320,19 @@
   {% endif %}
 </div>
 <script type="text/javascript">
+
     {% for datapoint_name, value in data.items() %}
       {% if "memory_available" in datapoint_name %}
         AreaChart("{{uid}}", "{{value[0]}}", "#memory-thumbnail-area", 390, 160, "#00c8a4");
       {% endif %}
-      {% if "cpu_idle" in datapoint_name %}
-        AreaChart("{{uid}}", "139", "#cpu-thumbnail-area", 390, 160, "#009DB2");
+      {% if "load_average_01min" in datapoint_name %}
+        AreaChart("{{uid}}", "{{value[0]}}", "#cpu-thumbnail-area", 390, 160, "#F37372");
       {% endif %}
       {% if "disk_usage_total" in datapoint_name %}
         AreaChart("{{uid}}", "{{value[0]}}", "#disk-thumbnail-area", 390, 160, "#009DB2");
       {% endif %}
       {% if "network_packets_sent" in datapoint_name %}
+        AreaChart("{{uid}}", "{{value[0]}}", "#network-thumbnail-area", 390, 160, "#009DB2");      
       {% endif %}
     {% endfor %}
     
