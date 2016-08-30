@@ -90,6 +90,15 @@ def index():
 
 @infoset.route('/<uid>')
 def overview(uid):
+    """Function for handling Agent route.
+
+    Args:
+        None
+
+    Returns:
+        Agent Overview Page
+
+    """
     # Get agent information
     agent = GetUID(uid)
     host = _infoset_hostname()
