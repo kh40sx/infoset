@@ -14,13 +14,23 @@
 							<input type="" name="" class="form-control" placeholder="Host Name">
 						</div>
 						<div class="col-md-6 form-group">
+							<input type="" name="" class="form-control" placeholder="System Name">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-6 form-group">
 							<select class="form-control">
 								<option>Operating System</option>
 							</select>
 						</div>
+						<div class="col-md-6">
+						</div>
 					</div>
 				</form>
 				<div class="row">
+					<div class="col-md-6">
+						<input type="" name="" class="form-control" placeholder="Hardware">
+					</div>
 					<div class="col-md-6">
 						<button class="btn btn-primary">Search</button>
 					</div>
@@ -31,34 +41,23 @@
 	<div class="col-lg-8">
 		<div class="row">
 			<div class="data-box">
-				<table class="table table-striped" id="accordion" aria-multiselectable="true">
+				<table class="table table-striped">
 					<thead>
 						<tr>
+							<td>Agent Name</td>
 							<td>Host Name</td>
-							<td>IP Address</td>
 							<td>Description</td>
-							<td>Enabled</td>
-							<td>SNMP Enabled</td>
+							<td>Last Contacted</td>
 							<td>Last Modified</td>
 						</tr>
 					</thead>
-					{% for host in host_list %}
-						<tr role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-							<td><a href="/{{ host }}">{{ host.hostname.decode("UTF-8") }}</a></td>
-							<td>{{ host.ip_address }}</td>
-							<td>{{ host.description.decode("UTF-8") }}</td>
-							<td>{{ host.enabled }}</td>
-							<td>{{ host.snmp_enabled }}</td>
-							<td>{{ host.ts_modified }}</td>
-						</tr>
+					{% for agent in agent_list %}
 						<tr>
-							<td>
-								<div id="collapseOne" class="collapse">
-									{% for agent in agent_list %}
-										<p><b>Agent: </b><a href="/{{agent.id.decode("UTF-8")}}">{{ agent.name.decode("UTF-8") }}</a></p>
-									{% endfor %}									
-								</div>
-							</td>
+							<td><a href="/{{ agent.id }}">{{ agent.name }}</a></td>
+							<td>{{ agent.hostname }}</td>
+							<td>{{ agent.description }}</td>
+							<td>{{ agent.last_timestamp }}</td>
+							<td>{{ agent.ts_modified }}</td>
 						</tr>
 					{% endfor %}
 				</table>

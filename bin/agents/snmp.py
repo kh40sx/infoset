@@ -19,7 +19,6 @@ except:
 from infoset.utils import jm_configuration
 from infoset.utils import jm_general
 from infoset.utils import log
-from infoset.utils import hidden
 from infoset.db import db_oid
 from infoset.db import db_host
 from infoset.db import db_hostoid
@@ -87,10 +86,6 @@ class PollingAgent(object):
 
             # Sleep
             sleep(300)
-
-            # Update the PID file timestamp (important)
-            update = hidden.Touch()
-            update.pid(self.name())
 
     def _poll(self):
         """Query all remote hosts for data.

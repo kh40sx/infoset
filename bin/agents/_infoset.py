@@ -24,7 +24,6 @@ except:
     print('You need to set your PYTHONPATH to include the infoset library')
     sys.exit(2)
 from infoset.utils import jm_configuration
-from infoset.utils import hidden
 from infoset.agents import data_linux
 
 logging.getLogger('requests').setLevel(logging.WARNING)
@@ -89,10 +88,6 @@ class PollingAgent(object):
         # Post data to the remote server
         while True:
             self.upload()
-
-            # Update the PID file timestamp (important)
-            update = hidden.Touch()
-            update.pid(self.name())
 
             # Sleep
             sleep(300)

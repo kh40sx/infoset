@@ -4,13 +4,14 @@ Below is the workflow for having your contribution accepted into the `infoset` r
 
 1. Create an Issue or comment on an existing issue to discuss the feature
 2. If the feature is approved, assign the issue to yourself
-3. Fork the project
+3. Fork the project 
 4. Clone the fork to your local machine
 5. Run `make setup` to install dependencies to virtualenv (information about virtualenv found further below in this doc)
 6. Add the original project as a remote (git remote add upstream https://github.com/UWICompSociety/infoset, check with: git remote -v)
 7. Create a topic branch for your change (git checkout -b `branchName`)
 8. you may create additional brances if modifying multiple parts of the code
 9. Write code and Commit your changes locally. Exampe proper git commit message below:
+
 
      Make the example in CONTRIBUTING imperative and concrete ...
 
@@ -28,7 +29,7 @@ Below is the workflow for having your contribution accepted into the `infoset` r
      See also: #456, #789
 
 10. When you need to synch with upstream (pull the latest changes from main repo into your current branch), do: git fetch upstream -> -> git merge upstream/master. (or run `make synch` to let the projects makefile handle synching)
-11. Check for uneccesary whitespace with git diff --check.
+11. Check for uneccesary whitespace with git diff --check. 
 12. Write the necessary unit tests for your changes.
 13. Run all the tests to assure nothing else was accidentally broken (run: `make test`)
 14. Push your changes to your forked repository (git push origin `branch`)
@@ -50,44 +51,6 @@ Code that does not comply will not be added to the `master` branch.
 4. All strings must be enclosed in single quotes
 5. In addition too being pylint compliant, the code must be PEP8 and PEP257 compliant too.
 6. There should be no trailing spaces in files
-
-## Script Linting
-These guidelines can be verified using the infoset linter.
-
-Running `python lint.py script.py` in the `bin/` directory of the repo will run the in-house code style checker, pep8 and pyflakes on `script.py`. Utilizing the `--test` flag will add the in-house test file to the argument list. For example, running `python lint.py --test infoset/web/ws_device.py` outputs:
-
-```
-pep8 output:
-
-code_style_test.py:625:1: E302 expected 2 blank lines, found 1
-
-
-pyflakes output:
-
-code_style_test.py:635: undefined name 'defaultdict'
-code_style_test.py:647: undefined name '_ifindex'
-
-
-Script output:
-
-sample.py:
-  __init__: line 28: no. of arguments in function signature and no. of arguments in docstring are not the same.
-  __init__: line 28: config is found in function signature's argslist, but not in docstring
-  __init__: line 28: host is found in function signature's argslist, but not in docstring
-  __init__: line 28: no docstring found
-  ethernet: line 34: no. of arguments in function signature and no. of arguments in docstring are not the same.
-  device: line 51: host is found in docstring, but not in function signature's argslist
-  _port_enabled: line 222: active is in the return section of the docstring, but is not returned in the function
-  _html_header: line 459: html is in the return section of the docstring, but is not returned in the function
-  _index_html: line 483: html is in the return section of the docstring, but is not returned in the function
-  cdpcachedeviceid: line 625: no. of arguments in function signature and no. of arguments in docstring are not the same.
-```
-
-You may also change how the script attemps to invoke pep8 and pyflakes, for e.g.:
-
-```
-python lint.py --pep8invocation=foo --pyflakesinvocation=bar infoset/web/ws_device.py
-```
 
 ## Guidelines to remember
 
@@ -186,19 +149,3 @@ augroup resCur
 augroup END
 
 ```
-
-
-
-
-# Developing
-
-![uh oh](http://i.imgur.com/cJP2vks.gif)
-```
-# git clone https://github.com/UWICompSociety/infoset
-# cd infoset
-# sudo make
-# source venv/bin/activate
-# sudo make install
-```
-Infoset also includes a web interface, to start the server run `python3 server.py` then navigate to <http://localhost:5000>
-

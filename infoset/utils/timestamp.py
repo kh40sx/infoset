@@ -19,14 +19,15 @@ class TimeStamp(object):
         # Initialize key variables
         seconds_per_day = 86400
         self.presets = [
-            seconds_per_day,
             7 * seconds_per_day,
             30 * seconds_per_day,
             365 * seconds_per_day
         ]
         self.descriptions = [
-            'Today', 'This Week','This Month', 'This Year']
-        self.id_labels = ['one-hour', 'twenty-four-hours', 'one-week','one-month']
+            'Five Minute', 'Thirty Minute', 'One Hour',
+            'Three Hours', 'Eight Hours', 'Twelve Hours']
+        self.id_labels = ['five-minute', 'thirty-minute', 'one-hour',
+            'three-hours', 'eight-hours', 'twelve-hours']
 
         self._process()
 
@@ -50,7 +51,7 @@ class TimeStamp(object):
             start = now - timestamp
             self.start_times.append(start)
             self.stop_times.append(now)
-        self.times = list(zip(self.start_times, self.stop_times, self.descriptions, self.id_labels))
+        self.times = zip(self.start_times, self.stop_times, self.descriptions, self.id_labels)
 
     def get_times(self):
         """Return chart duration data.

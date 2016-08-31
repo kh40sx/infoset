@@ -145,9 +145,6 @@ class HostAgent(BASE):
         BIGINT(unsigned=True), ForeignKey('iset_agent.idx'),
         nullable=False, server_default='1')
 
-    last_timestamp = Column(
-        BIGINT(unsigned=True), nullable=False, server_default='0')
-
     ts_modified = Column(
         DATETIME, server_default=text(
             'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),)

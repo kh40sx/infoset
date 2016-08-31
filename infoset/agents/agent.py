@@ -305,9 +305,6 @@ class Agent(object):
             success: "True: if successful
 
         """
-        # Initialize key variables
-        uid = self.data['uid']
-
         # Add files in cache directory to list
         filenames = [filename for filename in os.listdir(
             self.cache_dir) if os.path.isfile(
@@ -315,11 +312,6 @@ class Agent(object):
 
         # Read cache file
         for filename in filenames:
-            # Only post files for our own UID value
-            if uid not in filename:
-                continue
-
-            # Get the full filepath for the cache file and post
             filepath = os.path.join(self.cache_dir, filename)
             with open(filepath, 'r') as f_handle:
                 try:

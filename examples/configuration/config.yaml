@@ -1,12 +1,13 @@
 common:
-    log_file: /opt/infoset/logs/infoset.log
+    log_file: /home/infoset/infoset.logs/infoset.log
     language: en
     server: True
 
 server:
+    agent_root_directory:
     web_directory: /home/infoset/public_html
-    data_directory: /opt/infoset/cache/topology
-    ingest_cache_directory: /opt/infoset/cache/ingest
+    data_directory: /home/infoset/infoset/data
+    ingest_cache_directory: /home/infoset/infoset.cache/ingest
     ingest_threads: 20
     agent_threads: 10
     db_hostname: localhost
@@ -24,39 +25,35 @@ agents_common:
     server_name: 192.168.3.100
     server_port: 5000
     server_https: False
-    agent_cache_directory: /opt/infoset/cache/agents
+    agent_cache_directory: /home/infoset/infoset.cache/agents
 
 agents:
     - agent_name: _infoset
       agent_enabled: True
       agent_filename: bin/agents/_infoset.py
-      monitor_agent_pid: True
 
     - agent_name: ingestd
       agent_enabled: True
       agent_filename: bin/agents/ingestd.py
-      monitor_agent_pid: True
 
     - agent_name: linux
-      agent_enabled: False
+      agent_enabled: True
       agent_filename: bin/agents/linux.py
       agent_port: 5001
-      monitor_agent_pid: True
       agent_hostnames:
         - 192.168.3.100
 
     - agent_name: linux_in
-      agent_enabled: False
+      agent_enabled: True
       agent_filename: bin/agents/linux_in.py
 
     - agent_name: linux_passive
-      agent_enabled: False
+      agent_enabled: True
       agent_filename: bin/agents/linux_passive.py
 
     - agent_name: snmp
-      agent_enabled: False
+      agent_enabled: True
       agent_filename: bin/agents/snmp.py
-      monitor_agent_pid: True
       agent_hostnames:
         - 192.168.3.100
 

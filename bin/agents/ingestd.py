@@ -17,7 +17,7 @@ except:
     print('You need to set your PYTHONPATH to include the infoset library')
     sys.exit(2)
 from infoset.cache import cache
-from infoset.utils import hidden
+from infoset.utils import log
 
 
 class PollingAgent(object):
@@ -76,10 +76,6 @@ class PollingAgent(object):
         while True:
             cache.process(self.agent_name)
             time.sleep(5)
-
-            # Update the PID file timestamp (important)
-            update = hidden.Touch()
-            update.pid(self.name())
 
 
 def main():
