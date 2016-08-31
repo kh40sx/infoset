@@ -69,8 +69,8 @@ def _update_agent_system(agent):
     agent.populate_single(
         'process_count', len(psutil.pids()), base_type=1)
 
-    agent.populate_named_tuple(
-        psutil.cpu_times_percent(), prefix='cpu_times_percent', base_type=1)
+    agent.populate_single(
+        'cpu_percentage', psutil.cpu_percent(), base_type=1)
 
     # Load averages
     (la_01, la_05, la_15) = os.getloadavg()
@@ -83,11 +83,11 @@ def _update_agent_system(agent):
 
     # Get CPU times
     agent.populate_named_tuple(
-        psutil.cpu_times(), prefix='cpu_times', base_type=64)
+        psutil.cpu_times(), prefix='cpu', base_type=64)
 
     # Get CPU stats
     agent.populate_named_tuple(
-        psutil.cpu_stats(), prefix='cpu_stats', base_type=64)
+        psutil.cpu_stats(), prefix='cpu', base_type=64)
 
     # Get memory utilization
     agent.populate_named_tuple(psutil.virtual_memory(), prefix='memory')

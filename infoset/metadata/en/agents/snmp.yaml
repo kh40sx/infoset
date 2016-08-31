@@ -14,10 +14,10 @@ agent_source_descriptions:
         description: Output Bandwidth
     # SNMP Sentry3 MIB (Servertech)
     Sentry3_infeedPower:
-        units: Watts
+        units: None
         description: Input Power Per Phase
     Sentry3_infeedLoadValue:
-        units: Amps
+        units: None
         description: Input Current Per Phase
     Sentry3_infeedName:
         units: None
@@ -25,9 +25,3 @@ agent_source_descriptions:
     Sentry3_Sentry3_infeedID:
         units: None
         description: Input Power Phase ID
-    sentry3_outletPower:
-        units: Watts
-        description: Outlet Power
-    sentry3_outletLoadValue:
-        units: Amps
-        description: Outlet Current
