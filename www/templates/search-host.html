@@ -45,13 +45,19 @@
 					<thead>
 						<tr>
 							<td>Hostname</td>
-							<td>Data Collection Agent Name</td>
+							<td>Agent Name</td>
+							<td>Data Type</td>
+							<td>Data Source</td>
+							<td>Last Updated</td>
 						</tr>
 					</thead>
-					{% for hostname, idx_host, agent_name, idx_agent in agent_list %}
+					{% for hostname, agent_name, source, label_description, idx_datapoint, uid, datex in agent_list %}
 						<tr>
 							<td>{{ hostname }}</td>
-							<td><a href="/search/{{ idx_host  }}/{{ idx_agent }}">{{ agent_name }}</a></td>
+							<td>{{ agent_name }}</td>
+							<td><a href="/graphs/{{ uid  }}/{{ idx_datapoint }}">{{ label_description }}</a></td>
+							<td>{{ source }}</td>
+							<td>{{ datex }}</td>
 						</tr>
 					{% endfor %}
 				</table>

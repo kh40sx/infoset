@@ -77,7 +77,7 @@ class Agent(object):
 
         """
         # Initialize key variables
-        value = None
+        value = ''
         data = {}
         top_key = 'agent_source_descriptions'
 
@@ -103,7 +103,7 @@ class Agent(object):
         """
         # Initialize key variables
         agent_label = agent_label.decode()
-        value = None
+        value = ''
         data = {}
         top_key = 'agent_source_descriptions'
 

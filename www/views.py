@@ -4,13 +4,15 @@ Contains all routes that infoset's Flask webserver uses
 
 """
 # Standard imports
-import yaml
+from datetime import datetime
 import time
 import json
 import pprint
-from os import listdir, walk, path, makedirs, remove
+import operator
+from os import path
 
 # Pip imports
+import yaml
 from flask import render_template, jsonify, send_file, request, make_response
 
 # Infoset imports
@@ -18,8 +20,6 @@ from infoset.db.db_agent import GetUID
 from infoset.db.db_data import GetIDX
 from infoset.db.db_agent import GetDataPoint
 from infoset.db.db_orm import Agent
-from infoset.db.db_datapoint import GetSingleDataPoint
-from infoset.db.db_chart import Chart
 from infoset.db import db_hostagent
 from infoset.db.db_host import GetIDX as GetHostIDX
 from infoset.db.db import Database
@@ -27,18 +27,11 @@ from infoset.utils import TimeStamp
 from infoset.utils import ColorWheel
 from infoset.utils import jm_general
 from infoset.metadata import language
-from www import infoset
+from infoset.db import db_datapoint
+from infoset.db import db_agent
+from infoset.db import db_host
 from infoset.web import ws_device
-# Matplotlib imports, Do not edit order
-"""
-import numpy as np
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-from matplotlib import style
-style.use("ggplot")
-# End of Imports
-"""
+from www import infoset
 
 
 @infoset.template_filter('strftime')
@@ -74,8 +67,8 @@ def index():
     agent_list = [agent.everything()]
     datapoints = GetDataPoint(idx_agent)
     data_point_dict = datapoints.everything()
+
     # Render the home page
-    print(data_point_dict)
     return render_template('index.html',
                            data=data_point_dict,
                            agent_list=agent_list,
@@ -83,6 +76,15 @@ def index():
                            hostname=host)
 @infoset.route('/<uid>')
 def overview(uid):
+    """Function for showing UID related data for agent.
+
+    Args:
+        uid: UID of agent
+
+    Returns:
+        overview page
+
+    """
     # Get agent information
     agent = GetUID(uid)
     host = _infoset_hostname()
@@ -98,6 +100,15 @@ def overview(uid):
 
 @infoset.route('/<uid>/datapoints')
 def datapoints(uid):
+    """Function for showing datapoint related data for agent.
+
+    Args:
+        uid: UID of agent
+
+    Returns:
+        overview page
+
+    """
     # Get agent information
     agent = GetUID(uid)
     host = _infoset_hostname()
@@ -111,15 +122,106 @@ def datapoints(uid):
                            uid=uid,
                            hostname=host)
 
+
 @infoset.route('/search')
 def search():
-    database = Database()
-    session = database.session()
-    agent_list = []
-    for agent in session.query(Agent):
-        agent_list.append(agent)
-    return render_template('search.html',
-                            agent_list=agent_list)
+    """Function for showing list of hosts on search page.
+
+    Args:
+        None
+
+    Returns:
+        overview page
+
+    """
+    # Initialize key variables
+    data = []
+
+    # Get list of all host indices
+    host_idx_list = db_hostagent.all_host_indices()
+
+    for idx_host in host_idx_list:
+        # Get names for host
+        hostname = db_host.GetIDX(idx_host).hostname()
+
+        # Create list of enabled agents
+        all_agent_indices = db_hostagent.agent_indices(idx_host)
+        enabled_agent_idx_list = []
+        for idx_agent in all_agent_indices:
+            enabled = db_agent.GetIDX(idx_agent).enabled()
+            if enabled is True:
+                enabled_agent_idx_list.append(idx_agent)
+
+        # Append agent data to list
+        for idx_agent in enabled_agent_idx_list:
+            agent_name = db_agent.GetIDX(idx_agent).name()
+            # Append to data
+            data.append(
+                (hostname, idx_host, agent_name, idx_agent)
+            )
+
+    # Render data on screen
+    return render_template('search.html', agent_list=data)
+
+
+@infoset.route('/search/<idx_host>/<idx_agent>')
+def search_host(idx_host, idx_agent):
+    """Function for showing all data for all DIDs.
+
+    Args:
+        idx_host: IDX of Host
+        idx_agent: IDX of Agent
+
+    Returns:
+        overview page
+
+    """
+    # Initialize key variables
+    data = []
+
+    # Get Hostname
+    hostname = db_host.GetIDX(idx_host).hostname()
+
+    # Get agent details
+    agent_name = db_agent.GetIDX(idx_agent).name()
+    uid = db_agent.GetIDX(idx_agent).uid()
+
+    # Get a description of the datapoint
+    lang = language.Agent(agent_name)
+
+    # Get datapoints charting host metrics
+    metadata = db_datapoint.datapoint_host_agent(idx_host, idx_agent)
+    for data_dict in metadata:
+        # Create datapoint object
+        idx_datapoint = data_dict['idx']
+        timestamp = data_dict['last_timestamp']
+        source = data_dict['agent_source']
+        agent_label = data_dict['agent_label']
+
+        final_description = ''
+
+        # Get a description of the datapoint
+        label_description = lang.label_description(agent_label)
+        if bool(label_description) is True:
+            final_description = label_description
+        else:
+            final_description = agent_label
+
+        # Get datapoint source
+        datex = datetime.fromtimestamp(
+            timestamp).strftime('%H:%M %d-%b-%Y')
+
+        # Append to data
+        data.append(
+            (hostname, agent_name, source, final_description, idx_datapoint, uid, datex)
+        )
+
+    # Sort list by label_description and source
+    data = sorted(data, key=operator.itemgetter(3, 2))
+
+    # Render data on screen
+    return render_template('search-host.html', agent_list=data)
+
 
 @infoset.route('/hosts/<host>')
 def host(host):
@@ -138,8 +240,8 @@ def host(host):
     with open(filepath, 'r') as stream:
         try:
             yaml_dump = yaml.load(stream)
-        except Exception as e:
-            raise e
+        except Exception as error:
+            raise error
     return jsonify(yaml_dump)
 
 
@@ -161,8 +263,8 @@ def layerOne(host):
     with open(filepath, 'r') as stream:
         try:
             yaml_dump = yaml.load(stream)
-        except Exception as e:
-            raise e
+        except Exception as error:
+            raise error
 
     layer1 = yaml_dump['layer1']
     return jsonify(layer1)
@@ -186,29 +288,28 @@ def layerTwo(host):
     with open(filepath, 'r') as stream:
         try:
             yaml_dump = yaml.load(stream)
-        except Exception as e:
-            raise e
+        except Exception as error:
+            raise error
+
     # Gets layer2 from loaded yaml
     layer2 = yaml_dump['layer2']
 
     return jsonify(layer2)
 
 
-@infoset.route('/graphs/<uid>/<datapoint>', methods=["GET", "POST"])
-def graphs(uid, datapoint):
+@infoset.route('/graphs/<uid>/<idx>', methods=["GET", "POST"])
+def graphs(uid, idx):
     """Create graphs.
 
     Args:
         uid: Agent uid
-        datpoint: Datapoint idx
+        idx: Datapoint idx
 
     Returns:
         None
 
     """
-    uid_fixed= uid[2:-1]
-
-    single_datapoint = GetSingleDataPoint(datapoint)
+    single_datapoint = db_datapoint.GetIDX(idx)
     agent_label = single_datapoint.agent_label()
 
     colorwheel = ColorWheel(agent_label)
@@ -217,8 +318,8 @@ def graphs(uid, datapoint):
     timestamps = preset.get_times()
     return render_template('graphs.html',
                            timestamps=timestamps,
-                           uid=uid_fixed,
-                           datapoint=datapoint,
+                           uid=uid,
+                           datapoint=idx,
                            fill=fill)
 
 
@@ -288,18 +389,8 @@ def fetch_dp(uid, datapoint):
     # TODO implement start and stop times
     data = GetIDX(datapoint)
     data_values = data.everything()
-    # Gets all associated datapoints
-    """
-    x_axis = []
-    y_axis = []
-    for key, value in data_values.items():
-        x_axis.append(key)
-        y_axis.append(value)
-        np_x_axis = np.asarray(x_axis)
-        np_y_axis = np.asarray(y_axis)
-        plt.plot(np_x_axis, np_y_axis)
-        plt.savefig("/home/proxima/public_html/graph.png")
-        """
+
+    # Return
     return jsonify(data_values)
 
 
@@ -315,19 +406,15 @@ def fetch_graph(uid, datapoint):
         None
 
     """
-    filename = str(uid) + '_' + str(datapoint)
-    filepath = './www/static/img/' + filename
-    print(datapoint)
     # Getting start and stop parameters from url
     start = request.args.get('start')
     stop = request.args.get('stop')
-        # Get data as dict
 
+    # Get data as dict
     datapointer = GetIDX(datapoint, start=start, stop=stop)
     data = datapointer.chart_everything()
 
-    # Config object
-    config = infoset.config['GLOBAL_CONFIG']
+    # Return
     return jsonify(data)
 
 
@@ -344,37 +431,68 @@ def fetch_graph_stacked(uid, stack_type):
         Image of Stacked Chart
 
     """
-    # Initialize key variables
-    filename = str(uid) + '_' + str(stack_type)
-    filepath = './www/static/img/' + filename
+    # Define key variables
+    # We are only interested in the infoset server host idx for now.
+    idx_host = 1
+    labels = {}
 
-    # Getting start and stop parameters from url
-    start = request.args.get('start')
-    stop = request.args.get('stop')
+    # Define label values
+    labels['cpu'] = [
+        'cpu_times_percent_user',
+        'cpu_times_percent_nice',
+        'cpu_times_percent_system',
+        'cpu_times_percent_idle',
+        'cpu_times_percent_iowait',
+        'cpu_times_percent_irq',
+        'cpu_times_percent_ctx_switches',
+        'cpu_times_percent_syscalls',
+        'cpu_times_percent_interrupts',
+        'cpu_times_percent_soft_interrupts',
+        'cpu_times_percent_softirq',
+        'cpu_times_percent_steal',
+        'cpu_times_percent_guest',
+        'cpu_times_percent_guest_nice'
+    ]
+    labels['memory'] = [
+        'memory_buffers',
+        'memory_cached',
+        'memory_shared',
+        'memory_available',
+        'memory_free'
+    ]
+    labels['load'] = [
+        'load_average_01min',
+        'load_average_05min',
+        'load_average_15min'
+    ]
+    labels['network'] = [
+        'network_bytes_recv',
+        'network_bytes_sent'
+    ]
 
-    # Config object
-    config = infoset.config['GLOBAL_CONFIG']
+    # Get Agent data
+    idx_agent = db_agent.GetUID(uid).idx()
+
     # Determine what kind of stacked chart to make
     # Memory, Load, Bytes In/Out, CPU
-    if "memory" in stack_type:
-        #Do memory
-        datapoint_list = [128, 129, 131, 133, 135]
-        colors = ['#71D5C3', '#009DB2', '#21D5C3', '#98e1d4', '#f0e0a0']
-    elif "cpu" in stack_type:
-        #Do cpu
-        pass
-    elif "load" in stack_type:
-        #Do load
-        colors = ['#F37372','#FA9469','#FDBB5D']
-        datapoint_list = [124,125,126]
-        pass
-    elif "network" in stack_type:
-        #Do network
-        colors = ['#F37372','#FA9469', '#FDBB5D']
-        datapoint_list = [124,125,126]
-        pass
-    elif "disk" in stack_type:
-        #Do disk
+    if 'memory' in stack_type:
+        # Do memory
+        datapoint_list = _datapoint_labels(
+            idx_host, idx_agent, labels['memory'])
+    elif 'cpu' in stack_type:
+        # Do cpu
+        datapoint_list = _datapoint_labels(
+            idx_host, idx_agent, labels['cpu'])
+    elif 'load' in stack_type:
+        # Do load
+        datapoint_list = _datapoint_labels(
+            idx_host, idx_agent, labels['load'])
+    elif 'network' in stack_type:
+        # Do network
+        datapoint_list = _datapoint_labels(
+            idx_host, idx_agent, labels['network'])
+    elif 'disk' in stack_type:
+        # Do disk
         pass
 
     values = []
@@ -387,11 +505,11 @@ def fetch_graph_stacked(uid, stack_type):
 
 
 @infoset.route('/fetch/agent/<ip>/table', methods=["GET"])
-def fetch_table(ip):
+def fetch_table(ip_address):
     """Return Network Layout tables.
 
     Args:
-        ip: Host IP
+        ip_address: Host IP
 
     Returns:
         HTML string of host table
@@ -400,9 +518,36 @@ def fetch_table(ip):
     # Config Object
     config = infoset.config['GLOBAL_CONFIG']
 
-    html = ws_device.api_make(config, ip, True)
+    html = ws_device.api_make(config, ip_address, True)
 
     return html
+
+
+def _datapoint_labels(idx_host, idx_agent, labels):
+    """Get datapoint IDXes for a host / agent with specific labels.
+
+    Args:
+        idx_host: Host index
+        idx_agent: Agent index
+        labels: Labels to match
+
+    Returns:
+        listing: List of datap
+
+    """
+    # Initialize key variables
+    listing = []
+
+    # Get datapoints the agent is tracking for the host
+    metadata = db_datapoint.datapoint_host_agent(idx_host, idx_agent)
+    for data_dict in metadata:
+        agent_label = data_dict['agent_label']
+        idx_datapoint = data_dict['idx']
+        if agent_label in labels:
+            listing.append(idx_datapoint)
+
+    # Return
+    return listing
 
 
 def _infoset_hostname():

@@ -14,6 +14,9 @@ import json
 # Infoset libraries
 from infoset.utils import log
 from infoset.utils import jm_general
+from infoset.db import db_hostagent
+from infoset.db import db_agent
+from infoset.db import db_host
 
 
 class ValidateCache(object):
@@ -103,8 +106,9 @@ class ValidateCache(object):
         validity = [self.validated]
 
         # Append results of tests
-        validity.append(self.check_meta())
-        validity.append(self.check_data_types())
+        validity.append(self._check_meta())
+        validity.append(self._check_data_types())
+        validity.append(self._check_duplicates())
 
         # Do final check
         if False in validity:
@@ -124,7 +128,7 @@ class ValidateCache(object):
         # Return
         return all_ok
 
-    def check_meta(self):
+    def _check_meta(self):
         """Method initializing the class.
 
         Args:
@@ -171,7 +175,7 @@ class ValidateCache(object):
         # Return
         return valid
 
-    def check_data_types(self):
+    def _check_data_types(self):
         """Method initializing the class.
 
         Args:
@@ -192,7 +196,7 @@ class ValidateCache(object):
                 continue
 
             # Process the data type
-            for agent_label, group in sorted(
+            for _, group in sorted(
                     self.information[data_type].items()):
                 # Process keys
                 for key in ['base_type', 'description', 'data']:
@@ -218,6 +222,46 @@ class ValidateCache(object):
                             float(value)
                         except:
                             valid = False
+
+        # Return
+        return valid
+
+    def _check_duplicates(self):
+        """Method initializing the class.
+
+        Args:
+            None
+
+        Returns:
+            valid: True if valid
+
+        """
+        # Initialize key variables
+        valid = True
+
+        # Get values
+        timestamp = int(self.information['timestamp'])
+        uid = self.information['uid']
+        hostname = self.information['hostname']
+
+        # Check if there is a duplicate entry for this UID
+        if db_agent.uid_exists(uid) is not False:
+            idx_agent = db_agent.GetUID(uid).idx()
+
+            # Check if host exists
+            if db_host.hostname_exists(hostname) is True:
+                idx_host = db_host.GetHost(hostname).idx()
+
+                # Check for host / agent entry existence
+                if db_hostagent.host_agent_exists(
+                        idx_host, idx_agent) is True:
+                    # Check if this host / agent has been updated before
+                    last_timesamp = db_hostagent.GetIDX(
+                        idx_host, idx_agent).last_timestamp()
+
+                    # Validate
+                    if timestamp <= last_timesamp:
+                        valid = False
 
         # Return
         return valid
