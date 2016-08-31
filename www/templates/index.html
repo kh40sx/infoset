@@ -9,15 +9,15 @@
               <p><b>Host Name:</b></p>
             </div>
             <div class="col-lg-9">
-              {{ hostname }}              
-            </div>            
+              {{ hostname }}
+            </div>
           </div>
         </div>
       </div>
       <div class="data-box" id="home-box">
         <div class="container-fluid">
           <div class="row network-table-info">
-            
+
           </div>
         </div>
       </div>
@@ -27,31 +27,28 @@
             <div class="col-lg-12">
               <h5>More Graphs</h5>
             </div>
-          </div>      
+          </div>
           <div class="thumbnail-graph" id="cpu-thumbnail-area">
-            
-          </div>        
+
+          </div>
           <div class="thumbnail-graph" id="memory-thumbnail-area">
-            
+
           </div>
           <div class="thumbnail-graph" id="disk-thumbnail-area">
-            
-          </div>        
+
+          </div>
           <div class="thumbnail-graph" id="network-thumbnail-area">
-            
-          </div>                                  
+
+          </div>
         </div>
       </div>
-    </div>  
+    </div>
     <div class="col-lg-9">
       <div class="row">
         <div class="col-lg-12">
           <div class="data-box">
             <div class="col-md-1">
-              <p><a href="/{{uid}}">Overview</a></p>
-            </div>
-            <div class="col-md-1">
-              <p><a href="/{{uid}}/datapoints">Detailed</a></p>
+              <p><a href="/search/1/1">Performance</a></p>
             </div>
           </div>
         </div>
@@ -59,22 +56,22 @@
       <div class="row">
         <div class="col-lg-12">
           <div class="data-box network-table" id="home-box">
-          </div>          
+          </div>
         </div>
-      </div>        
+      </div>
     </div>
-    
+
     <script type="text/javascript">
       $.get("/fetch/agent/{{ ip }}/table", function (data) {
         $(data.split('</table>')).each(function(index, value){
-          
+
           if (index < 1) {
             $('.network-table-info').append(value);
           }
           else {
             $('.network-table').append(value);
             $(".network-table > table tr:contains('Active')").addClass("row-active");
-            $(".network-table > table tr:contains('Inactive')").addClass("row-inactive");     
+            $(".network-table > table tr:contains('Inactive')").addClass("row-inactive");
           }
         });
       });
@@ -90,11 +87,11 @@
         AreaChart("{{uid}}", "{{value[0]}}", "#disk-thumbnail-area", 390, 160, "#009DB2");
       {% endif %}
       {% if "network_packets_sent" in datapoint_name %}
-        AreaChart("{{uid}}", "{{value[0]}}", "#network-thumbnail-area", 390, 160, "#009DB2");      
+        AreaChart("{{uid}}", "{{value[0]}}", "#network-thumbnail-area", 390, 160, "#009DB2");
       {% endif %}
     {% endfor %}
     </script>
-  {% else %} 
+  {% else %}
     <div class="col-lg-3">
       <div class="data-box" id="home-box">
         <div class="container-fluid">
@@ -103,8 +100,8 @@
               <p><b>Host Name:</b></p>
             </div>
             <div class="col-lg-8">
-              {{ hostname }}              
-            </div>            
+              {{ hostname }}
+            </div>
           </div>
         </div>
       </div>
@@ -130,19 +127,19 @@
             <div class="col-lg-12">
               <h5>More Graphs</h5>
             </div>
-          </div>      
+          </div>
           <div class="thumbnail-graph" id="cpu-thumbnail-area">
-            
-          </div>        
+
+          </div>
           <div class="thumbnail-graph" id="memory-thumbnail-area">
-            
+
           </div>
           <div class="thumbnail-graph" id="disk-thumbnail-area">
-            
-          </div>        
+
+          </div>
           <div class="thumbnail-graph" id="network-thumbnail-area">
-            
-          </div>                                  
+
+          </div>
         </div>
       </div>
     </div>
@@ -152,10 +149,7 @@
           <div class="container-fluid data-box">
             <div class="row">
               <div class="col-md-1">
-                <p><a href="/{{uid}}">Overview</a></p>
-              </div>
-              <div class="col-md-1">
-                <p><a href="/{{uid}}/datapoints">Detailed</a></p>
+                <p><a href="/search/1/1">Performance</a></p>
               </div>
             </div>
           </div>
@@ -173,7 +167,7 @@
               <div class="row">
                 <div class="col-lg-12">
                   <div class="row" id="cpu-graph-area">
-                    
+
                   </div>
                 </div>
               </div>
@@ -278,7 +272,7 @@
                     </tbody>
                   </table>
                 </div>
-              </div>            
+              </div>
             </div>
           </div>
           <div class="data-box" id="memory-box">
@@ -326,10 +320,10 @@
         AreaChart("{{uid}}", "{{value[0]}}", "#disk-thumbnail-area", 390, 160, "#009DB2");
       {% endif %}
       {% if "network_packets_sent" in datapoint_name %}
-        AreaChart("{{uid}}", "{{value[0]}}", "#network-thumbnail-area", 390, 160, "#009DB2");      
+        AreaChart("{{uid}}", "{{value[0]}}", "#network-thumbnail-area", 390, 160, "#009DB2");
       {% endif %}
     {% endfor %}
-    
+
     StackedArea("{{uid}}","memory", "#memory-graph-area", 630, 240, "#00c8a4");
     StackedArea("{{uid}}","load", "#load-graph-area", 630, 240, "#00c8a4");
     StackedArea("{{uid}}","network", "#network-graph-area", 630, 240, "#00c8a4");

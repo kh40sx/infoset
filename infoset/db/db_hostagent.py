@@ -113,6 +113,32 @@ def host_agent_exists(idx_host, idx_agent):
     return found
 
 
+def all_host_indices():
+    """Get list of all host indexes in database.
+
+    Args:
+        enabled: Only return enabled hosts if True
+
+    Returns:
+        listing: List of indexes
+
+    """
+    idx_list = []
+
+    # Establish a database session
+    database = db.Database()
+    session = database.session()
+    result = session.query(HostAgent.idx_host)
+    session.close()
+
+    # Add to the list of host idx values
+    for instance in result:
+        idx_list.append(instance.idx_host)
+
+    # Return
+    return list(set(idx_list))
+
+
 def host_indices(idx_agent):
     """Get list of all host indexes for a specific agent_idx.
 
@@ -137,7 +163,7 @@ def host_indices(idx_agent):
         idx_list.append(instance.idx_host)
 
     # Return
-    return idx_list
+    return list(set(idx_list))
 
 
 def agent_indices(idx_host):

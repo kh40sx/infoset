@@ -13,7 +13,7 @@ from infoset.utils import jm_general
 from infoset.db import db_datapoint
 from infoset.db import db
 from infoset.db.db_orm import Data
-from infoset.db.db_datapoint import GetSingleDataPoint
+from infoset.db.db_datapoint import GetIDX
 
 
 class GetIDX(object):
@@ -47,8 +47,8 @@ class GetIDX(object):
         # Get the datapoint's base_type
         datapointer = db_datapoint.GetIDX(idx)
         self.base_type = datapointer.base_type()
-        singledatapoint = GetSingleDataPoint(idx)
-        self.agent_label = singledatapoint.agent_label()
+        self.agent_label = datapointer.agent_label()
+
         # Redefine start times
         if start is None:
             self.ts_start = jm_general.normalized_timestamp() - (3600 * 24)
@@ -149,17 +149,18 @@ class GetIDX(object):
                     continue
 
                 #############################################################
-                # Treat zero values with caution
+                # Treat missing data with caution
                 #############################################################
-
-                '''
-                if timestamp - old_timestamp > step:
                 # These are usually due to outages and can cause spikes
                 # in the data. This ignores the first value after a zero.
                 #############################################################
+                if timestamp - old_timestamp > step:
                     old_timestamp = timestamp
                     continue
-                '''
+                #############################################################
+                #############################################################
+                #############################################################
+
                 # Get new value
                 new_value = value - self.data[old_timestamp]
 

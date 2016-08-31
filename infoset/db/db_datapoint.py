@@ -17,189 +17,6 @@ from infoset.db import db
 from infoset.db.db_orm import Datapoint
 
 
-class GetSingleDataPoint(object):
-    """Class to return agent data.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    Methods:
-
-    """
-
-    def __init__(self, idx):
-        """Function for intializing the class.
-
-        Args:
-            did: Datapoint id
-            config: Config object
-
-        Returns:
-            None
-
-        """
-        # Initialize important variables
-        self.data_dict = defaultdict(dict)
-
-        # Establish a database session
-
-        database = db.Database()
-        session = database.session()
-        result = session.query(Datapoint).filter(Datapoint.idx == idx)
-
-        # Massage data
-        if result.count() == 1:
-            for instance in result:
-                self.data_dict['idx'] = instance.idx
-                self.data_dict['id'] = instance.id
-                self.data_dict['idx_agent'] = instance.idx_agent
-                self.data_dict['idx_host'] = instance.idx_host
-                self.data_dict[
-                    'agent_label'] = jm_general.decode(instance.agent_label)
-                self.data_dict[
-                    'agent_source'] = jm_general.decode(instance.agent_source)
-                self.data_dict['enabled'] = instance.enabled
-                self.data_dict['uncharted_value'] = instance.uncharted_value
-                self.data_dict['base_type'] = instance.base_type
-                self.data_dict['last_timestamp'] = instance.last_timestamp
-                break
-        else:
-            log_message = ('Datapoint idx %s not found.') % (idx)
-            log.log2die(1047, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
-
-    def last_timestamp(self):
-        """Get last_timestamp value.
-
-        Args:
-            None
-
-        Returns:
-            value: Value to return
-
-        """
-        # Initialize key variables
-        value = self.data_dict['last_timestamp']
-        return value
-
-    def uncharted_value(self):
-        """Get uncharted_value value.
-
-        Args:
-            None
-
-        Returns:
-            value: Value to return
-
-        """
-        # Initialize key variables
-        value = self.data_dict['uncharted_value']
-        return value
-
-    def base_type(self):
-        """Get base_type value.
-
-        Args:
-            None
-
-        Returns:
-            value: Value to return
-
-        """
-        # Initialize key variables
-        value = self.data_dict['base_type']
-        return value
-
-    def enabled(self):
-        """Get enabled value.
-
-        Args:
-            None
-
-        Returns:
-            value: Value to return
-
-        """
-        # Initialize key variables
-        value = self.data_dict['enabled']
-        return value
-
-    def agent_source(self):
-        """Get agent_source value.
-
-        Args:
-            None
-
-        Returns:
-            value: Value to return
-
-        """
-        # Initialize key variables
-        value = self.data_dict['agent_source']
-        return value
-
-    def idx(self):
-        """Get idx value.
-
-        Args:
-            None
-
-        Returns:
-            value: Value to return
-
-        """
-        # Initialize key variables
-        value = self.data_dict['idx']
-        return value
-
-    def idx_agent(self):
-        """Get idx_agent value.
-
-        Args:
-            None
-
-        Returns:
-            value: Value to return
-
-        """
-        # Initialize key variables
-        value = self.data_dict['idx_agent']
-        return value
-
-    def idx_host(self):
-        """Get idx_host value.
-
-        Args:
-            None
-
-        Returns:
-            value: Value to return
-
-        """
-        # Initialize key variables
-        value = self.data_dict['idx_host']
-        return value
-
-    def agent_label(self):
-        """Get agent_label value.
-
-        Args:
-            None
-
-        Returns:
-            value: Value to return
-
-        """
-        # Initialize key variables
-        value = self.data_dict['agent_label']
-        return value
-
-
 class GetDID(object):
     """Class to return datapoint data by datapoint idx.
 
@@ -747,25 +564,26 @@ def datapoint_host_idx(idx_host):
     return idx_list
 
 
-def datapoint_host_agent_idx(idx_host, idx_agent):
-    """List datapoint indexes for a specific host_idx, idx_agent combination.
+def datapoint_host_agent(idx_host, idx_agent):
+    """List of datapoint data for a specific host_idx, idx_agent combination.
 
     Args:
         idx_host: Host index
         idx_agent: Agent index
 
     Returns:
-        listing: List of indexes
+        dict_list: List of dicts containing data
 
     """
     # Initialize key variables
-    idx_list = []
+    dict_list = []
 
     # Establish a database session
     database = db.Database()
     session = database.session()
-    result = session.query(Datapoint.idx).filter(
+    result = session.query(Datapoint).filter(
         and_(
+            Datapoint.uncharted_value == None,
             Datapoint.idx_host == idx_host,
             Datapoint.idx_agent == idx_agent)
         )
@@ -773,7 +591,23 @@ def datapoint_host_agent_idx(idx_host, idx_agent):
 
     # Add to the list of host idx values
     for instance in result:
-        idx_list.append(instance.idx)
+        data_dict = {}
+        data_dict['idx'] = instance.idx
+        data_dict['id'] = jm_general.decode(instance.id)
+        data_dict['idx_agent'] = instance.idx_agent
+        data_dict['idx_host'] = instance.idx_host
+        data_dict['idx_department'] = instance.idx_department
+        data_dict['idx_billtype'] = instance.idx_billtype
+        data_dict[
+            'agent_label'] = jm_general.decode(instance.agent_label)
+        data_dict[
+            'agent_source'] = jm_general.decode(instance.agent_source)
+        data_dict['enabled'] = bool(instance.enabled)
+        data_dict['billable'] = bool(instance.billable)
+        data_dict['base_type'] = instance.base_type
+        data_dict['uncharted_value'] = instance.uncharted_value
+        data_dict['last_timestamp'] = instance.last_timestamp
+        dict_list.append(data_dict)
 
     # Return
-    return idx_list
+    return dict_list

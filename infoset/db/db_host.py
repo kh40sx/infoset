@@ -7,6 +7,9 @@ Classes for agent data
 # Python standard libraries
 from collections import defaultdict
 
+# PIP Python libraries
+from sqlalchemy import and_
+
 # Infoset libraries
 from infoset.utils import log
 from infoset.utils import jm_general
@@ -273,11 +276,11 @@ class GetIDX(object):
         return value
 
 
-def all_hosts():
+def all_hosts(enabled=True):
     """Get list of all hosts.
 
     Args:
-        None
+        enabled: Only return enabled hosts if true
 
     Returns:
         hostlist: List of dicts of host data
@@ -289,7 +292,10 @@ def all_hosts():
     # Establish a database session
     database = db.Database()
     session = database.session()
-    result = session.query(Host.idx)
+    if enabled is True:
+        result = session.query(Host.idx).filter(Host.enabled == 1)
+    else:
+        result = session.query(Host.idx)
     session.close()
 
     # Add to the list of host idx values
