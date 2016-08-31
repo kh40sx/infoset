@@ -1,0 +1,20 @@
+snmp_groups:
+    - group_name: Corporate Campus
+      snmp_version: 3
+      snmp_secname: woohoo
+      snmp_community:
+      snmp_port: 161
+      snmp_authprotocol: sha
+      snmp_authpassword: testing123
+      snmp_privprotocol: des
+      snmp_privpassword: secret_password
+
+    - group_name: Remote Sites
+      snmp_version: 3
+      snmp_secname: foobar
+      snmp_community:
+      snmp_port: 161
+      snmp_authprotocol: sha
+      snmp_authpassword: testing123
+      snmp_privprotocol: aes
+      snmp_privpassword: secret_password

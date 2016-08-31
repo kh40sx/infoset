@@ -60,11 +60,11 @@ function AreaChart(uid, datapoint, target, width, height, fill) {
 	    .attr("class", "center-block")
 	  	.append("g")
 	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    
+
     d3.json(dataroute, function(error, data){
 
 		data.forEach(function(d) { d.x = new Date(d.x * 1000); });
-		 
+
 
 		x.domain(d3.extent(data, function(d) { return d.x; }));
 		y.domain([0, d3.max(data, function(d) { return d.y; })]);
@@ -77,18 +77,18 @@ function AreaChart(uid, datapoint, target, width, height, fill) {
 
 		svg.append("g")
 		  .attr("class", "x axis")
-		  .attr("class", "grid")		  
+		  .attr("class", "grid")
 		  .attr("transform", "translate(0," + height + ")")
 		  .call(xAxis);
 
 
-		  svg.append("g")			
+		  svg.append("g")
 		  .attr("class", "grid")
-		  .call(yAxis); 
+		  .call(yAxis);
 
 		svg.append("g")
 		  .attr("class", "y axis")
-		  .attr("class", "grid")		  
+		  .attr("class", "grid")
 		  .call(yAxis)
 		.append("text")
 		  .attr("transform", "rotate(-90)")
@@ -100,7 +100,7 @@ function AreaChart(uid, datapoint, target, width, height, fill) {
 }
 
 function StackedArea(uid, datapoint, target, width, height, colors){
-	
+
 	var dataroute = "/fetch/agent/graph/stacked/" + uid + "/" + datapoint;
 	var margin = {top: 20, right: 20, bottom: 30, left: 80},
 	    width = 630 - margin.left - margin.right,
@@ -113,16 +113,21 @@ function StackedArea(uid, datapoint, target, width, height, colors){
 	    .range([height, 0]);
 
 	var z = d3.scale.category20c();
-	
+
 	if (datapoint === "memory") {
-		colors = ['#71D5C3', '#009DB2', '#21D5C3', '#98e1d4', '#f0e0a0', '#e0e0a0', '#d0e0a0'];		
+		colors = ['#71D5C3', '#009DB2', '#21D5C3', '#98e1d4', '#f0e0a0'];
 	} else if (datapoint === "load") {
         colors = ['#F37372','#FA9469','#FDBB5D']
-	} else if (datapoint === 'cpu') {
-		colors = ['#71D5C3', '#009DB2', '#21D5C3']        
-	} else if (datapoint === 'network' ) {
-		colors = ['#BC71D5','#71D59E','#61D59E']
+	} else if (datapoint === "network") {
+        colors = ['#000000','#00FFFF']
+	} else if (datapoint === "cpu") {
+        colors = [
+            '#71D5C3', '#009DB2', '#21D5C3', '#98e1d4', '#f0e0a0',
+            '#FF0066', '#0000FF', '#009900', '#009999', '#FF9900',
+            '#660066', '#990000', '#000066', '#FFCC00', '#CC00FF'
+            ]
 	}
+
 
 	var xAxis = d3.svg.axis()
 	    .scale(x)
@@ -160,13 +165,13 @@ function StackedArea(uid, datapoint, target, width, height, colors){
 
 	d3.json(dataroute, function(error, data) {
 	  if (error) throw error;
-	  
+
 	  data.forEach(function(d) { d.x = new Date(d.x * 1000); });
 
 	  if (datapoint === "memory") {
   		  data.forEach(function(d) { d.y = d.y / 10000000000; });
 	  }
-	  
+
 	  var layers = stack(nest.entries(data));
 
 	  x.domain(d3.extent(data, function(d) { return d.x; }));

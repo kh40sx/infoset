@@ -282,7 +282,7 @@ class UpdateDB(object):
                 database = db.Database()
                 session = database.session()
                 record = session.query(Datapoint).filter(
-                    Datapoint.idx == idx_datapoint)
+                    Datapoint.idx == idx_datapoint).one()
                 record.last_timestamp = last_timestamp
                 database.commit(session, 1057)
 
