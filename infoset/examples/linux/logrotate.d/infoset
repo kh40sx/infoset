@@ -1,0 +1,13 @@
+# Sample logrotate file for infosetd
+
+/tmp/infoset.log {
+    daily
+    rotate 14
+    dateext
+    dateformat -%Y%m%d
+    create
+    compress
+    missingok
+    notifempty
+}
+
