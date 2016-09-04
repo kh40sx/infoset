@@ -10,6 +10,8 @@ import json
 import pprint
 import operator
 from os import path
+from os import walk
+
 # Pip imports
 import yaml
 from flask import render_template, jsonify, send_file, request, make_response
@@ -224,10 +226,10 @@ def search_host(idx_host, idx_agent):
 @infoset.route('/tables/<idx_host>/<idx_agent>')
 def tables(idx_host, idx_agent):
     hostname = _infoset_hostname()
-    ip = '192.168.1.1'
+    hosts = getHosts()
     return render_template('network-topo.html',
                             hostname=hostname,
-                            ip=ip)
+                            hosts=hosts)
 
 
 @infoset.route('/hosts/<host>')
@@ -584,3 +586,11 @@ def _infoset_hostname():
     host_object = GetHostIDX(1)
     host = host_object.hostname()
     return host
+
+def getHosts():
+    hosts = {}
+    for root, directories, files in walk('./www/static/yaml'):
+        for filename in files:
+            filepath = path.join(root, filename)
+            hosts[filename[:-5]] = filepath  # Add it to the list.
+    return hosts
