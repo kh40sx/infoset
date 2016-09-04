@@ -10,7 +10,6 @@ import json
 import pprint
 import operator
 from os import path
-
 # Pip imports
 import yaml
 from flask import render_template, jsonify, send_file, request, make_response
@@ -220,7 +219,15 @@ def search_host(idx_host, idx_agent):
     data = sorted(data, key=operator.itemgetter(3, 2))
 
     # Render data on screen
-    return render_template('search-host.html', agent_list=data)
+    return render_template('search-host.html', idx_host=idx_host, agent_list=data)
+
+@infoset.route('/tables/<idx_host>/<idx_agent>')
+def tables(idx_host, idx_agent):
+    hostname = _infoset_hostname()
+    ip = '192.168.1.1'
+    return render_template('network-topo.html',
+                            hostname=hostname,
+                            ip=ip)
 
 
 @infoset.route('/hosts/<host>')
@@ -297,8 +304,8 @@ def layerTwo(host):
     return jsonify(layer2)
 
 
-@infoset.route('/graphs/<uid>/<idx>', methods=["GET", "POST"])
-def graphs(uid, idx):
+@infoset.route('/graphs/<idx_agent>/<idx_datapoint>', methods=["GET", "POST"])
+def graphs(idx_agent, idx_datapoint):
     """Create graphs.
 
     Args:
@@ -309,9 +316,19 @@ def graphs(uid, idx):
         None
 
     """
-    single_datapoint = db_datapoint.GetIDX(idx)
+    # Get agent details
+    agent_name = db_agent.GetIDX(idx_agent).name()
+    uid = db_agent.GetIDX(idx_agent).uid()
+
+    agent_source = str(request.args.get('source'))
+
+    # Get a description of the datapoint
+    lang = language.Agent(agent_name)
+    
+    single_datapoint = db_datapoint.GetIDX(idx_datapoint)
     agent_label = single_datapoint.agent_label()
 
+    agent_description = lang.label_description(agent_label)
     colorwheel = ColorWheel(agent_label)
     fill = colorwheel.get_scheme()
     preset = TimeStamp()
@@ -319,8 +336,11 @@ def graphs(uid, idx):
     return render_template('graphs.html',
                            timestamps=timestamps,
                            uid=uid,
-                           datapoint=idx,
-                           fill=fill)
+                           datapoint=idx_datapoint,
+                           fill=fill,
+                           description=agent_description,
+                           agent_source=agent_name)
+
 
 
 @infoset.route('/receive/<uid>', methods=["POST"])
@@ -438,10 +458,6 @@ def fetch_graph_stacked(uid, stack_type):
 
     # Define label values
     labels['cpu'] = [
-        'cpu_times_percent_user',
-        'cpu_times_percent_nice',
-        'cpu_times_percent_system',
-        'cpu_times_percent_idle',
         'cpu_times_percent_iowait',
         'cpu_times_percent_irq',
         'cpu_times_percent_ctx_switches',
@@ -450,6 +466,10 @@ def fetch_graph_stacked(uid, stack_type):
         'cpu_times_percent_soft_interrupts',
         'cpu_times_percent_softirq',
         'cpu_times_percent_steal',
+        'cpu_times_percent_user',
+        'cpu_times_percent_nice',
+        'cpu_times_percent_system',
+        'cpu_times_percent_idle',
         'cpu_times_percent_guest',
         'cpu_times_percent_guest_nice'
     ]
@@ -504,7 +524,7 @@ def fetch_graph_stacked(uid, stack_type):
     return jsonify(values)
 
 
-@infoset.route('/fetch/agent/<ip>/table', methods=["GET"])
+@infoset.route('/fetch/agent/<ip_address>/table', methods=["GET"])
 def fetch_table(ip_address):
     """Return Network Layout tables.
 
@@ -548,7 +568,6 @@ def _datapoint_labels(idx_host, idx_agent, labels):
 
     # Return
     return listing
-
 
 def _infoset_hostname():
     """Get hostname for _infoset agent.
