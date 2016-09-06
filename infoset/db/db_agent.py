@@ -176,7 +176,7 @@ class GetUID(object):
                 break
         else:
             log_message = ('uid %s not found.') % (value)
-            log.log2die(1035, log_message)
+            log.log2die(1042, log_message)
 
         # Return the session to the database pool after processing
         session.close()
