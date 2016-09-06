@@ -98,7 +98,7 @@ def do_test(cli_args, config):
         log_message = (
             'Uncontactable host %s or no valid SNMP '
             'credentials found for it.') % (cli_args.host)
-        jm_general.logit(1006, log_message)
+        jm_general.log2die(1026, log_message)
 
 
 def do_pages(config, verbose=False):

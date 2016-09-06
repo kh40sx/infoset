@@ -8,6 +8,7 @@ import os
 import queue as Queue
 import threading
 
+from infoset.utils import log
 from infoset.utils import jm_general
 from infoset.utils import Translator
 
@@ -132,6 +133,7 @@ class PageMaker(threading.Thread):
             html = ('%s<h1>%s<h1>\n%s\n<br>\n%s\n<br>\n%s') % (
                 _html_header(host), host, table.device(),
                 table.ethernet(), _html_footer)
+
             with open(write_file, 'w') as file_handle:
                 file_handle.write(html)
 
@@ -180,7 +182,7 @@ def make(config, verbose=False):
                 'No YAML device file for host %s found in %s. '
                 'Run toolbox.py with the "poll" option first.'
                 '') % (host, config.snmp_directory())
-            jm_general.logit(1018, log_message, False)
+            log.log2quiet(1006, log_message)
             continue
         else:
             device_file_found = True
@@ -227,6 +229,65 @@ def make(config, verbose=False):
 
     # Clean up
     os.rmdir(temp_dir)
+
+def api_make(config, host, verbose=False):
+    """Process 'pagemaker' CLI option.
+
+    Args:
+        config: Configuration object
+        verbose: Verbose output if True
+
+    Returns:
+        None
+
+    """
+    # Initialize key variables
+    threads_in_pool = 1
+    device_file_found = False
+
+    # Create directory if needed
+    perm_dir = config.web_directory()
+    temp_dir = tempfile.mkdtemp()
+
+    # Delete all files in temporary directory
+    jm_general.delete_files(temp_dir)
+
+    # Skip if device file not found
+    if os.path.isfile(config.snmp_device_file(host)) is False:
+        log_message = (
+            'No YAML device file for host %s found in %s. '
+            'Run toolbox.py with the "poll" option first.'
+            '') % (host, config.snmp_directory())
+        log.log2quiet(1018, log_message)
+    else:
+        device_file_found = True
+
+    ####################################################################
+    #
+    # Define variables that will be required for the database update
+    # We have to initialize the dict during every loop to prevent
+    # data corruption
+    #
+    ####################################################################
+    data_dict = {}
+    data_dict['host'] = host
+    data_dict['config'] = config
+    data_dict['verbose'] = verbose
+    data_dict['temp_dir'] = temp_dir
+
+    table = HTMLTable(config, host)
+
+    # Create HTML output
+    html = ('%s%s\n%s\n\n%s\n') % (
+        _html_header(host), host, table.device(),
+        table.ethernet())
+
+
+    # Do the rest if device_file_found
+    if device_file_found is True:
+        # Wait on the queue until everything has been processed
+        return html
+
 
 
 def _port_enabled(port_data):
@@ -536,7 +597,7 @@ def _port_table(data_dict):
     header = [
         'Port', 'VLAN', 'State', 'Days Inactive',
         'Speed', 'Duplex', 'Port Label', 'CDP', 'LLDP']
-    output = '<table>\n'
+    output = '<table class="table">\n'
     thstart = '    <th>'
 
     # Create header
@@ -592,7 +653,7 @@ def _device_table(data_dict):
         data_dict['sysObjectID'],
         _uptime(data_dict['sysUpTime'])
         ]
-    output = '<table>'
+    output = '<table class="table">'
 
     # Create rows array
     for index, value in enumerate(values):

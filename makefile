@@ -5,6 +5,7 @@ MAX_LOCALS := 20
 VENV_PREFIX := venv/bin
 INFOSET:= venv/bin/infoset
 
+LESSC:= node_modules/.bin/lessc
 PYTHON := $(VENV_PREFIX)/python
 PIP := $(VENV_PREFIX)/pip3
 
@@ -117,25 +118,3 @@ nose: venv $(NOSETESTS)
 
 $(NOSETESTS):
 	$(PIP) install nose
-
-##################### #####################
-# git :: manage synch and merging upstream
-##################### #####################
-BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
-
-synch:
-	-git remote add upstream https://github.com/UWICompSociety/infoset
-	git fetch upstream
-	git merge upstream/master
-
-commit:
-	make clean
-	git add --all
-	-git commit
-
-contribute: commit synch
-	make test
-	make lint
-	git push origin $(BRANCH)
-
-
