@@ -1,5 +1,5 @@
 common:
-    log_file: /opt/infoset/logs/infoset.log
+    log_file: /opt/infoset/log/infoset.log
     language: en
     server: True
 
@@ -44,6 +44,16 @@ agents:
       monitor_agent_pid: True
       agent_hostnames:
         - 192.168.3.100
+
+    - agent_name: topology
+      agent_enabled: False
+      agent_filename: bin/agents/topology.py
+      monitor_agent_pid: True
+      agent_hostnames:
+        - 192.168.1.1
+        - 192.168.1.2
+        - 192.168.1.3
+        - 192.168.1.4
 
     - agent_name: linux_in
       agent_enabled: False

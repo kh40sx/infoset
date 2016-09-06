@@ -45,4 +45,6 @@ def get_queries(layer):
         queries: List of queries tagged the given layer
 
     """
-    return [item for item in QUERIES if layer in item.tags]
+    return [
+        class_object for class_object in QUERIES if layer in dir(
+            class_object)]
