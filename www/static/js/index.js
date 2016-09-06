@@ -1,20 +1,11 @@
-var app = angular.module('infoset', [], function ($interpolateProvider) {
-  $interpolateProvider.startSymbol('[[');
-  $interpolateProvider.endSymbol(']]');
+$(document).ready(function () {
+  var $home_button = $("#home-button");
+  var $search_button = $("#search-button");
+  var $search_box = $("#search-wrapper");
+
+  $home_button.on("click", function(e){
+    e.preventDefault();
+    console.log("Clicked");
+  });
+
 });
-
-app.controller('InfosetController', ['$scope', '$http',
-   function ($scope, $http) {
-     $scope.getHosts = function () {
-       $http({ method: 'GET', url: '/hosts' })
-       .then(function success(result) {
-         $scope.data = result.data;
-       },
-
-       function error(err) {
-         console.log(err);
-       });
-     };
-   },
-]);
-

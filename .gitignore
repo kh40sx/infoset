@@ -19,10 +19,9 @@ tags
 *.un~
 *~
 .#*
-
-# Ignore any compiled python code
-*.pyc
 __pycache__
+__pycache__/
+*.py[cod]
 
 #############################################################################
 # <Developer Section>
@@ -34,10 +33,13 @@ __pycache__
 
 # Ignore files in these directories and ALL subdirectories
 data/**
+etc/**
+www/static/img/**
+bin/agents/non-standard/**
 
 # Ignore files in these directories,  _BUT_
 # their subdirectories will be placed in the repository.
-etc/*
+foo/*
 
 # Distribution / packaging
 .Python
@@ -46,7 +48,6 @@ venv/
 bin/infoset
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -80,6 +81,9 @@ pip-selfcheck.json
 !data/snmp/.gitignore
 !data/aux/.gitignore
 !www/static/.gitignore
+!.gitignore
+!README
+!*.md
 
 #############################################################################
 # </Developer Section>

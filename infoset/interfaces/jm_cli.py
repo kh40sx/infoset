@@ -243,6 +243,7 @@ def _cli_pagemaker(subparsers, width=80):
             'Verbose Output.', width=width)
     )
 
+
 def _cli_monitor(subparsers, width=80):
     """Process "pagemaker" CLI commands.
 
