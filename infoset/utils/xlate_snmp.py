@@ -104,7 +104,7 @@ class Translator(object):
         """
         # Initialize key variables
         self.ports = {}
-        yaml_file = config.snmp_device_file(host)
+        yaml_file = config.topology_device_file(host)
 
         # Fail if yaml file doesn't exist
         if os.path.isfile(yaml_file) is False:

@@ -101,26 +101,26 @@ class TestConfig(unittest.TestCase):
         expected = self.configuration_dict['web_directory']
         self.assertEqual(result, expected)
 
-    def test_snmp_directory(self):
-        """Testing method / function snmp_directory."""
+    def test_topology_directory(self):
+        """Testing method / function topology_directory."""
         # Initializing key variables
         # Verify that directory exists
-        result = self.testobj.snmp_directory()
+        result = self.testobj.topology_directory()
         self.assertEqual(os.path.exists(result), True)
         self.assertEqual(os.path.isdir(result), True)
 
         # Doesn't fail because directory now exists
-        result = self.testobj.snmp_directory()
+        result = self.testobj.topology_directory()
         expected = ('%s/snmp') % (self.configuration_dict['data_directory'])
         self.assertEqual(result, expected)
 
-    def test_snmp_device_file(self):
-        """Testing method / function snmp_device_file."""
+    def test_topology_device_file(self):
+        """Testing method / function topology_device_file."""
         # Initializing key variables
         # Doesn't fail because directory now exists
-        result = self.testobj.snmp_device_file(self.random_string)
+        result = self.testobj.topology_device_file(self.random_string)
         expected = ('%s/%s.yaml') % (
-            self.testobj.snmp_directory(), self.random_string)
+            self.testobj.topology_directory(), self.random_string)
         self.assertEqual(result, expected)
 
     def test_ingest_cache_directory(self):

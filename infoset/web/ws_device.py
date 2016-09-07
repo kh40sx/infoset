@@ -177,11 +177,11 @@ def make(config, verbose=False):
     # Get host data and write to file
     for host in config.hosts():
         # Skip if device file not found
-        if os.path.isfile(config.snmp_device_file(host)) is False:
+        if os.path.isfile(config.topology_device_file(host)) is False:
             log_message = (
                 'No YAML device file for host %s found in %s. '
                 'Run toolbox.py with the "poll" option first.'
-                '') % (host, config.snmp_directory())
+                '') % (host, config.topology_directory())
             log.log2quiet(1006, log_message)
             continue
         else:
@@ -230,6 +230,7 @@ def make(config, verbose=False):
     # Clean up
     os.rmdir(temp_dir)
 
+
 def api_make(config, host, verbose=False):
     """Process 'pagemaker' CLI option.
 
@@ -242,22 +243,20 @@ def api_make(config, host, verbose=False):
 
     """
     # Initialize key variables
-    threads_in_pool = 1
     device_file_found = False
 
     # Create directory if needed
-    perm_dir = config.web_directory()
     temp_dir = tempfile.mkdtemp()
 
     # Delete all files in temporary directory
     jm_general.delete_files(temp_dir)
 
     # Skip if device file not found
-    if os.path.isfile(config.snmp_device_file(host)) is False:
+    if os.path.isfile(config.topology_device_file(host)) is False:
         log_message = (
             'No YAML device file for host %s found in %s. '
-            'Run toolbox.py with the "poll" option first.'
-            '') % (host, config.snmp_directory())
+            'topoloy agent has not discovered it yet.'
+            '') % (host, config.topology_directory())
         log.log2quiet(1018, log_message)
     else:
         device_file_found = True
@@ -269,12 +268,6 @@ def api_make(config, host, verbose=False):
     # data corruption
     #
     ####################################################################
-    data_dict = {}
-    data_dict['host'] = host
-    data_dict['config'] = config
-    data_dict['verbose'] = verbose
-    data_dict['temp_dir'] = temp_dir
-
     table = HTMLTable(config, host)
 
     # Create HTML output
@@ -282,12 +275,10 @@ def api_make(config, host, verbose=False):
         _html_header(host), host, table.device(),
         table.ethernet())
 
-
     # Do the rest if device_file_found
     if device_file_found is True:
         # Wait on the queue until everything has been processed
         return html
-
 
 
 def _port_enabled(port_data):

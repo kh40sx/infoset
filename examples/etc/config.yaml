@@ -5,7 +5,7 @@ common:
 
 server:
     web_directory: /home/infoset/public_html
-    data_directory: /opt/infoset/cache/topology
+    data_directory: /opt/infoset/cache/data
     ingest_cache_directory: /opt/infoset/cache/ingest
     ingest_threads: 20
     agent_threads: 10

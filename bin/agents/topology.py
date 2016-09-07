@@ -52,16 +52,17 @@ class PollingAgent(object):
         self.agent_name = 'topology'
 
         # Get configuration
-        self.config = jm_configuration.ConfigAgent(self.agent_name)
-        server_config = jm_configuration.Config()
+        self.agent_config = jm_configuration.ConfigAgent(self.agent_name)
+        self.server_config = jm_configuration.Config()
+        self.snmp_config = jm_configuration.ConfigSNMP()
 
         # Cleanup, move temporary files to clean permanent directory.
         # Delete temporary directory
-        self.perm_dir = server_config.data_directory()
-        if os.path.isdir(self.perm_dir):
-            jm_general.delete_files(self.perm_dir)
+        topology_directory = self.server_config.topology_directory()
+        if os.path.isdir(topology_directory):
+            jm_general.delete_files(topology_directory)
         else:
-            os.makedirs(self.perm_dir, 0o755)
+            os.makedirs(topology_directory, 0o755)
 
     def name(self):
         """Return agent name.
@@ -111,11 +112,13 @@ class PollingAgent(object):
         pollers = []
 
         # Create a list of polling objects
-        hostnames = self.config.agent_hostnames()
+        hostnames = self.agent_config.agent_hostnames()
 
         for hostname in hostnames:
             # Add poller
-            poller = Poller(hostname, self.agent_name, self.perm_dir)
+            poller = Poller(
+                hostname, self.agent_config,
+                self.server_config, self.snmp_config)
             pollers.append(poller)
 
         # Start threaded polling
@@ -138,7 +141,7 @@ class Poller(object):
         post:
     """
 
-    def __init__(self, hostname, agent_name, perm_dir):
+    def __init__(self, hostname, agent_config, server_config, snmp_config):
         """Method initializing the class.
 
         Args:
@@ -151,18 +154,14 @@ class Poller(object):
 
         """
         # Initialize key variables
-        self.agent_name = agent_name
+        self.agent_name = agent_config.name()
         self.hostname = hostname
-        self.perm_dir = perm_dir
-
-        # Get configuration
-        config = jm_configuration.ConfigAgent(self.agent_name)
+        self.server_config = server_config
 
         # Initialize key variables
-        self.agent = Agent.Agent(config, hostname)
+        self.agent = Agent.Agent(agent_config, hostname)
 
         # Get snmp configuration information from infoset
-        snmp_config = jm_configuration.ConfigSNMP()
         validate = snmp_manager.Validate(hostname, snmp_config.snmp_auth())
         self.snmp_params = validate.credentials()
         self.snmp_object = snmp_manager.Interact(self.snmp_params)
@@ -198,6 +197,8 @@ class Poller(object):
         """
         # Initialize key variables
         temp_dir = tempfile.mkdtemp()
+        temp_file = ('%s/%s.yaml') % (temp_dir, self.hostname)
+        perm_file = self.server_config.topology_device_file(self.hostname)
 
         # Get data
         log_message = (
@@ -205,12 +206,12 @@ class Poller(object):
             '') % (self.hostname)
         log.log2quiet(1019, log_message)
 
+        # Create YAML file by polling device
         status = snmp_info.Query(self.snmp_object)
         data = status.everything()
         yaml_string = jm_general.dict2yaml(data)
 
         # Dump data
-        temp_file = ('%s/%s.yaml') % (temp_dir, self.hostname)
         with open(temp_file, 'w') as file_handle:
             file_handle.write(yaml_string)
 
@@ -221,7 +222,7 @@ class Poller(object):
         log.log2quiet(1019, log_message)
 
         # Clean up files
-        jm_general.move_files(temp_dir, self.perm_dir)
+        os.rename(temp_file, perm_file)
         os.rmdir(temp_dir)
 
 

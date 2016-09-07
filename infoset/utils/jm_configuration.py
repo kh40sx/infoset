@@ -138,18 +138,18 @@ class Config(object):
         # Return
         return value
 
-    def snmp_directory(self):
-        """Determine the snmp_directory.
+    def topology_directory(self):
+        """Determine the topology_directory.
 
         Args:
             None
 
         Returns:
-            value: configured snmp_directory
+            value: configured topology_directory
 
         """
         # Get parameter
-        value = ('%s/snmp') % (self.data_directory())
+        value = ('%s/topology') % (self.data_directory())
 
         # Create directory if neccessary
         if (os.path.isdir(self.data_directory()) is True) and (
@@ -159,14 +159,14 @@ class Config(object):
         # Return
         return value
 
-    def snmp_device_file(self, host):
-        """Determine the snmp_device_file.
+    def topology_device_file(self, host):
+        """Determine the topology_device_file.
 
         Args:
             host: Hostname
 
         Returns:
-            value: configured snmp_device_file
+            value: configured topology_device_file
 
         """
         # Get parameter
