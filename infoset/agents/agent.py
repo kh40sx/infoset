@@ -545,6 +545,38 @@ class AgentThread(threading.Thread):
             self.queue.task_done()
 
 
+def agent_sleep(agent_name, seconds=300):
+    """Make agent sleep for a specified time, while updating PID every 300s.
+
+    Args:
+        agent_name: Name of agent
+        seconds: number of seconds to sleep
+
+    Returns:
+        uid: UID for agent
+
+    """
+    # Initialize key variables
+    interval = 300
+    remaining = seconds
+
+    # Start processing
+    while True:
+        # Update the PID file timestamp (important)
+        update = hidden.Touch()
+        update.pid(agent_name)
+
+        # Sleep for at least "interval" number of seconds
+        if remaining < interval:
+            time.sleep(remaining)
+            break
+        else:
+            time.sleep(interval)
+
+        # Decrement remaining time
+        remaining = remaining - interval
+
+
 def get_uid(agent_name):
     """Create a permanent UID for the agent.
 

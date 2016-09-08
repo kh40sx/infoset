@@ -17,7 +17,6 @@ You must place your configuration file in the `etc/` directory as your permanent
 
 ```
 server:
-    web_directory: /home/infoset/public_html
     data_directory: /opt/infoset/cache/topology
     ingest_cache_directory: /opt/infoset/cache/ingest
     ingest_threads: 20

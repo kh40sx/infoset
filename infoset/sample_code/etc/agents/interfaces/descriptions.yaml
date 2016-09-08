@@ -1,5 +1,0 @@
-agent_source_descriptions:
-    ifHCInOctets: Input Bandwidth (64 bit)
-    ifHCOutOctets: Output Bandwidth (64 bit)
-    ifInOctets: Input Bandwidth
-    ifOutOctets: Output Bandwidth

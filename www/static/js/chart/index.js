@@ -276,7 +276,6 @@ function MultiLineChart(uid, datapoint, target, width, height, colors){
 
 	  var dataNest = nest.entries(data);
 	    dataNest.forEach(function(d, i) {
-		console.log(colors[i]);
 		svg.append("path")
 		    .attr("class", "line")
 		    .attr("d", line(d.values)) 

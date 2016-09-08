@@ -55,6 +55,7 @@ lib/
 lib64/
 parts/
 sdist/
+dist/
 var/
 include/
 *.egg-info/

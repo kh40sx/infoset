@@ -3,18 +3,12 @@
 
 import tempfile
 import textwrap
-import time
 import os
-import queue as Queue
-import threading
 
+# Import infoset libraries
 from infoset.utils import log
 from infoset.utils import jm_general
-from infoset.utils import Translator
-
-
-# Define a key global variable
-THREAD_QUEUE = Queue.Queue()
+from infoset.topology import Translator
 
 
 class HTMLTable(object):
@@ -77,187 +71,32 @@ class HTMLTable(object):
         return html
 
 
-class PageMaker(threading.Thread):
-    """Threaded page creation using device YAML files.
-
-    Graciously modified from:
-    http://www.ibm.com/developerworks/aix/library/au-threadingpython/
-
-    """
-
-    def __init__(self, queue):
-        """Initialize the class.
-
-        Args:
-            queue: Threading queue object
-
-        Returns:
-            None
-
-        """
-        # Start processing
-        threading.Thread.__init__(self)
-        self.queue = queue
-
-    def run(self):
-        """Update the database using threads.
-
-        Args:
-            None
-
-        Returns:
-            None
-
-        """
-        # Start processing
-        while True:
-            # Get the data_dict
-            data_dict = self.queue.get()
-            host = data_dict['host']
-            config = data_dict['config']
-            verbose = data_dict['verbose']
-            temp_dir = data_dict['temp_dir']
-
-            # Initialize key variables
-            write_file = ('%s/%s.html') % (temp_dir, host)
-
-            # Verbose output
-            if verbose is True:
-                output = ('Processing on: host %s') % (host)
-                print(output)
-
-            # Process YAML file for host
-            table = HTMLTable(config, host)
-
-            # Create HTML output
-            html = ('%s<h1>%s<h1>\n%s\n<br>\n%s\n<br>\n%s') % (
-                _html_header(host), host, table.device(),
-                table.ethernet(), _html_footer)
-
-            with open(write_file, 'w') as file_handle:
-                file_handle.write(html)
-
-            # Verbose output
-            if verbose is True:
-                output = ('Completed run: host %s') % (host)
-                print(output)
-
-            # Signals to queue job is done
-            self.queue.task_done()
-
-
-def make(config, verbose=False):
-    """Process 'pagemaker' CLI option.
+def create(config, host):
+    """Create topology page for host.
 
     Args:
         config: Configuration object
-        verbose: Verbose output if True
+        host: Hostname to create pages for
 
     Returns:
         None
 
     """
     # Initialize key variables
-    threads_in_pool = 10
     device_file_found = False
 
     # Create directory if needed
-    perm_dir = config.web_directory()
-    temp_dir = tempfile.mkdtemp()
-
-    # Delete all files in temporary directory
-    jm_general.delete_files(temp_dir)
-
-    # Spawn a pool of threads, and pass them queue instance
-    for _ in range(threads_in_pool):
-        update_thread = PageMaker(THREAD_QUEUE)
-        update_thread.daemon = True
-        update_thread.start()
-
-    # Get host data and write to file
-    for host in config.hosts():
-        # Skip if device file not found
-        if os.path.isfile(config.snmp_device_file(host)) is False:
-            log_message = (
-                'No YAML device file for host %s found in %s. '
-                'Run toolbox.py with the "poll" option first.'
-                '') % (host, config.snmp_directory())
-            log.log2quiet(1006, log_message)
-            continue
-        else:
-            device_file_found = True
-
-        ####################################################################
-        #
-        # Define variables that will be required for the database update
-        # We have to initialize the dict during every loop to prevent
-        # data corruption
-        #
-        ####################################################################
-        data_dict = {}
-        data_dict['host'] = host
-        data_dict['config'] = config
-        data_dict['verbose'] = verbose
-        data_dict['temp_dir'] = temp_dir
-        THREAD_QUEUE.put(data_dict)
-
-    # Do the rest if device_file_found
-    if device_file_found is True:
-        # Wait on the queue until everything has been processed
-        THREAD_QUEUE.join()
-
-        # PYTHON BUG. Join can occur while threads are still shutting down.
-        # This can create spurious "Exception in thread (most likely raised
-        # during interpreter shutdown)" errors.
-        # The "time.sleep(1)" adds a delay to make sure things really terminate
-        # properly. This seems to be an issue on virtual machines in Dev only
-        time.sleep(1)
-
-        # Create index file
-        write_file = ('%s/index.html') % (temp_dir)
-        index_html = _index_html(config)
-        with open(write_file, 'w') as file_handle:
-            file_handle.write(index_html)
-
-        # Cleanup, move temporary files to clean permanent directory.
-        # Delete temporary directory
-        if os.path.isdir(perm_dir):
-            jm_general.delete_files(perm_dir)
-        else:
-            os.makedirs(perm_dir, 0o755)
-        jm_general.move_files(temp_dir, perm_dir)
-
-    # Clean up
-    os.rmdir(temp_dir)
-
-def api_make(config, host, verbose=False):
-    """Process 'pagemaker' CLI option.
-
-    Args:
-        config: Configuration object
-        verbose: Verbose output if True
-
-    Returns:
-        None
-
-    """
-    # Initialize key variables
-    threads_in_pool = 1
-    device_file_found = False
-
-    # Create directory if needed
-    perm_dir = config.web_directory()
     temp_dir = tempfile.mkdtemp()
 
     # Delete all files in temporary directory
     jm_general.delete_files(temp_dir)
 
     # Skip if device file not found
-    if os.path.isfile(config.snmp_device_file(host)) is False:
+    if os.path.isfile(config.topology_device_file(host)) is False:
         log_message = (
             'No YAML device file for host %s found in %s. '
-            'Run toolbox.py with the "poll" option first.'
-            '') % (host, config.snmp_directory())
+            'topoloy agent has not discovered it yet.'
+            '') % (host, config.topology_directory())
         log.log2quiet(1018, log_message)
     else:
         device_file_found = True
@@ -269,12 +108,6 @@ def api_make(config, host, verbose=False):
     # data corruption
     #
     ####################################################################
-    data_dict = {}
-    data_dict['host'] = host
-    data_dict['config'] = config
-    data_dict['verbose'] = verbose
-    data_dict['temp_dir'] = temp_dir
-
     table = HTMLTable(config, host)
 
     # Create HTML output
@@ -282,12 +115,10 @@ def api_make(config, host, verbose=False):
         _html_header(host), host, table.device(),
         table.ethernet())
 
-
     # Do the rest if device_file_found
     if device_file_found is True:
         # Wait on the queue until everything has been processed
         return html
-
 
 
 def _port_enabled(port_data):

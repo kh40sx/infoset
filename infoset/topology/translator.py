@@ -19,7 +19,7 @@ class Translator(object):
 
     For example, there isn’t a standard way of reporting ethernet duplex
     values with different manufacturers exposing this data to different MIBs.
-    The jm_xlate file attempts to determine the true duplex value of the
+    This class file attempts to determine the true duplex value of the
     device by testing the presence of one or more OID values in the data.
     It adds a ‘duplex’ data key to self.ports to act as the canonical key for
     duplex across all devices.
@@ -104,7 +104,7 @@ class Translator(object):
         """
         # Initialize key variables
         self.ports = {}
-        yaml_file = config.snmp_device_file(host)
+        yaml_file = config.topology_device_file(host)
 
         # Fail if yaml file doesn't exist
         if os.path.isfile(yaml_file) is False:

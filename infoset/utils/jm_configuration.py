@@ -138,18 +138,18 @@ class Config(object):
         # Return
         return value
 
-    def snmp_directory(self):
-        """Determine the snmp_directory.
+    def topology_directory(self):
+        """Determine the topology_directory.
 
         Args:
             None
 
         Returns:
-            value: configured snmp_directory
+            value: configured topology_directory
 
         """
         # Get parameter
-        value = ('%s/snmp') % (self.data_directory())
+        value = ('%s/topology') % (self.data_directory())
 
         # Create directory if neccessary
         if (os.path.isdir(self.data_directory()) is True) and (
@@ -159,45 +159,18 @@ class Config(object):
         # Return
         return value
 
-    def snmp_device_file(self, host):
-        """Determine the snmp_device_file.
+    def topology_device_file(self, host):
+        """Determine the topology_device_file.
 
         Args:
             host: Hostname
 
         Returns:
-            value: configured snmp_device_file
+            value: configured topology_device_file
 
         """
         # Get parameter
-        value = ('%s/%s.yaml') % (self.data_directory(), host)
-
-        # Return
-        return value
-
-    def web_directory(self):
-        """Determine the web_directory.
-
-        Args:
-            None
-
-        Returns:
-            value: configured web_directory
-
-        """
-        # Initialize key variables
-        key = 'server'
-        sub_key = 'web_directory'
-
-        # Process configuration
-        value = _key_sub_key(key, sub_key, self.config_dict)
-
-        # Check if value exists
-        if os.path.isdir(value) is False:
-            log_message = (
-                'web_directory: "%s" '
-                'in configuration doesn\'t exist!') % (value)
-            log.log2die(1093, log_message)
+        value = ('%s/%s.yaml') % (self.topology_directory(), host)
 
         # Return
         return value

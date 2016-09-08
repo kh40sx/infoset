@@ -256,7 +256,7 @@ class ValidateCache(object):
                 if db_hostagent.host_agent_exists(
                         idx_host, idx_agent) is True:
                     # Check if this host / agent has been updated before
-                    last_timesamp = db_hostagent.GetIDX(
+                    last_timesamp = db_hostagent.GetHostAgent(
                         idx_host, idx_agent).last_timestamp()
 
                     # Validate
