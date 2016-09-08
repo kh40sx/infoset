@@ -19,7 +19,7 @@ class Translator(object):
 
     For example, there isn’t a standard way of reporting ethernet duplex
     values with different manufacturers exposing this data to different MIBs.
-    The jm_xlate file attempts to determine the true duplex value of the
+    This class file attempts to determine the true duplex value of the
     device by testing the presence of one or more OID values in the data.
     It adds a ‘duplex’ data key to self.ports to act as the canonical key for
     duplex across all devices.

@@ -7,14 +7,13 @@ Contains all routes that infoset's Flask webserver uses
 from datetime import datetime
 import time
 import json
-import pprint
 import operator
 from os import path
 from os import walk
 
 # Pip imports
 import yaml
-from flask import render_template, jsonify, send_file, request, make_response
+from flask import render_template, jsonify, request
 
 # Infoset imports
 from infoset.db.db_agent import GetUID
@@ -24,19 +23,19 @@ from infoset.db.db_orm import Agent
 from infoset.db import db_hostagent
 from infoset.db.db_host import GetIDX as GetHostIDX
 from infoset.db.db import Database
-from infoset.utils import TimeStamp
-from infoset.utils import ColorWheel
+from infoset.charts import TimeStamp
+from infoset.charts import ColorWheel
 from infoset.utils import jm_general
 from infoset.metadata import language
 from infoset.db import db_datapoint
 from infoset.db import db_agent
 from infoset.db import db_host
-from infoset.web import ws_device
+from infoset.topology import pages
 from www import infoset
 
 
 @infoset.template_filter('strftime')
-def _jinja2_filter_datetime(timestamp, fmt=None):
+def _jinja2_filter_datetime(timestamp):
     timestamp = time.strftime('%H:%M (%d-%m-%Y) ', time.localtime(timestamp))
     return timestamp
 
@@ -71,8 +70,10 @@ def index():
 
     # Render the home page
     return render_template('index.html',
-                           hosts=hosts)
-                    
+                           data=data_point_dict,
+                           agent_list=agent_list,
+                           uid=uid,
+                           hostname=host)
 @infoset.route('/<uid>')
 def overview(uid):
     """Function for showing UID related data for agent.
@@ -212,22 +213,35 @@ def search_host(idx_host, idx_agent):
 
         # Append to data
         data.append(
-            (hostname, agent_name, source, final_description, idx_datapoint, uid, datex)
+            (hostname, agent_name, source,
+             final_description, idx_datapoint, uid, datex)
         )
 
     # Sort list by label_description and source
     data = sorted(data, key=operator.itemgetter(3, 2))
 
     # Render data on screen
-    return render_template('search-host.html', idx_host=idx_host, agent_list=data)
+    return render_template(
+        'search-host.html', idx_host=idx_host, agent_list=data)
+
 
 @infoset.route('/tables/<idx_host>/<idx_agent>')
 def tables(idx_host, idx_agent):
+    """Function for creating host tables.
+
+    Args:
+        idx_host: Index of host
+        idx_agent: Index of agent
+
+    Returns:
+        HTML
+
+    """
     hostname = _infoset_hostname()
-    hosts = getHosts()
+    hosts = _get_yaml_hosts()
     return render_template('network-topo.html',
-                            hostname=hostname,
-                            hosts=hosts)
+                           hostname=hostname,
+                           hosts=hosts)
 
 
 @infoset.route('/hosts/<host>')
@@ -320,11 +334,9 @@ def graphs(idx_agent, idx_datapoint):
     agent_name = db_agent.GetIDX(idx_agent).name()
     uid = db_agent.GetIDX(idx_agent).uid()
 
-    agent_source = str(request.args.get('source'))
-
     # Get a description of the datapoint
     lang = language.Agent(agent_name)
-    
+
     single_datapoint = db_datapoint.GetIDX(idx_datapoint)
     agent_label = single_datapoint.agent_label()
 
@@ -340,7 +352,6 @@ def graphs(idx_agent, idx_datapoint):
                            fill=fill,
                            description=agent_description,
                            agent_source=agent_name)
-
 
 
 @infoset.route('/receive/<uid>', methods=["POST"])
@@ -538,7 +549,7 @@ def fetch_table(ip_address):
     # Config Object
     config = infoset.config['GLOBAL_CONFIG']
 
-    html = ws_device.api_make(config, ip_address, True)
+    html = pages.create(config, ip_address)
 
     return html
 
@@ -585,9 +596,18 @@ def _infoset_hostname():
     host = host_object.hostname()
     return host
 
-def getHosts():
+def _get_yaml_hosts():
+    """Get hosts listed in toplogy YAML files.
+
+    Args:
+        None
+
+    Returns:
+        hosts: Dict of hostnames
+
+    """
     hosts = {}
-    for root, directories, files in walk('./www/static/yaml'):
+    for root, _, files in walk('./www/static/yaml'):
         for filename in files:
             filepath = path.join(root, filename)
             hosts[filename[:-5]] = filepath  # Add it to the list.

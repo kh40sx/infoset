@@ -95,7 +95,7 @@ $ mkdir -p /opt/infoset/cache/agents
 Run the install scripts.
 ```
 $ pip3 install --user sqlalchemy
-$ ./setup.py --install
+$ python3 setup.py install
 $ source ~/.bashrc
 $ sudo make
 $ source venv/bin/activate
@@ -115,7 +115,7 @@ These will be convered in detail next:
 The `examples/` directory includes a number of sample files. These will now be explained.
 
 ### infoset Configuration Samples
-The `examples/configuration` directory includes a sample file that can be edited. The `README.md` file there explains the parameters.
+The `examples/etc` directory includes a sample file that can be edited. The `README.md` file there explains the parameters.
 
 You must place your configuration file in the `etc/` directory as your permanent configuration file location.
 

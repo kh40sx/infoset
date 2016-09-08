@@ -24,10 +24,16 @@ class TimeStamp(object):
             30 * seconds_per_day,
             365 * seconds_per_day
         ]
-        self.descriptions = [
-            'Today', 'This Week','This Month', 'This Year']
-        self.id_labels = ['one-hour', 'twenty-four-hours', 'one-week','one-month']
 
+        # Define descriptions for each graph type
+        self.descriptions = [
+            'Today', 'This Week', 'This Month', 'This Year']
+
+        # Define labels for each graph type to be used in templates
+        self.id_labels = [
+            'one-hour', 'twenty-four-hours', 'one-week', 'one-month']
+
+        # Process data
         self._process()
 
     def _process(self):
@@ -50,7 +56,9 @@ class TimeStamp(object):
             start = now - timestamp
             self.start_times.append(start)
             self.stop_times.append(now)
-        self.times = list(zip(self.start_times, self.stop_times, self.descriptions, self.id_labels))
+        self.times = list(zip(
+            self.start_times, self.stop_times,
+            self.descriptions, self.id_labels))
 
     def get_times(self):
         """Return chart duration data.

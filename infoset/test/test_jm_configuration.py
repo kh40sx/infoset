@@ -35,7 +35,6 @@ class TestConfig(unittest.TestCase):
         configuration = (
             """
             log_file: /tmp/%s/Vupstrr79LdeYuVD/infoset.log
-            web_directory: /tmp/%s/HMSLAa65d8D2qwEu
             data_directory: /tmp/%s/6maYNHCVZyQ9yJFm/data
             ingest_cache_directory: /tmp/%s/p9ZuZrRzWAd8GeSc
             poller_threads: 20
@@ -86,19 +85,6 @@ class TestConfig(unittest.TestCase):
         os.makedirs(self.configuration_dict['data_directory'])
         result = self.testobj.data_directory()
         expected = self.configuration_dict['data_directory']
-        self.assertEqual(result, expected)
-
-    def test_web_directory(self):
-        """Testing method / function web_directory."""
-        # Initializing key variables
-        # Fails because directory doesn't exist
-        with self.assertRaises(SystemExit):
-            self.testobj.web_directory()
-
-        # Doesn't fail because directory now exists
-        os.makedirs(self.configuration_dict['web_directory'])
-        result = self.testobj.web_directory()
-        expected = self.configuration_dict['web_directory']
         self.assertEqual(result, expected)
 
     def test_topology_directory(self):

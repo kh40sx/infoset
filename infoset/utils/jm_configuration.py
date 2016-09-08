@@ -170,34 +170,7 @@ class Config(object):
 
         """
         # Get parameter
-        value = ('%s/%s.yaml') % (self.data_directory(), host)
-
-        # Return
-        return value
-
-    def web_directory(self):
-        """Determine the web_directory.
-
-        Args:
-            None
-
-        Returns:
-            value: configured web_directory
-
-        """
-        # Initialize key variables
-        key = 'server'
-        sub_key = 'web_directory'
-
-        # Process configuration
-        value = _key_sub_key(key, sub_key, self.config_dict)
-
-        # Check if value exists
-        if os.path.isdir(value) is False:
-            log_message = (
-                'web_directory: "%s" '
-                'in configuration doesn\'t exist!') % (value)
-            log.log2die(1093, log_message)
+        value = ('%s/%s.yaml') % (self.topology_directory(), host)
 
         # Return
         return value
