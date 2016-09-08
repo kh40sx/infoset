@@ -121,27 +121,6 @@
           </table>
         </div>
       </div>
-      <div class="data-box" id="home-box">
-        <div class="container-fluid">
-          <div class="row box-title">
-            <div class="col-lg-12">
-              <h5>More Graphs</h5>
-            </div>
-          </div>
-          <div class="thumbnail-graph" id="cpu-thumbnail-area">
-
-          </div>
-          <div class="thumbnail-graph" id="memory-thumbnail-area">
-
-          </div>
-          <div class="thumbnail-graph" id="disk-thumbnail-area">
-
-          </div>
-          <div class="thumbnail-graph" id="network-thumbnail-area">
-
-          </div>
-        </div>
-      </div>
     </div>
     <div class="col-lg-9">
       <div class="row">
@@ -150,6 +129,9 @@
             <div class="row">
               <div class="col-md-1">
                 <p><a href="/search/1/1">Performance</a></p>
+              </div>
+              <div class="col-md-2">
+                <p><a href="/tables/1/1">Network Layout</a></p>
               </div>
             </div>
           </div>
@@ -177,22 +159,16 @@
                     <tbody>
                       <tr>
                         <td width="20px">
-                          <i class="fa fa-square" aria-hidden="true" style="color: #71D5C3;"></i>
-                        </td>
-                        <td>
-                          <p class="small">cpu idle</p>
-                        </td>
-                        <td width="20px">
-                          <i class="fa fa-square" aria-hidden="true" style="color: #009DB2;"></i>
-                        </td>
-                        <td>
-                          <p class="small">cpu interrupts</p>
-                        </td>
-                        <td width="20px">
                           <i class="fa fa-square" aria-hidden="true" style="color: #f0e0a0;"></i>
                         </td>
                         <td>
-                          <p class="small">cpu nice</p>
+                          <p class="small">System</p>
+                        </td>
+                        <td width="20px">
+                          <i class="fa fa-square" aria-hidden="true" style="color: #ff9900;"></i>
+                        </td>
+                        <td>
+                          <p class="small">User</p>
                         </td>
                       </tr>
                     </tbody>
@@ -257,7 +233,7 @@
                     <tbody>
                       <tr>
                         <td width="20px">
-                          <i class="fa fa-square" aria-hidden="true" style="color: #BC71D5;"></i>
+                          <i class="fa fa-square" aria-hidden="true" style="color: #4a89e6;"></i>
                         </td>
                         <td>
                           <p class="small">Bytes In</p>
@@ -309,24 +285,9 @@
 </div>
 <script type="text/javascript">
 
-    {% for datapoint_name, value in data.items() %}
-      {% if "memory_available" in datapoint_name %}
-        AreaChart("{{uid}}", "{{value[0]}}", "#memory-thumbnail-area", 390, 160, "#00c8a4");
-      {% endif %}
-      {% if "load_average_01min" in datapoint_name %}
-        AreaChart("{{uid}}", "{{value[0]}}", "#cpu-thumbnail-area", 390, 160, "#F37372");
-      {% endif %}
-      {% if "disk_usage_total" in datapoint_name %}
-        AreaChart("{{uid}}", "{{value[0]}}", "#disk-thumbnail-area", 390, 160, "#009DB2");
-      {% endif %}
-      {% if "network_packets_sent" in datapoint_name %}
-        AreaChart("{{uid}}", "{{value[0]}}", "#network-thumbnail-area", 390, 160, "#009DB2");
-      {% endif %}
-    {% endfor %}
-
     StackedArea("{{uid}}","memory", "#memory-graph-area", 630, 240, "#00c8a4");
     StackedArea("{{uid}}","load", "#load-graph-area", 630, 240, "#00c8a4");
-    StackedArea("{{uid}}","network", "#network-graph-area", 630, 240, "#00c8a4");
+    MultiLineChart("{{uid}}","network", "#network-graph-area", 630, 240, "#00c8a4");
     StackedArea("{{uid}}","cpu", "#cpu-graph-area", 630, 240, "#00c8a4");
 </script>
 {% endblock %}

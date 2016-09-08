@@ -36,9 +36,6 @@ venv: virtual-env
 PIP_EXISTS:
 	@which pip3 > /dev/null
 
-RRD_EXISTS:
-	@which rrdtool > /dev/null
-
 virtual-env: PIP_EXISTS venv-installed
 	virtualenv venv
 
@@ -57,7 +54,7 @@ clean_venv:
 ##################### #####################
 # local dependencies
 ##################### #####################
-install: RRD_EXISTS
+install:
 	$(PIP) install -r requirements.txt
 
 .PHONY: setup

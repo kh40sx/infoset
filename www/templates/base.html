@@ -30,6 +30,13 @@
     }(document, 'script'));
 </script>
 
+<script>
+      function searchforNav(){
+          var link = document.getElementById("seachquery").value;
+      		location.href = '/search/'+link;
+      }
+</script>
+
 <script src="{{ static('js/vendors/bootstrap/bootstrap-affix.js') }}"></script>
 <script src="{{ static('js/vendors/bootstrap/bootstrap-alert.js') }}"></script>
 <script src="{{ static('js/vendors/bootstrap/bootstrap-dropdown.js') }}"></script>

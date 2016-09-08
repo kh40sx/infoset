@@ -2,7 +2,7 @@
 test.py
 # Ignore all vim / vi temporary files
 # Created by https://www.gitignore.io/api/vim
-
+.idea*
 ### Vim ###
 # swap
 [._]*.s[a-w][a-z]
