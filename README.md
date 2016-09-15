@@ -107,7 +107,7 @@ There are a number of required steps to configure `infoset`.
 
 1. Place a valid configuration file in the `etc/` directory
 2. Run the `bin/agentsd.py --start` script to start data collection
-3. Run the `server.py` script to view the web pages
+3. Run the `./server.py` script to view the web pages
 
 These will be convered in detail next:
 
