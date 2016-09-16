@@ -42,7 +42,7 @@ class GetHost(object):
         """
         # Initialize important variables
         self.data_dict = defaultdict(dict)
-        value = hostname.encode()
+        value = str(hostname).encode()
 
         # Establish a database session
         database = db.Database()
@@ -122,7 +122,7 @@ class GetHost(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['enabled']
+        value = bool(self.data_dict['enabled'])
         return value
 
     def ip_address(self):
@@ -150,7 +150,7 @@ class GetHost(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['snmp_enabled']
+        value = bool(self.data_dict['snmp_enabled'])
         return value
 
 
@@ -244,7 +244,7 @@ class GetIDX(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['enabled']
+        value = bool(self.data_dict['enabled'])
         return value
 
     def ip_address(self):
@@ -272,7 +272,7 @@ class GetIDX(object):
 
         """
         # Initialize key variables
-        value = self.data_dict['snmp_enabled']
+        value = bool(self.data_dict['snmp_enabled'])
         return value
 
 
