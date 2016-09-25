@@ -68,6 +68,9 @@ class ProcessUID(LogThread):
 
             # Process file for each timestamp, starting from the oldes file
             for (timestamp, filepath) in metadata:
+                # Get start time for activity
+                start_ts = time.time()
+
                 # Read in data
                 ingest = drain.Drain(filepath)
 
@@ -96,6 +99,13 @@ class ProcessUID(LogThread):
 
                 # Purge source file
                 ingest.purge()
+
+                # Log duration of activity
+                duration = time.time() - start_ts
+                log_message = (
+                    'Cache ingest file %s was processed in %s seconds.'
+                    '') % (filepath, round(duration, 4))
+                log.log2quiet(1127, log_message)
 
             # Update the last time the agent was contacted
             _update_agent_last_update(uid, max_timestamp)
@@ -274,23 +284,32 @@ class UpdateDB(object):
         if bool(data_list) is True:
             # Do performance data update
             database = db.Database()
-            database.add_all(data_list, 1056)
+            success = database.add_all(data_list, 1056, die=False)
 
             # Change the last updated timestamp
-            for idx_datapoint, last_timestamp in timestamp_tracker.items():
-                # Update the database
+            if success is True:
+                # Create a database session
+                # NOTE: We only do a single commit on the session.
+                # This is much faster (20x based on testing) than
+                # instantiating the database, updating records, and committing
+                # after every iteration of the "for loop"
                 database = db.Database()
                 session = database.session()
-                record = session.query(Datapoint).filter(
-                    Datapoint.idx == idx_datapoint).one()
-                record.last_timestamp = last_timestamp
+
+                # Update the session
+                for idx_datapoint, last_timestamp in timestamp_tracker.items():
+                    data_dict = {'last_timestamp': last_timestamp}
+                    session.query(Datapoint).filter(
+                        Datapoint.idx == idx_datapoint).update(data_dict)
+
+                # Commit the session
                 database.commit(session, 1057)
 
-            # Report success
-            log_message = (
-                'Successful cache drain for UID %s at timestamp %s') % (
-                    self.ingest.uid(), self.ingest.timestamp())
-            log.log2quiet(1058, log_message)
+                # Report success
+                log_message = (
+                    'Successful cache drain for UID %s at timestamp %s') % (
+                        self.ingest.uid(), self.ingest.timestamp())
+                log.log2quiet(1058, log_message)
 
     def _update_unchartable(self, mapping):
         """Update unchartable data into the database "iset_datapoint" table.
@@ -330,26 +349,29 @@ class UpdateDB(object):
 
         # Update if there is data
         if bool(data_list) is True:
+            # Create a database session
+            # NOTE: We only do a single commit on the session.
+            # This is much faster (20x based on testing) than
+            # instantiating the database, updating records, and committing
+            # after every iteration of the "for loop"
+            database = db.Database()
+            session = database.session()
+
+            # Update uncharted data
             for item in data_list:
                 (idx_datapoint, value) = item
-
-                # Update database
-                database = db.Database()
-                session = database.session()
-                record = session.query(Datapoint).filter(
-                    Datapoint.idx == idx_datapoint).one()
-                record.uncharted_value = jm_general.encode(value)
-                database.commit(session, 1037)
+                data_dict = {'uncharted_value': jm_general.encode(value)}
+                session.query(Datapoint).filter(
+                    Datapoint.idx == idx_datapoint).update(data_dict)
 
             # Change the last updated timestamp
             for idx_datapoint, last_timestamp in timestamp_tracker.items():
-                # Update database
-                database = db.Database()
-                session = database.session()
-                record = session.query(Datapoint).filter(
-                    Datapoint.idx == idx_datapoint).one()
-                record.last_timestamp = last_timestamp
-                database.commit(session, 1083)
+                data_dict = {'last_timestamp': last_timestamp}
+                session.query(Datapoint).filter(
+                    Datapoint.idx == idx_datapoint).update(data_dict)
+
+            # Commit data
+            database.commit(session, 1037)
 
             # Report success
             log_message = (
@@ -456,7 +478,7 @@ def _host_agent_last_update(hostname, uid, last_timestamp):
             HostAgent.idx_host == idx_host,
             HostAgent.idx_agent == idx_agent)).one()
     record.last_timestamp = last_timestamp
-    database.commit(session, 1042)
+    database.commit(session, 1124)
 
 
 def _update_agent_last_update(uid, last_timestamp):

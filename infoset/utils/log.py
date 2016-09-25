@@ -13,6 +13,76 @@ import traceback
 # Infoset libraries
 from infoset.utils import jm_configuration
 
+# Define global variable
+LOGGER = {}
+
+
+class GetLog(object):
+    """Class to manage the logging without duplicates."""
+
+    def __init__(self):
+        """Method initializing the class."""
+        # Define key variables
+        app_name = 'infoset'
+
+        # Get the logging directory
+        config = jm_configuration.Config()
+        log_file = config.log_file()
+
+        # create logger with 'slurpy'
+        self.logger_file = logging.getLogger(('%s_file') % (app_name))
+        self.logger_stdout = logging.getLogger(('%s_console') % (app_name))
+
+        # Set logging levels to file and stdout
+        self.logger_stdout.setLevel(logging.DEBUG)
+        self.logger_file.setLevel(logging.DEBUG)
+
+        # create file handler which logs even debug messages
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.DEBUG)
+
+        # create console handler with a higher log level
+        stdout_handler = logging.StreamHandler()
+        stdout_handler.setLevel(logging.DEBUG)
+
+        # create formatter and add it to the handlers
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(formatter)
+        stdout_handler.setFormatter(formatter)
+
+        # add the handlers to the logger
+        self.logger_file.addHandler(file_handler)
+        self.logger_stdout.addHandler(stdout_handler)
+
+    def logfile(self):
+        """Return logger for file IO.
+
+        Args:
+            None
+
+        Returns:
+            value: Value of logger
+
+        """
+        # Return
+        value = self.logger_file
+        return value
+
+    def stdout(self):
+        """Return logger for terminal IO.
+
+        Args:
+            None
+
+        Returns:
+            value: Value of logger
+
+        """
+        # Return
+        value = self.logger_stdout
+        return value
+
 
 class LogThread(threading.Thread):
     """LogThread should always be used in preference to threading.Thread.
@@ -143,38 +213,14 @@ def _logit(error_num, error_string, error=False, verbose=False):
 
     """
     # Define key variables
-    app_name = 'infoset'
+    global LOGGER
     username = getpass.getuser()
 
-    # Get the logging directory
-    config = jm_configuration.Config()
-    log_file = config.log_file()
-
-    # create logger
-    logger_file = logging.getLogger(('%s_file') % (app_name))
-    logger_stdout = logging.getLogger(('%s_console') % (app_name))
-
-    # Set logging levels to file and stdout
-    logger_stdout.setLevel(logging.DEBUG)
-    logger_file.setLevel(logging.DEBUG)
-
-    # create file handler which logs even debug messages
-    file_handle = logging.FileHandler(log_file)
-    file_handle.setLevel(logging.DEBUG)
-
-    # create console handler with a higher log level
-    stdout_handle = logging.StreamHandler()
-    stdout_handle.setLevel(logging.DEBUG)
-
-    # create formatter and add it to the handlers
-    formatter = logging.Formatter('%(asctime)s - %(name)s '
-                                  '- %(levelname)s - %(message)s')
-    file_handle.setFormatter(formatter)
-    stdout_handle.setFormatter(formatter)
-
-    # add the handlers to the logger
-    logger_file.addHandler(file_handle)
-    logger_stdout.addHandler(stdout_handle)
+    # Create logger if it doesn't already exist
+    if bool(LOGGER) is False:
+        LOGGER = GetLog()
+    logger_file = LOGGER.logfile()
+    logger_stdout = LOGGER.stdout()
 
     # Log the message
     if error:
@@ -183,14 +229,6 @@ def _logit(error_num, error_string, error=False, verbose=False):
                 username, error_num, error_string)
         logger_stdout.debug('%s', log_message)
         logger_file.debug(log_message)
-
-        # Remove handler
-        logger_file.removeHandler(file_handle)
-        logger_stdout.removeHandler(stdout_handle)
-
-        # Close handler
-        file_handle.close()
-        stdout_handle.close()
 
         # All done
         sys.exit(2)
@@ -201,14 +239,6 @@ def _logit(error_num, error_string, error=False, verbose=False):
         logger_file.debug(log_message)
         if verbose:
             logger_stdout.debug('%s', log_message)
-
-    # Remove handler
-    logger_file.removeHandler(file_handle)
-    logger_stdout.removeHandler(stdout_handle)
-
-    # Close handler
-    file_handle.close()
-    stdout_handle.close()
 
 
 def _message(code, message, error=True):

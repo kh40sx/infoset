@@ -129,17 +129,21 @@ class Database(object):
         # disconnect from server
         session.close()
 
-    def add_all(self, data_list, error_code):
+    def add_all(self, data_list, error_code, die=True):
         """Do a database modification.
 
         Args:
             data_list: List of sqlalchemy table objects
             error_code: Error number to use if one occurs
+            die: Don't die if False, just return success
 
         Returns:
-            None
+            success: True is successful
 
         """
+        # Initialize key variables
+        success = False
+
         # Open database connection. Prepare cursor
         session = self.session()
 
@@ -150,19 +154,34 @@ class Database(object):
             # Commit  change
             session.commit()
 
+            # Update success
+            success = True
+
         except Exception as exception_error:
+            success = False
             session.rollback()
             log_message = (
                 'Unable to modify database connection. '
                 'Error: \"%s\"') % (exception_error)
-            log.log2die(error_code, log_message)
+            if die is True:
+                log.log2die(error_code, log_message)
+            else:
+                log.log2warn(error_code, log_message)
+
         except:
+            success = False
             session.rollback()
             log_message = ('Unexpected database exception')
-            log.log2die(error_code, log_message)
+            if die is True:
+                log.log2die(error_code, log_message)
+            else:
+                log.log2warn(error_code, log_message)
 
         # disconnect from server
         session.close()
+
+        # Return
+        return success
 
     def session(self):
         """Return a session to the database pool.
