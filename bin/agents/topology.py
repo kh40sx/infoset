@@ -93,10 +93,12 @@ class PollingAgent(object):
 
         # Post data to the remote server
         while True:
+            # Poll after sleeping
             self._poll()
 
             # Sleep for "delay" seconds
             Agent.agent_sleep(self.name(), delay)
+
 
     def _poll(self):
         """Query all remote hosts for data.
@@ -154,7 +156,7 @@ class Poller(object):
 
         """
         # Initialize key variables
-        self.agent_name = agent_config.name()
+        self.agent_name = agent_config.agent_name()
         self.hostname = hostname
         self.server_config = server_config
 

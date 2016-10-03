@@ -16,6 +16,7 @@ import yaml
 from flask import render_template, jsonify, request
 
 # Infoset imports
+from infoset.utils import Config
 from infoset.db.db_agent import GetUID
 from infoset.db.db_data import GetIDX
 from infoset.db.db_agent import GetDataPoint
@@ -365,8 +366,8 @@ def receive(uid):
         Text response of Received
 
     """
-    # TODO replace with config obj
-    config = infoset.config['GLOBAL_CONFIG']
+    # Read configuration
+    config = Config()
     cache_dir = config.ingest_cache_directory()
 
     # Get Json from incoming agent POST
@@ -547,8 +548,7 @@ def fetch_table(ip_address):
 
     """
     # Config Object
-    config = infoset.config['GLOBAL_CONFIG']
-
+    config = Config()
     html = pages.create(config, ip_address)
 
     return html
@@ -606,8 +606,12 @@ def _get_yaml_hosts():
         hosts: Dict of hostnames
 
     """
+    # Read configuration
+    config = Config()
+    topology_directory = config.topology_directory()
+
     hosts = {}
-    for root, _, files in walk('./www/static/yaml'):
+    for root, _, files in walk(topology_directory):
         for filename in files:
             filepath = path.join(root, filename)
             hosts[filename[:-5]] = filepath  # Add it to the list.
