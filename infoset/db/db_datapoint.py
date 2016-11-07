@@ -49,6 +49,9 @@ class GetDID(object):
         session = database.session()
         result = session.query(Datapoint).filter(Datapoint.id == value)
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() == 1:
             for instance in result:
@@ -72,9 +75,6 @@ class GetDID(object):
         else:
             log_message = ('did %s not found.') % (did)
             log.log2die(1085, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def last_timestamp(self):
         """Get last_timestamp value.
@@ -276,6 +276,9 @@ class GetIDX(object):
         session = database.session()
         result = session.query(Datapoint).filter(Datapoint.idx == idx)
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() == 1:
             for instance in result:
@@ -298,9 +301,6 @@ class GetIDX(object):
         else:
             log_message = ('idx %s not found.') % (idx)
             log.log2die(1084, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def last_timestamp(self):
         """Get last_timestamp value.
@@ -490,15 +490,15 @@ def did_exists(did):
     session = database.session()
     result = session.query(Datapoint.id).filter(Datapoint.id == value)
 
+    # Return the session to the database pool after processing
+    database.close()
+
     # Massage data
     if result.count() == 1:
         for instance in result:
             _ = instance.id
             break
         found = True
-
-    # Return the session to the database pool after processing
-    session.close()
 
     # Return
     return found
@@ -522,15 +522,15 @@ def idx_exists(idx):
     session = database.session()
     result = session.query(Datapoint.idx).filter(Datapoint.idx == idx)
 
+    # Return the session to the database pool after processing
+    database.close()
+
     # Massage data
     if result.count() == 1:
         for instance in result:
             _ = instance.idx
             break
         found = True
-
-    # Return the session to the database pool after processing
-    session.close()
 
     # Return
     return found
@@ -554,7 +554,7 @@ def datapoint_host_idx(idx_host):
     session = database.session()
     result = session.query(Datapoint.idx).filter(
         Datapoint.idx_host == idx_host)
-    session.close()
+    database.close()
 
     # Add to the list of host idx values
     for instance in result:
@@ -587,7 +587,7 @@ def datapoint_host_agent(idx_host, idx_agent):
             Datapoint.idx_host == idx_host,
             Datapoint.idx_agent == idx_agent)
         )
-    session.close()
+    database.close()
 
     # Add to the list of host idx values
     for instance in result:

@@ -44,23 +44,24 @@ class GetConfigurationKey(object):
         # Establish a database session
         database = db.Database()
         session = database.session()
-        result = session.query(Configuration).filter(Configuration.config_key == value)
+        result = session.query(
+            Configuration).filter(Configuration.config_key == value)
+
+        # Return the session to the database pool after processing
+        database.close()
 
         # Massage data
         if result.count() == 1:
             for instance in result:
                 self.data_dict['idx'] = instance.idx
                 self.data_dict[
-                    'config_key'] = jm_general.decode_key(instance.config_key)
+                    'config_key'] = jm_general.decode(instance.config_key)
                 self.data_dict[
-                    'name'] = jm_general.decode_key(instance.name)
+                    'name'] = jm_general.decode(instance.name)
                 break
         else:
             log_message = ('Configuration %s not found.') % (config_key)
             log.log2die(1048, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def idx(self):
         """Get idx value.
@@ -136,21 +137,21 @@ class GetIDX(object):
         session = database.session()
         result = session.query(Configuration).filter(Configuration.idx == idx)
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() == 1:
             for instance in result:
                 self.data_dict['idx'] = instance.idx
                 self.data_dict[
-                    'config_key'] = jm_general.decode_key(instance.config_key)
+                    'config_key'] = jm_general.decode(instance.config_key)
                 self.data_dict[
-                    'name'] = jm_general.decode_key(instance.name)
+                    'name'] = jm_general.decode(instance.name)
                 break
         else:
             log_message = ('Configuration idx %s not found.') % (idx)
             log.log2die(1086, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def config_key(self):
         """Get config_key value.
@@ -201,15 +202,15 @@ def config_key_exists(config_key):
     result = session.query(
         Configuration.config_key).filter(Configuration.config_key == value)
 
+    # Return the session to the database pool after processing
+    database.close()
+
     # Massage data
     if result.count() == 1:
         for instance in result:
             _ = instance.config_key
             break
         found = True
-
-    # Return the session to the database pool after processing
-    session.close()
 
     # Return
     return found

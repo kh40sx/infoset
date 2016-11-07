@@ -78,12 +78,12 @@ class GetIDX(object):
             Data.timestamp <= self.ts_stop,
             Data.idx_datapoint == idx))
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         for instance in result:
             self.data[instance.timestamp] = instance.value
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def everything(self):
         """Get all datapoints.

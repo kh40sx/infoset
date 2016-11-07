@@ -12,12 +12,6 @@ server:
     db_username: infoset
     db_password: wt8LVA7J5CNWPf75
     db_name: infoset
-    hosts:
-        - 192.168.1.254
-        - 192.168.1.1
-        - 192.168.1.2
-        - 192.168.1.3
-        - 192.168.1.4
 
 agents_common:
     server_name: localhost

@@ -49,6 +49,9 @@ class GetHost(object):
         session = database.session()
         result = session.query(Host).filter(Host.hostname == value)
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() == 1:
             for instance in result:
@@ -65,9 +68,6 @@ class GetHost(object):
         else:
             log_message = ('Hostname %s not found.') % (hostname)
             log.log2die(1000, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def idx(self):
         """Get idx value.
@@ -185,6 +185,9 @@ class GetIDX(object):
         session = database.session()
         result = session.query(Host).filter(Host.idx == idx)
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() == 1:
             for instance in result:
@@ -201,9 +204,6 @@ class GetIDX(object):
         else:
             log_message = ('Host idx %s not found.') % (idx)
             log.log2die(1098, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def hostname(self):
         """Get hostname value.
@@ -296,7 +296,7 @@ def all_hosts(enabled=True):
         result = session.query(Host.idx).filter(Host.enabled == 1)
     else:
         result = session.query(Host.idx)
-    session.close()
+    database.close()
 
     # Add to the list of host idx values
     for instance in result:
@@ -337,15 +337,15 @@ def hostname_exists(hostname):
     session = database.session()
     result = session.query(Host.hostname).filter(Host.hostname == value)
 
+    # Return the session to the database pool after processing
+    database.close()
+
     # Massage data
     if result.count() == 1:
         for instance in result:
             _ = instance.hostname
             break
         found = True
-
-    # Return the session to the database pool after processing
-    session.close()
 
     # Return
     return found
@@ -369,15 +369,15 @@ def idx_exists(idx):
     session = database.session()
     result = session.query(Host.idx).filter(Host.idx == idx)
 
+    # Return the session to the database pool after processing
+    database.close()
+
     # Massage data
     if result.count() == 1:
         for instance in result:
             _ = instance.idx
             break
         found = True
-
-    # Return the session to the database pool after processing
-    session.close()
 
     # Return
     return found

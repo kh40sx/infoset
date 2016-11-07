@@ -25,7 +25,7 @@ class TestGetIDX(unittest.TestCase):
     session = database.session()
     result = session.query(Agent).filter(
         Agent.idx == idx_agent_good).one()
-    session.close()
+    database.close()
     good_id = jm_general.decode(result.id)
 
     # Create a dict of all the expected values
@@ -105,7 +105,7 @@ class TestGetUID(unittest.TestCase):
     session = database.session()
     result = session.query(Agent).filter(
         Agent.idx == idx_agent_good).one()
-    session.close()
+    database.close()
 
     # Here's the data
     good_id = jm_general.decode(result.id)
@@ -201,7 +201,7 @@ class Other(unittest.TestCase):
     session = database.session()
     result = session.query(Agent).filter(
         Agent.idx == idx_agent_good).one()
-    session.close()
+    database.close()
     good_id = jm_general.decode(result.id)
 
     def test_uid_exists(self):

@@ -433,7 +433,8 @@ def _datapoints_by_did(idx_agent):
     data = {}
 
     # Update database
-    session = db.Database().session()
+    database = db.Database()
+    session = database.session()
     result = session.query(
         Datapoint.id, Datapoint.idx,
         Datapoint.idx_agent, Datapoint.last_timestamp).filter(
@@ -448,7 +449,7 @@ def _datapoints_by_did(idx_agent):
         data[did] = (idx, idx_agent, last_timestamp)
 
     # Return the session to the database pool after processing
-    session.close()
+    database.close()
 
     # Return
     return data

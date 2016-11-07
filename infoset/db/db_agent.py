@@ -45,6 +45,9 @@ class GetIDX(object):
         result = session.query(Agent).filter(
             Agent.idx == idx_agent)
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() == 1:
             for instance in result:
@@ -56,9 +59,6 @@ class GetIDX(object):
         else:
             log_message = ('Agent IDX %s not found.') % (idx_agent)
             log.log2die(1035, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def uid(self):
         """Get uid value.
@@ -166,6 +166,9 @@ class GetUID(object):
         session = database.session()
         result = session.query(Agent).filter(Agent.id == value)
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() == 1:
             for instance in result:
@@ -177,9 +180,6 @@ class GetUID(object):
         else:
             log_message = ('uid %s not found.') % (value)
             log.log2die(1042, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def idx(self):
         """Get idx value.
@@ -286,6 +286,9 @@ class GetDataPoint(object):
         result = session.query(Datapoint).filter(
             Datapoint.idx_agent == idx_agent)
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() > 0:
             for instance in result:
@@ -296,9 +299,6 @@ class GetDataPoint(object):
         else:
             log_message = ('Agent idx %s not found.') % (idx_agent)
             log.log2die(1050, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def everything(self):
         """Get all datapoints.
@@ -334,15 +334,15 @@ def uid_exists(uid):
     session = database.session()
     result = session.query(Agent.id).filter(Agent.id == value)
 
+    # Return the session to the database pool after processing
+    database.close()
+
     # Massage data
     if result.count() == 1:
         for instance in result:
             _ = instance.id
             break
         found = True
-
-    # Return the session to the database pool after processing
-    session.close()
 
     # Return
     return found
@@ -366,15 +366,15 @@ def idx_exists(idx):
     session = database.session()
     result = session.query(Agent.idx).filter(Agent.idx == idx)
 
+    # Return the session to the database pool after processing
+    database.close()
+
     # Massage data
     if result.count() == 1:
         for instance in result:
             _ = instance.idx
             break
         found = True
-
-    # Return the session to the database pool after processing
-    session.close()
 
     # Return
     return found

@@ -32,15 +32,15 @@ def host_oid_exists(idx_host, idx_oid):
         HostOID.idx_host == idx_host,
         HostOID.idx_oid == idx_oid))
 
+    # Return the session to the database pool after processing
+    database.close()
+
     # Massage data
     if result.count() == 1:
         for instance in result:
             _ = instance.idx
             break
         found = True
-
-    # Return the session to the database pool after processing
-    session.close()
 
     # Return
     return found
@@ -63,7 +63,7 @@ def host_indices(idx_oid):
     session = database.session()
     result = session.query(HostOID.idx_host).filter(
         HostOID.idx_oid == idx_oid)
-    session.close()
+    database.close()
 
     # Add to the list of host idx values
     for instance in result:
@@ -90,7 +90,7 @@ def oid_indices(idx_host):
     session = database.session()
     result = session.query(HostOID.idx_oid).filter(
         HostOID.idx_host == idx_host)
-    session.close()
+    database.close()
 
     # Add to the list of host idx values
     for instance in result:
