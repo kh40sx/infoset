@@ -34,8 +34,8 @@ def main():
     """
     # Initialize key variables
     use_mysql = True
-    pool_size = 25
-    max_overflow = 25
+    pool_size = 100
+    max_overflow = 100
     global POOL
     global DBURL
 
