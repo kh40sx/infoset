@@ -57,8 +57,8 @@ def index():
     database = Database()
     session = database.session()
     record = session.query(Agent.id).filter(Agent.idx == 1).one()
-    uid = record.id.decode('utf-8')
     database.close()
+    uid = record.id.decode('utf-8')
 
     # Get agent information
     agent = GetUID(uid)
