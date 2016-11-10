@@ -12,7 +12,6 @@ import time
 import shutil
 from collections import defaultdict
 from multiprocessing import Pool
-from pprint import pprint
 import queue as Queue
 import re
 
@@ -51,104 +50,103 @@ class ProcessUID(object):
 
     def process(self):
         """Update the database using threads."""
-        while True:
-            # Initialize key variables
-            updated = False
-            hostnames = []
-            uids = []
-            agent_names = []
-            agent_data = {
-                'hostname': None,
-                'uid': None,
-                'sources': [],
-                'chartable': [],
-                'unchartable': []
-            }
+        # Initialize key variables
+        updated = False
+        hostnames = []
+        uids = []
+        agent_names = []
+        agent_data = {
+            'hostname': None,
+            'uid': None,
+            'sources': [],
+            'chartable': [],
+            'unchartable': []
+        }
 
-            # Get the data_dict
-            metadata = self.metadata
-            config = self.config
+        # Get the data_dict
+        metadata = self.metadata
+        config = self.config
 
-            # Initialize other values
-            max_timestamp = 0
+        # Initialize other values
+        max_timestamp = 0
 
-            # Get start time for activity
-            start_ts = time.time()
+        # Get start time for activity
+        start_ts = time.time()
 
-            # Sort metadata by timestamp
-            metadata.sort()
+        # Sort metadata by timestamp
+        metadata.sort()
 
-            # Process file for each timestamp, starting from the oldes file
-            for (timestamp, filepath) in metadata:
-                # Read in data
-                ingest = drain.Drain(filepath)
+        # Process file for each timestamp, starting from the oldes file
+        for (timestamp, filepath) in metadata:
+            # Read in data
+            ingest = drain.Drain(filepath)
 
-                # Make sure file is OK
-                # Move it to a directory for further analysis
-                # by administrators
-                if ingest.valid() is False:
-                    log_message = (
-                        'Cache ingest file %s is invalid. Moving.'
-                        '') % (filepath)
-                    log.log2warn(1054, log_message)
-                    shutil.copy(
-                        filepath, config.ingest_failures_directory())
-                    os.remove(filepath)
-                    continue
-
-                # Append data
-                agent_data['chartable'].extend(ingest.chartable())
-                agent_data['unchartable'].extend(ingest.other())
-                agent_data['sources'].extend(ingest.sources())
-                hostnames.append(ingest.hostname())
-                uids.append(ingest.uid())
-                agent_names.append(ingest.agent())
-
-                # Purge source file
-                ingest.purge()
-
-                # Get the max timestamp
-                max_timestamp = max(timestamp, max_timestamp)
-
-                # Update update flag
-                updated = True
-
-            # Verify that we have only processed data for the same hostname
-            # UID and agent name
-            if (jm_general.all_same(hostnames) is False) or (
-                    jm_general.all_same(uids) is False) or (
-                        jm_general.all_same(agent_names) is False):
+            # Make sure file is OK
+            # Move it to a directory for further analysis
+            # by administrators
+            if ingest.valid() is False:
                 log_message = (
-                    'Cache ingest files error for hostname %s,'
-                    'agent name %s, UID %s.'
-                    '') % (hostnames[0], agent_names[0], uids[0])
-                log.log2quiet(1127, log_message)
+                    'Cache ingest file %s is invalid. Moving.'
+                    '') % (filepath)
+                log.log2warn(1054, log_message)
+                shutil.copy(
+                    filepath, config.ingest_failures_directory())
+                os.remove(filepath)
+                continue
 
-            # Process the rest
-            if updated is True:
-                # Update remaining agent data
-                agent_data['hostname'] = hostnames[0]
-                agent_data['uid'] = uids[0]
-                agent_data['agent_name'] = agent_names[0]
+            # Append data
+            agent_data['chartable'].extend(ingest.chartable())
+            agent_data['unchartable'].extend(ingest.other())
+            agent_data['sources'].extend(ingest.sources())
+            hostnames.append(ingest.hostname())
+            uids.append(ingest.uid())
+            agent_names.append(ingest.agent())
 
-                # Update database
-                dbase = UpdateDB(agent_data)
-                dbase.update()
+            # Purge source file
+            ingest.purge()
 
-                # Update the last time the agent was contacted
-                _update_agent_last_update(agent_data['uid'], max_timestamp)
+            # Get the max timestamp
+            max_timestamp = max(timestamp, max_timestamp)
 
-                # Update the host / agent table timestamp if
-                # hostname was processed
-                _host_agent_last_update(
-                    agent_data['hostname'], agent_data['uid'], max_timestamp)
+            # Update update flag
+            updated = True
 
-                # Log duration of activity
-                duration = time.time() - start_ts
-                log_message = (
-                    'UID %s was processed in %s seconds.'
-                    '') % (agent_data['uid'], duration)
-                log.log2quiet(1127, log_message)
+        # Verify that we have only processed data for the same hostname
+        # UID and agent name
+        if (jm_general.all_same(hostnames) is False) or (
+                jm_general.all_same(uids) is False) or (
+                    jm_general.all_same(agent_names) is False):
+            log_message = (
+                'Cache ingest files error for hostname %s,'
+                'agent name %s, UID %s.'
+                '') % (hostnames[0], agent_names[0], uids[0])
+            log.log2quiet(1127, log_message)
+
+        # Process the rest
+        if updated is True:
+            # Update remaining agent data
+            agent_data['hostname'] = hostnames[0]
+            agent_data['uid'] = uids[0]
+            agent_data['agent_name'] = agent_names[0]
+
+            # Update database
+            dbase = UpdateDB(agent_data)
+            dbase.update()
+
+            # Update the last time the agent was contacted
+            _update_agent_last_update(agent_data['uid'], max_timestamp)
+
+            # Update the host / agent table timestamp if
+            # hostname was processed
+            _host_agent_last_update(
+                agent_data['hostname'], agent_data['uid'], max_timestamp)
+
+            # Log duration of activity
+            duration = time.time() - start_ts
+            log_message = (
+                'UID %s was processed in %s seconds.'
+                '') % (agent_data['uid'], duration)
+            log.log2quiet(1127, log_message)
 
 
 class UpdateDB(object):
@@ -621,8 +619,6 @@ def _process(config, metadata):
         Nothing
 
     """
-    pprint(metadata)
-    print('\n')
     data = ProcessUID(config, metadata)
     data.process()
 
@@ -699,5 +695,4 @@ def process(agent_name):
             os.remove(lockfile)
 
 if __name__ == "__main__":
-    process('_infoset')
-
+        process('ingestd')

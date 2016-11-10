@@ -96,19 +96,24 @@ class ValidateCache(object):
             _check_primary_keys_exist(self.information))
 
         # Check timestamp key
-        validity.append(
-            _check_timestamp_key(self.information))
+        if False not in validity:
+            validity.append(
+                _check_timestamp_key(self.information))
 
         # Check validity of primary keys in file
-        validity.append(
-            self._check_primary_keys_in_file())
+        if False not in validity:
+            validity.append(
+                self._check_primary_keys_in_file())
 
         # Check chartable and unchartable data in the data
-        validity.append(_check_reported_data(self.information))
-        validity.append(_check_chartable_data(self.information))
+        if False not in validity:
+            validity.append(_check_reported_data(self.information))
+        if False not in validity:
+            validity.append(_check_chartable_data(self.information))
 
         # Check if data to be validated is already in the database
-        validity.append(_check_duplicates(self.information))
+        if False not in validity:
+            validity.append(_check_duplicates(self.information))
 
         # Do final check
         if False in validity:
