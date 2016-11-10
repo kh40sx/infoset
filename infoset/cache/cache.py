@@ -11,6 +11,7 @@ import os
 import time
 import shutil
 from collections import defaultdict
+from multiprocessing import Pool
 import queue as Queue
 import re
 
@@ -27,7 +28,6 @@ from infoset.db import db_hostagent as hagent
 from infoset.utils import jm_configuration
 from infoset.utils import jm_general
 from infoset.utils import log
-from infoset.utils.log import LogThread
 from infoset.cache import drain
 from infoset.utils import hidden
 
@@ -35,7 +35,7 @@ from infoset.utils import hidden
 THREAD_QUEUE = Queue.Queue()
 
 
-class ProcessUID(LogThread):
+class ProcessUID(object):
     """Threaded ingestion of agent files.
 
     Graciously modified from:
@@ -43,12 +43,12 @@ class ProcessUID(LogThread):
 
     """
 
-    def __init__(self, queue):
+    def __init__(self, config, metadata):
         """Initialize the threads."""
-        LogThread.__init__(self)
-        self.queue = queue
+        self.config = config
+        self.metadata = metadata
 
-    def run(self):
+    def process(self):
         """Update the database using threads."""
         while True:
             # Initialize key variables
@@ -65,9 +65,8 @@ class ProcessUID(LogThread):
             }
 
             # Get the data_dict
-            data_dict = self.queue.get()
-            metadata = data_dict['metadata']
-            config = data_dict['config']
+            metadata = self.metadata
+            config = self.config
 
             # Initialize other values
             max_timestamp = 0
@@ -123,7 +122,6 @@ class ProcessUID(LogThread):
                     'agent name %s, UID %s.'
                     '') % (hostnames[0], agent_names[0], uids[0])
                 log.log2quiet(1127, log_message)
-                self.queue.task_done()
 
             # Process the rest
             if updated is True:
@@ -150,9 +148,6 @@ class ProcessUID(LogThread):
                     'UID %s was processed in %s seconds.'
                     '') % (agent_data['uid'], duration)
                 log.log2quiet(1127, log_message)
-
-            # All done!
-            self.queue.task_done()
 
 
 class UpdateDB(object):
@@ -611,7 +606,22 @@ def _wrapper_process(argument_list):
         Nothing
 
     """
-    return _db2files_process(*argument_list)
+    return _process(*argument_list)
+
+
+def _process(config, metadata):
+    """Wrapper function to unpack arguments before calling the real function.
+
+    Args:
+        argument_list: A list of tuples of arguments to be provided to
+            lib_process_devices.process_device
+
+    Returns:
+        Nothing
+
+    """
+    data = ProcessUID(config, metadata)
+    data.process()
 
 
 def process(agent_name):
@@ -625,6 +635,7 @@ def process(agent_name):
 
     """
     # Initialize key variables
+    argument_list = []
     uid_metadata = defaultdict(lambda: defaultdict(dict))
 
     # Configuration setup
@@ -663,62 +674,22 @@ def process(agent_name):
             # Create lockfile
             open(lockfile, 'a').close()
 
-        # Spawn a pool of threads, and pass them queue instance
-        # Only create the required number of threads up to the
-        # threads_in_pool maximum
-        for _ in range(
-                min(threads_in_pool, len(uid_metadata))):
-            update_thread = ProcessUID(THREAD_QUEUE)
-            update_thread.daemon = True
-
-            # Sometimes we exhaust the thread abilities of the OS
-            # even with the "threads_in_pool" limit. This is because
-            # there could be a backlog of files to cache files process
-            # and we have overlapping ingests due to a deleted lockfile.
-            # This code ensures we don't exceed the limits.
-            try:
-                update_thread.start()
-            except RuntimeError:
-                log_message = (
-                    'Too many threads created for cache ingest. '
-                    'Verify that ingest lock file is present.')
-
-                # Remove the lockfile so we can restart later then die
-                os.remove(lockfile)
-                log.log2die(1067, log_message)
-            except:
-                log_message = (
-                    'Unknown error occurred when trying to '
-                    'create cache ingest threads')
-
-                # Remove the lockfile so we can restart later then die
-                os.remove(lockfile)
-                log.log2die(1072, log_message)
-
         # Read each cache file
         for hosthash in uid_metadata.keys():
             for uid in uid_metadata[hosthash].keys():
-                ##############################################################
-                #
-                # Define variables that will be required for the threading
-                # We have to initialize the dict during every loop to prevent
-                # data corruption
-                #
-                ##############################################################
-                data_dict = {}
-                data_dict['metadata'] = uid_metadata[hosthash][uid]
-                data_dict['config'] = config
-                THREAD_QUEUE.put(data_dict)
+                # Create a list of arguments to process
+                argument_list.append(
+                    (config, uid_metadata[hosthash][uid])
+                )
 
-        # Wait on the queue until everything has been processed
-        THREAD_QUEUE.join()
+        # Create a pool of sub process resources
+        with Pool(processes=threads_in_pool) as pool:
 
-        # PYTHON BUG. Join can occur while threads are still shutting down.
-        # This can create spurious "Exception in thread (most likely raised
-        # during interpreter shutdown)" errors.
-        # The "time.sleep(1)" adds a delay to make sure things really terminate
-        # properly. This seems to be an issue on virtual machines in Dev only
-        time.sleep(1)
+            # Create sub processes from the pool
+            pool.map(_wrapper_process, argument_list)
+
+        # Wait for all the processes to end
+        pool.join()
 
         # Return if lock file is present
         if os.path.exists(lockfile) is True:
