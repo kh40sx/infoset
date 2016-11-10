@@ -52,34 +52,25 @@ class ProcessUID(LogThread):
         """Update the database using threads."""
         while True:
             # Initialize key variables
-            updated = False
-            hostnames = []
-            uids = []
-            agent_names = []
-            agent_data = {
-                'hostname': None,
-                'uid': None,
-                'sources': [],
-                'chartable': [],
-                'unchartable': []
-            }
+            hostname = None
 
             # Get the data_dict
             data_dict = self.queue.get()
+            uid = data_dict['uid']
             metadata = data_dict['metadata']
             config = data_dict['config']
 
             # Initialize other values
             max_timestamp = 0
 
-            # Get start time for activity
-            start_ts = time.time()
-
             # Sort metadata by timestamp
             metadata.sort()
 
             # Process file for each timestamp, starting from the oldes file
             for (timestamp, filepath) in metadata:
+                # Get start time for activity
+                start_ts = time.time()
+
                 # Read in data
                 ingest = drain.Drain(filepath)
 
@@ -96,60 +87,32 @@ class ProcessUID(LogThread):
                     os.remove(filepath)
                     continue
 
-                # Append data
-                agent_data['chartable'].extend(ingest.chartable())
-                agent_data['unchartable'].extend(ingest.other())
-                agent_data['sources'].extend(ingest.sources())
-                hostnames.append(ingest.hostname())
-                uids.append(ingest.uid())
-                agent_names.append(ingest.agent())
-
-                # Purge source file
-                ingest.purge()
+                # Update database
+                dbase = UpdateDB(ingest)
+                dbase.update()
 
                 # Get the max timestamp
                 max_timestamp = max(timestamp, max_timestamp)
 
-                # Update update flag
-                updated = True
+                # Get hostname
+                hostname = ingest.hostname()
 
-            # Verify that we have only processed data for the same hostname
-            # UID and agent name
-            if (jm_general.all_same(hostnames) is False) or (
-                    jm_general.all_same(uids) is False) or (
-                        jm_general.all_same(agent_names) is False):
-                log_message = (
-                    'Cache ingest files error for hostname %s,'
-                    'agent name %s, UID %s.'
-                    '') % (hostnames[0], agent_names[0], uids[0])
-                log.log2quiet(1127, log_message)
-                self.queue.task_done()
-
-            # Process the rest
-            if updated is True:
-                # Update remaining agent data
-                agent_data['hostname'] = hostnames[0]
-                agent_data['uid'] = uids[0]
-                agent_data['agent_name'] = agent_names[0]
-
-                # Update database
-                dbase = UpdateDB(agent_data)
-                dbase.update()
-
-                # Update the last time the agent was contacted
-                _update_agent_last_update(agent_data['uid'], max_timestamp)
-
-                # Update the host / agent table timestamp if
-                # hostname was processed
-                _host_agent_last_update(
-                    agent_data['hostname'], agent_data['uid'], max_timestamp)
+                # Purge source file
+                ingest.purge()
 
                 # Log duration of activity
                 duration = time.time() - start_ts
                 log_message = (
-                    'UID %s was processed in %s seconds.'
-                    '') % (agent_data['uid'], duration)
+                    'Cache ingest file %s was processed in %s seconds.'
+                    '') % (filepath, round(duration, 4))
                 log.log2quiet(1127, log_message)
+
+            # Update the last time the agent was contacted
+            _update_agent_last_update(uid, max_timestamp)
+
+            # Update the host / agent table timestamp if hostname was processed
+            if hostname is not None:
+                _host_agent_last_update(hostname, uid, max_timestamp)
 
             # All done!
             self.queue.task_done()
@@ -158,17 +121,17 @@ class ProcessUID(LogThread):
 class UpdateDB(object):
     """Update database with agent data."""
 
-    def __init__(self, agent_data):
+    def __init__(self, ingest):
         """Instantiate the class.
 
         Args:
-            agent_data: Agent data obtained from Drain object
+            ingest: Drain object
 
         Returns:
             None
 
         """
-        self.agent_data = agent_data
+        self.ingest = ingest
 
     def update(self):
         """Update the database.
@@ -181,8 +144,8 @@ class UpdateDB(object):
 
         """
         # Initialize key variables
-        uid = self.agent_data['uid']
-        hostname = self.agent_data['hostname']
+        uid = self.ingest.uid()
+        hostname = self.ingest.hostname()
 
         # Update Agent, Host and HostAgent database tables if
         # Host and agent are not already there
@@ -200,13 +163,13 @@ class UpdateDB(object):
             idx_host = host_info.idx()
 
             # Update datapoint metadata if not there
-            for source in self.agent_data['sources']:
-                did = source[1]
+            for item in self.ingest.sources():
+                did = item[1]
 
                 # We need the host that the data was generated for
                 # and the agent that got the data
                 if dpoint.did_exists(did) is False:
-                    _insert_datapoint(source, idx_agent, idx_host)
+                    _insert_datapoint(item, idx_agent, idx_host)
 
             # Create map of DIDs to database row index values
             mapping = _datapoints_by_did(idx_agent)
@@ -226,8 +189,8 @@ class UpdateDB(object):
 
         """
         # Initialize key variables
-        uid = self.agent_data['uid']
-        agent_name = self.agent_data['agent_name']
+        uid = self.ingest.uid()
+        agent_name = self.ingest.agent()
 
         # Return if agent already exists in the table
         if agent.uid_exists(uid) is True:
@@ -251,8 +214,8 @@ class UpdateDB(object):
 
         """
         # Initialize key variables
-        uid = self.agent_data['uid']
-        hostname = self.agent_data['hostname']
+        uid = self.ingest.uid()
+        hostname = self.ingest.hostname()
 
         # Update Host table
         if dhost.hostname_exists(hostname) is False:
@@ -287,7 +250,7 @@ class UpdateDB(object):
 
         """
         # Initialize key variables
-        data = self.agent_data['chartable']
+        data = self.ingest.chartable()
         data_list = []
         timestamp_tracker = {}
 
@@ -344,8 +307,8 @@ class UpdateDB(object):
 
                 # Report success
                 log_message = (
-                    'Successful cache drain for UID %s') % (
-                        self.agent_data['uid'])
+                    'Successful cache drain for UID %s at timestamp %s') % (
+                        self.ingest.uid(), self.ingest.timestamp())
                 log.log2quiet(1058, log_message)
 
     def _update_unchartable(self, mapping):
@@ -359,7 +322,7 @@ class UpdateDB(object):
 
         """
         # Initialize key variables
-        data = self.agent_data['unchartable']
+        data = self.ingest.other()
         data_list = []
         timestamp_tracker = {}
 
@@ -413,7 +376,8 @@ class UpdateDB(object):
             # Report success
             log_message = (
                 'Successful cache drain (Uncharted Data) '
-                'for UID %s') % (self.agent_data['uid'])
+                'for UID %s at timestamp %s') % (
+                    self.ingest.uid(), self.ingest.timestamp())
             log.log2quiet(1045, log_message)
 
 
@@ -600,20 +564,6 @@ def validate_cache_files():
     return uid_metadata
 
 
-def _wrapper_process(argument_list):
-    """Wrapper function to unpack arguments before calling the real function.
-
-    Args:
-        argument_list: A list of tuples of arguments to be provided to
-            lib_process_devices.process_device
-
-    Returns:
-        Nothing
-
-    """
-    return _db2files_process(*argument_list)
-
-
 def process(agent_name):
     """Method initializing the class.
 
@@ -706,6 +656,7 @@ def process(agent_name):
                 #
                 ##############################################################
                 data_dict = {}
+                data_dict['uid'] = uid
                 data_dict['metadata'] = uid_metadata[hosthash][uid]
                 data_dict['config'] = config
                 THREAD_QUEUE.put(data_dict)

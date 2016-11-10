@@ -600,20 +600,6 @@ def validate_cache_files():
     return uid_metadata
 
 
-def _wrapper_process(argument_list):
-    """Wrapper function to unpack arguments before calling the real function.
-
-    Args:
-        argument_list: A list of tuples of arguments to be provided to
-            lib_process_devices.process_device
-
-    Returns:
-        Nothing
-
-    """
-    return _db2files_process(*argument_list)
-
-
 def process(agent_name):
     """Method initializing the class.
 

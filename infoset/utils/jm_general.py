@@ -405,3 +405,18 @@ def search_file(filename):
 
     # Return
     return result
+
+
+def all_same(items):
+    """Determine if all items of a list are the same item.
+
+    Args:
+        items: List to verify
+
+    Returns:
+        result: Result
+
+    """
+    # Do test and return
+    result = all(item == items[0] for item in items)
+    return result
