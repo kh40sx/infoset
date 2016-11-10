@@ -54,6 +54,7 @@ class ProcessUID(object):
         updated = False
         hostnames = []
         uids = []
+        ingests = []
         agent_names = []
         agent_data = {
             'hostname': None,
@@ -100,10 +101,11 @@ class ProcessUID(object):
             agent_data['sources'].extend(ingest.sources())
             hostnames.append(ingest.hostname())
             uids.append(ingest.uid())
+            ingests.append(ingest)
             agent_names.append(ingest.agent())
 
             # Purge source file
-            ingest.purge()
+            # ingest.purge()
 
             # Get the max timestamp
             max_timestamp = max(timestamp, max_timestamp)
@@ -140,6 +142,13 @@ class ProcessUID(object):
             # hostname was processed
             _host_agent_last_update(
                 agent_data['hostname'], agent_data['uid'], max_timestamp)
+
+            # Purge source files. Only done after complete
+            # success of database updates. If not we could lose data in the
+            # event of an ingester crash. Ingester would re-read the files
+            # and process the non-duplicates, while deleting the duplicates.
+            for ingest in ingests:
+                ingest.purge()
 
             # Log duration of activity
             duration = time.time() - start_ts
