@@ -12,6 +12,7 @@ import time
 import shutil
 from collections import defaultdict
 from multiprocessing import Pool
+from pprint import pprint
 import queue as Queue
 import re
 
@@ -620,6 +621,8 @@ def _process(config, metadata):
         Nothing
 
     """
+    pprint(metadata)
+    print('\n')
     data = ProcessUID(config, metadata)
     data.process()
 
@@ -694,3 +697,7 @@ def process(agent_name):
         # Return if lock file is present
         if os.path.exists(lockfile) is True:
             os.remove(lockfile)
+
+if __name__ == "__main__":
+    process('_infoset')
+
