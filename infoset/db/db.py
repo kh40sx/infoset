@@ -208,7 +208,7 @@ class Database(object):
 
         """
         # Return session
-        self.pool.remove()
+        self.pool.close()
 
     def commit(self, session, error_code):
         """Do a database modification.

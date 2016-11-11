@@ -697,7 +697,7 @@ def process(agent_name):
             pool.map(_wrapper_process, argument_list)
 
         # Wait for all the processes to end
-        pool.join()
+        # pool.join()
 
         # Return if lock file is present
         if os.path.exists(lockfile) is True:

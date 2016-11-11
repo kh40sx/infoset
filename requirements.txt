@@ -24,7 +24,7 @@ pyflakes
 pylint
 PyMySQL
 pysmi
-pysnmp
+pysnmp>=4.3.2
 python-dateutil
 pytz
 PyYAML
