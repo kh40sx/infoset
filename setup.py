@@ -92,15 +92,8 @@ def insert_agent_host():
 
     # Add agent
     if db_agent.idx_exists(idx_agent) is False:
-        # Generate a UID
+        # Generate a UID and add a record in the database
         uid = agent.get_uid(config)
-
-        # Add record
-        record = Agent(
-            id=jm_general.encode(uid),
-            name=jm_general.encode(agent_name))
-        database = db.Database()
-        database.add(record, 1109)
 
     # Add host
     if db_host.idx_exists(idx_host) is False:
