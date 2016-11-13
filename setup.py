@@ -6,6 +6,7 @@ Manages connection pooling among other things.
 """
 
 # Main python libraries
+import sys
 import socket
 from pathlib import Path
 
@@ -87,22 +88,12 @@ def insert_agent_host():
     idx_agent = 1
     idx_host = 1
     agent_name = '_infoset'
+    config = jm_configuration.ConfigAgent(agent_name)
 
     # Add agent
     if db_agent.idx_exists(idx_agent) is False:
-        record = Agent(
-            id=jm_general.encode('_SYSTEM_RESERVED_'),
-            name=jm_general.encode(agent_name))
-        database = db.Database()
-        database.add(record, 1109)
-
-        # Generate a UID
-        uid = agent.get_uid(agent_name)
-        database = db.Database()
-        session = database.session()
-        record = session.query(Agent).filter(Agent.idx == idx_agent).one()
-        record.id = jm_general.encode(uid)
-        database.commit(session, 1073)
+        # Generate a UID and add a record in the database
+        uid = agent.get_uid(config)
 
     # Add host
     if db_host.idx_exists(idx_host) is False:
@@ -231,7 +222,8 @@ def main():
     requirements_file = ('%s/requirements.txt') % (
         Path(utils_directory).parents[1])
     script_name = (
-        'pip3 install --user --requirement %s') % (requirements_file)
+        'pip3 install --user --upgrade --requirement %s'
+        '') % (requirements_file)
     infoset.utils.jm_general.run_script(script_name)
 
 

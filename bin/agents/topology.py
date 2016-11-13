@@ -93,10 +93,12 @@ class PollingAgent(object):
 
         # Post data to the remote server
         while True:
+            # Poll after sleeping
             self._poll()
 
             # Sleep for "delay" seconds
             Agent.agent_sleep(self.name(), delay)
+
 
     def _poll(self):
         """Query all remote hosts for data.
@@ -154,7 +156,7 @@ class Poller(object):
 
         """
         # Initialize key variables
-        self.agent_name = agent_config.name()
+        self.agent_name = agent_config.agent_name()
         self.hostname = hostname
         self.server_config = server_config
 
@@ -184,7 +186,7 @@ class Poller(object):
             log_message = (
                 'Uncontactable host %s or no valid SNMP '
                 'credentials found for it.') % (self.hostname)
-            log.log2quiet(1019, log_message)
+            log.log2quiet(1021, log_message)
 
     def _create_yaml(self):
         """Create the master dictionary for the host.
@@ -204,7 +206,7 @@ class Poller(object):
         log_message = (
             'Querying topology data from host %s.'
             '') % (self.hostname)
-        log.log2quiet(1019, log_message)
+        log.log2quiet(1125, log_message)
 
         # Create YAML file by polling device
         status = snmp_info.Query(self.snmp_object)

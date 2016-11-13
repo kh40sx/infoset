@@ -16,20 +16,6 @@ from infoset.utils import Config
 # Initializes the Flask Object
 infoset = Flask(__name__)
 
-# Initializes configurations for server
-global_config = Config()
-
-# Adds objects to global dict
-infoset.config.update(
-    SNMP_CONFIG='infoset/etc',
-    GLOBAL_CONFIG=global_config
-)
-
-# Determines the destination of the build
-# Only useful if you're using Frozen-Flask
-infoset.config['FREEZER_DESTINATION'] = \
-    os.path.dirname(os.path.abspath(__file__)) + '/../build'
-
 # Function to easily find your assests
 infoset.jinja_env.globals['static'] = (
     lambda filename: url_for('static', filename=filename)

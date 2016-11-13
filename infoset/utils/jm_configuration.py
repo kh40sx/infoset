@@ -87,30 +87,6 @@ class Config(object):
         # Return
         return result
 
-    def hosts(self):
-        """Get all hosts in the configuration file.
-
-        Args:
-            None
-
-        Returns:
-            hostnames: List of hostnames
-
-        """
-        # Initialize key variables
-        hostnames = None
-        key = 'server'
-        sub_key = 'hosts'
-
-        # Process configuration
-        hosts = _key_sub_key(key, sub_key, self.config_dict)
-        if hosts is not None:
-            if isinstance(hosts, list) is True:
-                hostnames = sorted(hosts)
-
-        # Return
-        return hostnames
-
     def data_directory(self):
         """Determine the data_directory.
 
@@ -591,6 +567,26 @@ class ConfigAgent(object):
             result = False
         return result
 
+    def store_uid_in_database(self):
+        """Get store_uid_in_database.
+
+        Args:
+            None
+
+        Returns:
+            result: result
+
+        """
+        # Get config
+        agent_config = _agent_config(self.agent_name(), self.config_dict)
+
+        # Get result
+        if 'store_uid_in_database' in agent_config:
+            result = bool(agent_config['store_uid_in_database'])
+        else:
+            result = False
+        return result
+
     def monitor_agent_pid(self):
         """Get monitor_agent_pid.
 
@@ -638,14 +634,16 @@ class ConfigAgent(object):
             result: result
 
         """
+        # Initialize key variables
+        result = []
+
         # Get config
         agent_config = _agent_config(self.agent_name(), self.config_dict)
 
         # Get result
         if 'agent_hostnames' in agent_config:
-            result = agent_config['agent_hostnames']
-        else:
-            result = []
+            if isinstance(agent_config['agent_hostnames'], list) is True:
+                result = sorted(agent_config['agent_hostnames'])
 
         # Return
         return result

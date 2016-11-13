@@ -1,6 +1,6 @@
 # Sample logrotate file for infosetd
 
-/opt/infoset/log/infoset.log {
+/opt/infoset/log/*.log {
     daily
     rotate 14
     dateext

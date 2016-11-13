@@ -12,12 +12,6 @@ server:
     db_username: infoset
     db_password: wt8LVA7J5CNWPf75
     db_name: infoset
-    hosts:
-        - 192.168.1.254
-        - 192.168.1.1
-        - 192.168.1.2
-        - 192.168.1.3
-        - 192.168.1.4
 
 agents_common:
     server_name: localhost
@@ -30,17 +24,20 @@ agents:
       agent_enabled: True
       agent_filename: bin/agents/_infoset.py
       monitor_agent_pid: True
+      store_uid_in_database: True
 
     - agent_name: ingestd
       agent_enabled: True
       agent_filename: bin/agents/ingestd.py
       monitor_agent_pid: True
+      store_uid_in_database: True
 
     - agent_name: linux
       agent_enabled: False
       agent_filename: bin/agents/linux.py
       agent_port: 5001
       monitor_agent_pid: True
+      store_uid_in_database: True
       agent_hostnames:
         - 192.168.3.100
 
@@ -48,6 +45,7 @@ agents:
       agent_enabled: False
       agent_filename: bin/agents/topology.py
       monitor_agent_pid: True
+      store_uid_in_database: True
       agent_hostnames:
         - 192.168.1.1
         - 192.168.1.2
@@ -57,15 +55,20 @@ agents:
     - agent_name: linux_in
       agent_enabled: False
       agent_filename: bin/agents/linux_in.py
+      store_uid_in_database: False
+      monitor_agent_pid: False
 
     - agent_name: linux_passive
       agent_enabled: False
       agent_filename: bin/agents/linux_passive.py
+      store_uid_in_database: False
+      monitor_agent_pid: False
 
     - agent_name: snmp
       agent_enabled: False
       agent_filename: bin/agents/snmp.py
       monitor_agent_pid: True
+      store_uid_in_database: True
       agent_hostnames:
         - 192.168.3.100
 

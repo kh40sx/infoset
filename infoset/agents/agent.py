@@ -32,6 +32,9 @@ from infoset.utils import Daemon
 from infoset.utils import log
 from infoset.utils import jm_general
 from infoset.utils import jm_configuration
+from infoset.db import db_agent
+from infoset.db import db
+from infoset.db.db_orm import Agent as AgentDB
 from infoset.metadata import language
 
 # Define a key global variable
@@ -71,7 +74,7 @@ class Agent(object):
         # Initialize key variables
         self.data = defaultdict(lambda: defaultdict(dict))
         agent_name = config.agent_name()
-        uid = get_uid(agent_name)
+        uid = get_uid(config)
         self.lang = language.Agent(agent_name)
 
         # Add timestamp
@@ -577,40 +580,72 @@ def agent_sleep(agent_name, seconds=300):
         remaining = remaining - interval
 
 
-def get_uid(agent_name):
+def get_uid(config):
     """Create a permanent UID for the agent.
 
     Args:
-        agent_name: Agent to create UID for
-        hostname: hostname
+        config: ConfigAgent configuration object
 
     Returns:
         uid: UID for agent
 
     """
     # Initialize key variables
-    filez = hidden.File()
-    dirz = hidden.Directory()
-    uid_dir = dirz.uid()
-    filename = filez.uid(agent_name)
+    agent_name = config.agent_name()
 
-    # Create UID directory if not yet created
-    if os.path.exists(uid_dir) is False:
-        os.makedirs(uid_dir)
+    # The way the UID is stored depends on the existence of
+    # a database
+    if config.store_uid_in_database() is False:
+        # Initialize key variables
+        filez = hidden.File()
+        dirz = hidden.Directory()
+        uid_dir = dirz.uid()
+        filename = filez.uid(agent_name)
 
-    # Read environment file with UID if it exists
-    if os.path.isfile(filename):
-        with open(filename) as f_handle:
-            uid = f_handle.readline()
+        # Create UID directory if not yet created
+        if os.path.exists(uid_dir) is False:
+            os.makedirs(uid_dir)
+
+        # Read environment file with UID if it exists
+        if os.path.isfile(filename):
+            with open(filename) as f_handle:
+                uid = f_handle.readline()
+        else:
+            # Create a UID and save
+            uid = _generate_uid()
+            with open(filename, 'w+') as env:
+                env.write(str(uid))
     else:
-        # Create a UID and save
-        prehash = ('%s%s%s%s%s') % (
-            random(), random(), random(), random(), time.time())
-        uid = jm_general.hashstring(prehash)
+        if db_agent.unique_agent_exists(agent_name) is True:
+            agent = db_agent.GetName(agent_name)
+            uid = agent.uid()
+        else:
+            # Add record
+            uid = _generate_uid()
+            record = AgentDB(
+                id=jm_general.encode(uid),
+                name=jm_general.encode(agent_name))
+            database = db.Database()
+            database.add(record, 1109)
 
-        # Save UID
-        with open(filename, 'w+') as env:
-            env.write(str(uid))
+    # Return
+    return uid
+
+
+def _generate_uid():
+    """Generate a UID.
+
+    Args:
+        None
+
+    Returns:
+        uid: the UID
+
+    """
+    # Create a UID and save
+    prehash = ('%s%s%s%s%s') % (
+        random(), random(), random(), random(), time.time())
+    uid = jm_general.hashstring(prehash)
 
     # Return
     return uid

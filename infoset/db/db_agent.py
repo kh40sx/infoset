@@ -45,6 +45,9 @@ class GetIDX(object):
         result = session.query(Agent).filter(
             Agent.idx == idx_agent)
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() == 1:
             for instance in result:
@@ -55,10 +58,7 @@ class GetIDX(object):
                 break
         else:
             log_message = ('Agent IDX %s not found.') % (idx_agent)
-            log.log2die(1035, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
+            log.log2die(1073, log_message)
 
     def uid(self):
         """Get uid value.
@@ -166,6 +166,9 @@ class GetUID(object):
         session = database.session()
         result = session.query(Agent).filter(Agent.id == value)
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() == 1:
             for instance in result:
@@ -177,9 +180,6 @@ class GetUID(object):
         else:
             log_message = ('uid %s not found.') % (value)
             log.log2die(1042, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def idx(self):
         """Get idx value.
@@ -286,6 +286,9 @@ class GetDataPoint(object):
         result = session.query(Datapoint).filter(
             Datapoint.idx_agent == idx_agent)
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() > 0:
             for instance in result:
@@ -296,9 +299,6 @@ class GetDataPoint(object):
         else:
             log_message = ('Agent idx %s not found.') % (idx_agent)
             log.log2die(1050, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def everything(self):
         """Get all datapoints.
@@ -312,6 +312,143 @@ class GetDataPoint(object):
         """
         # Return
         value = self.data_point_dict
+        return value
+
+
+class GetName(object):
+    """Report  agent data by agent_name. Returns data on first one found.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Methods:
+
+    """
+
+    def __init__(self, agent_name):
+        """Function for intializing the class.
+
+        Args:
+            agent_name: Agent name
+
+        Returns:
+            None
+
+        """
+        # Initialize important variables
+        self.data_dict = defaultdict(dict)
+        value = agent_name.encode()
+
+        # Get the result
+        database = db.Database()
+        session = database.session()
+        result = session.query(Agent).filter(
+            Agent.name == value)
+
+        # Return the session to the database pool after processing
+        database.close()
+
+        # Massage data
+        if result.count() == 1:
+            for instance in result:
+                self.data_dict['uid'] = jm_general.decode(instance.id)
+                self.data_dict['name'] = jm_general.decode(instance.name)
+                self.data_dict['enabled'] = instance.enabled
+                self.data_dict['idx'] = instance.idx
+                self.data_dict['last_timestamp'] = instance.last_timestamp
+                break
+        else:
+            log_message = (
+                'Agent IDX %s not found, or not unique.') % (agent_name)
+            log.log2die(1035, log_message)
+
+    def idx(self):
+        """Get idx value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['idx']
+        return value
+
+    def uid(self):
+        """Get uid value.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['uid']
+        return value
+
+    def name(self):
+        """Get agent name.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['name']
+        return value
+
+    def enabled(self):
+        """Get agent enabled.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = bool(self.data_dict['enabled'])
+
+        # Return
+        return value
+
+    def last_timestamp(self):
+        """Get agent last_timestamp.
+
+        Args:
+            None
+
+        Returns:
+            value: Value to return
+
+        """
+        # Initialize key variables
+        value = self.data_dict['last_timestamp']
+        return value
+
+    def everything(self):
+        """Get all agent data.
+
+        Args:
+            None
+
+        Returns:
+            value: Data as a dict
+
+        """
+        # Initialize key variables
+        value = self.data_dict
         return value
 
 
@@ -334,15 +471,15 @@ def uid_exists(uid):
     session = database.session()
     result = session.query(Agent.id).filter(Agent.id == value)
 
+    # Return the session to the database pool after processing
+    database.close()
+
     # Massage data
     if result.count() == 1:
         for instance in result:
             _ = instance.id
             break
         found = True
-
-    # Return the session to the database pool after processing
-    session.close()
 
     # Return
     return found
@@ -366,6 +503,9 @@ def idx_exists(idx):
     session = database.session()
     result = session.query(Agent.idx).filter(Agent.idx == idx)
 
+    # Return the session to the database pool after processing
+    database.close()
+
     # Massage data
     if result.count() == 1:
         for instance in result:
@@ -373,8 +513,35 @@ def idx_exists(idx):
             break
         found = True
 
+    # Return
+    return found
+
+
+def unique_agent_exists(agent_name):
+    """Determine whether there is a single instance of the agent in the db.
+
+    Args:
+        agent_name: Agent name
+
+    Returns:
+        found: True if so
+
+    """
+    # Initialize key variables
+    found = False
+    value = agent_name.encode()
+
+    # Establish a database session
+    database = db.Database()
+    session = database.session()
+    result = session.query(Agent.name).filter(Agent.name == value)
+
     # Return the session to the database pool after processing
-    session.close()
+    database.close()
+
+    # Massage data
+    if result.count() == 1:
+        found = True
 
     # Return
     return found

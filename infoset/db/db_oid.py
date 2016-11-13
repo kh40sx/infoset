@@ -45,6 +45,9 @@ class GetOID(object):
         session = database.session()
         result = session.query(OID).filter(OID.oid_values == oid_values)
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() == 1:
             for instance in result:
@@ -61,9 +64,6 @@ class GetOID(object):
         else:
             log_message = ('OID %s not found.') % (oid_values)
             log.log2die(1040, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def idx(self):
         """Get idx value.
@@ -181,6 +181,9 @@ class GetIDX(object):
         session = database.session()
         result = session.query(OID).filter(OID.idx == idx)
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() == 1:
             for instance in result:
@@ -197,9 +200,6 @@ class GetIDX(object):
         else:
             log_message = ('OID idx %s not found.') % (idx)
             log.log2die(1092, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def idx(self):
         """Get idx value.
@@ -303,7 +303,7 @@ def all_oids():
     database = db.Database()
     session = database.session()
     result = session.query(OID.idx)
-    session.close()
+    database.close()
 
     # Add to the list of host idx values
     for instance in result:
@@ -346,15 +346,15 @@ def oid_values_exists(values):
     result = session.query(
         OID.oid_values).filter(OID.oid_values == oid_values)
 
+    # Return the session to the database pool after processing
+    database.close()
+
     # Massage data
     if result.count() == 1:
         for instance in result:
             _ = instance.oid_values
             break
         found = True
-
-    # Return the session to the database pool after processing
-    session.close()
 
     # Return
     return found
@@ -378,15 +378,15 @@ def idx_exists(idx):
     session = database.session()
     result = session.query(OID.idx).filter(OID.idx == idx)
 
+    # Return the session to the database pool after processing
+    database.close()
+
     # Massage data
     if result.count() == 1:
         for instance in result:
             _ = instance.idx
             break
         found = True
-
-    # Return the session to the database pool after processing
-    session.close()
 
     # Return
     return found

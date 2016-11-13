@@ -73,7 +73,7 @@ class Database(object):
             log.log2die(error_code, log_message)
 
         # Disconnect from server
-        session.close()
+        self.close()
 
         return query_results
 
@@ -127,19 +127,23 @@ class Database(object):
             log.log2die(error_code, log_message)
 
         # disconnect from server
-        session.close()
+        self.close()
 
-    def add_all(self, data_list, error_code):
+    def add_all(self, data_list, error_code, die=True):
         """Do a database modification.
 
         Args:
             data_list: List of sqlalchemy table objects
             error_code: Error number to use if one occurs
+            die: Don't die if False, just return success
 
         Returns:
-            None
+            success: True is successful
 
         """
+        # Initialize key variables
+        success = False
+
         # Open database connection. Prepare cursor
         session = self.session()
 
@@ -150,19 +154,34 @@ class Database(object):
             # Commit  change
             session.commit()
 
+            # Update success
+            success = True
+
         except Exception as exception_error:
+            success = False
             session.rollback()
             log_message = (
                 'Unable to modify database connection. '
                 'Error: \"%s\"') % (exception_error)
-            log.log2die(error_code, log_message)
+            if die is True:
+                log.log2die(error_code, log_message)
+            else:
+                log.log2warn(error_code, log_message)
+
         except:
+            success = False
             session.rollback()
             log_message = ('Unexpected database exception')
-            log.log2die(error_code, log_message)
+            if die is True:
+                log.log2die(error_code, log_message)
+            else:
+                log.log2warn(error_code, log_message)
 
         # disconnect from server
-        session.close()
+        self.close()
+
+        # Return
+        return success
 
     def session(self):
         """Return a session to the database pool.
@@ -177,6 +196,19 @@ class Database(object):
         # Initialize key variables
         db_session = self.pool()
         return db_session
+
+    def close(self):
+        """Return a session to the database pool.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
+        # Return session
+        self.pool.close()
 
     def commit(self, session, error_code):
         """Do a database modification.
@@ -206,7 +238,7 @@ class Database(object):
             log.log2die(error_code, log_message)
 
         # disconnect from server
-        session.close()
+        self.close()
 
     def add(self, record, error_code):
         """Add a record to the database.
@@ -240,7 +272,7 @@ class Database(object):
             log.log2die(error_code, log_message)
 
         # disconnect from server
-        session.close()
+        self.close()
 
 
 def connectivity():
@@ -257,7 +289,8 @@ def connectivity():
     valid = False
 
     # Do test
-    session = Database().session()
+    database = Database()
+    session = database.session()
 
     try:
         result = session.query(Agent.id).filter(
@@ -268,7 +301,7 @@ def connectivity():
     except:
         pass
 
-    session.close()
+    database.close()
 
     # Return
     return valid

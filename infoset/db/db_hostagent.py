@@ -49,6 +49,9 @@ class GetHostAgent(object):
             HostAgent.idx_host == idx_host,
             HostAgent.idx_agent == idx_agent))
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() == 1:
             for instance in result:
@@ -59,9 +62,6 @@ class GetHostAgent(object):
                 'Host IDX %s Agent IDX %s not found in iset_hostagent table.'
                 '') % (idx_host, idx_agent)
             log.log2die(1105, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def last_timestamp(self):
         """Get last_timestamp value.
@@ -99,15 +99,15 @@ def host_agent_exists(idx_host, idx_agent):
         HostAgent.idx_host == idx_host,
         HostAgent.idx_agent == idx_agent))
 
+    # Return the session to the database pool after processing
+    database.close()
+
     # Massage data
     if result.count() == 1:
         for instance in result:
             _ = instance.idx
             break
         found = True
-
-    # Return the session to the database pool after processing
-    session.close()
 
     # Return
     return found
@@ -129,7 +129,7 @@ def all_host_indices():
     database = db.Database()
     session = database.session()
     result = session.query(HostAgent.idx_host)
-    session.close()
+    database.close()
 
     # Add to the list of host idx values
     for instance in result:
@@ -156,7 +156,7 @@ def host_indices(idx_agent):
     session = database.session()
     result = session.query(HostAgent.idx_host).filter(
         HostAgent.idx_agent == idx_agent)
-    session.close()
+    database.close()
 
     # Add to the list of host idx values
     for instance in result:
@@ -183,7 +183,7 @@ def agent_indices(idx_host):
     session = database.session()
     result = session.query(HostAgent.idx_agent).filter(
         HostAgent.idx_host == idx_host)
-    session.close()
+    database.close()
 
     # Add to the list of host idx values
     for instance in result:

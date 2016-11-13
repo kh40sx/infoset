@@ -46,6 +46,9 @@ class GetCode(object):
         session = database.session()
         result = session.query(Department).filter(Department.code == value)
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() == 1:
             for instance in result:
@@ -58,9 +61,6 @@ class GetCode(object):
         else:
             log_message = ('Department %s not found.') % (code)
             log.log2die(1096, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def idx(self):
         """Get idx value.
@@ -136,6 +136,9 @@ class GetIDX(object):
         session = database.session()
         result = session.query(Department).filter(Department.idx == idx)
 
+        # Return the session to the database pool after processing
+        database.close()
+
         # Massage data
         if result.count() == 1:
             for instance in result:
@@ -148,9 +151,6 @@ class GetIDX(object):
         else:
             log_message = ('Department idx %s not found.') % (idx)
             log.log2die(1097, log_message)
-
-        # Return the session to the database pool after processing
-        session.close()
 
     def code(self):
         """Get code value.
@@ -200,15 +200,15 @@ def code_exists(code):
     session = database.session()
     result = session.query(Department.code).filter(Department.code == value)
 
+    # Return the session to the database pool after processing
+    database.close()
+
     # Massage data
     if result.count() == 1:
         for instance in result:
             _ = instance.code
             break
         found = True
-
-    # Return the session to the database pool after processing
-    session.close()
 
     # Return
     return found
@@ -232,15 +232,15 @@ def idx_exists(idx):
     session = database.session()
     result = session.query(Department.idx).filter(Department.idx == idx)
 
+    # Return the session to the database pool after processing
+    database.close()
+
     # Massage data
     if result.count() == 1:
         for instance in result:
             _ = instance.idx
             break
         found = True
-
-    # Return the session to the database pool after processing
-    session.close()
 
     # Return
     return found

@@ -11,6 +11,7 @@ import os
 import time
 import shutil
 from collections import defaultdict
+from multiprocessing import Pool
 import queue as Queue
 import re
 
@@ -27,7 +28,6 @@ from infoset.db import db_hostagent as hagent
 from infoset.utils import jm_configuration
 from infoset.utils import jm_general
 from infoset.utils import log
-from infoset.utils.log import LogThread
 from infoset.cache import drain
 from infoset.utils import hidden
 
@@ -35,7 +35,7 @@ from infoset.utils import hidden
 THREAD_QUEUE = Queue.Queue()
 
 
-class ProcessUID(LogThread):
+class ProcessUID(object):
     """Threaded ingestion of agent files.
 
     Graciously modified from:
@@ -43,85 +43,135 @@ class ProcessUID(LogThread):
 
     """
 
-    def __init__(self, queue):
+    def __init__(self, config, metadata):
         """Initialize the threads."""
-        LogThread.__init__(self)
-        self.queue = queue
+        self.config = config
+        self.metadata = metadata
 
-    def run(self):
+    def process(self):
         """Update the database using threads."""
-        while True:
-            # Initialize key variables
-            hostname = None
+        # Initialize key variables
+        updated = False
+        hostnames = []
+        uids = []
+        ingests = []
+        agent_names = []
+        agent_data = {
+            'hostname': None,
+            'uid': None,
+            'sources': [],
+            'chartable': [],
+            'unchartable': []
+        }
 
-            # Get the data_dict
-            data_dict = self.queue.get()
-            uid = data_dict['uid']
-            metadata = data_dict['metadata']
-            config = data_dict['config']
+        # Get the data_dict
+        metadata = self.metadata
+        config = self.config
 
-            # Initialize other values
-            max_timestamp = 0
+        # Initialize other values
+        max_timestamp = 0
 
-            # Sort metadata by timestamp
-            metadata.sort()
+        # Get start time for activity
+        start_ts = time.time()
 
-            # Process file for each timestamp, starting from the oldes file
-            for (timestamp, filepath) in metadata:
-                # Read in data
-                ingest = drain.Drain(filepath)
+        # Sort metadata by timestamp
+        metadata.sort()
 
-                # Make sure file is OK
-                # Move it to a directory for further analysis
-                # by administrators
-                if ingest.valid() is False:
-                    log_message = (
-                        'Cache ingest file %s is invalid. Moving.'
-                        '') % (filepath)
-                    log.log2warn(1054, log_message)
-                    shutil.copy(
-                        filepath, config.ingest_failures_directory())
-                    os.remove(filepath)
-                    continue
+        # Process file for each timestamp, starting from the oldes file
+        for (timestamp, filepath) in metadata:
+            # Read in data
+            ingest = drain.Drain(filepath)
 
-                # Update database
-                dbase = UpdateDB(ingest)
-                dbase.update()
+            # Make sure file is OK
+            # Move it to a directory for further analysis
+            # by administrators
+            if ingest.valid() is False:
+                log_message = (
+                    'Cache ingest file %s is invalid. Moving.'
+                    '') % (filepath)
+                log.log2warn(1054, log_message)
+                shutil.copy(
+                    filepath, config.ingest_failures_directory())
+                os.remove(filepath)
+                continue
 
-                # Get the max timestamp
-                max_timestamp = max(timestamp, max_timestamp)
+            # Append data
+            agent_data['chartable'].extend(ingest.chartable())
+            agent_data['unchartable'].extend(ingest.other())
+            agent_data['sources'].extend(ingest.sources())
+            hostnames.append(ingest.hostname())
+            uids.append(ingest.uid())
+            ingests.append(ingest)
+            agent_names.append(ingest.agent())
 
-                # Get hostname
-                hostname = ingest.hostname()
+            # Purge source file
+            # ingest.purge()
 
-                # Purge source file
-                ingest.purge()
+            # Get the max timestamp
+            max_timestamp = max(timestamp, max_timestamp)
+
+            # Update update flag
+            updated = True
+
+        # Verify that we have only processed data for the same hostname
+        # UID and agent name
+        if (jm_general.all_same(hostnames) is False) or (
+                jm_general.all_same(uids) is False) or (
+                    jm_general.all_same(agent_names) is False):
+            log_message = (
+                'Cache ingest files error for hostname %s,'
+                'agent name %s, UID %s.'
+                '') % (hostnames[0], agent_names[0], uids[0])
+            log.log2quiet(1083, log_message)
+
+        # Process the rest
+        if updated is True:
+            # Update remaining agent data
+            agent_data['hostname'] = hostnames[0]
+            agent_data['uid'] = uids[0]
+            agent_data['agent_name'] = agent_names[0]
+
+            # Update database
+            dbase = UpdateDB(agent_data)
+            dbase.update()
 
             # Update the last time the agent was contacted
-            _update_agent_last_update(uid, max_timestamp)
+            _update_agent_last_update(agent_data['uid'], max_timestamp)
 
-            # Update the host / agent table timestamp if hostname was processed
-            if hostname is not None:
-                _host_agent_last_update(hostname, uid, max_timestamp)
+            # Update the host / agent table timestamp if
+            # hostname was processed
+            _host_agent_last_update(
+                agent_data['hostname'], agent_data['uid'], max_timestamp)
 
-            # All done!
-            self.queue.task_done()
+            # Purge source files. Only done after complete
+            # success of database updates. If not we could lose data in the
+            # event of an ingester crash. Ingester would re-read the files
+            # and process the non-duplicates, while deleting the duplicates.
+            for ingest in ingests:
+                ingest.purge()
+
+            # Log duration of activity
+            duration = time.time() - start_ts
+            log_message = (
+                'UID %s was processed in %s seconds.'
+                '') % (agent_data['uid'], duration)
+            log.log2quiet(1127, log_message)
 
 
 class UpdateDB(object):
     """Update database with agent data."""
 
-    def __init__(self, ingest):
+    def __init__(self, agent_data):
         """Instantiate the class.
 
         Args:
-            ingest: Drain object
+            agent_data: Agent data obtained from Drain object
 
         Returns:
             None
 
         """
-        self.ingest = ingest
+        self.agent_data = agent_data
 
     def update(self):
         """Update the database.
@@ -134,8 +184,8 @@ class UpdateDB(object):
 
         """
         # Initialize key variables
-        uid = self.ingest.uid()
-        hostname = self.ingest.hostname()
+        uid = self.agent_data['uid']
+        hostname = self.agent_data['hostname']
 
         # Update Agent, Host and HostAgent database tables if
         # Host and agent are not already there
@@ -153,13 +203,13 @@ class UpdateDB(object):
             idx_host = host_info.idx()
 
             # Update datapoint metadata if not there
-            for item in self.ingest.sources():
-                did = item[1]
+            for source in self.agent_data['sources']:
+                did = source[1]
 
                 # We need the host that the data was generated for
                 # and the agent that got the data
                 if dpoint.did_exists(did) is False:
-                    _insert_datapoint(item, idx_agent, idx_host)
+                    _insert_datapoint(source, idx_agent, idx_host)
 
             # Create map of DIDs to database row index values
             mapping = _datapoints_by_did(idx_agent)
@@ -179,8 +229,8 @@ class UpdateDB(object):
 
         """
         # Initialize key variables
-        uid = self.ingest.uid()
-        agent_name = self.ingest.agent()
+        uid = self.agent_data['uid']
+        agent_name = self.agent_data['agent_name']
 
         # Return if agent already exists in the table
         if agent.uid_exists(uid) is True:
@@ -204,8 +254,8 @@ class UpdateDB(object):
 
         """
         # Initialize key variables
-        uid = self.ingest.uid()
-        hostname = self.ingest.hostname()
+        uid = self.agent_data['uid']
+        hostname = self.agent_data['hostname']
 
         # Update Host table
         if dhost.hostname_exists(hostname) is False:
@@ -240,7 +290,7 @@ class UpdateDB(object):
 
         """
         # Initialize key variables
-        data = self.ingest.chartable()
+        data = self.agent_data['chartable']
         data_list = []
         timestamp_tracker = {}
 
@@ -274,23 +324,32 @@ class UpdateDB(object):
         if bool(data_list) is True:
             # Do performance data update
             database = db.Database()
-            database.add_all(data_list, 1056)
+            success = database.add_all(data_list, 1056, die=False)
 
             # Change the last updated timestamp
-            for idx_datapoint, last_timestamp in timestamp_tracker.items():
-                # Update the database
+            if success is True:
+                # Create a database session
+                # NOTE: We only do a single commit on the session.
+                # This is much faster (20x based on testing) than
+                # instantiating the database, updating records, and committing
+                # after every iteration of the "for loop"
                 database = db.Database()
                 session = database.session()
-                record = session.query(Datapoint).filter(
-                    Datapoint.idx == idx_datapoint).one()
-                record.last_timestamp = last_timestamp
+
+                # Update the session
+                for idx_datapoint, last_timestamp in timestamp_tracker.items():
+                    data_dict = {'last_timestamp': last_timestamp}
+                    session.query(Datapoint).filter(
+                        Datapoint.idx == idx_datapoint).update(data_dict)
+
+                # Commit the session
                 database.commit(session, 1057)
 
-            # Report success
-            log_message = (
-                'Successful cache drain for UID %s at timestamp %s') % (
-                    self.ingest.uid(), self.ingest.timestamp())
-            log.log2quiet(1058, log_message)
+                # Report success
+                log_message = (
+                    'Successful cache drain for UID %s') % (
+                        self.agent_data['uid'])
+                log.log2quiet(1058, log_message)
 
     def _update_unchartable(self, mapping):
         """Update unchartable data into the database "iset_datapoint" table.
@@ -303,7 +362,7 @@ class UpdateDB(object):
 
         """
         # Initialize key variables
-        data = self.ingest.other()
+        data = self.agent_data['unchartable']
         data_list = []
         timestamp_tracker = {}
 
@@ -330,32 +389,34 @@ class UpdateDB(object):
 
         # Update if there is data
         if bool(data_list) is True:
+            # Create a database session
+            # NOTE: We only do a single commit on the session.
+            # This is much faster (20x based on testing) than
+            # instantiating the database, updating records, and committing
+            # after every iteration of the "for loop"
+            database = db.Database()
+            session = database.session()
+
+            # Update uncharted data
             for item in data_list:
                 (idx_datapoint, value) = item
-
-                # Update database
-                database = db.Database()
-                session = database.session()
-                record = session.query(Datapoint).filter(
-                    Datapoint.idx == idx_datapoint).one()
-                record.uncharted_value = jm_general.encode(value)
-                database.commit(session, 1037)
+                data_dict = {'uncharted_value': jm_general.encode(value)}
+                session.query(Datapoint).filter(
+                    Datapoint.idx == idx_datapoint).update(data_dict)
 
             # Change the last updated timestamp
             for idx_datapoint, last_timestamp in timestamp_tracker.items():
-                # Update database
-                database = db.Database()
-                session = database.session()
-                record = session.query(Datapoint).filter(
-                    Datapoint.idx == idx_datapoint).one()
-                record.last_timestamp = last_timestamp
-                database.commit(session, 1083)
+                data_dict = {'last_timestamp': last_timestamp}
+                session.query(Datapoint).filter(
+                    Datapoint.idx == idx_datapoint).update(data_dict)
+
+            # Commit data
+            database.commit(session, 1128)
 
             # Report success
             log_message = (
                 'Successful cache drain (Uncharted Data) '
-                'for UID %s at timestamp %s') % (
-                    self.ingest.uid(), self.ingest.timestamp())
+                'for UID %s') % (self.agent_data['uid'])
             log.log2quiet(1045, log_message)
 
 
@@ -411,7 +472,8 @@ def _datapoints_by_did(idx_agent):
     data = {}
 
     # Update database
-    session = db.Database().session()
+    database = db.Database()
+    session = database.session()
     result = session.query(
         Datapoint.id, Datapoint.idx,
         Datapoint.idx_agent, Datapoint.last_timestamp).filter(
@@ -426,7 +488,7 @@ def _datapoints_by_did(idx_agent):
         data[did] = (idx, idx_agent, last_timestamp)
 
     # Return the session to the database pool after processing
-    session.close()
+    database.close()
 
     # Return
     return data
@@ -456,7 +518,7 @@ def _host_agent_last_update(hostname, uid, last_timestamp):
             HostAgent.idx_host == idx_host,
             HostAgent.idx_agent == idx_agent)).one()
     record.last_timestamp = last_timestamp
-    database.commit(session, 1042)
+    database.commit(session, 1124)
 
 
 def _update_agent_last_update(uid, last_timestamp):
@@ -541,6 +603,35 @@ def validate_cache_files():
     return uid_metadata
 
 
+def _wrapper_process(argument_list):
+    """Wrapper function to unpack arguments before calling the real function.
+
+    Args:
+        argument_list: A list of tuples of arguments to be provided to
+            lib_process_devices.process_device
+
+    Returns:
+        Nothing
+
+    """
+    return _process(*argument_list)
+
+
+def _process(config, metadata):
+    """Wrapper function to unpack arguments before calling the real function.
+
+    Args:
+        argument_list: A list of tuples of arguments to be provided to
+            lib_process_devices.process_device
+
+    Returns:
+        Nothing
+
+    """
+    data = ProcessUID(config, metadata)
+    data.process()
+
+
 def process(agent_name):
     """Method initializing the class.
 
@@ -552,6 +643,7 @@ def process(agent_name):
 
     """
     # Initialize key variables
+    argument_list = []
     uid_metadata = defaultdict(lambda: defaultdict(dict))
 
     # Configuration setup
@@ -590,64 +682,26 @@ def process(agent_name):
             # Create lockfile
             open(lockfile, 'a').close()
 
-        # Spawn a pool of threads, and pass them queue instance
-        # Only create the required number of threads up to the
-        # threads_in_pool maximum
-        for _ in range(
-                min(threads_in_pool, len(uid_metadata))):
-            update_thread = ProcessUID(THREAD_QUEUE)
-            update_thread.daemon = True
-
-            # Sometimes we exhaust the thread abilities of the OS
-            # even with the "threads_in_pool" limit. This is because
-            # there could be a backlog of files to cache files process
-            # and we have overlapping ingests due to a deleted lockfile.
-            # This code ensures we don't exceed the limits.
-            try:
-                update_thread.start()
-            except RuntimeError:
-                log_message = (
-                    'Too many threads created for cache ingest. '
-                    'Verify that ingest lock file is present.')
-
-                # Remove the lockfile so we can restart later then die
-                os.remove(lockfile)
-                log.log2die(1067, log_message)
-            except:
-                log_message = (
-                    'Unknown error occurred when trying to '
-                    'create cache ingest threads')
-
-                # Remove the lockfile so we can restart later then die
-                os.remove(lockfile)
-                log.log2die(1072, log_message)
-
         # Read each cache file
         for hosthash in uid_metadata.keys():
             for uid in uid_metadata[hosthash].keys():
-                ##############################################################
-                #
-                # Define variables that will be required for the threading
-                # We have to initialize the dict during every loop to prevent
-                # data corruption
-                #
-                ##############################################################
-                data_dict = {}
-                data_dict['uid'] = uid
-                data_dict['metadata'] = uid_metadata[hosthash][uid]
-                data_dict['config'] = config
-                THREAD_QUEUE.put(data_dict)
+                # Create a list of arguments to process
+                argument_list.append(
+                    (config, uid_metadata[hosthash][uid])
+                )
 
-        # Wait on the queue until everything has been processed
-        THREAD_QUEUE.join()
+        # Create a pool of sub process resources
+        with Pool(processes=threads_in_pool) as pool:
 
-        # PYTHON BUG. Join can occur while threads are still shutting down.
-        # This can create spurious "Exception in thread (most likely raised
-        # during interpreter shutdown)" errors.
-        # The "time.sleep(1)" adds a delay to make sure things really terminate
-        # properly. This seems to be an issue on virtual machines in Dev only
-        time.sleep(1)
+            # Create sub processes from the pool
+            pool.map(_wrapper_process, argument_list)
+
+        # Wait for all the processes to end
+        # pool.join()
 
         # Return if lock file is present
         if os.path.exists(lockfile) is True:
             os.remove(lockfile)
+
+if __name__ == "__main__":
+        process('ingestd')

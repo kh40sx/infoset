@@ -382,37 +382,6 @@ def _html_header(host):
     return html
 
 
-def _index_html(config):
-    """Create HTML for index page.
-
-    Args:
-        None
-
-    Returns:
-        html: HTML for index page
-
-    """
-    # Create links
-    links = '<h1>Infoset Hosts</h1>'
-    for host in config.hosts():
-        links = ('%s<br><a href="%s.html">%s</a>') % (links, host, host)
-
-    # Create
-    html = ("""\
-<html>
-<head>
-<META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-</head>
-<body>
-%s
-</body>
-</html>
-""") % (links)
-
-    # Return
-    return html
-
-
 def _port_table(data_dict):
     """Return table with port information.
 
