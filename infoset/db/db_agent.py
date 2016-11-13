@@ -58,7 +58,7 @@ class GetIDX(object):
                 break
         else:
             log_message = ('Agent IDX %s not found.') % (idx_agent)
-            log.log2die(1035, log_message)
+            log.log2die(1073, log_message)
 
     def uid(self):
         """Get uid value.

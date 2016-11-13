@@ -89,7 +89,6 @@ class PollingAgent(object):
         logging.basicConfig(filename=log_file, level=logging.DEBUG)
 
         # Post data to the remote server
-        log.log2warn(101010101010101010101010101010101, 'boo')
         infoset.run(
             debug=True, host='0.0.0.0',
             threaded=True, port=port)

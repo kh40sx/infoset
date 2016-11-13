@@ -122,7 +122,7 @@ class ProcessUID(object):
                 'Cache ingest files error for hostname %s,'
                 'agent name %s, UID %s.'
                 '') % (hostnames[0], agent_names[0], uids[0])
-            log.log2quiet(1127, log_message)
+            log.log2quiet(1083, log_message)
 
         # Process the rest
         if updated is True:
@@ -411,7 +411,7 @@ class UpdateDB(object):
                     Datapoint.idx == idx_datapoint).update(data_dict)
 
             # Commit data
-            database.commit(session, 1037)
+            database.commit(session, 1128)
 
             # Report success
             log_message = (

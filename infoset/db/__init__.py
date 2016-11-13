@@ -133,7 +133,7 @@ def _add_engine_pidguard(engine):
                 'which is being discarded and recreated.'
                 '') % (
                     connection_record.info['pid'], pid)
-            log.log2quiet(1079, log_message)
+            log.log2quiet(1067, log_message)
 
             connection_record.connection = connection_proxy.connection = None
             raise exc.DisconnectionError(
