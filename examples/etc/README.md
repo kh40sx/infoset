@@ -107,6 +107,8 @@ agents:
 | agent_name: | Name of the agent (Don't change)|
 | agent_enabled: | True if enabled|
 | agent_filename: | Name of the agent's filename (Don't change)|
+| monitor_agent_pid: | Used by the agentsd script to determine whether it should monitor the agent's PID file to determine whether the agent could be hung.|
+| store_uid_in_database: | The UID of the agent is stored in the database if set to `True`. This should only be set for agents that run on the Infoset server itself that have access to its database. Agent UIDs are normally stored in the repository's `.infoset` directory. This used to cause issues where multiple developers sharing the same database could cause duplicate `_infoset` agent and other entries which was undesirable.|
 | agent_hostnames: | A list of hostnames to be polled. Each host must be on a separate line and be preceded with a dash "-"|
 
 #### SNMP Groups Configuration
